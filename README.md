@@ -10,12 +10,6 @@ OSX
 brew install git
 ```
 
-Linux
-
-```
-pacman -s git
-```
-
 ### Stow
 
 osX
@@ -23,9 +17,22 @@ osX
 brew install stow
 ```
 
-Linux
+### tmux
+
 ```
-pacman -S stow
+brew install tmux
+```
+
+### neovim
+
+```
+brew install neovim
+```
+
+### lazygit
+
+```
+brew install lazygit
 ```
 
 ## Installation
