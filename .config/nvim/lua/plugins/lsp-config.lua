@@ -1,4 +1,42 @@
+local lsp_helpers = require("helpers.lsp")
+
+-- CENTRALIZED CONFIGURATION FOR LSP SERVERS
+local servers_with_filetypes = {
+	lua_ls = {
+		filetypes = { "lua" },
+		extend_capabilities = function(capabilities)
+			capabilities.textDocument.completion.completionItem.snippetSupport = true
+			return capabilities
+		end,
+	},
+	ts_ls = {
+		filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+	},
+	rust_analyzer = {
+		filetypes = { "rust" },
+	},
+	yamlls = {
+		filetypes = { "yaml" },
+	},
+	prismals = {
+		filetypes = { "prisma" },
+	},
+	dockerls = {
+		filetypes = { "dockerfile" },
+	},
+	terraformls = {
+		filetypes = { "terraform" },
+	},
+	bashls = {
+		filetypes = { "sh", "bash" },
+	},
+	svelte = {
+		filetypes = { "svelte" },
+	},
+}
+
 return {
+	-- Mason for LSP management
 	{
 		"williamboman/mason.nvim",
 		config = function()
@@ -6,94 +44,47 @@ return {
 		end,
 	},
 
+	-- Mason-LSPConfig to ensure specific LSP servers are installed
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
+			local ensure_installed_servers = {}
+			for server_name, _ in pairs(servers_with_filetypes) do
+				table.insert(ensure_installed_servers, server_name)
+			end
+
 			require("mason-lspconfig").setup({
-				ensure_installed = {
-					"lua_ls",
-					"ts_ls",
-					"yamlls",
-					"prismals",
-					-- "emmetls",
-					-- "html_ls",
-					"dockerls",
-					-- "csharp_ls",
-					"terraformls",
-					"bashls",
-					"svelte",
-				},
+				ensure_installed = ensure_installed_servers,
 			})
 		end,
 	},
+
+	-- Nicer preview windows for definitions, implementations, etc.
 	{
-		"rmagatti/goto-preview", -- buffer window
+		"rmagatti/goto-preview",
 		event = "BufEnter",
 		config = true,
 	},
+
+	-- LSP configuration
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 			local lspconfig = require("lspconfig")
-			local goto_preview = require('goto-preview')
-			local border = {
-				{ "┌", "FloatBorder" },
-				{ "─", "FloatBorder" },
-				{ "┐", "FloatBorder" },
-				{ "│", "FloatBorder" },
-				{ "┘", "FloatBorder" },
-				{ "─", "FloatBorder" },
-				{ "└", "FloatBorder" },
-				{ "│", "FloatBorder" },
-			}
-			local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
-			function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-				opts = opts or {}
-				opts.border = opts.border or border
-				return orig_util_open_floating_preview(contents, syntax, opts, ...)
+			local cmp_nvim_lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+			-- Iterate over the centralized configuration table and set up each server
+			for server_name, config in pairs(servers_with_filetypes) do
+				local capabilities = config.extend_capabilities
+						and config.extend_capabilities(vim.deepcopy(cmp_nvim_lsp_capabilities))
+					or cmp_nvim_lsp_capabilities
+
+				lspconfig[server_name].setup({
+					capabilities = capabilities,
+					on_attach = lsp_helpers.on_attach,
+					filetypes = config.filetypes,
+				})
 			end
-
-			lspconfig.lua_ls.setup({
-				capabilities = capabilities,
-			})
-			lspconfig.ts_ls.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.yamlls.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.prismals.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.dockerls.setup({
-				capabilities = capabilities,
-			})
-
-			-- lspconfig.csharp_ls.setup({
-			-- 	capabilities = capabilities,
-			-- })
-
-			lspconfig.terraformls.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.bashls.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.svelte.setup({
-				capabilities = capabilities,
-			})
-
-			vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-			vim.keymap.set("n", "gd", goto_preview.goto_preview_definition, {})
-			vim.keymap.set("n", "gi", goto_preview.goto_preview_implementation, {})
-			vim.keymap.set("n", "gr", goto_preview.goto_preview_references, {})
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, {})
 		end,
 	},
 }
