@@ -11,10 +11,12 @@ return {
 	},
 	{
 		"hrsh7th/nvim-cmp",
+		dependencies = {
+			"onsails/lspkind.nvim", -- Add lspkind as a dependency
+		},
 		config = function()
 			local cmp = require("cmp")
-
-			require("luasnip.loaders.from_vscode").lazy_load()
+			local lspkind = require("lspkind")
 
 			cmp.setup({
 				snippet = {
@@ -40,22 +42,22 @@ return {
 				}),
 				sources = cmp.config.sources({
 					{ name = "nvim_lsp" },
-					{ name = "luasnip" }, -- For luasnip users.
+					{ name = "luasnip" },
 				}, {
 					{ name = "buffer" },
 				}),
 				formatting = {
-					fields = { "menu", "abbr", "kind" },
-					format = function(entry, item)
-						local menu_icon = {
-							nvim_lsp = "λ",
-							vsnip = "⋗",
-							buffer = "Ω",
-							path = "🖫",
-						}
-						item.menu = menu_icon[entry.source.name]
-						return item
-					end,
+					format = lspkind.cmp_format({
+						mode = "symbol_text", -- Show both symbol and text
+						maxwidth = 50, -- Limit width of completion menu
+						ellipsis_char = "...", -- Truncate long entries
+						menu = {
+							nvim_lsp = "[LSP]",
+							luasnip = "[Snippet]",
+							buffer = "[Buffer]",
+							path = "[Path]",
+						},
+					}),
 				},
 			})
 		end,
