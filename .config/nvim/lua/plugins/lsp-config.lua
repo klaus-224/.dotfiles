@@ -27,13 +27,6 @@ return {
 		end,
 	},
 
-	-- Nicer preview windows for definitions, implementations, etc.
-	{
-		"rmagatti/goto-preview",
-		event = "BufEnter",
-		config = true,
-	},
-
 	-- LSP configuration
 	{
 		"neovim/nvim-lspconfig",

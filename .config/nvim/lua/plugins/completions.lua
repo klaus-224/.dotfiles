@@ -12,11 +12,12 @@ return {
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
-			"onsails/lspkind.nvim", -- Add lspkind as a dependency
+			"onsails/lspkind.nvim",
 		},
 		config = function()
 			local cmp = require("cmp")
 			local lspkind = require("lspkind")
+			local luasnip = require("luasnip")
 
 			cmp.setup({
 				snippet = {
@@ -39,6 +40,25 @@ return {
 						behavior = cmp.ConfirmBehavior.Insert,
 						select = true,
 					}),
+					["<Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.locally_jumpable(1) then
+							luasnip.jump(1)
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+
+					["<S-Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						elseif luasnip.locally_jumpable(-1) then
+							luasnip.jump(-1)
+						else
+							fallback()
+						end
+					end, { "i", "s" })
 				}),
 				sources = cmp.config.sources({
 					{ name = "nvim_lsp" },
@@ -49,7 +69,7 @@ return {
 				formatting = {
 					format = lspkind.cmp_format({
 						mode = "symbol_text", -- Show both symbol and text
-						maxwidth = 50, -- Limit width of completion menu
+						maxwidth = 50,   -- Limit width of completion menu
 						ellipsis_char = "...", -- Truncate long entries
 						menu = {
 							nvim_lsp = "[LSP]",
@@ -59,6 +79,9 @@ return {
 						},
 					}),
 				},
+				experimental = {
+					ghost_text = true
+				}
 			})
 		end,
 	},
