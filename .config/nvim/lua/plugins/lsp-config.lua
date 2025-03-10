@@ -1,40 +1,3 @@
-local lsp_helpers = require("helpers.lsp")
-
--- CENTRALIZED CONFIGURATION FOR LSP SERVERS
-local servers_with_filetypes = {
-	lua_ls = {
-		filetypes = { "lua" },
-		extend_capabilities = function(capabilities)
-			capabilities.textDocument.completion.completionItem.snippetSupport = true
-			return capabilities
-		end,
-	},
-	ts_ls = {
-		filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-	},
-	rust_analyzer = {
-		filetypes = { "rust" },
-	},
-	yamlls = {
-		filetypes = { "yaml" },
-	},
-	prismals = {
-		filetypes = { "prisma" },
-	},
-	dockerls = {
-		filetypes = { "dockerfile" },
-	},
-	terraformls = {
-		filetypes = { "terraform" },
-	},
-	bashls = {
-		filetypes = { "sh", "bash" },
-	},
-	svelte = {
-		filetypes = { "svelte" },
-	},
-}
-
 return {
 	-- Mason for LSP management
 	{
@@ -48,13 +11,18 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
-			local ensure_installed_servers = {}
-			for server_name, _ in pairs(servers_with_filetypes) do
-				table.insert(ensure_installed_servers, server_name)
-			end
-
 			require("mason-lspconfig").setup({
-				ensure_installed = ensure_installed_servers,
+				ensure_installed = {
+					"lua_ls",
+					"ts_ls",
+					"rust_analyzer",
+					"yamlls",
+					"dockerls",
+					"terraformls",
+					"bashls",
+					"svelete",
+					"prismals",
+				},
 			})
 		end,
 	},
@@ -71,20 +39,45 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			local lspconfig = require("lspconfig")
-			local cmp_nvim_lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-			-- Iterate over the centralized configuration table and set up each server
-			for server_name, config in pairs(servers_with_filetypes) do
-				local capabilities = config.extend_capabilities
-						and config.extend_capabilities(vim.deepcopy(cmp_nvim_lsp_capabilities))
-					or cmp_nvim_lsp_capabilities
+			lspconfig.lua_ls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.ts_ls.setup({
+				capabilities = capabilities,
+			})
 
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-					on_attach = lsp_helpers.on_attach,
-					filetypes = config.filetypes,
-				})
-			end
+			lspconfig.yamlls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.prismals.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.dockerls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.terraformls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.bashls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.svelte.setup({
+				capabilities = capabilities,
+			})
+
+			local opts = { noremap = true, silent = true }
+			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 		end,
 	},
 }
