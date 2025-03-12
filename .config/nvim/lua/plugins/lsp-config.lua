@@ -21,6 +21,7 @@ return {
 					"bashls",
 					"svelete",
 					"prismals",
+					"html"
 				},
 			})
 		end,
@@ -61,6 +62,10 @@ return {
 			})
 
 			lspconfig.svelte.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.html.setup({
 				capabilities = capabilities,
 			})
 
