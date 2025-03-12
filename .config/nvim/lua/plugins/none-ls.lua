@@ -9,12 +9,9 @@ return {
 		null_ls.setup({
 			-- add linters, formatters, completion tools
 			sources = {
-				-- linter
-				require("none-ls.code_actions.eslint_d"),
 				-- formatters
 				null_ls.builtins.formatting.stylua,
 				null_ls.builtins.formatting.prettier,
-				-- null_ls.builtins.formatting.csharpier,
 			},
 		})
 
