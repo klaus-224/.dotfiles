@@ -31,9 +31,6 @@ return {
 							files = {
 								excludeDirs = { "target", "node_modules", ".git", ".nx", ".verdaccio" },
 							},
-							rustfmt = {
-								extraArgs = { "+nightly" },
-							},
 						},
 					},
 				},

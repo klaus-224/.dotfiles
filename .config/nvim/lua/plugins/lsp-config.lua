@@ -21,7 +21,7 @@ return {
 					"bashls",
 					"svelte",
 					"prismals",
-					"html"
+					"html",
 				},
 			})
 		end,
@@ -68,6 +68,16 @@ return {
 			lspconfig.html.setup({
 				capabilities = capabilities,
 			})
+
+			-- hot keys
+			local opts = { noremap = true, silent = true }
+			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+			vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+			vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+			vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover({'hover', 'action'})<CR>", opts)
+			vim.keymap.set("n", "gI", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+			vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+			vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)
 		end,
 	},
 }

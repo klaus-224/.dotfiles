@@ -11,16 +11,10 @@ return {
 
 			telescope.setup({
 				pickers = {
-					-- does not ignore any files (including node modules)
-					-- find_files = {
-					-- 	no_ignore = true,
-					-- },
-				},
-				preview = {
-					hide_on_startup = true, -- hide previewer when picker starts
 				},
 				file_ignore_patterns = {
 					"node_modules",
+					"target" -- for rust
 				},
 			})
 			local builtin = require("telescope.builtin")
