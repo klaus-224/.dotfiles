@@ -23,18 +23,13 @@ keymap.set("n", "<leader>j", "<C-w>j")
 keymap.set("n", "<leader>l", "<C-w>l")
 
 -- Resize windows
-keymap.set("n", "=", [[<cmd>vertical resize +5<cr>]])   -- make the window biger vertically
-keymap.set("n", "-", [[<cmd>vertical resize -5<cr>]])   -- make the window smaller vertically
+keymap.set("n", "=", [[<cmd>vertical resize +5<cr>]]) -- make the window biger vertically
+keymap.set("n", "-", [[<cmd>vertical resize -5<cr>]]) -- make the window smaller vertically
 keymap.set("n", "+", [[<cmd>horizontal resize +2<cr>]]) -- make the window bigger horizontally by pressing shift and =
 keymap.set("n", "_", [[<cmd>horizontal resize -2<cr>]]) -- make the window smaller horizontally by pressing shift and -
 
 -- Formatting
 keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
-
--- LSP
-keymap.set("n", "K", vim.lsp.buf.hover)
-keymap.set("n", "gd", vim.lsp.buf.definition)
-keymap.set("n", "<leader>ca", vim.lsp.buf.code_action)
 
 -- Obsidian
 keymap.set("n", "<leader>oo", "<cmd>ObsidianBacklinks<cr>", { desc = "Obsidian Backlinks" })
@@ -45,16 +40,22 @@ keymap.set("n", "<leader>oy", "<cmd>ObsidianYesterday<cr>", { desc = "Obsidian Y
 keymap.set("n", "<leader>or", "<cmd>ObsidianTomorrow<cr>", { desc = "Obsidian Tomorrow" })
 
 -- Close all floating windows
-keymap.set("n", "<leader>W",
-	function()
-		local closed_windows = {}
-		for _, win in ipairs(vim.api.nvim_list_wins()) do
-			local config = vim.api.nvim_win_get_config(win)
-			if config.relative ~= "" then      -- is_floating_window?
-				vim.api.nvim_win_close(win, false) -- do not force
-				table.insert(closed_windows, win)
-			end
+keymap.set("n", "<leader>W", function()
+	local closed_windows = {}
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		local config = vim.api.nvim_win_get_config(win)
+		if config.relative ~= "" then -- is_floating_window?
+			vim.api.nvim_win_close(win, false) -- do not force
+			table.insert(closed_windows, win)
 		end
-		print(string.format('Closed %d windows: %s', #closed_windows, vim.inspect(closed_windows)))
 	end
-)
+	print(string.format("Closed %d windows: %s", #closed_windows, vim.inspect(closed_windows)))
+end)
+
+-- LSP
+keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover({'hover', 'action'})<CR>", opts)
+keymap.set("n", "gI", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)

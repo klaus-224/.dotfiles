@@ -1,4 +1,26 @@
 return {
+	-- color scheme
+	{
+		"catppuccin/nvim",
+		name = "catppuccin",
+		priority = 1000,
+		config = function()
+			require("catppuccin").setup({
+				flavour = "mocha",
+				transparent_background = true,
+				integrations = {
+					notify = true,
+				},
+				custom_highlights = function(colors)
+					return {
+						FloatBorder = { fg = colors.blue },
+					}
+				end,
+			})
+			vim.cmd.colorscheme("catppuccin")
+		end,
+	},
+	-- transparent
 	{
 		"xiyaowong/transparent.nvim",
 		config = function()
@@ -36,7 +58,7 @@ return {
 				},
 				-- table: additional groups that should be cleared
 				extra_groups = {
-					"NormalFloat"
+					-- "NormalFloat",
 				},
 				-- table: groups you don't want to clear
 				exclude_groups = {},
@@ -50,34 +72,4 @@ return {
 			transparentConfig.clear_prefix("Telescope")
 		end,
 	},
-	{
-		"catppuccin/nvim",
-		name = "catppuccin",
-		priority = 1000,
-		config = function()
-			require("catppuccin").setup({
-				flavour = "mocha",
-				transparent_background = true,
-				integrations = {
-					notify = true,
-				},
-			})
-
-			vim.cmd.colorscheme "catppuccin"
-		end,
-	},
-	-- {
-	-- 	"binhtran432k/dracula.nvim",
-	-- 	lazy = false,
-	-- 	name = "dracula",
-	-- 	priority = 1000,
-	-- 	opts = {},
-	-- 	config = function()
-	-- 		require("dracula").setup({
-	-- 			style = "soft",
-	-- 			transparent = true,
-	-- 		})
-	-- 		vim.cmd("colorscheme dracula")
-	-- 	end,
-	-- },
 }
