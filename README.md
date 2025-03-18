@@ -46,9 +46,14 @@ $ cd dotfiles
 
 Use `stow` to symlink the files into the `$HOME` dir
 
-```bas
+```bash
 $ stow .
 ```
+
+## Tmux
+-   `ctrl-s + r`: reload tmux
+-   `ctrl-s + ctrl-I`: install tpm plugins
+-   need latest version of `bash` for sessionx => `brew install bash`
 
 ## TODO
 
