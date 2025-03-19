@@ -58,6 +58,10 @@ $ stow .
 ## TODO
 
 - [ ] create a shell script to setup my configuration
+- [ ] replace Amazon Q
+- [ ] add some goodies: 
+    https://sidneyliebrand.io/blog/how-fzf-and-ripgrep-improved-my-workflow
+    https://www.youtube.com/watch?v=CbMbGV9GT8I&t=56s
 
 ## References
 

@@ -2,14 +2,13 @@ return {
 	{
 		"mrcjkb/rustaceanvim",
 		version = "^5",
-		lazy = false, -- This plugin is already lazy
+		lazy = false,
 		config = function()
 			vim.g.rustaceanvim = {
 				server = {
 					on_attach = function(_, bufnr)
 						local opts = { silent = false, buffer = bufnr }
-
-						-- Replace the default LSP ones with the improved rustaceannvim versions.
+						-- rust keymaps
 						vim.keymap.set("n", "K", function()
 							vim.cmd.RustLsp({ "hover", "actions" })
 						end, opts)
@@ -29,7 +28,27 @@ return {
 					settings = {
 						["rust-analyzer"] = {
 							files = {
-								excludeDirs = { "target", "node_modules", ".git", ".nx", ".verdaccio" },
+								excludeDirs = {
+									"target",
+									"node_modules",
+									".git",
+									"src-tauri/target",
+									"src-tauri/node_modules",
+								},
+							},
+							cargo = {
+								targetDir = "target/rust-analyzer",
+							},
+							diagnostics = {
+								disabled = { "unresolved-proc-macro", "macro-error" },
+								enableExperimental = false,
+							},
+							checkOnSave = {
+								command = "clippy",
+								extraArgs = { "--no-deps" },
+							},
+							procMacro = {
+								enable = false,
 							},
 						},
 					},
