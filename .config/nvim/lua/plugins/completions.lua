@@ -18,6 +18,9 @@ return {
 			local cmp = require("cmp")
 			local lspkind = require("lspkind")
 			local luasnip = require("luasnip")
+			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+
+			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
 			cmp.setup({
 				snippet = {
@@ -58,7 +61,7 @@ return {
 						else
 							fallback()
 						end
-					end, { "i", "s" })
+					end, { "i", "s" }),
 				}),
 				sources = cmp.config.sources({
 					{ name = "nvim_lsp" },
@@ -80,8 +83,8 @@ return {
 					}),
 				},
 				experimental = {
-					ghost_text = true
-				}
+					ghost_text = true,
+				},
 			})
 		end,
 	},

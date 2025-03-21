@@ -6,7 +6,7 @@ vim.opt.wrap = true
 vim.g.mapleader = " "
 
 --Enable line numbers
-vim.opt.number = true
+vim.opt.relativenumber = true
 
 -- Set the terminal title to the name of the file being edited
 vim.opt.title = true

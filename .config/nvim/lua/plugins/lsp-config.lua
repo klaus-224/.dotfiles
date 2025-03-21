@@ -22,6 +22,8 @@ return {
 					"svelte",
 					"prismals",
 					"html",
+					"cssls",
+					"tailwindcss",
 				},
 			})
 		end,
@@ -37,15 +39,8 @@ return {
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
 			})
-			lspconfig.ts_ls.setup({
-				capabilities = capabilities,
-			})
 
 			lspconfig.yamlls.setup({
-				capabilities = capabilities,
-			})
-
-			lspconfig.prismals.setup({
 				capabilities = capabilities,
 			})
 
@@ -61,11 +56,28 @@ return {
 				capabilities = capabilities,
 			})
 
+			-- Front end
+			lspconfig.ts_ls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.prismals.setup({
+				capabilities = capabilities,
+			})
+
 			lspconfig.svelte.setup({
 				capabilities = capabilities,
 			})
 
 			lspconfig.html.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.cssls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.tailwindcss.setup({
 				capabilities = capabilities,
 			})
 
