@@ -24,6 +24,7 @@ return {
 					"html",
 					"cssls",
 					"tailwindcss",
+					"jsonls"
 				},
 			})
 		end,
@@ -78,6 +79,10 @@ return {
 			})
 
 			lspconfig.tailwindcss.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.jsonls.setup({
 				capabilities = capabilities,
 			})
 

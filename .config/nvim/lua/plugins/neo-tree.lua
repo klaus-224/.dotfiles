@@ -8,7 +8,6 @@ return {
 	},
 	config = function()
 		local neotree = require("neo-tree")
-		vim.keymap.set("n", "E", ":Neotree toggle right<CR>", { noremap = true, silent = true })
 		vim.keymap.set("n", "F", ":Neotree toggle float<CR>", { noremap = true, silent = true })
 
 		neotree.setup({
