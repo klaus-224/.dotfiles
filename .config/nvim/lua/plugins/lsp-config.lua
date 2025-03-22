@@ -78,6 +78,7 @@ return {
 				capabilities = capabilities,
 			})
 
+			-- you need to install this globally using pnpm or npm => npm i -g @tailwindcss/language-server
 			lspconfig.tailwindcss.setup({
 				capabilities = capabilities,
 			})
