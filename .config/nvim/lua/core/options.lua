@@ -1,6 +1,9 @@
 -- Text width and wrapping
 vim.opt.textwidth = 80
 vim.opt.wrap = true
+vim.opt.textwidth = 0
+vim.opt.wrapmargin = 0
+vim.opt.linebreak = true
 
 -- Set leader to spacebar
 vim.g.mapleader = " "
@@ -8,7 +11,6 @@ vim.g.mapleader = " "
 --Enable line numbers
 vim.opt.relativenumber = true
 
--- Set the terminal title to the name of the file being edited
 vim.opt.title = true
 
 -- Enable automatic indentation matching the previous line
@@ -52,9 +54,6 @@ vim.opt.shiftwidth = 2
 
 -- Set the width of a tab character to 2 spaces
 vim.opt.tabstop = 2
-
--- Disable line wrapping (lines will scroll horizontally)
-vim.opt.wrap = false
 
 -- Configure backspace to delete over indentation, eol, and start of line
 vim.opt.backspace = { "start", "eol", "indent" }
