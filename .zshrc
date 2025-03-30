@@ -1,40 +1,45 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# oh-my-zsh
+# OH-MY-ZSH
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(git docker-compose docker)
 source $ZSH/oh-my-zsh.sh
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# nvm 
+# NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 source ~/.nvm/nvm.sh
 
-# pnpm
+# PNPM
 export PNPM_HOME="/Users/rohineshram/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
-# Generated for envman. Do not edit.
-# TODO Delete this
-# [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+# FZF
+eval	"$(fzf --zsh)"
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git "
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+export FZF_DEFAULT_OPTS="--height 50% --layout=default --border --color=hl:#2dd4bf"
+# Setup fzf previews
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always -n --line-range :500 {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --icons=always --tree --color=always {} | head -200'"
+# fzf preview for tmux
+export FZF_TMUX_OPTS=" -p90%,70% "
 
+# ZSH PLUGINS
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ## ALIASES
 # snowsql
 alias snowsql=/Applications/SnowSQL.app/Contents/MacOS/snowsql
+
+# eza - ls replacement
+alias ls="eza --no-filesize --long --color=always --icons=always --no-user" 
 
 # ollama
 alias ollama-get="docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama"
@@ -44,5 +49,3 @@ alias ollama="docker exec -it ollama ollama"
 # customizations
 alias nv="nvim"
 
-# Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
