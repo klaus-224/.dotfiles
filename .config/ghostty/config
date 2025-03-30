@@ -1,5 +1,8 @@
 # Configuration for Ghostty https://ghostty.org/docs
+# APPEARANCE
 theme = catppuccin-mocha
-font-family = Hack Nerd Font Mono Bold
+font-family = Hack Nerd Font Mono
+font-family-bold = Hack Nerd Font Mono
+
 shell-integration = zsh
 font-size = 16
