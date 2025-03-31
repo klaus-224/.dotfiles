@@ -48,4 +48,3 @@ alias ollama="docker exec -it ollama ollama"
 
 # customizations
 alias nv="nvim"
-

@@ -2,7 +2,7 @@ local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
 
 -- Remap esc
-keymap.set("i", "jk", "<Esc>", {})
+keymap.set({ "i", "v" }, "jk", "<Esc>", {})
 
 -- Select All
 keymap.set("n", "<C-a>", "gg<S-v>G")
@@ -23,8 +23,8 @@ keymap.set("n", "<leader>j", "<C-w>j")
 keymap.set("n", "<leader>l", "<C-w>l")
 
 -- Resize windows
-keymap.set("n", "=", [[<cmd>vertical resize +5<cr>]]) -- make the window biger vertically
-keymap.set("n", "-", [[<cmd>vertical resize -5<cr>]]) -- make the window smaller vertically
+keymap.set("n", "=", [[<cmd>vertical resize +5<cr>]])   -- make the window biger vertically
+keymap.set("n", "-", [[<cmd>vertical resize -5<cr>]])   -- make the window smaller vertically
 keymap.set("n", "+", [[<cmd>horizontal resize +2<cr>]]) -- make the window bigger horizontally by pressing shift and =
 keymap.set("n", "_", [[<cmd>horizontal resize -2<cr>]]) -- make the window smaller horizontally by pressing shift and -
 
@@ -44,11 +44,10 @@ keymap.set("n", "<leader>W", function()
 	local closed_windows = {}
 	for _, win in ipairs(vim.api.nvim_list_wins()) do
 		local config = vim.api.nvim_win_get_config(win)
-		if config.relative ~= "" then -- is_floating_window?
+		if config.relative ~= "" then     -- is_floating_window?
 			vim.api.nvim_win_close(win, false) -- do not force
 			table.insert(closed_windows, win)
 		end
 	end
 	print(string.format("Closed %d windows: %s", #closed_windows, vim.inspect(closed_windows)))
 end)
-
