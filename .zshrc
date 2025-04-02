@@ -46,5 +46,10 @@ alias ollama-get="docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ol
 alias ollama-start="docker start ollama"
 alias ollama="docker exec -it ollama ollama"
 
+# tmux
+alias ta="tmux a"
+alias tkw="tmux killw"
+alias tkp="tmux killp"
+
 # customizations
 alias nv="nvim"
