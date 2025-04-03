@@ -8,8 +8,7 @@ keymap.set({ "i", "v" }, "jk", "<Esc>", {})
 keymap.set("n", "<C-a>", "gg<S-v>G")
 
 -- Copy
-keymap.set({"n", "v"}, "<C-c>", "\"+y")
-
+-- keymap.set({"n", "v"}, "<C-c>", "\"+y")
 
 keymap.set("n", "<leader>s", ":write<Return>", opts)
 keymap.set("n", "<leader>w", ":quit<Return>", opts)
