@@ -11,6 +11,7 @@ keymap.set("n", "<C-a>", "gg<S-v>G")
 keymap.set({"n", "v"}, "<C-c>", "\"+y")
 
 
+keymap.set("n", "<leader>s", ":write<Return>", opts)
 keymap.set("n", "<leader>w", ":quit<Return>", opts)
 keymap.set("n", "<leader>Q", ":qa<Return>", opts)
 
