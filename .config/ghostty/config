@@ -4,10 +4,14 @@ theme = catppuccin-mocha
 font-family = Hack Nerd Font Mono
 font-family-bold = Hack Nerd Font Mono
 font-thicken = true
-font-size = 14
+font-size = 15
 cursor-opacity = 0.5
 bold-is-bright = true
+window-padding-y = 0
+window-padding-x = 0
 
 shell-integration = zsh
 selection-background = #0a385c
 selection-foreground = #ffffff
+
+
