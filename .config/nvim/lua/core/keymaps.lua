@@ -7,8 +7,10 @@ keymap.set({ "i", "v" }, "jk", "<Esc>", {})
 -- Select All
 keymap.set("n", "<C-a>", "gg<S-v>G")
 
--- Save file and quit
-keymap.set("n", "<leader>s", ":update<Return>", opts)
+-- Copy
+keymap.set({"n", "v"}, "<C-c>", "\"+y")
+
+
 keymap.set("n", "<leader>w", ":quit<Return>", opts)
 keymap.set("n", "<leader>Q", ":qa<Return>", opts)
 
@@ -23,15 +25,15 @@ keymap.set("n", "<leader>j", "<C-w>j")
 keymap.set("n", "<leader>l", "<C-w>l")
 
 -- Resize windows
-keymap.set("n", "=", [[<cmd>vertical resize +5<cr>]])   -- make the window biger vertically
-keymap.set("n", "-", [[<cmd>vertical resize -5<cr>]])   -- make the window smaller vertically
-keymap.set("n", "+", [[<cmd>horizontal resize +2<cr>]]) -- make the window bigger horizontally by pressing shift and =
-keymap.set("n", "_", [[<cmd>horizontal resize -2<cr>]]) -- make the window smaller horizontally by pressing shift and -
+keymap.set("n", "<leader>=", [[<cmd>vertical resize +5<cr>]])   -- make the window bigger vertically
+keymap.set("n", "<leader>-", [[<cmd>vertical resize -5<cr>]])   -- make the window smaller vertically
+keymap.set("n", "<leader>+", [[<cmd>horizontal resize +2<cr>]]) -- make the window bigger horizontally by pressing shift and =
+keymap.set("n", "<leader>_", [[<cmd>horizontal resize -2<cr>]]) -- make the window smaller horizontally by pressing shift and -
 
 -- Formatting
 keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
 
--- Obsidian
+-- Obsidian - TODO move to obsidian plugin
 keymap.set("n", "<leader>oo", "<cmd>ObsidianBacklinks<cr>", { desc = "Obsidian Backlinks" })
 keymap.set("n", "<leader>of", "<cmd>ObsidianFollowLink vsplit<cr>", { desc = "Obsidian Follow Link" })
 keymap.set("n", "<leader>on", "<cmd>ObsidianNew<cr>", { desc = "Obsidian New Note" })
