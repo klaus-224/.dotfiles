@@ -35,8 +35,8 @@ source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 ## ALIASES
-# snowsql
-alias snowsql=/Applications/SnowSQL.app/Contents/MacOS/snowsql
+# general
+alias cdh="cd $HOME" # chang dir to home
 
 # eza - ls replacement
 alias ls="eza --no-filesize --long --color=always --icons=always --no-user" 
