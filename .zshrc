@@ -37,6 +37,7 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 ## ALIASES
 # general
 alias cdh="cd $HOME" # chang dir to home
+alias src-zsh="source $HOME/.zshrc"
 
 # eza - ls replacement
 alias ls="eza --no-filesize --long --color=always --icons=always --no-user" 
