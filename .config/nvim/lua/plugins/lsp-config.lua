@@ -90,12 +90,16 @@ return {
 			-- hot keys
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-			vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-			vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-			vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover({'hover', 'action'})<CR>", opts)
-			vim.keymap.set("n", "gI", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-			vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-			vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)
-		end,
+			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "K", function()
+				vim.lsp.buf.hover({ border = 'rounded' })
+			end, opts)
+			vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
+			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+			vim.keymap.set("n", "gl", function()
+				vim.diagnostic.open_float({ border = 'rounded' })
+			end, opts)
+		end
 	},
 }

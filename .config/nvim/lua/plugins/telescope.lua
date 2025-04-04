@@ -9,6 +9,13 @@ return {
 			local telescope = require("telescope")
 
 			telescope.setup({
+				defaults = {
+					mappings = {
+						n = {
+							["q"] = require('telescope.actions').close,
+						},
+					},
+				},
 				pickers = {
 				},
 				file_ignore_patterns = {
@@ -31,9 +38,6 @@ return {
 			)
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
 			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
-
-			-- macros
-			vim.keymap.set("n", "<leader>mh", ":Telescope macroscope <CR>", { desc = "Fuzzy search in current buffer" })
 		end,
 	},
 	{
