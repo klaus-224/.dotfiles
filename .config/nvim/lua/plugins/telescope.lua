@@ -8,28 +8,35 @@ return {
 		config = function()
 			local telescope = require("telescope")
 
+			-- configuration
 			telescope.setup({
 				defaults = {
 					mappings = {
 						n = {
-							["q"] = require('telescope.actions').close,
+							["q"] = require("telescope.actions").close,
 						},
 					},
-				},
-				pickers = {
-				},
-				file_ignore_patterns = {
-					"node_modules",
-					"target" -- for rust
+					file_ignore_patterns = {
+						"^node_modules/",
+						"^target/",
+						"^.git/",
+					},
 				},
 			})
+
+			-- keymaps
 			local builtin = require("telescope.builtin")
 
-			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
+			local find_files = function()
+				builtin.find_files({ hidden = true })
+			end
+
+			vim.keymap.set("n", "<leader>ff", find_files, { desc = "Telescope find files" })
 			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
 			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
 			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
 			vim.keymap.set("n", "<leader>fw", builtin.grep_string, { desc = "Telescope search string on cursor" })
+			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
 			vim.keymap.set(
 				"n",
 				"<leader>fs",
@@ -37,7 +44,6 @@ return {
 				{ desc = "Telescope search lsp document symbols" }
 			)
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
-			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
 		end,
 	},
 	{
