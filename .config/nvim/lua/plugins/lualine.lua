@@ -1,6 +1,5 @@
 return {
 	"nvim-lualine/lualine.nvim",
-	enabled = false,
 	dependencies = {
 		"f-person/git-blame.nvim",
 	},
