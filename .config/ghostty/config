@@ -11,6 +11,9 @@ window-padding-y = 0
 window-padding-x = 0
 # background-opacity = 0.8
 # background-blur-radius = 20
+mouse-hide-while-typing = true
+macos-titlebar-style = "hidden"
+window-decoration = "none"
 
 shell-integration = zsh
 selection-background = #0a385c
