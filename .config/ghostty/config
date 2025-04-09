@@ -4,17 +4,15 @@ theme = dark:catppuccin-mocha,light:catppuccin-latte
 font-family = Hack Nerd Font Mono
 font-family-bold = Hack Nerd Font Mono
 font-thicken = true
-font-size = 15
+font-size = 16
 cursor-opacity = 0.5
 bold-is-bright = true
+
 window-padding-y = 0
 window-padding-x = 0
-# background-opacity = 0.8
-# background-blur-radius = 20
+
 mouse-hide-while-typing = true
-macos-titlebar-style = "hidden"
-window-decoration = "none"
 
 shell-integration = zsh
 selection-background = #0a385c
-selection-foreground = #ffffff
+# background-blur-radius = 20
