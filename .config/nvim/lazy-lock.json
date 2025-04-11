@@ -37,8 +37,8 @@
   "rustaceanvim": { "branch": "master", "commit": "2b0f0b7e03751cf8ed123322f9b02d8f73fa9df7" },
   "telescope-ui-select.nvim": { "branch": "master", "commit": "6e51d7da30bd139a6950adf2a47fda6df9fa06d2" },
   "telescope.nvim": { "branch": "master", "commit": "a0bbec21143c7bc5f8bb02e0005fa0b982edc026" },
-  "tiny-inline-diagnostic.nvim": { "branch": "main", "commit": "de01d4c9cd032d4dac69bf64d5a184fbe62e1fd1" },
-  "transparent.nvim": { "branch": "main", "commit": "8a2749a2fa74f97fe6557f61b89ac7fd873f3c21" },
+  "tiny-inline-diagnostic.nvim": { "branch": "main", "commit": "e563f38d6c3f705a8735b2a21ee987e092d072d0" },
+  "trouble.nvim": { "branch": "main", "commit": "85bedb7eb7fa331a2ccbecb9202d8abba64d37b3" },
   "vim-tmux-navigator": { "branch": "master", "commit": "791dacfcfc8ccb7f6eb1c853050883b03e5a22fe" },
   "which-key.nvim": { "branch": "main", "commit": "370ec46f710e058c9c1646273e6b225acf47cbed" }
 }

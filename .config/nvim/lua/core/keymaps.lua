@@ -28,8 +28,8 @@ keymap.set("n", "<leader>l", "<C-w>l")
 -- Resize windows
 keymap.set("n", "<leader>=", [[<cmd>vertical resize +5<cr>]]) -- make the window bigger vertically
 keymap.set("n", "<leader>-", [[<cmd>vertical resize -5<cr>]]) -- make the window smaller vertically
-keymap.set("n", "<leader>+", [[<cmd>horizontal resize +2<cr>]]) -- make the window bigger horizontally by pressing shift and =
-keymap.set("n", "<leader>_", [[<cmd>horizontal resize -2<cr>]]) -- make the window smaller horizontally by pressing shift and -
+keymap.set("n", "<leader>+", [[<cmd>horizontal resize +10<cr>]]) -- make the window bigger horizontally by pressing shift and =
+keymap.set("n", "<leader>_", [[<cmd>horizontal resize -10<cr>]]) -- make the window smaller horizontally by pressing shift and -
 
 -- Formatting
 keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
