@@ -15,5 +15,5 @@ mouse-hide-while-typing = true
 
 shell-integration = zsh
 selection-background = #0a385c
-background-opacity = 0.5
-background-blur-radius = 15
+background-opacity = 0
+background-blur-radius = 20
