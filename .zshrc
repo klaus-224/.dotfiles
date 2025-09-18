@@ -54,3 +54,7 @@ alias tkp="tmux killp"
 
 # customizations
 alias nv="nvim"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rohineshram/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

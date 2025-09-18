@@ -1,6 +1,5 @@
 return {
 	"stevearc/conform.nvim",
-	event = { "BufWritePre" },
 	cmd = { "ConformInfo" },
 	keys = {
 		{
@@ -18,14 +17,20 @@ return {
 					options = {
 						single_quote = true,
 					},
+				},
+				biome = {
+					condition = function(ctx)
+						-- Use biome if biome.json exists in the project
+						return vim.fn.filereadable(vim.fn.getcwd() .. "/biome.json") == 1
+					end,
 				}
 			},
 			formatters_by_ft = {
 				lua = { "stylua" },
-				javascript = { "prettier" },
-				typescript = { "prettier", stop_after_first = true },
-				javascriptreact = { "prettier" },
-				typescriptreact = { "prettier", },
+				javascript = { "biome", "prettier" },
+				typescript = { "biome", "prettier" },
+				javascriptreact = { "biome", "prettier" },
+				typescriptreact = { "biome", "prettier" },
 				css = { "prettier" },
 				html = { "prettier" },
 				json = { "prettier" },
@@ -37,6 +42,8 @@ return {
 				timeout_ms = 500,
 				lsp_fallback = true,
 			},
+			-- Notify on format errors
+			notify_on_error = true,
 		})
 	end,
 }
