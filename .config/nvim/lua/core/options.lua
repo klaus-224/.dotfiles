@@ -9,7 +9,8 @@ vim.opt.linebreak = true
 vim.g.mapleader = " "
 
 --Enable line numbers
-vim.opt.relativenumber = true
+vim.opt.number = true -- absolute line numbers
+-- vim.opt.relativenumber = true -- relative line numbers
 
 vim.opt.title = true
 

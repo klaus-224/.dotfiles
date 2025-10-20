@@ -8,7 +8,7 @@ return {
 		config = function()
 			local telescope = require("telescope")
 
-			-- configuration
+			-- CONFIGURATION
 			telescope.setup({
 				defaults = {
 					mappings = {
@@ -24,7 +24,7 @@ return {
 				},
 			})
 
-			-- keymaps
+			-- KEYMAPS
 			local builtin = require("telescope.builtin")
 
 			local find_files = function()

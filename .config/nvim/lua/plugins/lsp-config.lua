@@ -24,7 +24,7 @@ return {
 					"html",
 					"cssls",
 					"tailwindcss",
-					"jsonls"
+					"jsonls",
 				},
 			})
 		end,
@@ -86,6 +86,7 @@ return {
 			lspconfig.jsonls.setup({
 				capabilities = capabilities,
 			})
+
 
 			-- hot keys
 			local opts = { noremap = true, silent = true }
