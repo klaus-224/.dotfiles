@@ -40,7 +40,7 @@ alias cdh="cd $HOME" # chang dir to home
 alias src-zsh="source $HOME/.zshrc"
 
 # eza - ls replacement
-alias ls="eza --no-filesize --long --color=always --icons=always --no-user" 
+alias ls="eza --long --all --group-directories-first --no-user --no-time --color=always --icons=always" 
 
 # ollama
 alias ollama-get="docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama"

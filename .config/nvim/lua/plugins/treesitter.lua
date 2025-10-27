@@ -10,5 +10,7 @@ return {
 			ensure_installed = { "lua", "rust", "toml" },
 		})
 		vim.api.nvim_set_hl(0, "TSNormal", { bg = "NONE" })
+
+		vim.treesitter.language.register('markdown', 'octo')
 	end,
 }
