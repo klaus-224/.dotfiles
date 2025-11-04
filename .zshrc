@@ -36,8 +36,11 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 ## ALIASES
 # general
-alias cdh="cd $HOME" # chang dir to home
-alias src-zsh="source $HOME/.zshrc"
+alias cdh="cd $HOME" # change dir to home
+alias cdd="cd $HOME/.dotfiles" # change dir to .dotfiles
+alias cdd="cdc $HOME/.dotfiles" # change dir to code
+alias srczsh="source $HOME/.zshrc"
+alias nv="nvim"
 
 # eza - ls replacement
 alias ls="eza --long --all --group-directories-first --no-user --no-time --color=always --icons=always" 
@@ -52,8 +55,6 @@ alias ta="tmux a"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
 
-# customizations
-alias nv="nvim"
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/rohineshram/.rd/bin:$PATH"
