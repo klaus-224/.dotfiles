@@ -38,7 +38,7 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 # general
 alias cdh="cd $HOME" # change dir to home
 alias cdd="cd $HOME/.dotfiles" # change dir to .dotfiles
-alias cdd="cdc $HOME/.dotfiles" # change dir to code
+alias cdc="cd $HOME/code" # change dir to code
 alias srczsh="source $HOME/.zshrc"
 alias nv="nvim"
 

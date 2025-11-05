@@ -7,13 +7,15 @@ return {
 		},
 		config = function()
 			local telescope = require("telescope")
+			local telescope_actions = require("telescope.actions")
+			local telescope_actions_state = require("telescope.actions.state")
 
 			-- CONFIGURATION
 			telescope.setup({
 				defaults = {
 					mappings = {
 						n = {
-							["q"] = require("telescope.actions").close,
+							["q"] = telescope_actions.close,
 						},
 					},
 					file_ignore_patterns = {
@@ -21,7 +23,23 @@ return {
 						"^target/",
 						"^.git/",
 					},
+					preview = {
+						wrap = true,
+					},
 				},
+				pickers = {
+					git_branches = {
+						mappings = {
+							n = {
+								["<CR>"] = function(prompt_bufnr)
+									local entry = telescope_actions_state.get_selected_entry()
+									telescope_actions.close(prompt_bufnr)
+									vim.cmd('DiffviewOpen ' .. entry.value)
+								end,
+							}
+						}
+					}
+				}
 			})
 
 			-- KEYMAPS
@@ -44,6 +62,8 @@ return {
 				{ desc = "Telescope search lsp document symbols" }
 			)
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
+
+			vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "Telescope list git branches" })
 		end,
 	},
 	{
