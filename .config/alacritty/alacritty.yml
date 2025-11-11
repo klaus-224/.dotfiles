@@ -1,0 +1,113 @@
+# ======================================================
+#  Alacritty Configuration
+#  Inspired by Ghostty Catppuccin-Mocha theme
+#  https://github.com/catppuccin/alacritty
+# ======================================================
+
+# ------------------------------------------------------
+#  Window
+# ------------------------------------------------------
+window:
+  padding:
+    x: 0
+    y: 0
+  dynamic_padding: false
+  opacity: 0.60
+  blur: true # Requires compositor (on macOS/Linux/WSLg)
+  decorations: full
+  startup_mode: Windowed
+
+# ------------------------------------------------------
+#  Font
+# ------------------------------------------------------
+font:
+  normal:
+    family: "Hack Nerd Font Mono"
+    style: Regular
+  bold:
+    family: "Hack Nerd Font Mono"
+    style: Bold
+  italic:
+    family: "Hack Nerd Font Mono"
+    style: Italic
+  size: 16.0
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+draw_bold_text_with_bright_colors: true
+
+# ------------------------------------------------------
+#  Cursor
+# ------------------------------------------------------
+cursor:
+  style:
+    shape: Beam
+    blinking: On
+  blink_interval: 500
+  unfocused_hollow: true
+  thickness: 0.2
+
+# ------------------------------------------------------
+#  Colors — Catppuccin Mocha
+# ------------------------------------------------------
+colors:
+  primary:
+    background: "#1e1e2e"
+    foreground: "#cdd6f4"
+  cursor:
+    text: "#11111b"
+    cursor: "#f5e0dc"
+  selection:
+    text: "#cdd6f4"
+    background: "#353749"
+
+  normal:
+    black: "#45475a"
+    red: "#f38ba8"
+    green: "#a6e3a1"
+    yellow: "#f9e2af"
+    blue: "#89b4fa"
+    magenta: "#f5c2e7"
+    cyan: "#94e2d5"
+    white: "#a6adc8"
+
+  bright:
+    black: "#585b70"
+    red: "#f38ba8"
+    green: "#a6e3a1"
+    yellow: "#f9e2af"
+    blue: "#89b4fa"
+    magenta: "#f5c2e7"
+    cyan: "#94e2d5"
+    white: "#bac2de"
+
+# ------------------------------------------------------
+#  Mouse
+# ------------------------------------------------------
+mouse:
+  hide_when_typing: true
+
+# ------------------------------------------------------
+#  Shell
+# ------------------------------------------------------
+# Launch directly into WSL with Zsh
+shell:
+  program: "wsl.exe"
+  args: ["--distribution", "Ubuntu", "--cd", "~", "-e", "zsh"]
+
+# ------------------------------------------------------
+#  Scrolling
+# ------------------------------------------------------
+scrolling:
+  history: 10000
+  multiplier: 3
+
+# ------------------------------------------------------
+#  Key Bindings (Optional)
+# ------------------------------------------------------
+# example: Ctrl+Shift+N opens a new window
+key_bindings:
+  - { key: N, mods: Control|Shift, action: SpawnNewInstance }
