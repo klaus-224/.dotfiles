@@ -17,11 +17,8 @@ echo -e "${YELLOW}Installing most-used Windows apps...${RESET}"
 APPS=(
   "Mozilla.Firefox"         # Firefox Browser
   "Valve.Steam"             # Steam
-  "Google.Chrome"           # Chrome (optional)
-  "SlackTechnologies.Slack" # Slack
-  "Notepad++.Notepad++"     # Notepad++
-  "VideoLAN.VLC"            # VLC Media Player
   "Discord.Discord"         # Discord
+  "Bitwarden.Bitwarden"     # Bitwarden
 )
 
 for app in "${APPS[@]}"; do
