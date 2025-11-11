@@ -1,22 +1,28 @@
-## Requirements
+# Installation
 
-## Installation
+## Macos:
 
-First, checkout the dotfiles repo in your $HOME directory using git
+#### Install git via Homebrew
 
 ```bash
-$ git clone git@github.com:klaus-224/.dotfiles.git
-$ cd dotfiles
+brew install git
 ```
 
-Run:
+#### Clone dotfiles repo into `$HOME`
 
+```bash
+git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
 ```
 
-chmod +x install.sh
-./install.sh
+#### Run the setup script
 
+```bash
+cd ~/.dotfiles
+chmod +x setup-macos.sh
+./setup-macos.sh
 ```
+
+**What this does:**
 
 - Installs Homebrew if missing
 - Installs all your CLI tools (fzf, bat, fd, eza, etc.)
@@ -30,7 +36,61 @@ chmod +x install.sh
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
-## Installation
+### Windows (WSL)
+
+#### Open Powershell as Admin
+
+```bash
+wsl --install
+```
+
+#### Update wsl
+
+```bash
+wsl --update
+wsl --set-default-version 2
+```
+
+#### Install Ubuntu
+
+```bash
+wsl --install -d Ubuntu-22.04
+```
+
+#### Update Linux Packages
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+#### Install git
+
+```bash
+sudo apt update && sudo apt install -y git
+```
+
+#### Clone the dotfile repo into `$HOME`
+
+```bash
+cd ~
+git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
+```
+
+#### Run the WSL Setup Script
+
+```bash
+cd ~/.dotfiles
+chmod +x setup-wsl.sh
+./setup-wsl.sh
+```
+
+**What this does:**
+
+- Install required CLI tools (tmux, zsh, neovim, etc.)
+- Install Alacritty on Windows via winget
+- Install and configure Oh My Zsh, Powerlevel10k, and Zsh plugins
+- Symlink dotfiles using stow
+- Install tmux plugin manager (TPM)
 
 ## Tmux Commands
 
@@ -47,9 +107,5 @@ chmod +x install.sh
 
 ## References
 
-https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s
-https://www.youtube.com/watch?v=03KsS09YS4E
-
-```
-
-```
+- https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s
+- https://www.youtube.com/watch?v=03KsS09YS4E
