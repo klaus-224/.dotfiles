@@ -64,8 +64,8 @@ if command -v stow >/dev/null 2>&1; then
   echo -e "${YELLOW} Linking necessary dotfiles using stow...${RESET}"
 
   # Symlink core configs:
-  stow --verbose .config/alacritty
-  stow --verbose .config/nvim
+	stow --verbose -d "$HOME/.dotfiles/.config" -t "$HOME/.config" alacritty
+	stow --verbose -d "$HOME/.dotfiles/.config" -t "$HOME/.config" nvim
   stow --verbose zsh               
   stow --verbose tmux             
 
