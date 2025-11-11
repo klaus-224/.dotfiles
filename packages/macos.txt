@@ -1,0 +1,17 @@
+# Core CLI Tools
+git
+zsh
+stow
+tmux
+neovim
+lazygit
+bash
+fzf
+fd
+bat
+eza
+docker
+docker-compose
+nvm
+pnpm
+duti
