@@ -11,93 +11,131 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo -e "${YELLOW} Setting up your WSL environment...${RESET}"
-
-# -----------------------------------------------------
-#  Install git first (required to clone dotfiles)
-# -----------------------------------------------------
-echo -e "${YELLOW} Installing git...${RESET}"
-sudo apt update
-sudo apt install -y git
-
-# -----------------------------------------------------
-#  Clone dotfiles repo if needed
-# -----------------------------------------------------
-if [[ ! -d "$HOME/.dotfiles" ]]; then
-  echo -e "${YELLOW} Cloning dotfiles...${RESET}"
-  git clone git@github.com:klaus-224/.dotfiles.git "$HOME/.dotfiles"
-else
-  echo -e "${GREEN} Dotfiles already exist.${RESET}"
-fi
-
-cd "$HOME/.dotfiles"
-
-# -----------------------------------------------------
-#  Install other required packages from packages/windows.txt
-# -----------------------------------------------------
 PKG_FILE="$DOTFILES_DIR/packages/windows.txt"
 
+echo -e "${YELLOW}⚙️  Setting up your WSL environment with Homebrew...${RESET}"
+
+# -----------------------------------------------------
+#  Install Homebrew 
+# -----------------------------------------------------
+if ! command -v brew &>/dev/null; then
+  echo -e "${YELLOW}Installing Homebrew...${RESET}"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+  echo -e "${GREEN}Homebrew already installed.${RESET}"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# -----------------------------------------------------
+#  Update brew
+# -----------------------------------------------------
+echo -e "${YELLOW}Updating Homebrew...${RESET}"
+brew update
+
+# -----------------------------------------------------
+#  Install all packages listed in packages/windows.txt
+# -----------------------------------------------------
 if [[ ! -f "$PKG_FILE" ]]; then
-  echo -e "${RED} Package file not found at $PKG_FILE${RESET}"
+  echo -e "${RED}❌ Package list not found at: $PKG_FILE${RESET}"
   exit 1
 fi
 
-echo -e "${YELLOW} Installing required packages from ${BLUE}$PKG_FILE${RESET}"
-
-# Update package lists and install packages
-sudo apt update && sudo apt upgrade -y
+echo -e "${YELLOW}Installing packages from ${BLUE}$PKG_FILE${RESET}"
 
 while read -r pkg; do
-  [[ -z "$pkg" || "$pkg" == \#* ]] && continue
-  if dpkg -s "$pkg" &> /dev/null; then
-    echo -e "${GREEN} Package '$pkg' already installed.${RESET}"
+  [[ -z "$pkg" || "$pkg" == \#* ]] && continue  # skip comments or empty lines
+
+  if brew list --formula | grep -q "^${pkg}\$"; then
+    echo -e "${GREEN}✔ $pkg already installed${RESET}"
   else
     echo -e "${YELLOW}→ Installing $pkg...${RESET}"
-    sudo apt install -y "$pkg" && echo -e "${GREEN} Installed $pkg${RESET}" || echo -e "${RED} Failed to install $pkg${RESET}"
+    brew install "$pkg" || echo -e "${RED}Failed to install $pkg${RESET}"
   fi
 done < "$PKG_FILE"
+
+brew cleanup
+
+cd "$HOME/.dotfiles"
 
 # -----------------------------------------------------
 #  Symlink dotfiles using stow
 # -----------------------------------------------------
 if command -v stow >/dev/null 2>&1; then
-  echo -e "${YELLOW} Linking necessary dotfiles using stow...${RESET}"
+  echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
 
-  # Symlink core configs:
-	stow --verbose -d "$HOME/.dotfiles/.config/nvim"
-	stow --verbose -d "$HOME/.dotfiles/.config/alacritty"
-  stow --verbose zsh               
-  stow --verbose tmux             
+  mkdir -p "$HOME/.config"
+  stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" alacritty
+  stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" nvim
+  stow --verbose -d "$DOTFILES_DIR" -t "$HOME" zsh
+  stow --verbose -d "$DOTFILES_DIR" -t "$HOME" tmux
 
-  echo -e "${GREEN} Symlinking complete.${RESET}"
+  echo -e "${GREEN}Symlinking complete.${RESET}"
 else
-  echo -e "${RED} stow not found — please install it and rerun this script.${RESET}"
+  echo -e "${RED}stow not found — please install and rerun this script.${RESET}"
+  exit 1
 fi
 
 # -----------------------------------------------------
-#  Install Alacritty on Windows via winget
-# -----------------------------------------------------
-echo -e "${YELLOW} Installing Alacritty on Windows...${RESET}"
-powershell.exe -Command 'winget install --id Alacritty.Alacritty -e --source winget' || \
-  echo -e "${RED} Failed to install Alacritty via winget (maybe already installed).${RESET}"
-
-# -----------------------------------------------------
-#  Oh My Zsh + Plugins + Powerlevel10k
+#  Oh My Zsh + Powerlevel10k + Plugins
 # -----------------------------------------------------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo -e "${YELLOW}Installing Oh My Zsh...${RESET}"
   RUNZSH=no KEEP_ZSHRC=yes \
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else
+  echo -e "${GREEN}Oh My Zsh already installed.${RESET}"
 fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k" 2>/dev/null || true
-git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions" 2>/dev/null || true
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" 2>/dev/null || true
+# Powerlevel10k
+if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
+  echo -e "${YELLOW}Installing Powerlevel10k...${RESET}"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+fi
 
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-[[ ! -d "$TPM_DIR" ]] && git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+# Plugins
+for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
+  case $plugin in
+    zsh-autosuggestions)
+      repo="https://github.com/zsh-users/zsh-autosuggestions"
+      ;;
+    zsh-syntax-highlighting)
+      repo="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+      ;;
+  esac
 
-echo -e "${GREEN}WSL + Alacritty setup complete!${RESET}"
-echo -e "${YELLOW}Launch Alacritty on Windows and set its shell to start WSL (Ubuntu).${RESET}"
+  if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
+    echo -e "${YELLOW}Installing ${plugin}...${RESET}"
+    git clone "$repo" "$ZSH_CUSTOM/plugins/$plugin"
+  fi
+done
+
+# -----------------------------------------------------
+#  Update .zshrc with Powerlevel10k and plugin references
+# -----------------------------------------------------
+ZSHRC="$HOME/.zshrc"
+if ! grep -q "powerlevel10k" "$ZSHRC"; then
+  echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> "$ZSHRC"
+fi
+
+if ! grep -q "zsh-autosuggestions" "$ZSHRC"; then
+  sed -i 's/^plugins=(/&zsh-autosuggestions zsh-syntax-highlighting /' "$ZSHRC" || true
+fi
+
+# -----------------------------------------------------
+#  Source configs
+# -----------------------------------------------------
+echo -e "${YELLOW}Reloading configurations...${RESET}"
+source "$HOME/.zshrc" || true
+nvim --headless "+Lazy sync" +qa || true
+
+# -----------------------------------------------------
+#  Done
+# -----------------------------------------------------
+echo -e "${GREEN}WSL Dotfiles setup complete!${RESET}"
+echo -e "${YELLOW}Restart your terminal or run \`exec zsh\` to start using your new shell.${RESET}"
 
