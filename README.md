@@ -131,7 +131,22 @@ chmod +x setup-wsl.sh
 
 # TODO
 
-- [ ] create a shell script to setup my configuration
+WSL Steps:
+
+- install homebrew
+- install git
+- download repo
+- run setup script and install all packages with homebrew
+
+- [ ] add powerlevel10K to .dotfiles
+- [ ] command to source neovim after install
+- [ ] command to source .zshrc
+- [ ] add install for eza
+- [ ] update .zshrc with non-brew installs
+- [ ] remove mcaffee from windows
+- [ ] add zen browser install
+- [ ] need to install lazygit
+
 - [ ] add some goodies:
       https://sidneyliebrand.io/blog/how-fzf-and-ripgrep-improved-my-workflow
       https://www.youtube.com/watch?v=CbMbGV9GT8I&t=56s
