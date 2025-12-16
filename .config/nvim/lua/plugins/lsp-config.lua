@@ -25,6 +25,7 @@ return {
 					"cssls",
 					"tailwindcss",
 					"jsonls",
+					"pyright",
 				},
 			})
 		end,
@@ -84,6 +85,10 @@ return {
 			})
 
 			lspconfig.jsonls.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.pyright.setup({
 				capabilities = capabilities,
 			})
 
