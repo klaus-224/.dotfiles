@@ -55,6 +55,9 @@ alias ta="tmux a"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
 
+# python
+alias pyenv-create="python3 -m venv .venv"
+alias pyenv-activate="source .venv/bin/activate"
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/rohineshram/.rd/bin:$PATH"
