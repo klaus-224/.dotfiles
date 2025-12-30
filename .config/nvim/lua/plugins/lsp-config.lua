@@ -58,6 +58,15 @@ return {
 				capabilities = capabilities,
 			})
 
+			lspconfig.pyright.setup({
+				capabilities = capabilities,
+				settings = {
+					python = {
+						pythonPath = ".venv/bin/python",
+					},
+				},
+			})
+
 			-- Front end
 			lspconfig.ts_ls.setup({
 				capabilities = capabilities,
@@ -88,24 +97,19 @@ return {
 				capabilities = capabilities,
 			})
 
-			lspconfig.pyright.setup({
-				capabilities = capabilities,
-			})
-
-
 			-- hot keys
 			local opts = { noremap = true, silent = true }
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts, { desc = "go to declaration" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts, { desc = "go to definition" })
 			vim.keymap.set("n", "K", function()
-				vim.lsp.buf.hover({ border = 'rounded' })
+				vim.lsp.buf.hover({ border = "rounded" })
 			end, opts)
 			vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts, { desc = "go to implementation" })
 			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts, { desc = "go to references" })
 			vim.keymap.set("n", "gl", function()
-				vim.diagnostic.open_float({ border = 'rounded' })
+				vim.diagnostic.open_float({ border = "rounded" })
 			end, opts)
-		end
+		end,
 	},
 }
