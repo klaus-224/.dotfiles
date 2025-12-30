@@ -2,7 +2,7 @@
 return {
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
-		enabled = vim.env.USER ~= "klaus224",
+		-- enabled = vim.env.USER ~= "klaus224",
 		dependencies = {
 			{ "nvim-lua/plenary.nvim", branch = "master" },
 		},

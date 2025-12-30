@@ -18,6 +18,12 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
+# PYTHON
+alias python="python3"
+alias pip="pip3"
+alias pyenv-create="python -m venv .venv"
+alias pyenv-activate="source .venv/bin/activate"
+
 # FZF
 eval	"$(fzf --zsh)"
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git "
@@ -55,9 +61,6 @@ alias ta="tmux a"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
 
-# python
-alias pyenv-create="python3 -m venv .venv"
-alias pyenv-activate="source .venv/bin/activate"
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/rohineshram/.rd/bin:$PATH"
