@@ -11,7 +11,7 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo -e "${YELLOW}Setting up your macOS dotfiles environment...${RESET}"
+echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 
 # -----------------------------------------------------
 #  Install Homebrew
