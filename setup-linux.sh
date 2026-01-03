@@ -11,7 +11,7 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PKG_FILE="$DOTFILES_DIR/packages/windows.txt"
+PKG_FILE="$DOTFILES_DIR/packages/linux.txt"
 
 echo -e "${YELLOW}⚙️  Setting up your WSL environment with Homebrew...${RESET}"
 
@@ -36,7 +36,7 @@ echo -e "${YELLOW}Updating Homebrew...${RESET}"
 brew update
 
 # -----------------------------------------------------
-#  Install all packages listed in packages/windows.txt
+#  Install all packages listed in packages/linux.txt
 # -----------------------------------------------------
 if [[ ! -f "$PKG_FILE" ]]; then
   echo -e "${RED}❌ Package list not found at: $PKG_FILE${RESET}"
