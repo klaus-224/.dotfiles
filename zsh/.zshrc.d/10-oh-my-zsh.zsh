@@ -6,7 +6,7 @@
 # Responsibilities:
 #   - Define $ZSH location
 #   - Select and load Powerlevel10k
-#   - Enable Oh My Zsh plugins
+#   - Enable oh-my-zsh plugins
 #   - Source ~/.p10k.zsh if present
 #
 # Rules:
@@ -16,7 +16,9 @@
 # --------------------------------------------------
 
 export ZSH="$HOME/.oh-my-zsh"
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
+
 plugins=(
 					git
 					docker-compose 
@@ -26,6 +28,5 @@ plugins=(
 					zsh-syntax-highlighting
 				)
 
-source "$ZSH/oh-my-zsh.sh"
-
+[[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh

@@ -1,0 +1,8 @@
+# macOS-only CLI
+brew "duti"
+
+# apps
+cask "raycast"
+cask "arc"
+cask "ghostty"
+cask "docker"   # Docker Desktop

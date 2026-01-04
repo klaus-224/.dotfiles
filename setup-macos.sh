@@ -14,24 +14,49 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 
 # -----------------------------------------------------
-#  Install required packages 
+#  Homebrew bootstrap
 # -----------------------------------------------------
-PKG_FILE="$DOTFILES_DIR/packages/macos.txt"
-if [[ ! -f "$PKG_FILE" ]]; then
-  echo -e "${RED}Package file not found at $PKG_FILE${RESET}"
+if ! command -v brew >/dev/null 2>&1; then
+  echo -e "${YELLOW}Homebrew not found. Installing...${RESET}"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+	BREW_PATH="/opt/homebrew/bin/brew"
+  if [[ -x $BREW_PATH ]]; then
+    eval "$($BREW_PATH shellenv)"
+	else
+  	echo -e "${RED}Homebrew not found at $BREW_PATH${RESET}"
+  	exit 1
+	if
+else
+  echo -e "${GREEN}Homebrew already installed.${RESET}"
+fi
+
+echo -e "${YELLOW}Updating Homebrew...${RESET}"
+brew update
+
+# -----------------------------------------------------
+#  Install packages via Brewfile (common + macos)
+# -----------------------------------------------------
+BREW_DIR="$DOTFILES_DIR/brewfiles"
+COMMON="$BREW_DIR/Brewfile.common"
+MACOS="$BREW_DIR/Brewfile.macos"
+
+if [[ ! -f "$COMMON" ]]; then
+  echo -e "${RED}Missing Brewfile: $COMMON${RESET}"
+  exit 1
+fi
+if [[ ! -f "$MACOS" ]]; then
+  echo -e "${RED}Missing Brewfile: $MACOS${RESET}"
   exit 1
 fi
 
-echo -e "${YELLOW}Installing required packages from ${BLUE}$PKG_FILE${RESET}"
-while read -r pkg; do
-  [[ -z "$pkg" || "$pkg" == \#* ]] && continue
-  if brew list --formula | grep -q "^$pkg\$"; then
-    echo -e "${GREEN}$pkg already installed.${RESET}"
-  else
-    echo -e "${YELLOW}→ Installing $pkg...${RESET}"
-    brew install "$pkg" && echo -e "${GREEN}Installed $pkg${RESET}" || echo -e "${RED}Failed to install $pkg${RESET}"
-  fi
-done < "$PKG_FILE"
+echo -e "${YELLOW}Installing packages via Brewfiles...${RESET}"
+TMP_BREWFILE="$(mktemp)"
+cat "$COMMON" "$MACOS" > "$TMP_BREWFILE"
+brew bundle --file "$TMP_BREWFILE"
+rm -f "$TMP_BREWFILE"
+
+echo -e "${GREEN}Brew bundle complete.${RESET}"
 
 # -----------------------------------------------------
 #  Symlink dotfiles using stow
@@ -48,7 +73,7 @@ else
 fi
 
 # -----------------------------------------------------
-#  Oh My Zsh
+#  oh-my-zsh
 # -----------------------------------------------------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   echo -e "${YELLOW}Installing Oh My Zsh...${RESET}"
@@ -61,7 +86,8 @@ fi
 # -----------------------------------------------------
 #  Powerlevel10k
 # -----------------------------------------------------
-THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+THEME_DIR="$ZSH_CUSTOM/themes/powerlevel10k"
 if [[ ! -d "$THEME_DIR" ]]; then
   echo -e "${YELLOW}Installing Powerlevel10k theme...${RESET}"
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
@@ -72,8 +98,6 @@ fi
 # -----------------------------------------------------
 #  ZSH Plugins
 # -----------------------------------------------------
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-
 [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]] && \
   git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 
@@ -92,16 +116,6 @@ TPM_DIR="$HOME/.tmux/plugins/tpm"
 if command -v fzf >/dev/null 2>&1; then
   echo -e "${YELLOW}Running fzf install script...${RESET}"
   "$(brew --prefix)"/opt/fzf/install --all --no-bash --no-fish
-fi
-
-# -----------------------------------------------------
-#  Ghostty Terminal
-# -----------------------------------------------------
-if ! brew list --cask | grep -q "^ghostty\$"; then
-  echo -e "${YELLOW}Installing Ghostty terminal...${RESET}"
-  brew install --cask ghostty
-else
-  echo -e "${GREEN}Ghostty already installed.${RESET}"
 fi
 
 if command -v duti >/dev/null 2>&1; then
