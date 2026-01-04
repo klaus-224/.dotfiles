@@ -14,40 +14,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 
 # -----------------------------------------------------
-#  Install Homebrew
-# -----------------------------------------------------
-if ! command -v brew >/dev/null 2>&1; then
-  echo -e "${YELLOW}Homebrew not found, installing...${RESET}"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-else
-  echo -e "${GREEN}Homebrew already installed.${RESET}"
-fi
-
-# -----------------------------------------------------
-#  Install git (required to clone dotfiles)
-# -----------------------------------------------------
-if ! command -v git >/dev/null 2>&1; then
-  echo -e "${YELLOW}Installing git...${RESET}"
-  brew install git
-else
-  echo -e "${GREEN}git already installed.${RESET}"
-fi
-
-# -----------------------------------------------------
-#  Clone dotfiles repo
-# -----------------------------------------------------
-if [[ ! -d "$HOME/.dotfiles" ]]; then
-  echo -e "${YELLOW}Cloning dotfiles repository...${RESET}"
-  git clone git@github.com:klaus-224/.dotfiles.git "$HOME/.dotfiles"
-else
-  echo -e "${GREEN}Dotfiles repository already exists at ~/.dotfiles.${RESET}"
-fi
-
-cd "$HOME/.dotfiles"
-
-# -----------------------------------------------------
-#  Install required packages (after git and dotfiles)
+#  Install required packages 
 # -----------------------------------------------------
 PKG_FILE="$DOTFILES_DIR/packages/macos.txt"
 if [[ ! -f "$PKG_FILE" ]]; then
@@ -73,7 +40,6 @@ if command -v stow >/dev/null 2>&1; then
   echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
   stow zsh
   stow tmux
-  stow .config/alacritty
   stow .config/nvim
   echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
