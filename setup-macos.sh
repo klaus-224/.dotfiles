@@ -40,7 +40,8 @@ if command -v stow >/dev/null 2>&1; then
   echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
   stow zsh
   stow tmux
-  stow .config/nvim
+  stow nvim
+  stow ghostty
   echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
   echo -e "${RED}stow not found — please install it and rerun this script.${RESET}"
