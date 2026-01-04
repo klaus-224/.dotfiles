@@ -1,6 +1,12 @@
-ZSHRC_DIR="$HOME/.zshrc.d"
+# --------------------------------------------------
+#	.zshrc
+# Purpose:
+# 	- entry point for zsh configuration
+# 	- loops through zsh fragements in /.zshrc.d and
+# 		sources them
+# --------------------------------------------------
 
-for file in "$ZSHRC_DIR"/*.zsh; do
+for file in "$HOME/.zshrc.d/*.zsh"; do
   source "$file"
 done
 
