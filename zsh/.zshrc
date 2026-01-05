@@ -6,7 +6,7 @@
 # 		sources them
 # --------------------------------------------------
 
-for file in "$HOME/.zshrc.d/*.zsh"; do
-  source "$file"
+for file in "$HOME/.zshrc.d/"*.zsh; do
+  [ -f "$file" ] && source "$file"
 done
 
