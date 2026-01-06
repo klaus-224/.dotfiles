@@ -17,3 +17,7 @@
 export PNPM_HOME="$HOME/Library/pnpm"
 [[ ":$PATH:" != *":$PNPM_HOME:"* ]] && PATH="$PNPM_HOME:$PATH"
 
+# rancher
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rohineshram/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
