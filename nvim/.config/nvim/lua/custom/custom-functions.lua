@@ -33,3 +33,19 @@ end
 
 -- User command to Reload lua
 vim.api.nvim_create_user_command('ReloadLua', 'lua ReloadCustomLuaFiles()', {})
+
+-- Decompress String
+local lzstring = require('custom.lzstring')
+
+function DecompressLZ()
+	local start_line = vim.fn.line("'<")
+	local end_line = vim.fn.line("'>")
+	local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+	local compressed = table.concat(lines, "\n")
+	local decompressed = lzstring.decompressFromBase64(compressed)
+	vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, vim.split(decompressed, "\n"))
+end
+
+vim.api.nvim_create_user_command("Decompress", function()
+	DecompressLZ()
+end, { range = true })

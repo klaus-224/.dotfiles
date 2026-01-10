@@ -14,3 +14,6 @@ brew "jq"
 
 brew "pnpm"
 
+# lua
+brew "luarocks"
+
