@@ -1,7 +1,9 @@
 local M = {}
 
+M.opts = { noremap = true, silent = true }
+
 function M.opts_with_desc(desc)
-	return vim.tbl_extend('force', OPTS, { desc = desc })
+	return vim.tbl_extend('force', M.opts, { desc = desc })
 end
 
 function M.close_all_windows()
@@ -16,7 +18,7 @@ function M.close_all_windows()
 	print(string.format('Closed %d windows: %s', #closed_windows, vim.inspect(closed_windows)))
 end
 
-function M.copy_to_sys_clipboard()
+function M.copy_to_clipboard()
 	vim.cmd('normal! "+y')
 	vim.notify("Copied selection to clipboard")
 end

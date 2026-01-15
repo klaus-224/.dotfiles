@@ -32,33 +32,10 @@ return {
 			{ "<leader>s",  group = "Split/Window" },
 			{ "<leader>v",  group = "Rust" },
 			{ "<leader>x",  group = "Diagnostics" },
-			{ "<leader>y",  group = "Yank/Copy" },
-
-			-- buffer operations
-			{ "<leader>bs", desc = "Save buffer" },
-			{ "<leader>bq", desc = "Close buffer" },
-			{ "<leader>bQ", desc = "Quit all buffers" },
-
-			-- window operations
-			{ "<leader>h",  desc = "Move to left window" },
-			{ "<leader>j",  desc = "Move to bottom window" },
-			{ "<leader>k",  desc = "Move to top window" },
-			{ "<leader>l",  desc = "Move to right window" },
-			{ "<leader>sv", desc = "Split vertically" },
-			{ "<leader>sh", desc = "Split horizontally" },
-			{ "<leader>=",  desc = "Increase window width" },
-			{ "<leader>-",  desc = "Decrease window width" },
-			{ "<leader>+",  desc = "Increase window height" },
-			{ "<leader>_",  desc = "Decrease window height" },
-			{ "<leader>W",  desc = "Close all floating windows" },
 
 			-- lsp operations
 			{ "<leader>lf", desc = "Format buffer" },
 			{ "<leader>ca", desc = "Code action" },
-
-			-- yank operations
-			{ "<leader>yp", desc = "Copy file path" },
-			{ "<leader>Y",  desc = "Copy to system clipboard" },
 
 			-- find operations (Telescope)
 			{ "<leader>ff", desc = "Find files" },
@@ -76,9 +53,6 @@ return {
 			{ "<leader>mm", desc = "Toggle mark" },
 			{ "[m",         desc = "Previous mark" },
 			{ "]m",         desc = "Next mark" },
-
-			-- git operations
-			{ "<leader>lg", desc = "Open LazyGit" },
 
 			-- code actions
 			{ "<leader>cs", desc = "Symbols (Trouble)" },

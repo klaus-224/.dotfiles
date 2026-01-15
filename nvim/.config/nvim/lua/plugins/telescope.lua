@@ -63,7 +63,7 @@ return {
 			)
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
 
-			vim.keymap.set("n", "<leader>fB", builtin.git_branches, { desc = "Telescope list git branches" })
+			vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List git branches" })
 		end,
 	},
 	{

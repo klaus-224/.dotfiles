@@ -33,11 +33,3 @@ end
 
 -- User command to Reload lua
 vim.api.nvim_create_user_command('ReloadLua', 'lua ReloadCustomLuaFiles()', {})
-
-
-KEYMAP = vim.keymap
-OPTS = { noremap = true, silent = true }
-
-function OPTS_WITH_DESC(desc)
-	return vim.tbl_extend('force', opts, { desc = desc })
-end

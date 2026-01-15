@@ -11,19 +11,22 @@ return {
 						-- rust keymaps
 						vim.keymap.set("n", "K", function()
 							vim.cmd.RustLsp({ "hover", "actions" })
-						end, opts)
-						vim.keymap.set("n", "<leader>ca", function()
-							vim.cmd.RustLsp("codeAction")
-						end, opts)
+						end, vim.tbl_extend('force', opts, { desc = "Rust hover actions" }))
+
+						-- Note: <leader>ca is handled by general LSP config (lsp-config.lua)
+						-- Rustaceanvim automatically uses RustLsp code actions when available
+
 						vim.keymap.set("n", "<leader>vT", function()
 							vim.cmd.RustLsp("testables")
-						end, opts)
+						end, vim.tbl_extend('force', opts, { desc = "Run Rust testables" }))
+
 						vim.keymap.set("n", "<leader>vE", function()
 							vim.cmd.RustLsp("explainError")
-						end, opts)
+						end, vim.tbl_extend('force', opts, { desc = "Explain Rust error" }))
+
 						vim.keymap.set("n", "<leader>vC", function()
 							vim.cmd.RustLsp("openCargo")
-						end, opts)
+						end, vim.tbl_extend('force', opts, { desc = "Open Cargo.toml" }))
 					end,
 					settings = {
 						["rust-analyzer"] = {
