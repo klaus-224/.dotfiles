@@ -1,4 +1,4 @@
-# Generating git SSH Keys (MacOS/WSL/Linux)
+# Generating git SSH Keys
 
 ## Generate a new SSH key
 
@@ -33,7 +33,15 @@ ssh -T git@github.com
 
 ## Macos
 
-### Install git via Homebrew
+### Install Homebrew
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+### Install git
 
 ```bash
 brew install git
@@ -67,7 +75,7 @@ chmod +x setup-macos.sh
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
-## Windows (WSL)
+## Windows (wsl)
 
 ### Open Powershell as Admin
 
@@ -134,19 +142,14 @@ chmod +x setup-wsl.sh
 WSL Steps:
 
 - install homebrew
-- install git
-- download repo
-- run setup script and install all packages with homebrew
 
 - [ ] add powerlevel10K to .dotfiles
 - [ ] command to source neovim after install
 - [ ] command to source .zshrc
 - [ ] add install for eza
-- [ ] update .zshrc with non-brew installs
 - [ ] remove mcaffee from windows
 - [ ] add zen browser install
 - [ ] need to install lazygit
-
 - [ ] add some goodies:
       https://sidneyliebrand.io/blog/how-fzf-and-ripgrep-improved-my-workflow
       https://www.youtube.com/watch?v=CbMbGV9GT8I&t=56s

@@ -12,7 +12,7 @@ RESET="\033[0m"
 # -----------------------------------------------------
 # Windows App Installation via winget
 # -----------------------------------------------------
-echo -e "${YELLOW}Installing most-used Windows apps...${RESET}"
+echo -e "${YELLOW}Installing Windows apps...${RESET}"
 
 APPS=(
   "Mozilla.Firefox"         # Firefox Browser

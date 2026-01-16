@@ -98,18 +98,17 @@ return {
 			})
 
 			-- hot keys
-			local opts = { noremap = true, silent = true }
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts, { desc = "go to declaration" })
-			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts, { desc = "go to definition" })
+			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { noremap = true, silent = true, desc = "Code action" })
+			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { noremap = true, silent = true, desc = "Go to declaration" })
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { noremap = true, silent = true, desc = "Go to definition" })
 			vim.keymap.set("n", "K", function()
 				vim.lsp.buf.hover({ border = "rounded" })
-			end, opts)
-			vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts, { desc = "go to implementation" })
-			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts, { desc = "go to references" })
+			end, { noremap = true, silent = true, desc = "LSP hover" })
+			vim.keymap.set("n", "gI", vim.lsp.buf.implementation, { noremap = true, silent = true, desc = "Go to implementation" })
+			vim.keymap.set("n", "gr", vim.lsp.buf.references, { noremap = true, silent = true, desc = "Go to references" })
 			vim.keymap.set("n", "gl", function()
 				vim.diagnostic.open_float({ border = "rounded" })
-			end, opts)
+			end, { noremap = true, silent = true, desc = "Show line diagnostics" })
 		end,
 	},
 }
