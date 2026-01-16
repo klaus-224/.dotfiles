@@ -1,4 +1,8 @@
 return {
+	{
+		"nvim-mini/mini.nvim",
+		version = false
+	},
 	-- color scheme
 	{
 		"catppuccin/nvim",

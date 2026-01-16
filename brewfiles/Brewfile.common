@@ -1,0 +1,16 @@
+brew "git"
+brew "stow"
+brew "tmux"
+brew "neovim"
+brew "lazygit"
+
+# cli tools
+brew "fzf"
+brew "fd"
+brew "bat"
+brew "eza"
+brew "ripgrep"
+brew "jq"
+
+brew "pnpm"
+

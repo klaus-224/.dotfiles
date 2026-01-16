@@ -6,10 +6,11 @@ return {
 		"nvim-tree/nvim-web-devicons",
 		"MunifTanjim/nui.nvim",
 	},
+	keys = {
+		{ "F", "<cmd>Neotree toggle float<cr>", desc = "Toggle Neo-tree" }
+	},
 	config = function()
 		local neotree = require("neo-tree")
-		vim.keymap.set("n", "F", ":Neotree toggle float<CR>", { noremap = true, silent = true })
-
 		neotree.setup({
 			popup_border_style = "rounded",
 			filesystem = {
