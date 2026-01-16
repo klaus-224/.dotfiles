@@ -21,7 +21,6 @@ return {
 
 		wk.add({
 			-- top level groups
-			{ "<leader>b",  group = "Buffer" },
 			{ "<leader>c",  group = "Code" },
 			{ "<leader>d",  group = "Debug" },
 			{ "<leader>f",  group = "Find" },
@@ -29,7 +28,6 @@ return {
 			{ "<leader>l",  group = "LSP" },
 			{ "<leader>m",  group = "Marks" },
 			{ "<leader>o",  group = "Open/Toggle" },
-			{ "<leader>s",  group = "Split/Window" },
 			{ "<leader>v",  group = "Rust" },
 			{ "<leader>x",  group = "Diagnostics" },
 
