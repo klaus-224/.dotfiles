@@ -3,9 +3,9 @@ local globals = require('core.globals')
 
 globals.keymap.set('i', 'jk', '<Esc>', utils.opts)
 globals.keymap.set('v', 'q', '<Esc>', utils.opts)
-globals.keymap.set('n', '<leader>bs', ':write<Return>', utils.opts_with_desc('Save buffer'))
-globals.keymap.set('n', '<leader>bq', ':quit<Return>', utils.opts_with_desc('Close current buffer'))
-globals.keymap.set('n', '<leader>bQ', ':qa!<Return>', utils.opts_with_desc('Force quit all buffers'))
+globals.keymap.set('n', '<leader>w', ':write<Return>', utils.opts_with_desc('Save buffer'))
+globals.keymap.set('n', '<leader>q', ':quit<Return>', utils.opts_with_desc('Close current buffer'))
+globals.keymap.set('n', '<leader>Q', ':qa!<Return>', utils.opts_with_desc('Force quit all buffers'))
 -- select all
 globals.keymap.set('n', '<C-a>', 'gg<S-v>G', utils.opts_with_desc('Select all'))
 -- formatting
