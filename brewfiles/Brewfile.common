@@ -11,6 +11,10 @@ brew "bat"
 brew "eza"
 brew "ripgrep"
 brew "jq"
+brew "awscli"
 
+# package managers
 brew "pnpm"
 
+# infra stuff
+brew "aws-cdk"
