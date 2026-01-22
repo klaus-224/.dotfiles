@@ -30,6 +30,11 @@ return {
 		end,
 	},
 	{
+		"folke/lazydev.nvim",
+		ft = "lua",
+		opts = {},
+	},
+	{
 		"neovim/nvim-lspconfig",
 		dependencies = { "hrsh7th/cmp-nvim-lsp" },
 		config = function()
