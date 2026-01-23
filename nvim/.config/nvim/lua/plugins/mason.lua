@@ -1,14 +1,11 @@
--- LSP server package manager
 return {
 	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
+		dependencies = { "mason-org/mason-lspconfig.nvim", "neovim/nvim-lspconfig" },
 		config = function()
+			-- Mason installer
 			require("mason").setup({})
-		end,
-	},
-	{
-		"williamboman/mason-lspconfig.nvim",
-		config = function()
+			-- LSP server management
 			require("mason-lspconfig").setup({
 				ensure_installed = {
 					"lua_ls",
@@ -26,19 +23,9 @@ return {
 					"pyright",
 				},
 			})
-		end,
-	},
-	{
-		"folke/lazydev.nvim",
-		ft = "lua",
-		opts = {},
-	},
-	{
-		"neovim/nvim-lspconfig",
-		dependencies = { "saghen/blink.cmp" },
-		config = function()
+
+			-- server and client setting
 			require("lsp")
 		end,
 	},
 }
-
