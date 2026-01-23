@@ -1,6 +1,10 @@
 TODO:
-- add blink.cmp
-    - ghost text in messageline
+- [x] replace nvim-cmp with blink.cmp
+- [ ] (optional) configure blink ghost text in cmdline/message area
+
+Update (2026-01-23): migrated to blink.cmp; the older nvim-cmp-specific notes below are mostly historical. Focus areas now:
+- LSP capabilities should come from `require("blink.cmp").get_lsp_capabilities()` (single place: `lua/lsp/client-config.lua`).
+- Formatting should have a single entry point (`<leader>lf`) to avoid LSP vs conform conflicts.
 
 # Neovim config findings (redundancy / bloat / conflicts)
 

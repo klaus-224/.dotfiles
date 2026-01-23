@@ -35,7 +35,7 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "hrsh7th/cmp-nvim-lsp" },
+		dependencies = { "saghen/blink.cmp" },
 		config = function()
 			require("lsp")
 		end,

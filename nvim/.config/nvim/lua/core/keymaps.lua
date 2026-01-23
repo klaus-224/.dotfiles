@@ -9,7 +9,7 @@ globals.keymap.set('n', '<leader>Q', ':qa!<Return>', utils.opts_with_desc('Force
 -- select all
 globals.keymap.set('n', '<C-a>', 'gg<S-v>G', utils.opts_with_desc('Select all'))
 -- formatting
-globals.keymap.set('n', '<leader>lf', vim.lsp.buf.format, utils.opts_with_desc('Format buffer'))
+-- NOTE: formatting is managed by conform.nvim (<leader>lf)
 
 -- windows
 globals.keymap.set('n', '<leader>sv', ':vsplit<Return>', utils.opts_with_desc('Split buffer vertically'))
