@@ -18,6 +18,7 @@
 alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
+alias cdnc="~/.dotfiles/nvim/.config/nvim"
 
 # editors
 alias nv="nvim"
