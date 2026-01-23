@@ -17,3 +17,4 @@ local servers = {
 for _, server in ipairs(servers) do
 	require("lsp.servers." .. server)
 end
+
