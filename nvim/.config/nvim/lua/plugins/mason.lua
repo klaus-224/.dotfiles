@@ -1,12 +1,11 @@
+-- LSP server package manager
 return {
 	{
-		-- LSP Package manager
 		"williamboman/mason.nvim",
 		config = function()
 			require("mason").setup({})
 		end,
 	},
-	-- make sure LSPs are installed
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
