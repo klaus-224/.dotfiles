@@ -1,3 +1,7 @@
+TODO:
+- add blink.cmp
+    - ghost text in messageline
+
 # Neovim config findings (redundancy / bloat / conflicts)
 
 Scope focus: `lua/plugins/completions.lua` and `lua/plugins/mason.lua` (+ a few cross-file conflicts that directly affect them).
