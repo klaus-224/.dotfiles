@@ -55,12 +55,6 @@ return {
 			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
 			vim.keymap.set("n", "<leader>fw", builtin.grep_string, { desc = "Telescope search string on cursor" })
 			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
-			vim.keymap.set(
-				"n",
-				"<leader>fs",
-				builtin.lsp_document_symbols,
-				{ desc = "Telescope search lsp document symbols" }
-			)
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
 
 			vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List git branches" })
