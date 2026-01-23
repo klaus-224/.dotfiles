@@ -17,20 +17,22 @@ return {
 					options = {
 						single_quote = true,
 					},
+					prefer_local = "node_modules/.bin",
 				},
 				biome = {
-					condition = function(ctx)
+					prefer_local = "node_modules/.bin",
+					condition = function(_)
 						-- Use biome if biome.json exists in the project
 						return vim.fn.filereadable(vim.fn.getcwd() .. "/biome.json") == 1
 					end,
-				}
+				},
 			},
 			formatters_by_ft = {
 				lua = { "stylua" },
-				javascript = { "biome", "prettier" },
-				typescript = { "biome", "prettier" },
-				javascriptreact = { "biome", "prettier" },
-				typescriptreact = { "biome", "prettier" },
+				javascript = { "biome", "prettier", stop_after_first = true },
+				typescript = { "biome", "prettier", stop_after_first = true },
+				javascriptreact = { "biome", "prettier", stop_after_first = true },
+				typescriptreact = { "biome", "prettier", stop_after_first = true },
 				css = { "prettier" },
 				html = { "prettier" },
 				json = { "prettier" },
