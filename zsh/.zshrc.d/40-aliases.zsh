@@ -13,8 +13,6 @@
 #   - No environment or PATH changes
 # --------------------------------------------------
 
-# unbinds
-bindkey -r "^G" # CTRL+G from send-break 
 
 # navigation
 alias cdh="cd ~"
