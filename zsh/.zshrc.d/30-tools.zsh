@@ -17,13 +17,21 @@
 # fzf
 eval "$(fzf --zsh)"
 
-export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+# fzf-git
+if [[ -s "$HOME/.dotfiles/scripts/fzf-git.sh" ]]; then
+	source "$HOME/.dotfiles/scripts/fzf-git.sh"
+fi
 
-export FZF_DEFAULT_OPTS="--height 50% --border"
-export FZF_CTRL_T_OPTS="--preview 'bat --color=always -n --line-range :500 {}'"
-export FZF_ALT_C_OPTS="--preview 'eza --icons --tree --color=always {} | head -200'"
+# unbind CTRL+G from send-break 
+bindkey -r "^G"
+
+export FZF_DEFAULT_OPTS="--style minimal --height 50% --border --tmux 80%"
+export FZF_CTRL_T_OPTS="--prompt 'All> ' \
+             --header 'CTRL-D: Directories / CTRL-F: Files' \
+             --preview '[[ -d {} ]] && eza --icons --tree --color=always {} | head -200 || bat --color=always -n --line-range :500 {}' \
+             --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d)' \
+             --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f)' \
+             --bind 'ctrl-a:change-prompt(All> )+reload(fd)'"
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
