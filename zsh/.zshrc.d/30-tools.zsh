@@ -23,13 +23,14 @@ if [[ -s "$HOME/.dotfiles/scripts/fzf-git.sh" ]]; then
 fi
 
 
+FD_DEFAULT_OPTIONS="--hidden --no-ignore --exclude .git --exclude node_modules" # show hidden files, don't ignore things hidden by vsc except .git and node_modules
 export FZF_DEFAULT_OPTS="--style minimal --height 50% --border"
 export FZF_CTRL_T_OPTS="--prompt 'All> ' \
   --header 'CTRL-D: Directories / CTRL-F: Files' \
   --preview '[[ -d {} ]] && eza --icons --tree --color=always {} | head -200 || bat --color=always -n --line-range :500 {}' \
-  --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d --hidden --exclude .git)' \
-  --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f --hidden --exclude .git)' \
-  --bind 'ctrl-a:change-prompt(All> )+reload(fd --hidden --exclude .git)'"
+  --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d $FD_DEFAULT_OPTIONS)' \
+  --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f $FD_DEFAULT_OPTIONS)' \
+  --bind 'ctrl-a:change-prompt(All> )+reload(fd $FD_DEFAULT_OPTIONS)'"
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
