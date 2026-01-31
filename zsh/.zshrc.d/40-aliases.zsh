@@ -22,10 +22,11 @@ alias cdnc="~/.dotfiles/nvim/.config/nvim"
 
 # editors
 alias nv="nvim"
-alias srczsh="source ~/.zshrc"
+alias sz="source ~/.zshrc"
 
 # eza
 alias ls="eza --long --all --group-directories-first --no-user --no-time --icons"
+alias lst="eza --tree --long --all --group-directories-first --no-user --no-time --icons"
 
 # tmux
 alias ta="tmux a"
