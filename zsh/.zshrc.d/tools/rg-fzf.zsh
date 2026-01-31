@@ -1,19 +1,3 @@
-# --------------------------------------------------
-# 50-functions.zsh
-# Purpose:
-#   Define reusable shell functions.
-#
-# Responsibilities:
-#   - Multi-step commands
-#   - Commands that take arguments
-#   - Safer replacements for complex aliases
-#
-# Rules:
-#   - Functions only
-#   - No aliases
-#   - No tool initialization
-# --------------------------------------------------
-
 # Interactive ripgrep with fzf
 # Usage: rg-fzf [initial query]
 # First word triggers ripgrep search, subsequent words filter with fzf
@@ -38,8 +22,8 @@ rg-fzf() {
       --with-shell 'bash -c' \
       --bind "start,change:transform:$TRANSFORMER" \
       --color "hl:-1:underline,hl+:-1:underline:reverse" \
-      --delimiter : \
-      --preview 'bat --color=always {1} --highlight-line {2} 2>/dev/null || cat {1}' \
-      --preview-window 'up,60%,border-line,+{2}+3/3,~3' \
-      --bind "enter:become(${EDITOR:-nvim} {1} +{2})"
+      --delimiter :  | ${EDITOR:-nvim} {1} +{2}
+      # --preview 'bat --color=always {1} --highlight-line {2} 2>/dev/null || cat {1}' \
+      # --preview-window 'up,60%,border-line,+{2}+3/3,~3' \
+      # --bind "enter:become(${EDITOR:-nvim} {1} +{2})"
 }
