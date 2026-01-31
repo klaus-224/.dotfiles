@@ -12,6 +12,7 @@ brew "eza"
 brew "ripgrep"
 brew "jq"
 brew "awscli"
+brew "tlrc"
 
 # package managers
 brew "pnpm"

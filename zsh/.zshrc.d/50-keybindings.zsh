@@ -11,7 +11,7 @@
 # unbinds
 bindkey -r "^G" # CTRL+G from send-break 
 
-# Widget for rg-fzf
+# zle widgets
 rg-fzf-widget() {
   LBUFFER=""
   RBUFFER=""
