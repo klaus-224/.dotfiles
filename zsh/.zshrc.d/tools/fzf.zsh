@@ -10,7 +10,7 @@ FD_DEFAULT_OPTIONS="--hidden --no-ignore --exclude .git --exclude node_modules"
 EZA_OPTIONS="--icons --tree --color=always {}"
 BAT_OPTIONS="--color=always -n --line-range :500 {}"
 
-export FZF_DEFAULT_OPTS="--style minimal --height 50% --border"
+export FZF_DEFAULT_OPTS="--style minimal"
 export FZF_CTRL_T_OPTS="--prompt 'All> ' \
   --header 'CTRL-D: Directories / CTRL-F: Files' \
   --preview '[[ -d {} ]] && eza $EZA_OPTIONS | head -200 || bat $BAT_OPTIONS' \
