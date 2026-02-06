@@ -18,16 +18,28 @@ return {
 							["q"] = telescope_actions.close,
 						},
 					},
-					file_ignore_patterns = {
-						"^node_modules/",
-						"^target/",
-						"^.git/",
-					},
-					preview = {
+					review = {
 						wrap = true,
 					},
 				},
 				pickers = {
+					live_grep = {
+						additional_args = function()
+							return {
+								"--hidden",
+								"--no-ignore",
+								"--no-ignore-vcs",
+								"--glob", "!**/node_modules/**",
+								"--glob", "!**/.git/**",
+								"--glob", "!**/.turbo/**",
+								"--glob", "!**/venv/**",
+								"--glob", "!**/.venv/**",
+								"--glob", "!**/site-packages/**",
+								"--glob", "!**/target/**",
+								"--glob", "!**/trace/**",
+							}
+						end,
+					},
 					git_branches = {
 						mappings = {
 							n = {
