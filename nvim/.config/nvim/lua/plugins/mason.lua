@@ -21,6 +21,7 @@ return {
 					"tailwindcss",
 					"jsonls",
 					"pyright",
+					"sqlls",
 				},
 			})
 
