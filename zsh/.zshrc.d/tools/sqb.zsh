@@ -1,8 +1,6 @@
 # --------------------------------------------------
-# sql-scratch.zsh
-# Purpose:
-#   Open a temporary SQL buffer in Neovim with syntax
-#   highlighting and LSP support
+# mnemonic: [S][Q]L SCRATCH [B]UFFER
+# Opens a temporary SQL buffer in Neovim with syntax highlighting and LSP
 #
 # Usage:
 #   sql              			# Open empty SQL scratch buffer
@@ -10,8 +8,6 @@
 #   cat query.sql | sql
 # --------------------------------------------------
 
-# mnemonic: [S][Q]L SCRATCH [B]uffer
-# Opens a temporary SQL buffer in Neovim with syntax highlighting and LSP
 function sqb() {
   # Ensure SQL language server is installed via Mason
   if ! [ -f "$HOME/.local/share/nvim/mason/bin/sql-language-server" ]; then
