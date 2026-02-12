@@ -8,5 +8,10 @@ use = "wylie102/duckdb"
 rev = "3f8c863"
 hash = "87b9233a74325e95011670ed20bbd0d4"
 
+[[plugin.deps]]
+use = "orhnk/system-clipboard"
+rev = "75a5330"
+hash = "2eca70f99d25c661e0a92000843d001e"
+
 [flavor]
 deps = []
