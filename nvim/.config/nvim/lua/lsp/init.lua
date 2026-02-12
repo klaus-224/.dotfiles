@@ -13,6 +13,7 @@ local servers = {
 	"tailwindcss_ls",
 	"json_ls",
 	"sql_ls",
+	"tombi_ls",
 }
 
 for _, server in ipairs(servers) do

@@ -38,6 +38,7 @@ return {
 				json = { "prettier" },
 				yaml = { "prettier" },
 				markdown = { "prettier" },
+				toml = { "tombi" },
 			},
 			-- Set up format-on-save
 			format_on_save = {
