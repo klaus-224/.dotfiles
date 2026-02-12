@@ -14,6 +14,7 @@ brew "ripgrep"
 brew "jq"
 brew "awscli"
 brew "tlrc"
+brew "yazi"
 
 # package managers
 brew "pnpm"

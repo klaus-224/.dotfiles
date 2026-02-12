@@ -1,0 +1,22 @@
+# reference: https://yazi-rs.github.io/docs/configuration/keymap
+# default: https://github.com/sxyazi/yazi/blob/shipped/yazi-config/preset/keymap-default.toml
+"$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
+
+[mgr]
+prepend_keymap = [
+	# plugin smart enter
+  { on = "<Enter>", run = "plugin smart-enter", desc = "Enter directory or open file" },
+  { on = "o", run = "open --hovered", desc = "Open in nvim" },
+
+	# plugin duckdb
+  { on = "H", run = "plugin duckdb -1", desc = "Scroll one column to the left" },
+  { on = "L", run = "plugin duckdb +1", desc = "Scroll one column to the right" },
+  { on = ["g", "o"], run = "plugin duckdb -open", desc = "open with duckdb" },
+  { on = ["g", "u"], run = "plugin duckdb -ui", desc = "open with duckdb ui" },
+
+	# goto overrides
+  { on = ["g", "w"], run = "cd ~/Documents/user-data/", desc = "go to user-data/" },
+  { on = ["g", "s"], run = "cd ~/Documents/screen-shots/", desc = "go to screen-shots/" },
+  { on = ["g", "d"], run = "cd ~/.dotfiles", desc = "go to ~/.dotfiles" },
+  { on = ["g", "c"], run = "cd ~/code", desc = "go to ~/code" },
+]

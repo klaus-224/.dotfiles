@@ -1,0 +1,55 @@
+# reference: https://yazi-rs.github.io/docs/configuration/yazi
+# defaults: https://github.com/sxyazi/yazi/blob/shipped/yazi-config/preset/yazi-default.toml
+"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
+
+[mgr]
+ratio = [0, 1, 5]
+sort_dir_first = true
+show_hidden = true
+show_symlink = true
+
+[opener]
+edit = [
+  { run = '${EDITOR:-vi} "$@"', desc = "$EDITOR", block = true },
+]
+reveal = [
+  { run = 'open -R "$@"', desc = "Reveal in Finder" },
+]
+play = [
+  { run = 'open "$@"', desc = "Open with system default" },
+]
+
+[open]
+prepend_rules = [
+  { mime = "text/*", use = "edit" },
+  { mime = "application/json", use = "edit" },
+  { mime = "application/xml", use = "edit" },
+  { mime = "application/javascript", use = "edit" },
+  { mime = "application/typescript", use = "edit" },
+  { mime = "application/x-sh", use = "edit" },
+  { mime = "application/x-shellscript", use = "edit" },
+  { mime = "application/toml", use = "edit" },
+  { mime = "application/x-yaml", use = "edit" },
+  { mime = "inode/x-empty", use = "edit" },
+  { mime = "*", use = "play" },
+]
+
+[plugin]
+prepend_previewers = [
+  { url = "*.csv", run = "duckdb" },
+  { url = "*.tsv", run = "duckdb" },
+  { url = "*.json", run = "duckdb" },
+  { url = "*.parquet", run = "duckdb" },
+  { url = "*.txt", run = "duckdb" },
+  { url = "*.xlsx", run = "duckdb" },
+  { url = "*.db", run = "duckdb" },
+  { url = "*.duckdb", run = "duckdb" }
+]
+prepend_preloaders = [
+  { url = "*.csv", run = "duckdb", multi = false },
+  { url = "*.tsv", run = "duckdb", multi = false },
+  { url = "*.json", run = "duckdb", multi = false },
+  { url = "*.parquet", run = "duckdb", multi = false },
+  { url = "*.txt", run = "duckdb", multi = false },
+  { url = "*.xlsx", run = "duckdb", multi = false }
+]
