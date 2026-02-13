@@ -38,7 +38,7 @@ prepend_keymap = [
   { on = ["<Space>", "c", "u"], run = "cd ~/Documents/user-data/", desc = "go to user-data/" },
   { on = ["<Space>", "c", "s"], run = "cd ~/Documents/screen-shots/", desc = "go to screen-shots/" },
   # plugin smart enter
-  { on = "<Enter>", run = "plugin smart-enter", desc = "Enter directory or open file" },
+  { on = "<Enter>", run = "plugin open-in-nvim", desc = "Enter directory or open file in nvim" },
   { on = "o", run = "plugin open-in-nvim", desc = "Open in nvim" },
   # plugin duckdb
   { on = "H", run = "plugin duckdb -1", desc = "Scroll one column to the left" },

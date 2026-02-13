@@ -8,7 +8,7 @@ local function entry()
 		ya.emit("cd", { tostring(h.url) })
 		ya.emit("shell", { "nvim .", block = true })
 	else
-		ya.emit("open", { hovered = true })
+		ya.emit("shell", { "nvim -- %h", block = true })
 	end
 end
 
