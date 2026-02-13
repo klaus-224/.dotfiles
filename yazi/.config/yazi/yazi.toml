@@ -10,7 +10,7 @@ show_symlink = true
 
 [opener]
 edit = [
-  { run = '${EDITOR:-vi} "$@"', desc = "$EDITOR", block = true },
+  { run = 'nvim "$@"', desc = "$EDITOR", block = true },
 ]
 reveal = [
   { run = 'open -R "$@"', desc = "Reveal in Finder" },
@@ -30,6 +30,7 @@ prepend_rules = [
   { mime = "application/x-shellscript", use = "edit" },
   { mime = "application/toml", use = "edit" },
   { mime = "application/x-yaml", use = "edit" },
+  { mime = "application/x-empty", use = "edit" },
   { mime = "inode/x-empty", use = "edit" },
   { mime = "*", use = "play" },
 ]
