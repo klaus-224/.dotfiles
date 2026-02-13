@@ -15,11 +15,18 @@ prepend_keymap = [
   { on = ["g", "h"], run = "noop", desc = "Disabled" },
   { on = ["g", "c"], run = "noop", desc = "Disabled" },
   { on = ["g", "d"], run = "noop", desc = "Disabled" },
+  { on = "s", run = "noop", desc = "Disabled" },
+  { on = "S", run = "noop", desc = "Disabled" },
   { on = "v", run = "noop", desc = "Disabled" },
   { on = "Y", run = "noop", desc = "Disabled" },
   # overrides
   { on = "V", run = "visual_mode", desc = "Enter visual mode" },
-  { on = "<Esc>", run = ["escape", "visual_mode --unset", "unyank"], desc = "Exit visual mode, clear selection, or cancel search" },
+  { on = "<Esc>", run = [
+    "escape",
+    "escape --search",
+    "visual_mode --unset",
+    "unyank"
+  ], desc = "Exit visual mode, clear selection, or cancel search" },
   { on = ["<Space>", "Q"], run = "quit", desc = "Quit the process" },
   { on = ["<Space>", "f", "f"], run = "search --via=fd", desc = "Search files by name via fd" },
   { on = ["<Space>", "f", "g"], run = "search --via=rg", desc = "Search files by content via ripgrep" },
