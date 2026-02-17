@@ -3,6 +3,8 @@
 - [ ] tmux theme
 - [ ] util to update ghostty theme and reload config
 - [ ] add some of the nvim plugins from coding with sphere
+- [ ] tool for parsing logs
+- [ ] write an AGENTS.md and have it creata a /tmp folder for plans.
 
 _zsh tools_
 - grep through manuals
