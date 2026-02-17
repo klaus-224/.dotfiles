@@ -70,9 +70,6 @@ return {
 							}
 						}
 					},
-					colorscheme = {
-						enable_preview = true,
-					}
 				}
 			})
 
@@ -88,6 +85,9 @@ return {
 			vim.keymap.set("n", "<leader>ds", builtin.lsp_document_symbols, {})
 			vim.keymap.set("n", "<leader>ws", builtin.lsp_workspace_symbols, {})
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
+
+
+			-- custom telescope picker TODO: CLEAN UP AND ORGANIZE LATER
 			vim.keymap.set("n", "<leader>fc", function()
 				local configured_colorschemes = vim.g.configured_colorschemes or {}
 				if #configured_colorschemes == 0 then
