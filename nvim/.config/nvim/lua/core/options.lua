@@ -4,14 +4,21 @@ vim.opt.wrap = true
 vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.linebreak = true
+vim.opt.exrc = true
+vim.o.scrolloff = 5
+vim.opt.ignorecase = true
+
+vim.diagnostic.config({
+	virtual_text = true,
+	signs = false,
+})
 
 -- Set leader to spacebar
 vim.g.mapleader = " "
 
 --Enable line numbers
-vim.opt.number = true -- absolute line numbers
--- vim.opt.relativenumber = true -- relative line numbers
-
+vim.opt.number = true
+vim.opt.relativenumber = true -- relative line numbers
 vim.opt.title = true
 
 -- Enable automatic indentation matching the previous line
@@ -49,6 +56,13 @@ vim.opt.smarttab = true
 
 -- Preserve indentation for wrapped lines
 vim.opt.breakindent = true
+
+-- Fold
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldlevel = 99
+vim.opt.foldnestmax = 1
+vim.opt.foldopen:remove("hor")
 
 -- Set the number of spaces to use for each indentation level
 vim.opt.shiftwidth = 2

@@ -61,23 +61,18 @@ return {
 			{ "<leader>xX", desc = "Buffer diagnostics (Trouble)" },
 			{ "<leader>xL", desc = "Location list (Trouble)" },
 			{ "<leader>xQ", desc = "Quickfix list (Trouble)" },
+			{ "<leader>e",  desc = "Show line diagnostics" },
+			{ "[e",         desc = "Previous diagnostic" },
+			{ "]e",         desc = "Next diagnostic" },
 
-			-- open/Toggle
-			{ "<leader>oc", desc = "Open CopilotChat" },
-			{ "<leader>or", desc = "Copilot review code" },
-
-			-- debug
-			{ "<leader>dt", desc = "Toggle breakpoint" },
-			{ "<leader>dc", desc = "Debug continue" },
-
-			-- rust tools
-			{ "<leader>vT", desc = "Run testables" },
 			{ "<leader>vE", desc = "Explain error" },
 			{ "<leader>vC", desc = "Open Cargo.toml" },
 
 			-- other non leader bindings
 			{ "F",          desc = "Toggle Neo-tree" },
 			{ "?",          desc = "Fuzzy find in buffer" },
+			{ "J",          mode = "v",                                   desc = "Move selected lines down" },
+			{ "K",          mode = "v",                                   desc = "Move selected lines up" },
 			{ "K",          desc = "LSP hover" },
 			{ "gD",         desc = "Go to declaration" },
 			{ "gd",         desc = "Go to definition" },
