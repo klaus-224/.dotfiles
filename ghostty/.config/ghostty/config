@@ -1,18 +1,23 @@
 # Configuration for Ghostty https://ghostty.org/docs
 
-theme = Catppuccin Mocha
-# background = black
+theme = Dracula
 font-family = Hack Nerd Font Mono
 font-family-bold = Hack Nerd Font Mono
 font-thicken = true
 font-size = 16
-cursor-opacity = 0.5
+
+cursor-opacity = 1
 bold-is-bright = true
-window-padding-y = 0
-window-padding-x = 0
+
+window-padding-balance = true
 mouse-hide-while-typing = true
+
 shell-integration = zsh
-selection-background = #0a385c
-background-opacity = 1
-background-blur-radius = 10
+selection-background = "#0a385c"
+
+# background-opacity = 1
+# background-blur-radius = 10
+clipboard-trim-trailing-spaces = true
+
 macos-option-as-alt = true
+macos-titlebar-style = hidden
