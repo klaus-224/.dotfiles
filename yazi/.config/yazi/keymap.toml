@@ -40,6 +40,7 @@ prepend_keymap = [
   # plugin smart enter
   { on = "<Enter>", run = "plugin open-in-nvim", desc = "Enter directory or open file in nvim" },
   { on = "o", run = "plugin open-in-nvim", desc = "Open in nvim" },
+  { on = "O", run = "open --interactive", desc = "Open selected files interactively" },
   # plugin duckdb
   { on = "H", run = "plugin duckdb -1", desc = "Scroll one column to the left" },
   { on = "L", run = "plugin duckdb +1", desc = "Scroll one column to the right" },

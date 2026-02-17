@@ -3,13 +3,21 @@ local globals = require('core.globals')
 
 globals.keymap.set('i', 'jk', '<Esc>', utils.opts)
 globals.keymap.set('v', 'q', '<Esc>', utils.opts)
-globals.keymap.set('n', '<leader>w', ':write<Return>', utils.opts_with_desc('Save buffer'))
-globals.keymap.set('n', '<leader>q', ':quit<Return>', utils.opts_with_desc('Close current buffer'))
-globals.keymap.set('n', '<leader>Q', ':qa!<Return>', utils.opts_with_desc('Force quit all buffers'))
+globals.keymap.set('n', '<leader>w', ':write<CR>', utils.opts_with_desc('Save buffer'))
+globals.keymap.set('n', '<leader>q', ':quit<CR>', utils.opts_with_desc('Close current buffer'))
+globals.keymap.set('n', '<leader>Q', ':qa!<CR>', utils.opts_with_desc('Force quit all buffers'))
+
 -- select all
 globals.keymap.set('n', '<C-a>', 'gg<S-v>G', utils.opts_with_desc('Select all'))
--- formatting
--- NOTE: formatting is managed by conform.nvim (<leader>lf)
+
+-- move selected lines up/down and keep selection
+globals.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", utils.opts_with_desc('Move selected lines down'))
+globals.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", utils.opts_with_desc('Move selected lines up'))
+
+-- diagnostics
+globals.keymap.set('n', '<leader>e', vim.diagnostic.open_float, utils.opts_with_desc('Show line diagnostics'))
+globals.keymap.set('n', '[e', vim.diagnostic.goto_prev, utils.opts_with_desc('Previous diagnostic'))
+globals.keymap.set('n', ']e', vim.diagnostic.goto_next, utils.opts_with_desc('Next diagnostic'))
 
 -- windows
 globals.keymap.set('n', '<leader>sv', ':vsplit<Return>', utils.opts_with_desc('Split buffer vertically'))
@@ -25,6 +33,7 @@ globals.keymap.set(
 	utils.close_all_windows,
 	utils.opts_with_desc('Close all floating windows')
 )
+
 -- copy current buffer absolute file path to system clipboard
 globals.keymap.set(
 	'n',
@@ -32,6 +41,7 @@ globals.keymap.set(
 	utils.copy_cwd,
 	utils.opts_with_desc('Copy full file path to clipboard')
 )
+
 -- copy current selection to the system clipboad
 globals.keymap.set(
 	{ 'v', 'n' },
