@@ -27,5 +27,11 @@ return {
         lualine_z = { "location" },
       },
     })
+
+    vim.api.nvim_create_autocmd("ColorScheme", {
+      callback = function()
+        require("lualine").refresh()
+      end,
+    })
   end,
 }

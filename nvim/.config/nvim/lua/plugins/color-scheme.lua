@@ -1,14 +1,13 @@
 return {
-	{
-		"nvim-mini/mini.nvim",
-		version = false
-	},
 	-- color scheme
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
 		priority = 1000,
 		config = function()
+			vim.g.configured_colorschemes = { "catppuccin" }
+			vim.g.default_colorscheme = "catppuccin"
+
 			require("catppuccin").setup({
 				flavour = "mocha",
 				transparent_background = true,
@@ -21,7 +20,8 @@ return {
 					}
 				end,
 			})
-			vim.cmd.colorscheme("catppuccin")
+
+			vim.cmd.colorscheme(vim.g.default_colorscheme)
 		end,
 	},
 }
