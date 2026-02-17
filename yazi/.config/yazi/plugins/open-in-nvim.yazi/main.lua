@@ -6,7 +6,6 @@ local function entry()
 
 	if h.cha.is_dir then
 		ya.emit("cd", { tostring(h.url) })
-		ya.emit("shell", { "nvim .", block = true })
 	else
 		ya.emit("shell", { "nvim -- %h", block = true })
 	end
