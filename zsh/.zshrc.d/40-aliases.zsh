@@ -21,7 +21,7 @@ alias cdc="cd ~/code"
 alias cdnc="~/.dotfiles/nvim/.config/nvim"
 
 # editors
-alias nv="nvim"
+alias vi="nvim"
 alias sz="source ~/.zshrc"
 
 # eza
