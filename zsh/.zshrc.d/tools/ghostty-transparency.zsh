@@ -61,8 +61,8 @@ ghostty-transparency() {
   local action="$1" op blur msg current
   shift || true
 
-  local default_opacity="${GHOSTTY_TRANSPARENT_OPACITY:-0.9}"
-  local default_blur="${GHOSTTY_TRANSPARENT_BLUR:-12}"
+  local default_opacity="${GHOSTTY_TRANSPARENT_OPACITY:-0.8}"
+  local default_blur="${GHOSTTY_TRANSPARENT_BLUR:-10}"
 
   current="$(_ghostty_transparency_current_opacity)"
   [ -z "$current" ] && current=1
