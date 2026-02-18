@@ -15,7 +15,7 @@ return {
 		local globals = require("core.globals")
 		local utils = require('core.utils')
 
-		globals.keymap.set("n", '<leader>-', "<CMD> Oil <CR>", utils.opts_with_desc(
+		globals.keymap.set("n", '-', "<CMD> Oil <CR>", utils.opts_with_desc(
 			"Open oil"
 		))
 	end

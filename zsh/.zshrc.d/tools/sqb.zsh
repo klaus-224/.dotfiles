@@ -17,9 +17,9 @@ function sqb() {
 
   if [ -t 0 ]; then
     # No stdin, open empty buffer
-    nv -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile'
+    $EDITOR -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile'
   else
     # Has stdin, read it
-    nv -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile' -
+    $EDITOR -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile' -
   fi
 }
