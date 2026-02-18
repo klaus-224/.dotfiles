@@ -1,4 +1,6 @@
 # Configuration for Ghostty https://ghostty.org/docs
+custom-shader = shaders/cursor_tail.glsl
+
 theme = Vague
 font-family = Hack Nerd Font Mono
 font-family-bold = Hack Nerd Font Mono
@@ -14,9 +16,8 @@ mouse-hide-while-typing = true
 shell-integration = zsh
 selection-background = "#0a385c"
 
-background-opacity = 0.9
+background-opacity = 1
 clipboard-trim-trailing-spaces = true
 
 macos-option-as-alt = true
 macos-titlebar-style = hidden
-background-blur-radius = 12
