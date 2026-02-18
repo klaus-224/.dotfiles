@@ -7,6 +7,7 @@ vim.opt.linebreak = true
 vim.opt.exrc = true
 vim.opt.scrolloff = 5
 vim.opt.ignorecase = true
+vim.opt.termguicolors = true
 
 vim.diagnostic.config({
 	virtual_text = true,
