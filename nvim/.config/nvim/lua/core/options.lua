@@ -5,7 +5,7 @@ vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.linebreak = true
 vim.opt.exrc = true
-vim.o.scrolloff = 5
+vim.opt.scrolloff = 5
 vim.opt.ignorecase = true
 
 vim.diagnostic.config({
@@ -90,6 +90,8 @@ vim.opt.splitkeep = "cursor"
 
 -- Disable mouse support in Vim
 vim.opt.mouse = ""
+
+
 
 -- Automatically insert comment leader characters when pressing Enter in block comments
 vim.opt.formatoptions:append({ "r" })

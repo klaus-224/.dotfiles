@@ -6,6 +6,9 @@
 # 		sources them
 # --------------------------------------------------
 
+[[ -n "${ZSH_VERSION:-}" ]] || return 0
+emulate -LR zsh
+
 for file in "$HOME/.zshrc.d/"*.zsh; do
   [ -f "$file" ] && source "$file"
 done

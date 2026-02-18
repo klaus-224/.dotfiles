@@ -40,6 +40,8 @@ return {
 				yaml = { "prettier" },
 				markdown = { "prettier" },
 				toml = { "tombi" },
+				zsh = { "beautysh" },
+				bash = { "beautysh" }
 			},
 			-- Set up format-on-save
 			format_on_save = {

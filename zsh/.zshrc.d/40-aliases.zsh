@@ -13,7 +13,6 @@
 #   - No environment or PATH changes
 # --------------------------------------------------
 
-
 # navigation
 alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
@@ -38,4 +37,10 @@ alias python="python3"
 alias pip="pip3"
 alias pyenv-create="python -m venv .venv"
 alias pyenv-activate="source .venv/bin/activate"
+
+# bat
+alias -g -- -h='-h 2>&1 | bat --language=help --style=plain'
+alias -g -- -help='-help 2>&1 | bat --language=help --style=plain'
+alias -g -- help='help 2>&1 | bat --language=help --style=plain'
+alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
 
