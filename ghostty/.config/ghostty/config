@@ -4,6 +4,7 @@ custom-shader = shaders/cursor_tail.glsl
 theme = Vague
 # font-family = Hack Nerd Font Mono
 font-family = Iosevka Term
+font-style-bold = true
 font-size = 16
 
 cursor-opacity = 1
