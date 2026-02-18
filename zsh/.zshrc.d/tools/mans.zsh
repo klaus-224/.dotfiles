@@ -1,14 +1,21 @@
 function  mans(){
-    man -k . \
-    | fzf -n1,2 --preview "echo {1} \
-    | cut -d' ' -f1 \
-    | sed 's#,$##' \
-    | sed -E 's#^([^(]+)\(([^)]+)\)$#\2 \1#' \
-    | xargs -I% sh -c 'MANPAGER=cat man % 2>/dev/null | col -bx | bat --style=plain --paging=never --color=always'" --bind "enter:execute: \
-      (echo {1} \
-      | cut -d' ' -f1 \
-      | sed 's#,$##' \
-      | sed -E 's#^([^(]+)\(([^)]+)\)$#\2 \1#' \
-      | xargs -I% man % \
-      | less -R)"
+    local selected name section
+    selected="$(
+      man -k . 2>/dev/null \
+      | awk -F' - ' '{print $1}' \
+      | tr ',' '\n' \
+      | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+      | awk 'NF' \
+      | sort -u \
+      | fzf --prompt='man> ' \
+          --preview 'entry={}; name=${entry%%(*}; section=${entry#*(}; section=${section%)}; MANPAGER=cat man "$section" "$name" 2>/dev/null | col -bx | bat --style=plain --paging=never --color=always'
+    )"
+
+    [[ -z "$selected" ]] && return
+
+    name="${selected%%(*}"
+    section="${selected#*(}"
+    section="${section%)}"
+
+    nv "+Man ${section} ${name}"
 }
