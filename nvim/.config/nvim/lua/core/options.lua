@@ -1,12 +1,9 @@
 -- Text width and wrapping
 vim.opt.textwidth = 80
 vim.opt.wrap = true
-vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.linebreak = true
 vim.opt.exrc = true
-vim.opt.scrolloff = 5
-vim.opt.ignorecase = true
 vim.opt.termguicolors = true
 
 vim.diagnostic.config({
