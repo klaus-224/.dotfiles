@@ -49,3 +49,11 @@ globals.keymap.set(
 	utils.copy_to_clipboard,
 	utils.opts_with_desc('Copy visual selection to clipboard')
 )
+
+-- bullets
+globals.keymap.set(
+	'n',
+	'<M-l>',
+	'o- [ ] ',
+	utils.opts_with_desc('Add TODO bullet in markdown')
+)

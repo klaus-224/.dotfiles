@@ -1,6 +1,5 @@
 local M = {}
 
--- Keep the number column background colored consistently across theme changes.
 function M.apply_line_number_highlights()
 	vim.api.nvim_set_hl(0, "LineNrAbove", { fg = "#5c6370", bg = "#1e222a" })
 	vim.api.nvim_set_hl(0, "LineNrBelow", { fg = "#5c6370", bg = "#1e222a" })
