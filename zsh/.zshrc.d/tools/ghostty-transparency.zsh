@@ -4,11 +4,11 @@
 #   Toggle or set Ghostty background transparency from the shell.
 # Usage:
 #   ghostty-transparency          # toggle between opaque and transparent presets
-#   ghostty-transparency on 0.9 8 # enable with opacity and blur
+#   ghostty-transparency on 0.8 10 # enable with opacity and blur
 #   ghostty-transparency off      # disable transparency (opacity 1)
 # Environment:
-#   GHOSTTY_TRANSPARENT_OPACITY - default opacity when enabling (default: 0.9)
-#   GHOSTTY_TRANSPARENT_BLUR    - default blur radius when enabling (default: 12)
+#   GHOSTTY_TRANSPARENT_OPACITY - default opacity when enabling (default: 0.8)
+#   GHOSTTY_TRANSPARENT_BLUR    - default blur radius when enabling (default: 10)
 # --------------------------------------------------
 
 _ghostty_transparency_config_path() {
@@ -61,7 +61,7 @@ ghostty-transparency() {
   local action="$1" op blur msg current
   shift || true
 
-  local default_opacity="${GHOSTTY_TRANSPARENT_OPACITY:-0.8}"
+  local default_opacity="${GHOSTTY_TRANSPARENT_OPACITY:-0.6}"
   local default_blur="${GHOSTTY_TRANSPARENT_BLUR:-10}"
 
   current="$(_ghostty_transparency_current_opacity)"

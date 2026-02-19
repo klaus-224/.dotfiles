@@ -1,9 +1,10 @@
 # Configuration for Ghostty https://ghostty.org/docs
 custom-shader = shaders/cursor_tail.glsl
 
-theme = Vague
+theme = Black Metal (Bathory)
 # font-family = Hack Nerd Font Mono
 font-family = Iosevka Term
+font-thicken = true
 font-size = 16
 
 cursor-opacity = 1
@@ -15,8 +16,9 @@ mouse-hide-while-typing = true
 shell-integration = zsh
 selection-background = "#0a385c"
 
-background-opacity = 1
+background-opacity = 0.6
 clipboard-trim-trailing-spaces = true
 
 macos-option-as-alt = true
 macos-titlebar-style = hidden
+background-blur-radius = 10
