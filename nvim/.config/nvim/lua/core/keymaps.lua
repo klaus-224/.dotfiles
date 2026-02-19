@@ -16,8 +16,8 @@ globals.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", utils.opts_with_desc('Move sele
 
 -- diagnostics
 globals.keymap.set('n', '<leader>e', vim.diagnostic.open_float, utils.opts_with_desc('Show line diagnostics'))
-globals.keymap.set('n', '[e', vim.diagnostic.goto_prev, utils.opts_with_desc('Previous diagnostic'))
-globals.keymap.set('n', ']e', vim.diagnostic.goto_next, utils.opts_with_desc('Next diagnostic'))
+globals.keymap.set('n', '[e', vim.diagnostic.get_prev, utils.opts_with_desc('Previous diagnostic'))
+globals.keymap.set('n', ']e', vim.diagnostic.get_next, utils.opts_with_desc('Next diagnostic'))
 
 -- windows
 globals.keymap.set('n', '<leader>sv', ':vsplit<Return>', utils.opts_with_desc('Split buffer vertically'))

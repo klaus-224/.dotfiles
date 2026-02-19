@@ -1,3 +1,5 @@
+---@module "lazy"
+---@type LazySpec
 return {
 	-- for lua dev completions
 	{
@@ -11,13 +13,15 @@ return {
 			"rafamadriz/friendly-snippets",
 		},
 		version = "1.*",
+		---@module 'blink.cmp'
+		---@type blink.cmp.Config
 		opts = {
 			keymap = { preset = "default" },
 			appearance = {
 				nerd_font_variant = "mono",
 			},
 			completion = {
-				documentation = { auto_show = false },
+				documentation = { auto_show = true },
 			},
 			signature = { enabled = true },
 			sources = {
@@ -29,7 +33,7 @@ return {
 						-- make lazydev completions top priority (see `:h blink.cmp`)
 						score_offset = 100,
 					},
-				}
+				},
 			},
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
