@@ -16,9 +16,8 @@ mouse-hide-while-typing = true
 shell-integration = zsh
 selection-background = "#0a385c"
 
-background-opacity = 0.6
+background-opacity = 1
 clipboard-trim-trailing-spaces = true
 
 macos-option-as-alt = true
 macos-titlebar-style = hidden
-background-blur-radius = 10
