@@ -1,7 +1,9 @@
+---@module "lazy"
+---@type LazySpec
 return {
-	'stevearc/oil.nvim',
+	"stevearc/oil.nvim",
 	dependencies = {
-		"JezerM/oil-lsp-diagnostics.nvim"
+		"JezerM/oil-lsp-diagnostics.nvim",
 	},
 	lazy = false,
 	config = function()
@@ -13,10 +15,8 @@ return {
 		})
 		-- keymaps
 		local globals = require("core.globals")
-		local utils = require('core.utils')
+		local utils = require("core.utils")
 
-		globals.keymap.set("n", '-', "<CMD> Oil <CR>", utils.opts_with_desc(
-			"Open oil"
-		))
-	end
+		globals.keymap.set("n", "-", "<CMD> Oil <CR>", utils.opts_with_desc("Open oil"))
+	end,
 }

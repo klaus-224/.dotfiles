@@ -1,12 +1,10 @@
 -- Text width and wrapping
 vim.opt.textwidth = 80
 vim.opt.wrap = true
-vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.linebreak = true
 vim.opt.exrc = true
-vim.opt.scrolloff = 5
-vim.opt.ignorecase = true
+vim.opt.termguicolors = true
 
 vim.diagnostic.config({
 	virtual_text = true,
@@ -59,10 +57,11 @@ vim.opt.breakindent = true
 
 -- Fold
 vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldlevel = 99
-vim.opt.foldnestmax = 1
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevelstart = 99
+vim.opt.foldnestmax = 20
 vim.opt.foldopen:remove("hor")
+vim.filetype.add({ extension = { har = "json" } })
 
 -- Set the number of spaces to use for each indentation level
 vim.opt.shiftwidth = 2
@@ -90,8 +89,6 @@ vim.opt.splitkeep = "cursor"
 
 -- Disable mouse support in Vim
 vim.opt.mouse = ""
-
-
 
 -- Automatically insert comment leader characters when pressing Enter in block comments
 vim.opt.formatoptions:append({ "r" })
