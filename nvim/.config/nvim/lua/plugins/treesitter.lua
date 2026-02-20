@@ -1,16 +1,27 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
+	lazy = false,
 	build = ":TSUpdate",
 	config = function()
-		local config = require("nvim-treesitter.configs")
-		config.setup({
-			auto_install = true,
+		require("nvim-treesitter.configs").setup({
 			highlight = { enable = true },
+			sync_install = false,
+			auto_install = true,
+			modules = {},
+			ignore_install = {},
 			indent = { enable = true },
-			ensure_installed = { "lua", "rust", "toml" },
+			ensure_installed = {
+				"lua",
+				"vim",
+				"vimdoc",
+				"query",
+				"json",
+				"jsonc",
+				"javascript",
+				"typescript",
+				"tsx",
+				"rust",
+			},
 		})
-		vim.api.nvim_set_hl(0, "TSNormal", { bg = "NONE" })
-
-		vim.treesitter.language.register('markdown', 'octo')
 	end,
 }
