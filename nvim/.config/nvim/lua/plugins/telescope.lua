@@ -7,9 +7,6 @@ return {
 		},
 		config = function()
 			local telescope = require("telescope")
-			local telescope_pickers = require("telescope.pickers")
-			local telescope_finders = require("telescope.finders")
-			local telescope_config = require("telescope.config").values
 			local telescope_actions = require("telescope.actions")
 			local telescope_actions_state = require("telescope.actions.state")
 
@@ -86,35 +83,6 @@ return {
 			vim.keymap.set("n", "<leader>ws", builtin.lsp_workspace_symbols, {})
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
 			vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List git branches" })
-
-
-			-- custom telescope picker TODO: CLEAN UP AND ORGANIZE LATER
-			-- vim.keymap.set("n", "<leader>fc", function()
-			-- 	local configured_colorschemes = vim.g.configured_colorschemes or {}
-			-- 	if #configured_colorschemes == 0 then
-			-- 		vim.notify("No configured colorschemes found", vim.log.levels.WARN)
-			-- 		return
-			-- 	end
-			--
-			-- 	telescope_pickers.new({}, {
-			-- 		prompt_title = "Configured colorschemes",
-			-- 		finder = telescope_finders.new_table({
-			-- 			results = configured_colorschemes,
-			-- 		}),
-			-- 		sorter = telescope_config.generic_sorter({}),
-			-- 		attach_mappings = function(prompt_bufnr)
-			-- 			telescope_actions.select_default:replace(function()
-			-- 				local entry = telescope_actions_state.get_selected_entry()
-			-- 				telescope_actions.close(prompt_bufnr)
-			-- 				if entry ~= nil and entry.value ~= nil then
-			-- 					vim.cmd.colorscheme(entry.value)
-			-- 				end
-			-- 			end)
-			-- 			return true
-			-- 		end,
-			-- 	})
-			-- 	:find()
-			-- end, { desc = "Telescope colorschemes" })
 		end,
 	},
 	{

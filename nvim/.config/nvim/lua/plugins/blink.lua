@@ -20,10 +20,39 @@ return {
 			appearance = {
 				nerd_font_variant = "mono",
 			},
+			cmdline = {
+				enabled = true,
+				sources = { "buffer", "cmdline" },
+				completion = { menu = { auto_show = true } },
+			},
 			completion = {
 				documentation = { auto_show = true },
+				keyword = {
+					range = "full",
+				},
+				trigger = {
+					show_on_backspace = true,
+					show_on_backspace_after_insert_enter = true,
+					show_on_insert = true,
+				},
+				ghost_text = {
+					enabled = true,
+					show_with_menu = true,
+					show_with_selection = true,
+				},
 			},
-			signature = { enabled = true },
+			signature = {
+				enabled = true,
+				trigger = {
+					enabled = true,
+					show_on_insert = true,
+				},
+			},
+			fuzzy = { implementation = "rust" },
+			sorts = {
+				"score",
+				"sort_text",
+			},
 			sources = {
 				default = { "lazydev", "lsp", "path", "snippets", "buffer" },
 				providers = {
@@ -33,9 +62,11 @@ return {
 						-- make lazydev completions top priority (see `:h blink.cmp`)
 						score_offset = 100,
 					},
+					cmdline = {
+						module = "blink.cmp.sources.cmdline",
+					},
 				},
 			},
-			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
 		opts_extend = { "sources.default" },
 	},
