@@ -3,9 +3,9 @@ local globals = require("core.globals")
 
 globals.keymap.set("i", "jk", "<Esc>", utils.opts)
 globals.keymap.set("v", "q", "<Esc>", utils.opts)
-globals.keymap.set("n", "<leader>w", ":write<CR>", utils.opts_with_desc("Save buffer"))
-globals.keymap.set("n", "<leader>q", ":quit<CR>", utils.opts_with_desc("Close current buffer"))
-globals.keymap.set("n", "<leader>Q", ":qa!<CR>", utils.opts_with_desc("Force quit all buffers"))
+-- globals.keymap.set("n", "<leader>w", ":write<CR>", utils.opts_with_desc("Save buffer"))
+-- globals.keymap.set("n", "<leader>q", ":quit<CR>", utils.opts_with_desc("Close current buffer"))
+-- globals.keymap.set("n", "<leader>Q", ":qa!<CR>", utils.opts_with_desc("Force quit all buffers"))
 
 -- select all
 globals.keymap.set("n", "<C-a>", "gg<S-v>G", utils.opts_with_desc("Select all"))
@@ -41,6 +41,7 @@ globals.keymap.set(
 -- bullets
 globals.keymap.set("n", "<M-l>", "o- [ ] ", utils.opts_with_desc("Add TODO bullet in markdown"))
 
+-- TODO move into custom functions
 local function open_pr_file_diff(file, pr_number)
 	local repo = vim.fn.systemlist("gh repo view --json nameWithOwner -q '.nameWithOwner'")[1]
 	if vim.v.shell_error ~= 0 or not repo or repo == "" then

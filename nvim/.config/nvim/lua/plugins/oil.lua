@@ -1,22 +1,36 @@
 ---@module "lazy"
 ---@type LazySpec
 return {
-	"stevearc/oil.nvim",
-	dependencies = {
-		"JezerM/oil-lsp-diagnostics.nvim",
-	},
-	lazy = false,
-	config = function()
-		require("oil").setup({
-			delete_to_trash = true,
-			view_options = {
-				show_hidden = true,
-			},
-		})
-		-- keymaps
-		local globals = require("core.globals")
-		local utils = require("core.utils")
+	{
+		"stevearc/oil.nvim",
+		lazy = false,
+		config = function()
+			local oil = require("oil")
 
-		globals.keymap.set("n", "-", "<CMD> Oil <CR>", utils.opts_with_desc("Open oil"))
-	end,
+			oil.setup(
+				---@module 'oil'
+				---@type oil.SetupOpts
+				{
+					delete_to_trash = true,
+					view_options = {
+						show_hidden = true,
+					},
+					use_default_keymaps = false,
+					keymaps = {
+						["<CR>"] = { "actions.select" },
+						["gv"] = { "actions.select", opts = { vertical = true }},
+						["gh"] = { "actions.select", opts = { horizontal = true }},
+						["gq"] = {"actions.send_to_qflist", opts = {action = "a", target = "qflist"}},
+					},
+				}
+			)
+			vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+		end,
+	},
+	-- diagnostics in oil
+	{
+		"JezerM/oil-lsp-diagnostics.nvim",
+		dependencies = { "stevearc/oil.nvim" },
+		opts = {},
+	},
 }
