@@ -24,9 +24,6 @@ return {
 					"sqlls",
 				},
 			})
-
-			-- server and client setting
-			require("lsp")
 		end,
 	},
 }

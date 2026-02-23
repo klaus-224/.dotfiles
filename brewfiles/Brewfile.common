@@ -22,3 +22,4 @@ brew "pnpm"
 
 # infra stuff
 brew "aws-cdk"
+brew "cdk"

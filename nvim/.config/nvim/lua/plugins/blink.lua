@@ -16,7 +16,10 @@ return {
 		---@module 'blink.cmp'
 		---@type blink.cmp.Config
 		opts = {
-			keymap = { preset = "default" },
+			keymap = {
+				preset = "default",
+				["<C-@>"] = { "show", "show_documentation", "hide_documentation" },
+			},
 			appearance = {
 				nerd_font_variant = "mono",
 			},
@@ -46,6 +49,9 @@ return {
 				trigger = {
 					enabled = true,
 					show_on_insert = true,
+				},
+				keymap = {
+					["C-s"] = { "show_signature", "hide_signature", "fallback" },
 				},
 			},
 			fuzzy = { implementation = "rust" },

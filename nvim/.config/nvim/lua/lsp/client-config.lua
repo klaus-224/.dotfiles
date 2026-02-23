@@ -1,6 +1,13 @@
 local M = {}
 
-M.capabilities = require("blink.cmp").get_lsp_capabilities()
+do
+	local ok, blink = pcall(require, "blink.cmp")
+	if ok and blink.get_lsp_capabilities then
+		M.capabilities = blink.get_lsp_capabilities()
+	else
+		M.capabilities = vim.lsp.protocol.make_client_capabilities()
+	end
+end
 
 M.on_attach = function(_, bufnr)
 	local map = function(mode, lhs, rhs, desc)
