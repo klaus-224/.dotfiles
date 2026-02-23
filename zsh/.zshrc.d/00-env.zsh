@@ -1,16 +1,8 @@
 # --------------------------------------------------
 # 00-env.zsh
 # Purpose:
-#   Detect the operating system once and expose it
-#   as an environment variable for later branching.
-#
-# Sets:
-#   OS_TYPE = macos | linux
-#
-# Rules:
-#   - No PATH changes
-#   - No tool loading
-#   - Pure environment detection only
+# 	Sets the default OS as well as env variables for 
+# 	mac and linux
 # --------------------------------------------------
 
 case "$(uname -s)" in
@@ -21,3 +13,6 @@ case "$(uname -s)" in
     export OS_TYPE="linux"
     ;;
 esac
+
+export PAGER="nvim +Man!"
+
