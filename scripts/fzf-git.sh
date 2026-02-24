@@ -369,7 +369,7 @@ _fzf_git_list_bindings() {
 CTRL-G ? to show this list
 CTRL-G CTRL-F for Files
 CTRL-G CTRL-B for Branches
-CTRL-G CTRL-P for Pull Requests
+CTRL-G CTRL-P for Pull Request number
 CTRL-G CTRL-T for Tags
 CTRL-G CTRL-R for Remotes
 CTRL-G CTRL-H for commit Hashes
@@ -380,42 +380,20 @@ CTRL-G CTRL-E for Each ref (git for-each-ref)
 EOF
 }
 
-# CUSTOM FUNCTIONS -----------------------------------------------------------
-_fzf_git_pr_view() {
-	_fzf_git_check || return
+_fzf_git_pr() {
+  _fzf_git_check || return
   command -v gh > /dev/null || return
-    local selected_pr pr_number repo repo_root cache_dir tmpfile
 
-    # get PR number from list of prs
-    selected_pr=$(gh pr list --json number,title --template '{{range .}}{{.number}} {{.title}}{{"\n"}}{{end}}' | fzf --ansi --preview 'gh pr view {1} | bat --color=always --style=plain -l md') || return 1
+  local selected_pr
+  selected_pr=$(
+    gh pr list --json number,title --template '{{range .}}{{.number}} {{.title}}{{"\n"}}{{end}}' |
+      _fzf_git_fzf --ansi --border-label 'Pull requests ' \
+        --preview 'gh pr view {1} --comments'
+  ) || return 1
 
-    # pr number is required for gh diff and gh view
-    pr_number=${selected_pr%% *}
-    repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner') || return 1
-    repo_root=$(git rev-parse --show-toplevel) || return 1
-    cache_dir="${repo_root}/.git/tmp"
-    mkdir -p "$cache_dir" || return 1
-
-    tmpfile="${cache_dir}/pr-${pr_number}.md"
-    if [[ -f "$tmpfile" ]]; then
-        nvim "$tmpfile"
-        return 0
-    fi
-
-    {
-        echo "# $(gh pr view "$pr_number" --json title -q '.title')"
-        echo
-        echo "## Description"
-        gh pr view "$pr_number" --json body -q '.body'
-        echo
-        echo "## Changed files"
-        gh api "repos/${repo}/pulls/${pr_number}/files" --paginate --jq '.[] | "- [`\(.filename)`](\(.blob_url))"'
-    } > "$tmpfile"
-
-    nvim "$tmpfile"
+  echo "${selected_pr%% *}"
 }
 
-# END CUSTOM FUNCTIONS  -------------------------------------------------------
 fi # --------------------------------------------------------------------------
 
 if [[ $1 = --run ]]; then
@@ -437,11 +415,6 @@ if [[ -n "${BASH_VERSION:-}" ]]; then
       c=${o:0:1}
       if [[ $c == '?' ]]; then
         bind -x "\"\C-g$c\": _fzf_git_list_bindings"
-        continue
-      fi
-      if [[ $o == "pr_view" ]]; then
-        bind -x "\"\C-g\C-$c\": _fzf_git_$o"
-        bind -x "\"\C-g$c\": _fzf_git_$o"
         continue
       fi
       bind -m emacs-standard '"\C-g\C-'$c'": " \C-u \C-a\C-k`_fzf_git_'$o'`\e\C-e\C-y\C-a\C-y\ey\C-h\C-e\er \C-h"'
@@ -466,8 +439,6 @@ elif [[ -n "${ZSH_VERSION:-}" ]]; then
     for o in "$@"; do
       if [[ ${o[1]} == "?" ]];then
         eval "fzf-git-$o-widget() { zle -M '$(_fzf_git_list_bindings)' }"
-      elif [[ $o == "pr_view" ]]; then
-        eval "fzf-git-$o-widget() { _fzf_git_$o; zle reset-prompt }"
       else
         eval "fzf-git-$o-widget() { local result=\$(_fzf_git_$o | __fzf_git_join); zle reset-prompt; LBUFFER+=\$result }"
       fi
@@ -479,6 +450,6 @@ elif [[ -n "${ZSH_VERSION:-}" ]]; then
     done
   }
 fi
-__fzf_git_init files branches pr_view tags remotes hashes stashes lreflogs each_ref worktrees '?list_bindings'
+__fzf_git_init files branches pr tags remotes hashes stashes lreflogs each_ref worktrees '?list_bindings'
 
 fi # --------------------------------------------------------------------------
