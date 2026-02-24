@@ -68,6 +68,7 @@ function _ghpr_ensure_comments_file() {
 # GH review comments
 
 ## Entry
+- send: no
 - file: path/to/file.ext
 - line: 42
 - range: 42-45
@@ -127,87 +128,181 @@ function gpr() {
 function gpc() {
   _ghpr_require || return 1
 
-  local pr_number repo head_sha comments_file selected entry_id file line range body start_line end_line
+  local mode pr_number repo head_sha comments_file start_line end_line sent_csv tmp_comments selected delete_id confirm api_err
+  local -a delete_ids
+  local delim=$'\x1f'
+  local -a sent_ids
+  local failed=0
+
+  mode=$1
+  shift || true
+  if [[ "$mode" != "--review" && "$mode" != "--send" && "$mode" != "--delete" ]]; then
+    echo "Usage: gpc --review [PR] | gpc --send [PR] | gpc --delete [PR]"
+    return 1
+  fi
+
   pr_number=${1:-$(_ghpr_pick_number)} || return 1
   [[ -z "$pr_number" ]] && return 1
   _ghpr_checkout "$pr_number" || return 1
-
   repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner') || return 1
-  head_sha=$(gh pr view "$pr_number" --json headRefOid -q '.headRefOid') || return 1
+
   comments_file=$(_ghpr_comments_file "$pr_number") || return 1
   _ghpr_ensure_comments_file "$comments_file" || return 1
 
-  selected=$(
-    python3 - "$comments_file" <<'PY' | _fzf_git_fzf --ansi --delimiter='|' --with-nth=2,3,4,5 \
-      --border-label "💬 PR queued comments " --header 'Type to filter comments'
-import re, sys, pathlib
-path = pathlib.Path(sys.argv[1])
-text = path.read_text() if path.exists() else ""
-parts = [p.strip() for p in re.split(r'(?m)^## Entry\s*$', text) if p.strip()]
-idx = 0
-for p in parts:
-    file = re.search(r'(?m)^- file:\s*(.*)$', p)
-    line = re.search(r'(?m)^- line:\s*(.*)$', p)
-    rng = re.search(r'(?m)^- range:\s*(.*)$', p)
-    cmt = re.search(r'(?m)^- comment:\s*(.*)$', p)
-    idx += 1
-    fv = (file.group(1).strip() if file else "")
-    lv = (line.group(1).strip() if line else "")
-    rv = (rng.group(1).strip() if rng else "")
-    cv = (cmt.group(1).strip() if cmt else "")
-    if fv or lv or rv or cv:
-        print(f"{idx}|{fv}|{lv}|{rv}|{cv}")
-PY
-  ) || return 1
-
-  IFS='|' read -r entry_id file line range body <<< "$selected"
-  [[ -z "$entry_id" || -z "$file" || -z "$body" ]] && return 1
-
-  _ghpr_open_diff_file "$pr_number" "$file" || return 1
-
-  if [[ -n "$range" && "$range" == *-* ]]; then
-    start_line=${range%-*}
-    end_line=${range#*-}
-    gh api "repos/${repo}/pulls/${pr_number}/comments" \
-      -f body="$body" \
-      -f commit_id="$head_sha" \
-      -f path="$file" \
-      -f side='RIGHT' \
-      -f start_side='RIGHT' \
-      -F start_line="$start_line" \
-      -F line="$end_line" > /dev/null || return 1
-    echo "Added inline range comment to ${file}:${start_line}-${end_line} on PR #${pr_number}."
-  else
-    [[ -z "$line" ]] && return 1
-    gh api "repos/${repo}/pulls/${pr_number}/comments" \
-      -f body="$body" \
-      -f commit_id="$head_sha" \
-      -f path="$file" \
-      -F line="$line" > /dev/null || return 1
-    echo "Added inline comment to ${file}:${line} on PR #${pr_number}."
+  if [[ "$mode" == "--review" ]]; then
+    GHPR_NUMBER="$pr_number" "${EDITOR:-nvim}" "$comments_file"
+    return $?
   fi
 
-  python3 - "$comments_file" "$entry_id" <<'PY'
-import re, sys, pathlib
-path = pathlib.Path(sys.argv[1])
-target = int(sys.argv[2])
-text = path.read_text() if path.exists() else ""
-prefix, entries = "", []
-m = re.search(r'(?m)^## Entry\s*$', text)
-if not m:
-    sys.exit(0)
-prefix = text[:m.start()].rstrip() + "\n\n"
-parts = re.split(r'(?m)^## Entry\s*$', text[m.start():])
-for p in parts:
-    p = p.strip()
-    if p:
-        entries.append("## Entry\n" + p + "\n\n")
-with path.open("w") as f:
-    f.write(prefix)
-    for i, e in enumerate(entries, 1):
-        if i != target:
-            f.write(e)
-PY
+  if [[ "$mode" == "--delete" ]]; then
+    selected=$(
+      gh api "repos/${repo}/pulls/${pr_number}/comments" --paginate --jq '.[] | [.id, .path, ((.line // 0)|tostring), (.body|gsub("\n";"\\n"))] | @tsv' |
+      _fzf_git_fzf -m --ansi --delimiter=$'\t' --with-nth=2,3,4 \
+        --border-label "🗑️ Delete submitted comment " --header 'TAB to multi-select, ENTER to confirm' \
+        --preview "printf '%s' {4} | sed 's/\\\\\\\\n/\\n/g' | (command -v bat >/dev/null && bat --style=plain --color=always -l md || cat)"
+    ) || return 1
+
+    [[ -z "$selected" ]] && return 1
+    while IFS=$'\t' read -r delete_id _; do
+      [[ -n "$delete_id" ]] && delete_ids+=("$delete_id")
+    done <<< "$selected"
+    [[ ${#delete_ids[@]} -eq 0 ]] && return 1
+    printf "Delete %d submitted PR comment(s)? [y/N]: " "${#delete_ids[@]}"
+    read -r confirm || return 1
+    [[ "$confirm" != "y" && "$confirm" != "Y" ]] && return 0
+
+    for delete_id in "${delete_ids[@]}"; do
+      gh api -X DELETE "repos/${repo}/pulls/comments/${delete_id}" > /dev/null || return 1
+      echo "Deleted submitted comment ${delete_id}."
+    done
+    return 0
+  fi
+
+  head_sha=$(gh pr view "$pr_number" --json headRefOid -q '.headRefOid') || return 1
+
+  while IFS="$delim" read -r entry_id file line range body; do
+    body=${body//\\n/$'\n'}
+    [[ -z "$entry_id" || -z "$file" || -z "$body" ]] && continue
+    file=${file#*HEAD:}
+    file=${file#*origin/main:}
+    file=$(printf '%s' "$file" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+    [[ -z "$file" ]] && { failed=1; continue; }
+
+    if [[ -n "$range" && "$range" == *-* ]]; then
+      start_line=${range%-*}
+      end_line=${range#*-}
+      start_line=$(printf '%s' "$start_line" | tr -d '[:space:]')
+      end_line=$(printf '%s' "$end_line" | tr -d '[:space:]')
+      api_err=$(
+        gh api "repos/${repo}/pulls/${pr_number}/comments" \
+        -f body="$body" \
+        -f commit_id="$head_sha" \
+        -f path="$file" \
+        -f side='RIGHT' \
+        -f start_side='RIGHT' \
+        -F start_line="$start_line" \
+        -F line="$end_line" 2>&1 > /dev/null
+      )
+      if [[ $? -ne 0 ]]; then
+        gh api "repos/${repo}/pulls/${pr_number}/comments" \
+          -f body="[line-range ${start_line}-${end_line}] ${body}" \
+          -f commit_id="$head_sha" \
+          -f path="$file" \
+          -f subject_type='file' > /dev/null 2>&1 || {
+            echo "Failed inline range ${file}:${start_line}-${end_line}: ${api_err}"
+            failed=1
+            continue
+          }
+        echo "Added file-level fallback comment for ${file}:${start_line}-${end_line} on PR #${pr_number}."
+      else
+        echo "Added inline range comment to ${file}:${start_line}-${end_line} on PR #${pr_number}."
+      fi
+    else
+      [[ -z "$line" ]] && { failed=1; continue; }
+      line=$(printf '%s' "$line" | tr -d '[:space:]')
+      api_err=$(
+        gh api "repos/${repo}/pulls/${pr_number}/comments" \
+        -f body="$body" \
+        -f commit_id="$head_sha" \
+        -f path="$file" \
+        -f side='RIGHT' \
+        -F line="$line" 2>&1 > /dev/null
+      )
+      if [[ $? -ne 0 ]]; then
+        gh api "repos/${repo}/pulls/${pr_number}/comments" \
+          -f body="[line ${line}] ${body}" \
+          -f commit_id="$head_sha" \
+          -f path="$file" \
+          -f subject_type='file' > /dev/null 2>&1 || {
+            echo "Failed inline ${file}:${line}: ${api_err}"
+            failed=1
+            continue
+          }
+        echo "Added file-level fallback comment for ${file}:${line} on PR #${pr_number}."
+      else
+        echo "Added inline comment to ${file}:${line} on PR #${pr_number}."
+      fi
+    fi
+    sent_ids+=("$entry_id")
+  done < <(
+    awk -v d="$delim" '
+      BEGIN { RS="## Entry[[:space:]]*\n"; ORS="" }
+      NR == 1 { next }
+      {
+        idx++
+        n = split($0, lines, /\n/)
+        send = ""; file = ""; line = ""; range = ""; comment = ""; in_comment = 0
+        for (i = 1; i <= n; i++) {
+          l = lines[i]
+          if (l ~ /^- send:[[:space:]]*/) {
+            send = tolower(l); sub(/^- send:[[:space:]]*/, "", send); in_comment = 0; continue
+          }
+          if (l ~ /^- file:[[:space:]]*/) {
+            file = l; sub(/^- file:[[:space:]]*/, "", file); in_comment = 0; continue
+          }
+          if (l ~ /^- line:[[:space:]]*/) {
+            line = l; sub(/^- line:[[:space:]]*/, "", line); in_comment = 0; continue
+          }
+          if (l ~ /^- range:[[:space:]]*/) {
+            range = l; sub(/^- range:[[:space:]]*/, "", range); in_comment = 0; continue
+          }
+          if (l ~ /^- comment:[[:space:]]*/) {
+            comment = l; sub(/^- comment:[[:space:]]*/, "", comment); in_comment = 1; continue
+          }
+          if (in_comment && l ~ /^- [a-zA-Z_][-a-zA-Z_]*:[[:space:]]*/) { in_comment = 0 }
+          if (in_comment) { comment = comment "\\n" l; continue }
+        }
+        if ((send == "y" || send == "yes" || send == "true" || send == "1" || send == "x" || send == "[x]") && file != "" && comment != "") {
+          printf "%d%s%s%s%s%s%s%s%s\n", idx, d, file, d, line, d, range, d, comment
+        }
+      }
+    ' "$comments_file"
+  )
+
+  if [[ ${#sent_ids[@]} -eq 0 ]]; then
+    echo "No marked comments were sent. Mark entries with '- send: yes' and run gpc again."
+    GHPR_NUMBER="$pr_number" "${EDITOR:-nvim}" "$comments_file"
+    return $failed
+  fi
+
+  sent_csv=$(IFS=,; echo "${sent_ids[*]}")
+  tmp_comments="${comments_file}.tmp.$$"
+  awk -v sent="$sent_csv" '
+    BEGIN {
+      n = split(sent, ids, ",")
+      for (i = 1; i <= n; i++) if (ids[i] != "") remove[ids[i]] = 1
+      entry = 0; started = 0; keep = 1
+    }
+    {
+      if ($0 ~ /^## Entry[[:space:]]*$/) {
+        entry++
+        started = 1
+        keep = !(entry in remove)
+      }
+      if (!started) { print; next }
+      if (keep) print
+    }
+  ' "$comments_file" > "$tmp_comments" && mv "$tmp_comments" "$comments_file"
 }
 
 function gpd() {
@@ -262,7 +357,9 @@ function gph() {
 PR review helpers:
   gpp [PR?]     Pick and print PR number.
   gpr [PR]      Open PR context markdown in your editor.
-  gpc [PR]      Pick queued comment from .git/tmp/pr-<PR>-comments.md and submit inline.
+  gpc --review [PR]  Open queued comments file for marking/editing.
+  gpc --send [PR]    Send only entries marked '- send: yes'.
+  gpc --delete [PR]  Pick one submitted PR comment and delete it (with confirm).
   gpd [PR] [FILE] Open changed file in nvim -d vs PR base.
   gps [PR]    	Submit review (approve / request-changes / comment).
 

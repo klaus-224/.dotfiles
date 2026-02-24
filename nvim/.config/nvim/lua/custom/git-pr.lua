@@ -5,6 +5,7 @@ local COMMENT_TEMPLATE = {
   "# GH review comments",
   "",
   "## Entry",
+  "- send: no",
   "- file: path/to/file.ext",
   "- line: 42",
   "- range: 42-45",
@@ -35,6 +36,57 @@ local function collect_changed_files(lines)
   end
 
   return files
+end
+
+local function changed_files_path(pr_number)
+  local root = repo_root()
+  if not root or not pr_number or tostring(pr_number) == "" then
+    return nil
+  end
+  local dir = root .. "/.git/tmp"
+  vim.fn.mkdir(dir, "p")
+  return dir .. "/pr-" .. tostring(pr_number) .. "-files.txt"
+end
+
+local function bind_qf_enter()
+  local qf_info = vim.fn.getqflist({ winid = 0 })
+  if qf_info.winid and qf_info.winid ~= 0 then
+    local qf_buf = vim.api.nvim_win_get_buf(qf_info.winid)
+    vim.keymap.set("n", "<CR>", function()
+      require("custom.git-pr").open_from_qf()
+    end, { buffer = qf_buf, silent = true })
+  end
+end
+
+function M.restore_qf(pr_number)
+  local target_pr = pr_number or vim.g.ghpr_pr_number or vim.env.GHPR_NUMBER
+  local files = vim.g.ghpr_changed_files
+  if (not files or #files == 0) and target_pr then
+    local path = changed_files_path(target_pr)
+    if path and vim.fn.filereadable(path) == 1 then
+      files = vim.fn.readfile(path)
+    end
+  end
+
+  if not files or #files == 0 then
+    vim.notify("PRFiles: no persisted changed files found", vim.log.levels.WARN)
+    return
+  end
+
+  local items = {}
+  for _, file in ipairs(files) do
+    if file and file ~= "" then
+      table.insert(items, { filename = file, lnum = 1, col = 1, text = file })
+    end
+  end
+  if #items == 0 then
+    vim.notify("PRFiles: no changed files to load", vim.log.levels.WARN)
+    return
+  end
+
+  vim.fn.setqflist({}, "r", { title = "PR files", items = items })
+  vim.cmd("copen")
+  bind_qf_enter()
 end
 
 local function open_diff(file)
@@ -111,18 +163,13 @@ function M.setup(pr_number)
   vim.b.ghpr_files = file_set
   vim.g.ghpr_pr_number = pr_number
   vim.g.ghpr_changed_files = files
+  local files_path = changed_files_path(pr_number)
+  if files_path then
+    vim.fn.writefile(files, files_path)
+  end
 
   if #items > 0 then
-    vim.fn.setqflist({}, "r", { title = "PR files", items = items })
-    vim.cmd("copen")
-
-    local qf_info = vim.fn.getqflist({ winid = 0 })
-    if qf_info.winid and qf_info.winid ~= 0 then
-      local qf_buf = vim.api.nvim_win_get_buf(qf_info.winid)
-      vim.keymap.set("n", "<CR>", function()
-        require("custom.git-pr").open_from_qf()
-      end, { buffer = qf_buf, silent = true })
-    end
+    M.restore_qf(pr_number)
   end
 
   vim.keymap.set("n", "<CR>", function()
@@ -158,6 +205,8 @@ local function relative_file(path)
   if not path or path == "" then
     return ""
   end
+  path = path:gsub("^.-HEAD:", "")
+  path = path:gsub("^.-origin/main:", "")
   local root = repo_root()
   if not root then
     return path
@@ -171,6 +220,7 @@ end
 local function append_comment_entry(path, file, line, range)
   local entry = {
     "## Entry",
+    "- send: no",
     "- file: " .. (file ~= "" and file or "path/to/file.ext"),
     "- line: " .. (line ~= "" and line or ""),
     "- range: " .. (range ~= "" and range or ""),
@@ -235,6 +285,11 @@ function M.setup_commands()
     end
     require("custom.git-pr").open_comment({ file = file, line = line, range = range, pr_number = pr_number })
   end, { nargs = "*", range = true })
+
+  vim.api.nvim_create_user_command("PRFiles", function(cmd)
+    local arg = vim.trim(cmd.args or "")
+    require("custom.git-pr").restore_qf(arg ~= "" and arg or nil)
+  end, { nargs = "?" })
 end
 
 return M
