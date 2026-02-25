@@ -4,6 +4,7 @@
 # 	Sets the default OS as well as env variables for 
 # 	mac and linux
 # --------------------------------------------------
+unalias -- '-h' '--help' '-help' 'help' 2>/dev/null;
 
 case "$(uname -s)" in
   Darwin)
@@ -15,4 +16,3 @@ case "$(uname -s)" in
 esac
 
 export PAGER="nvim +Man!"
-
