@@ -65,3 +65,37 @@ function tl() {
     fi
   done
 }
+
+# --------------------------------------------------
+# mnemonic: tmux 3 windows (explorer/editor/agent)
+# Usage: t3 [session-name]
+# --------------------------------------------------
+function t3() {
+  local session_name="${1:-$(basename "$PWD")}"
+  local workdir="$PWD"
+
+  if ! command -v tmux &>/dev/null; then
+    echo "Error: tmux is required but not installed" >&2
+    return 1
+  fi
+
+  if tmux has-session -t "$session_name" 2>/dev/null; then
+    echo "Error: session already exists: $session_name" >&2
+    return 1
+  fi
+
+  tmux new-session -d -s "$session_name" -n "explorer" -c "$workdir"
+  tmux send-keys -t "$session_name:explorer" "yazi" Enter
+
+  tmux new-window -t "$session_name" -n "editor" -c "$workdir"
+  tmux send-keys -t "$session_name:editor" "nvim" Enter
+
+  tmux new-window -t "$session_name" -n "agent" -c "$workdir"
+  tmux select-window -t "$session_name:explorer"
+
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$session_name"
+  else
+    tmux attach-session -t "$session_name"
+  fi
+}

@@ -1,4 +1,6 @@
 # general todo
+- [ ] look at [ open code ](https://opencode.ai/docs/) to standardize copilot
+and codex usage (all under one umbrellas)
 
 - [ ] tool for parsing logs
 
