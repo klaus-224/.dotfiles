@@ -1,61 +1,97 @@
+# Contents
+
+<!-- mtoc-start -->
+
+- [Generating git SSH Keys](#generating-git-ssh-keys)
+  - [Generate a new SSH key](#generate-a-new-ssh-key)
+    - [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
+    - [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
+    - [Add the public key to Github](#add-the-public-key-to-github)
+    - [Test the connection](#test-the-connection)
+- [Installation](#installation)
+  - [Macos](#macos)
+    - [Install Homebrew](#install-homebrew)
+      - [Install git](#install-git)
+      - [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
+      - [Run the setup script](#run-the-setup-script)
+    - [Windows (wsl)](#windows-wsl)
+      - [Open Powershell as Admin](#open-powershell-as-admin)
+      - [Update wsl](#update-wsl)
+      - [Install Ubuntu](#install-ubuntu)
+      - [Update Linux Packages](#update-linux-packages)
+      - [Install git](#install-git-1)
+      - [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
+      - [Run the WSL Setup Script](#run-the-wsl-setup-script)
+- [Stow Packages](#stow-packages)
+  - [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
+- [Cargo Package Management](#cargo-package-management)
+- [Optional: Install Coding Agents](#optional-install-coding-agents)
+- [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
+- [Tmux Commands](#tmux-commands)
+- [References](#references)
+
+<!-- mtoc-end -->
+
 # Generating git SSH Keys
 
-## Generate a new SSH key
+### Generate a new SSH key
 
-```bash
+```zsh
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
-## Start the SSH agent and add the key
+### Start the SSH agent and add the key
 
-```bash
+```zsh
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ```
 
-## Copy the public key to the clipboard
+### Copy the public key to the clipboard
 
-```bash
+```zsh
 cat ~/.ssh/id_ed25519.pub
 ```
 
-## Add the public key to Github
+### Add the public key to Github
 
 Go to [GitHub SSH Settings](https://github.com/settings/ssh/new) and add the public key
 
-## Test the connection
+### Test the connection
 
-```bash
+```zsh
 ssh -T git@github.com
 ```
 
+---
+
 # Installation
 
-## Macos
+### Macos
 
-### Install Homebrew
+#### Install Homebrew
 
-```bash
+```zsh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-### Install git
+#### Install git
 
-```bash
+```zsh
 brew install git
 ```
 
-### Clone dotfiles repo into `$HOME`
+#### Clone dotfiles repo into `$HOME`
 
-```bash
+```zsh
 git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
 ```
 
-### Run the setup script
+#### Run the setup script
 
-```bash
+```zsh
 cd ~/.dotfiles
 chmod +x setup-macos.sh
 ./setup-macos.sh
@@ -76,49 +112,51 @@ chmod +x setup-macos.sh
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
-## Windows (wsl)
+---
 
-### Open Powershell as Admin
+### Windows (wsl)
 
-```bash
+#### Open Powershell as Admin
+
+```zsh
 wsl --install
 ```
 
-### Update wsl
+#### Update wsl
 
-```bash
+```zsh
 wsl --update
 wsl --set-default-version 2
 ```
 
-### Install Ubuntu
+#### Install Ubuntu
 
-```bash
+```zsh
 wsl --install -d Ubuntu-22.04
 ```
 
-### Update Linux Packages
+#### Update Linux Packages
 
-```bash
+```zsh
 sudo apt update && sudo apt upgrade -y
 ```
 
-### Install git
+#### Install git
 
-```bash
+```zsh
 sudo apt update && sudo apt install -y git
 ```
 
-### Clone the dotfile repo into `$HOME`
+#### Clone the dotfile repo into `$HOME`
 
-```bash
+```zsh
 cd ~
 git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
 ```
 
-### Run the WSL Setup Script
+#### Run the WSL Setup Script
 
-```bash
+```zsh
 cd ~/.dotfiles
 chmod +x setup-wsl.sh
 ./setup-wsl.sh
@@ -132,17 +170,19 @@ chmod +x setup-wsl.sh
 - Symlink dotfiles using stow
 - Install tmux plugin manager (TPM)
 
+---
+
 # Stow Packages
 
 Each top-level directory is a stow package that mirrors `$HOME`:
 
-| Package   | What it links                                                               |
-| --------- | --------------------------------------------------------------------------- |
-| `zsh`     | `.zshrc`, `.zshrc.d/`                                                       |
-| `tmux`    | `.tmux.conf`                                                                |
-| `nvim`    | `.config/nvim/`                                                             |
-| `ghostty` | `.config/ghostty/`                                                          |
-| `agents`  | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
+| Package   | Command        | What it links                                                                 |
+| --------- | -------------- | ----------------------------------------------------------------------------- |
+| `zsh`     | `stow zsh`     | `.zshrc`, `.zshrc.d/`                                                         |
+| `tmux`    | `stow tmux`    | `.tmux.conf`                                                                  |
+| `nvim`    | `stow nvimj`   | `.config/nvim/`                                                               |
+| `ghostty` | `stow ghostty` | `.config/ghostty/`                                                            |
+| `agents`  |                | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
 
 Global agent env vars are defined in `zsh/.zshenv`:
 
@@ -150,38 +190,30 @@ Global agent env vars are defined in `zsh/.zshenv`:
 - `CODEX_HOME`, `CODEX_CONFIG_FILE`
 - `COPILOT_HOME`, `COPILOT_CONFIG_FILE`, `COPILOT_MCP_CONFIG_FILE`
 
-Use `--adopt` on first link so existing files in `~/.codex` / `~/.copilot` are safely moved under `~/.dotfiles/agents/*` and replaced by symlinks.
-Codex system skills (`~/.codex/skills/.system`) are intentionally not managed here.
-To add a custom Codex skill: create `agents/.codex-skills/<skill-name>/SKILL.md`, then run:
-`stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills`
+**Notes:**
 
-## Link everything
+- Use `--adopt` on first link so existing files in `~/.codex` / `~/.copilot` are safely moved under `~/.dotfiles/agents/*` and replaced by symlinks
+- Codex system skills (`~/.codex/skills/.system`) are intentionally not managed here
+- To add a custom Codex skill:
+  - create `agents/.codex-skills/<skill-name>/SKILL.md`
+  - run:
+  ```zsh
+  stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills
+  ```
 
-```bash
-cd ~/.dotfiles
-stow zsh tmux nvim ghostty
-```
-
-## Link individual packages
-
-```zsh
-stow zsh
-stow tmux
-stow nvim
-stow ghostty
-```
-
-# Re-link a single package (useful after changes)
+### Re-link a single package (useful after changes)
 
 ```zsh
 stow -R zsh tmux nvim ghostty
 ```
 
+---
+
 # Cargo Package Management
 
 Cargo-managed CLI tools live in `packages/cargo.txt` (one crate name per line).
 
-```bash
+```zsh
 # install/update all listed cargo packages
 ./scripts/sync-cargo-packages.sh
 
@@ -194,7 +226,9 @@ Cargo-managed CLI tools live in `packages/cargo.txt` (one crate name per line).
 
 The setup scripts (`setup-macos.sh`, `setup-linux.sh`) call this automatically when `cargo` is available.
 
-## Optional: Install Coding Agents
+---
+
+# Optional: Install Coding Agents
 
 ```zsh
 # Codex CLI + config/skill symlinks
@@ -204,7 +238,9 @@ The setup scripts (`setup-macos.sh`, `setup-linux.sh`) call this automatically w
 ./scripts/setup-copilot-cli.sh
 ```
 
-### Optional: Manual Agent Stow Commands
+---
+
+# Optional: Manual Agent Stow Commands
 
 ```zsh
 # Codex config.toml -> ~/.codex/config.toml
@@ -217,13 +253,15 @@ stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills"
 stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .copilot
 ```
 
+---
+
 # Tmux Commands
 
 - `ctrl-z + r`: reload tmux
 - `ctrl-z + ctrl-I`: install tpm plugins
 - need latest version of `bash` for sessionx => `brew install bash`
 
-# TODO
+---
 
 # References
 
