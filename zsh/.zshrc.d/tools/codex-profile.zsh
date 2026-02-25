@@ -1,59 +1,41 @@
 # --------------------------------------------------
 # codex-profile.zsh
 # Purpose:
-#   Manage named profiles for Codex CLI.
-#   Use native `codex --profile` switching, plus optional config snapshots.
-#
-# Function mnemonic: [COD]ex [PRO]file
+#   Minimal helpers around native Codex config/profiles.
 #
 # Usage:
-#   codpro                       # fzf-pick active native Codex profile
-#   codpro profiles              # list native profiles from config.toml
-#   codpro profile [name]        # get/set active native profile
-#   codpro run [args...]         # run `codex --profile <active> ...`
-#
-#   codpro save <name>           # snapshot current config as a profile
-#   codpro load <name>           # load a saved snapshot
-#   codpro list                  # list saved snapshots
-#   codpro show [name]           # show snapshot contents (default: active)
-#   codpro delete <name>         # delete a snapshot
-#   codpro edit <name>           # open snapshot in $EDITOR
-#   codpro diff <a> [b]          # diff two snapshots (b defaults to active)
-#
-# Environment variables:
-#   CODEX_PROFILES_DIR           # where profiles are saved
-#   CODEX_CONFIG_FILE            # config file to snapshot/load
+#   xpro                  # interactive profile picker (fzf)
+#   xpro profiles         # list profile names from config.toml
+#   xpro profile          # show active profile from config.toml
+#   xpro profile <name>   # set active profile in config.toml
+#   xpro profile --clear  # remove top-level profile key
+#   xpro edit             # open config.toml in $EDITOR
+#   xpro paths            # print resolved paths
 # --------------------------------------------------
 
-_CODPRO_DIR="${CODEX_PROFILES_DIR:-$HOME/.dotfiles/agents/.codex/profiles}"
-_CODPRO_CONFIG="${CODEX_CONFIG_FILE:-$HOME/.codex/config.toml}"
-_CODPRO_ACTIVE_SNAPSHOT_FILE="$_CODPRO_DIR/.active"
-_CODPRO_ACTIVE_PROFILE_FILE="$_CODPRO_DIR/.active-profile"
+_xpro_refresh_vars() {
+    _XPRO_CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+    _XPRO_DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
+    _XPRO_CONFIG="${CODEX_CONFIG_FILE:-$_XPRO_CODEX_HOME/config.toml}"
+    _XPRO_DOTFILES_DIR="${XPRO_DOTFILES_DIR:-$_XPRO_DOTFILES_HOME/agents/.codex}"
+    _XPRO_DOTFILES_CONFIG="$_XPRO_DOTFILES_DIR/config.toml"
+    _XPRO_DOTFILES_SKILLS_DIR="${XPRO_DOTFILES_SKILLS_DIR:-$_XPRO_DOTFILES_HOME/agents/.codex-skills}"
+    _XPRO_SKILLS_DIR="$_XPRO_CODEX_HOME/skills"
+}
 
-# -- helpers --------------------------------------------------------------
+_xpro_ensure_paths() {
+    mkdir -p "$_XPRO_CODEX_HOME"
+}
 
-_codpro_ensure_dir() { [[ -d "$_CODPRO_DIR" ]] || mkdir -p "$_CODPRO_DIR"; }
-
-_codpro_active_name() {
-    if [[ -f "$_CODPRO_ACTIVE_SNAPSHOT_FILE" ]]; then
-        cat "$_CODPRO_ACTIVE_SNAPSHOT_FILE"
-    else
-        echo "(none)"
+_xpro_require_config() {
+    if [[ ! -f "$_XPRO_CONFIG" ]]; then
+        echo "Error: Codex config not found at $_XPRO_CONFIG" >&2
+        return 1
     fi
 }
 
-_codpro_active_profile_name() {
-    if [[ -f "$_CODPRO_ACTIVE_PROFILE_FILE" ]]; then
-        cat "$_CODPRO_ACTIVE_PROFILE_FILE"
-    else
-        echo "(none)"
-    fi
-}
-
-_codpro_profile_path() { printf '%s/%s' "$_CODPRO_DIR" "$1"; }
-
-_codpro_codex_profiles() {
-    [[ -f "$_CODPRO_CONFIG" ]] || return 0
+_xpro_profiles() {
+    _xpro_require_config || return 1
     awk '
         /^\[profiles\./ {
             line = $0
@@ -70,53 +52,98 @@ _codpro_codex_profiles() {
             }
             if (name != "" && !seen[name]++) print name
         }
-    ' "$_CODPRO_CONFIG"
+    ' "$_XPRO_CONFIG"
 }
 
-_codpro_profile_exists() {
+_xpro_profile_exists() {
     local wanted="$1"
     local current
     while IFS= read -r current; do
         [[ "$current" == "$wanted" ]] && return 0
-    done < <(_codpro_codex_profiles)
+    done < <(_xpro_profiles)
     return 1
 }
 
-_codpro_print_toml() {
-    local file="$1"
-    if command -v bat >/dev/null 2>&1; then
-        bat --style=plain --paging=never "$file"
-    else
-        cat "$file"
-    fi
+_xpro_current_profile() {
+    _xpro_require_config || return 1
+    awk '
+        BEGIN { in_top = 1 }
+        /^[[:space:]]*\[/ { in_top = 0 }
+        in_top && /^[[:space:]]*profile[[:space:]]*=/ {
+            line = $0
+            sub(/^[[:space:]]*profile[[:space:]]*=[[:space:]]*/, "", line)
+            sub(/[[:space:]]*#.*/, "", line)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+            if (line ~ /^".*"$/ || line ~ /^'\''.*'\''$/) {
+                line = substr(line, 2, length(line) - 2)
+            }
+            print line
+            exit
+        }
+    ' "$_XPRO_CONFIG"
 }
 
-_codpro_show_active_config() {
-    if [[ ! -f "$_CODPRO_CONFIG" ]]; then
-        echo "Error: Codex config not found at $_CODPRO_CONFIG" >&2
+_xpro_write_profile() {
+    local name="$1"
+    local tmp
+    tmp="$(mktemp)" || return 1
+
+    awk -v profile="$name" '
+        BEGIN { in_top = 1; replaced = 0; inserted = 0 }
+        {
+            if ($0 ~ /^[[:space:]]*\[/ && in_top == 1 && replaced == 0 && inserted == 0) {
+                print "profile = \"" profile "\""
+                inserted = 1
+            }
+
+            if (in_top == 1 && $0 ~ /^[[:space:]]*profile[[:space:]]*=/ && replaced == 0) {
+                print "profile = \"" profile "\""
+                replaced = 1
+                next
+            }
+
+            if ($0 ~ /^[[:space:]]*\[/) in_top = 0
+            print
+        }
+        END {
+            if (replaced == 0 && inserted == 0) {
+                print "profile = \"" profile "\""
+            }
+        }
+    ' "$_XPRO_CONFIG" > "$tmp" || {
+        rm -f "$tmp"
         return 1
-    fi
-    echo "-- active config (no profile loaded) --"
-    _codpro_print_toml "$_CODPRO_CONFIG"
+    }
+
+    cat "$tmp" > "$_XPRO_CONFIG" && rm -f "$tmp"
 }
 
-_codpro_list_names() {
-    _codpro_ensure_dir
-    local active
-    active="$(_codpro_active_name)"
-    for dir in "$_CODPRO_DIR"/*(N/); do
-        local name="${dir:t}"
-        if [[ "$name" == "$active" ]]; then
-            printf '* %s\n' "$name"
-        else
-            printf '  %s\n' "$name"
-        fi
-    done
+_xpro_clear_profile() {
+    local tmp
+    tmp="$(mktemp)" || return 1
+
+    awk '
+        BEGIN { in_top = 1; removed = 0 }
+        {
+            if ($0 ~ /^[[:space:]]*\[/) in_top = 0
+            if (in_top == 1 && $0 ~ /^[[:space:]]*profile[[:space:]]*=/ && removed == 0) {
+                removed = 1
+                next
+            }
+            print
+        }
+    ' "$_XPRO_CONFIG" > "$tmp" || {
+        rm -f "$tmp"
+        return 1
+    }
+
+    cat "$tmp" > "$_XPRO_CONFIG" && rm -f "$tmp"
 }
 
-_codpro_list_profiles() {
+_xpro_cmd_profiles() {
     local active
-    active="$(_codpro_active_profile_name)"
+    active="$(_xpro_current_profile)"
+
     local found=0
     local profile
     while IFS= read -r profile; do
@@ -126,277 +153,101 @@ _codpro_list_profiles() {
         else
             printf '  %s\n' "$profile"
         fi
-    done < <(_codpro_codex_profiles)
+    done < <(_xpro_profiles)
 
     if [[ "$found" -eq 0 ]]; then
         echo "  (none)"
     fi
 }
 
-# -- save / load ----------------------------------------------------------
-
-function _codpro_save() {
+_xpro_cmd_profile() {
     local name="$1"
     if [[ -z "$name" ]]; then
-        echo "Usage: codpro save <name>" >&2
-        return 1
-    fi
-    if [[ ! -f "$_CODPRO_CONFIG" ]]; then
-        echo "Error: Codex config not found at $_CODPRO_CONFIG" >&2
-        return 1
-    fi
-    _codpro_ensure_dir
-    local dest="$(_codpro_profile_path "$name")"
-    mkdir -p "$dest"
-    cp "$_CODPRO_CONFIG" "$dest/config.toml"
-    echo "Profile '$name' saved."
-}
-
-function _codpro_load() {
-    local name="$1"
-    if [[ -z "$name" ]]; then
-        echo "Usage: codpro load <name>" >&2
-        return 1
-    fi
-    local src="$(_codpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
-    fi
-    if [[ ! -f "$src/config.toml" ]]; then
-        echo "Error: profile '$name' is missing config.toml." >&2
-        return 1
-    fi
-    mkdir -p "${_CODPRO_CONFIG:h}"
-    cp "$src/config.toml" "$_CODPRO_CONFIG"
-    echo "$name" > "$_CODPRO_ACTIVE_SNAPSHOT_FILE"
-    echo "Profile '$name' loaded."
-}
-
-function _codpro_delete() {
-    local name="$1"
-    if [[ -z "$name" ]]; then
-        echo "Usage: codpro delete <name>" >&2
-        return 1
-    fi
-    local src="$(_codpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
-    fi
-    rm -rf "$src"
-    if [[ "$(_codpro_active_name)" == "$name" ]]; then
-        rm -f "$_CODPRO_ACTIVE_SNAPSHOT_FILE"
-    fi
-    echo "Profile '$name' deleted."
-}
-
-# -- show / diff ----------------------------------------------------------
-
-function _codpro_show() {
-    local name="${1:-$(_codpro_active_name)}"
-    if [[ "$name" == "(none)" ]]; then
-        _codpro_show_active_config
-        return
-    fi
-    local src="$(_codpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        _codpro_show_active_config
-        return
-    fi
-    if [[ ! -f "$src/config.toml" ]]; then
-        echo "Error: profile '$name' is missing config.toml." >&2
-        return 1
-    fi
-    echo "-- profile: $name --"
-    _codpro_print_toml "$src/config.toml"
-}
-
-function _codpro_diff() {
-    local a="$1" b="$2"
-    if [[ -z "$a" ]]; then
-        echo "Usage: codpro diff <profile_a> [profile_b]" >&2
-        return 1
-    fi
-    local path_a="$(_codpro_profile_path "$a")"
-    if [[ ! -f "$path_a/config.toml" ]]; then
-        echo "Error: profile '$a' not found." >&2
-        return 1
-    fi
-
-    if [[ -n "$b" ]]; then
-        local path_b="$(_codpro_profile_path "$b")"
-        if [[ ! -f "$path_b/config.toml" ]]; then
-            echo "Error: profile '$b' not found." >&2
-            return 1
+        local active
+        active="$(_xpro_current_profile)"
+        if [[ -n "$active" ]]; then
+            echo "$active"
+        else
+            echo "(none)"
         fi
-        echo "-- config.toml: $a vs $b --"
-        diff --color=always "$path_a/config.toml" "$path_b/config.toml" || true
-    else
-        if [[ ! -f "$_CODPRO_CONFIG" ]]; then
-            echo "Error: Codex config not found at $_CODPRO_CONFIG" >&2
-            return 1
-        fi
-        echo "-- config.toml: $a vs active --"
-        diff --color=always "$path_a/config.toml" "$_CODPRO_CONFIG" || true
+        return 0
     fi
-}
 
-function _codpro_edit() {
-    local name="$1"
-    if [[ -z "$name" ]]; then
-        echo "Usage: codpro edit <name>" >&2
+    if [[ "$name" == "--clear" ]]; then
+        _xpro_clear_profile || return 1
+        echo "Cleared top-level profile from $_XPRO_CONFIG"
+        return 0
+    fi
+
+    if ! _xpro_profile_exists "$name"; then
+        echo "Error: profile '$name' not found in $_XPRO_CONFIG" >&2
         return 1
     fi
-    local src="$(_codpro_profile_path "$name")"
-    if [[ ! -f "$src/config.toml" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
-    fi
-    ${EDITOR:-nvim} "$src/config.toml"
-}
 
-# -- native profile switching --------------------------------------------
-
-function _codpro_profile() {
-    local name="$1"
-    if [[ -z "$name" ]]; then
-        echo "$(_codpro_active_profile_name)"
-        return
-    fi
-    if ! _codpro_profile_exists "$name"; then
-        echo "Error: Codex profile '$name' not found in $_CODPRO_CONFIG" >&2
-        return 1
-    fi
-    _codpro_ensure_dir
-    echo "$name" > "$_CODPRO_ACTIVE_PROFILE_FILE"
+    _xpro_write_profile "$name" || return 1
     echo "Active Codex profile set to: $name"
 }
 
-function _codpro_run() {
-    local arg
-    for arg in "$@"; do
-        if [[ "$arg" == "--profile" || "$arg" == "-p" ]]; then
-            command codex "$@"
-            return
-        fi
-    done
-
-    local active
-    active="$(_codpro_active_profile_name)"
-    if [[ "$active" == "(none)" ]]; then
-        command codex "$@"
-        return
-    fi
-
-    command codex --profile "$active" "$@"
-}
-
-# -- fzf pickers ----------------------------------------------------------
-
-function _codpro_pick_snapshot() {
-    _codpro_ensure_dir
-    local profiles=()
-    for dir in "$_CODPRO_DIR"/*(N/); do
-        profiles+=("${dir:t}")
-    done
+_xpro_cmd_pick() {
+    local profiles=("${(@f)$(_xpro_profiles)}")
     if (( ${#profiles} == 0 )); then
-        echo "No saved profiles. Use 'codpro save <name>' to create one." >&2
+        echo "No [profiles.*] entries found in $_XPRO_CONFIG" >&2
         return 1
     fi
     if ! command -v fzf >/dev/null 2>&1; then
-        echo "fzf is required for interactive selection. Use 'codpro load <name>' instead." >&2
-        return 1
-    fi
-    local active
-    active="$(_codpro_active_name)"
-    local choice
-    choice=$(printf '%s\n' "${profiles[@]}" | \
-        fzf --height=50% --layout=reverse \
-        --prompt='Codex Profile> ' \
-        --header="Active: $active" \
-        --preview="cat '$_CODPRO_DIR/{}/config.toml' 2>/dev/null")
-    if [[ -n "$choice" ]]; then
-        _codpro_load "$choice"
-    fi
-}
-
-function _codpro_pick_profile() {
-    local profiles=("${(@f)$(_codpro_codex_profiles)}")
-    if (( ${#profiles} == 0 )); then
-        echo "No native Codex profiles found in $_CODPRO_CONFIG" >&2
-        return 1
-    fi
-    if ! command -v fzf >/dev/null 2>&1; then
-        echo "fzf is required for interactive selection. Use 'codpro profile <name>' instead." >&2
+        echo "fzf is required for interactive selection. Use: xpro profile <name>" >&2
         return 1
     fi
 
     local active
-    active="$(_codpro_active_profile_name)"
+    active="$(_xpro_current_profile)"
     local choice
-    choice=$(printf '%s\n' "${profiles[@]}" | \
-        fzf --height=50% --layout=reverse \
-        --prompt='Codex --profile> ' \
-        --header="Active: $active")
-    if [[ -n "$choice" ]]; then
-        _codpro_profile "$choice"
-    fi
+    choice="$(printf '%s\n' "${profiles[@]}" | \
+        fzf --height=50% --layout=reverse --prompt='Codex profile> ' --header="Active: ${active:-"(none)"}")"
+
+    [[ -n "$choice" ]] && _xpro_cmd_profile "$choice"
 }
 
-# -- main entry point -----------------------------------------------------
+_xpro_cmd_paths() {
+    cat <<EOF
+CODEX_HOME=$_XPRO_CODEX_HOME
+CODEX_CONFIG=$_XPRO_CONFIG
+CODEX_SKILLS=$_XPRO_SKILLS_DIR
+DOTFILES_CODEX_DIR=$_XPRO_DOTFILES_DIR
+DOTFILES_CONFIG=$_XPRO_DOTFILES_CONFIG
+DOTFILES_CUSTOM_SKILLS_DIR=$_XPRO_DOTFILES_SKILLS_DIR
+EOF
+}
 
-function codpro() {
+xpro() {
+    _xpro_refresh_vars
     local cmd="${1:-}"
     shift 2>/dev/null || true
 
     case "$cmd" in
-        profiles)  _codpro_list_profiles ;;
-        profile|use) _codpro_profile "$@" ;;
-        run|exec)  _codpro_run "$@" ;;
-        pick-snapshot) _codpro_pick_snapshot ;;
-        save)      _codpro_save "$@" ;;
-        load)      _codpro_load "$@" ;;
-        list|ls)   _codpro_list_names ;;
-        show)      _codpro_show "$@" ;;
-        delete|rm) _codpro_delete "$@" ;;
-        edit)      _codpro_edit "$@" ;;
-        diff)      _codpro_diff "$@" ;;
+        profiles|list|ls) _xpro_cmd_profiles ;;
+        profile|use)       _xpro_cmd_profile "$@" ;;
+        edit)              _xpro_ensure_paths; [[ -f "$_XPRO_CONFIG" ]] || : > "$_XPRO_CONFIG"; ${EDITOR:-nvim} "$_XPRO_CONFIG" ;;
+        paths)             _xpro_cmd_paths ;;
         help|-h)
             cat <<'EOF'
-codpro - Codex CLI profile manager
+xpro - Minimal Codex profile helper
 
-  Native Codex profiles (--profile):
-    codpro                         fzf-pick active native profile
-    codpro profiles                list native profiles in ~/.codex/config.toml
-    codpro profile [name]          get/set active native profile
-    codpro run [args...]           run codex --profile <active> [args...]
-
-  Snapshot profiles:
-    codpro save <name>             snapshot current config as a profile
-    codpro load <name>             load a saved snapshot
-    codpro list                    list saved snapshots (* = active snapshot)
-    codpro show [name]             show snapshot contents (default: active snapshot)
-    codpro delete <name>           delete a snapshot
-    codpro edit <name>             open snapshot in $EDITOR
-    codpro diff <a> [b]            diff two snapshots (b defaults to active config)
-
-  Env variables:
-    CODEX_PROFILES_DIR             where profiles are saved
-    CODEX_CONFIG_FILE              Codex config file to manage
+  xpro                  fzf-pick and set top-level profile in config.toml
+  xpro profiles         list [profiles.*] entries (* = active)
+  xpro profile          show top-level profile value
+  xpro profile <name>   set top-level profile value
+  xpro profile --clear  remove top-level profile key
+  xpro edit             open config.toml in $EDITOR
+  xpro paths            show resolved paths
 EOF
             ;;
         "")
-            if ! _codpro_pick_profile; then
-                _codpro_pick_snapshot
-            fi
+            _xpro_cmd_pick
             ;;
         *)
-            echo "Unknown command: $cmd (try 'codpro help')" >&2
+            echo "Unknown command: $cmd (try 'xpro help')" >&2
             return 1
             ;;
     esac
 }
-
-# short alias
-alias xpro='codpro'

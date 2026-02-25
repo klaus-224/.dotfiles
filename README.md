@@ -71,8 +71,7 @@ chmod +x setup-macos.sh
   - Powerlevel10k
   - zsh-autosuggestions
   - zsh-syntax-highlighting
-- Symlinks your dotfiles using stow (zsh, tmux, nvim, ghostty, agents)
-- Symlinks `~/.codex/profiles` and `~/.codex/skills` to `~/.dotfiles/agents/.codex/*`
+- Symlinks your core dotfiles using stow (`zsh`, `tmux`, `nvim`, `ghostty`)
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
@@ -136,58 +135,77 @@ chmod +x setup-wsl.sh
 
 Each top-level directory is a stow package that mirrors `$HOME`:
 
-| Package    | What it links                          |
-| ---------- | -------------------------------------- |
-| `zsh`      | `.zshrc`, `.zshrc.d/`                  |
-| `tmux`     | `.tmux.conf`                           |
-| `nvim`     | `.config/nvim/`                        |
-| `ghostty`  | `.config/ghostty/`                     |
-| `agents`   | `.copilot/skills/`, `.codex/profiles/`, `.codex/skills/` |
+| Package   | What it links                                                               |
+| --------- | --------------------------------------------------------------------------- |
+| `zsh`     | `.zshrc`, `.zshrc.d/`                                                       |
+| `tmux`    | `.tmux.conf`                                                                |
+| `nvim`    | `.config/nvim/`                                                             |
+| `ghostty` | `.config/ghostty/`                                                          |
+| `agents`  | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
+
+Global agent env vars are defined in `zsh/.zshenv`:
+
+- `DOTFILES_HOME`
+- `CODEX_HOME`, `CODEX_CONFIG_FILE`
+- `COPILOT_HOME`, `COPILOT_CONFIG_FILE`, `COPILOT_MCP_CONFIG_FILE`
+
+Use `--adopt` on first link so existing files in `~/.codex` / `~/.copilot` are safely moved under `~/.dotfiles/agents/*` and replaced by symlinks.
+Codex system skills (`~/.codex/skills/.system`) are intentionally not managed here.
+To add a custom Codex skill: create `agents/.codex-skills/<skill-name>/SKILL.md`, then run:
+`stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills`
+
+## Link everything
 
 ```bash
-# Link everything
 cd ~/.dotfiles
-stow zsh tmux nvim ghostty agents
+stow zsh tmux nvim ghostty
+```
 
-# Link individual packages
+## Link individual packages
+
+```zsh
 stow zsh
 stow tmux
 stow nvim
 stow ghostty
-stow agents
-
-# Re-link a single package (useful after changes)
-stow -R agents
 ```
 
-```bash
-# Keep Codex profiles + skills under dotfiles
-mkdir -p ~/.dotfiles/agents/.codex/profiles ~/.dotfiles/agents/.codex/skills ~/.codex
-stow --verbose --dir ~/.dotfiles/agents --target ~/.codex .codex
+# Re-link a single package (useful after changes)
+
+```zsh
+stow -R zsh tmux nvim ghostty
+```
+
+## Optional: Install Coding Agents
+
+```zsh
+# Codex CLI + config/skill symlinks
+./scripts/setup-codex-cli.sh
+
+# Copilot CLI + config/skill symlinks
+./scripts/setup-copilot-cli.sh
+```
+
+### Optional: Manual Agent Stow Commands
+
+```zsh
+# Codex config.toml -> ~/.codex/config.toml
+stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}" .codex
+
+# Custom Codex skills only -> ~/.codex/skills/*
+stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills
+
+# Copilot config/skills -> ~/.copilot/*
+stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .copilot
 ```
 
 # Tmux Commands
 
-- `ctrl-s + r`: reload tmux
-- `ctrl-s + ctrl-I`: install tpm plugins
+- `ctrl-z + r`: reload tmux
+- `ctrl-z + ctrl-I`: install tpm plugins
 - need latest version of `bash` for sessionx => `brew install bash`
 
 # TODO
-
-WSL Steps:
-
-- install homebrew
-
-- [ ] add powerlevel10K to .dotfiles
-- [ ] command to source neovim after install
-- [ ] command to source .zshrc
-- [ ] add install for eza
-- [ ] remove mcaffee from windows
-- [ ] add zen browser install
-- [ ] need to install lazygit
-- [ ] add some goodies:
-      https://sidneyliebrand.io/blog/how-fzf-and-ripgrep-improved-my-workflow
-      https://www.youtube.com/watch?v=CbMbGV9GT8I&t=56s
 
 # References
 

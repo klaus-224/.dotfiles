@@ -11,6 +11,7 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export DOTFILES_HOME="${DOTFILES_HOME:-$DOTFILES_DIR}"
 echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 
 # -----------------------------------------------------
@@ -67,11 +68,6 @@ if command -v stow >/dev/null 2>&1; then
   stow tmux
   stow nvim
   stow ghostty
-  stow agents
-
-  echo -e "${YELLOW}Linking Codex profile and skill directories with stow...${RESET}"
-  mkdir -p "$DOTFILES_DIR/agents/.codex/profiles" "$DOTFILES_DIR/agents/.codex/skills" "$HOME/.codex"
-  stow --verbose --dir "$DOTFILES_DIR/agents" --target "$HOME/.codex" .codex
 
   echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
@@ -140,4 +136,7 @@ echo -e "  • ${YELLOW}ctrl-s + r${RESET} — reload tmux"
 echo -e "  • ${YELLOW}ctrl-s + ctrl-I${RESET} — install TPM plugins"
 echo -e "\nLaunch Ghostty via Spotlight or run:"
 echo -e "  ${YELLOW}open -a Ghostty${RESET}"
+echo -e "\nOptional agent setup:"
+echo -e "  ${YELLOW}./scripts/setup-codex-cli.sh${RESET}"
+echo -e "  ${YELLOW}./scripts/setup-copilot-cli.sh${RESET}"
 echo -e "\nIf this is a fresh setup, restart your terminal."
