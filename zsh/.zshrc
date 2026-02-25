@@ -11,3 +11,6 @@ emulate -LR zsh
 for file in "$HOME/.zshrc.d/"*.zsh; do
   [ -f "$file" ] && source "$file"
 done
+
+# sourece custom env vars
+source "$HOME/.zshenv"

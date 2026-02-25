@@ -1,6 +1,6 @@
 # --------------------------------------------------
 # mnemonic: [T]mux [L]aunch
-# Create a tmux session with windows from a JSON config file.
+# Create a tmux session with panes from a JSON config file.
 #
 # Config format (JSON array):
 # [
@@ -8,8 +8,8 @@
 #   { "command": "cargo watch", "name": "backend" }
 # ]
 #
-# - command:  the command to run in the window
-# - name:     window name
+# - command:  the command to run in the pane
+# - name:     pane title
 # - dir:      working directory (optional, defaults to $PWD)
 #
 # Usage: tl <config.json> [session-name]
@@ -48,15 +48,20 @@ function tl() {
 
     if (( i == 0 )); then
       if [[ -n "$session_name" ]]; then
-        tmux new-session -d -s "$session_name" -n "$name" -c "$dir" "$cmd; exec zsh"
+        tmux new-session -d -s "$session_name" -c "$dir"
       else
-        tmux new-session -d -n "$name" -c "$dir" "$cmd; exec zsh"
+        tmux new-session -d -c "$dir"
         session_name=$(tmux display-message -p '#{session_name}')
       fi
-      echo "Created session '$session_name', window '$name' → $cmd (in $dir)"
+      tmux send-keys -t "$session_name" "$cmd" Enter
+      tmux select-pane -t "$session_name" -T "$name"
+      echo "Created session '$session_name', pane '$name' → $cmd (in $dir)"
     else
-      tmux new-window -t "$session_name" -n "$name" -c "$dir" "$cmd; exec zsh"
-      echo "  Window '$name' → $cmd (in $dir)"
+      tmux split-window -t "$session_name" -c "$dir"
+      tmux send-keys -t "$session_name" "$cmd" Enter
+      tmux select-pane -t "$session_name" -T "$name"
+      tmux select-layout -t "$session_name" tiled
+      echo "  Pane '$name' → $cmd (in $dir)"
     fi
   done
 }
