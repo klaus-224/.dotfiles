@@ -72,6 +72,7 @@ chmod +x setup-macos.sh
   - zsh-autosuggestions
   - zsh-syntax-highlighting
 - Symlinks your dotfiles using stow (zsh, tmux, nvim, ghostty, agents)
+- Symlinks `~/.codex/profiles` and `~/.codex/skills` to `~/.dotfiles/agents/.codex/*`
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
@@ -141,7 +142,7 @@ Each top-level directory is a stow package that mirrors `$HOME`:
 | `tmux`     | `.tmux.conf`                           |
 | `nvim`     | `.config/nvim/`                        |
 | `ghostty`  | `.config/ghostty/`                     |
-| `agents`   | `.copilot/profiles/`, `.copilot/skills/` |
+| `agents`   | `.copilot/skills/`, `.codex/profiles/`, `.codex/skills/` |
 
 ```bash
 # Link everything
@@ -157,6 +158,12 @@ stow agents
 
 # Re-link a single package (useful after changes)
 stow -R agents
+```
+
+```bash
+# Keep Codex profiles + skills under dotfiles
+mkdir -p ~/.dotfiles/agents/.codex/profiles ~/.dotfiles/agents/.codex/skills ~/.codex
+stow --verbose --dir ~/.dotfiles/agents --target ~/.codex .codex
 ```
 
 # Tmux Commands
