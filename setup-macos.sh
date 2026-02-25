@@ -20,13 +20,13 @@ if ! command -v brew >/dev/null 2>&1; then
   echo -e "${YELLOW}Homebrew not found. Installing...${RESET}"
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-	BREW_PATH="/opt/homebrew/bin/brew"
+  BREW_PATH="/opt/homebrew/bin/brew"
   if [[ -x $BREW_PATH ]]; then
-    eval "$($BREW_PATH shellenv)"
-	else
-  	echo -e "${RED}Homebrew not found at $BREW_PATH${RESET}"
-  	exit 1
-	if
+    eval "$("$BREW_PATH" shellenv)"
+  else
+    echo -e "${RED}Homebrew not found at $BREW_PATH${RESET}"
+    exit 1
+  fi
 else
   echo -e "${GREEN}Homebrew already installed.${RESET}"
 fi
@@ -68,6 +68,11 @@ if command -v stow >/dev/null 2>&1; then
   stow nvim
   stow ghostty
   stow agents
+
+  echo -e "${YELLOW}Linking Codex profile and skill directories with stow...${RESET}"
+  mkdir -p "$DOTFILES_DIR/agents/.codex/profiles" "$DOTFILES_DIR/agents/.codex/skills" "$HOME/.codex"
+  stow --verbose --dir "$DOTFILES_DIR/agents" --target "$HOME/.codex" .codex
+
   echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
   echo -e "${RED}stow not found — please install it and rerun this script.${RESET}"
@@ -136,4 +141,3 @@ echo -e "  • ${YELLOW}ctrl-s + ctrl-I${RESET} — install TPM plugins"
 echo -e "\nLaunch Ghostty via Spotlight or run:"
 echo -e "  ${YELLOW}open -a Ghostty${RESET}"
 echo -e "\nIf this is a fresh setup, restart your terminal."
-
