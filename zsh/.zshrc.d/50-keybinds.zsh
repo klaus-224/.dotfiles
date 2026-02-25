@@ -11,6 +11,7 @@
 
 # unbinds
 bindkey -r "^G" # CTRL+G from send-break
+stty susp undef  # free C-z for tmux prefix
 
 # zle widgets
 # rg-fzf-widget() {
