@@ -2,36 +2,22 @@
 # copilot-profile.zsh
 # Purpose:
 #   Manage named profiles for GitHub Copilot CLI.
-#   Switch tools, MCP servers, skills, permissions,
-#   and model settings with a single command.
 #
-# Function pneumnoic: [C]opilot [P][R]ofile
+# Function mnemonic: [C]opilot [PRO]file
 #
 # Usage:
-#   cpro                       # fzf-pick a profile to load
-#   cpro save <name>           # snapshot current config as a profile
-#   cpro load <name>           # load a saved profile
-#   cpro list                  # list saved profiles
-#   cpro show [name]           # show profile contents (default: active)
-#   cpro delete <name>         # delete a profile
-#   cpro edit <name>           # open profile in $EDITOR
-#   cpro diff <a> [b]          # diff two profiles (b defaults to active)
-#
-#   cpro model [name]          # get/set model
-#   cpro reasoning [off|low|medium|high]
-#   cpro mcp <on|off> <server> # toggle an MCP server
-#   cpro skill <add|rm> <dir>  # add/remove a skill directory
-#   cpro trust <add|rm> <dir>  # add/remove a trusted folder
-#
-#		Env variables:
-#		COPILOT_PROFILES_DIR			 # where profiles are saved
+#   cpro new-profile <name>   # create a profile directory
+#   cpro load [name]          # load profile (no name = fzf picker)
+#   cpro list                 # list saved profiles
+#   cpro show [name]          # show profile contents (default: active)
+#   cpro edit <name>          # open profile in $EDITOR
 # --------------------------------------------------
 
-_CPRO_DIR="${COPILOT_PROFILES_DIR:-$HOME/.copilot/profiles}"
-_CPRO_CONFIG="$HOME/.copilot/config.json"
-_CPRO_MCP="$HOME/.copilot/mcp-config.json"
-
-# ── helpers ──────────────────────────────────────
+_CPRO_HOME="${${COPILOT_HOME:-$HOME/.copilot}%/}"
+_CPRO_DIR="${${COPILOT_PROFILES_DIR:-$_CPRO_HOME/profiles}%/}"
+_CPRO_CONFIG="${COPILOT_CONFIG_FILE:-$_CPRO_HOME/config.json}"
+_CPRO_MCP="${COPILOT_MCP_CONFIG_FILE:-$_CPRO_HOME/mcp-config.json}"
+_CPRO_INSTRUCTIONS="$_CPRO_HOME/copilot-instructions.md"
 
 _cpro_ensure_dir() { [[ -d "$_CPRO_DIR" ]] || mkdir -p "$_CPRO_DIR"; }
 
@@ -66,60 +52,66 @@ _cpro_list_names() {
     done
 }
 
-# ── save / load ──────────────────────────────────
-
-function _cpro_save() {
+_cpro_new_profile() {
     local name="$1"
     if [[ -z "$name" ]]; then
-        echo "Usage: cpro save <name>" >&2
+        echo "Usage: cpro new-profile <name>" >&2
         return 1
     fi
     _cpro_ensure_dir
     local dest="$(_cpro_profile_path "$name")"
+    if [[ -d "$dest" ]]; then
+        echo "Error: profile '$name' already exists." >&2
+        return 1
+    fi
     mkdir -p "$dest"
-    cp "$_CPRO_CONFIG" "$dest/config.json"
-    cp "$_CPRO_MCP" "$dest/mcp-config.json"
-    echo "Profile '$name' saved."
+    if [[ -f "$_CPRO_CONFIG" ]]; then
+        cp "$_CPRO_CONFIG" "$dest/config.json"
+    else
+        echo '{}' > "$dest/config.json"
+    fi
+    if [[ -f "$_CPRO_MCP" ]]; then
+        cp "$_CPRO_MCP" "$dest/mcp-config.json"
+    else
+        echo '{"mcpServers":{}}' > "$dest/mcp-config.json"
+    fi
+    if [[ -f "$_CPRO_INSTRUCTIONS" ]]; then
+        cp "$_CPRO_INSTRUCTIONS" "$dest/copilot-instructions.md"
+    fi
+    echo "Profile '$name' created at $dest."
 }
 
-function _cpro_load() {
+_cpro_load() {
     local name="$1"
     if [[ -z "$name" ]]; then
-        echo "Usage: cpro load <name>" >&2
-        return 1
+        _cpro_pick
+        return $?
     fi
+
+    _cpro_ensure_dir
     local src="$(_cpro_profile_path "$name")"
     if [[ ! -d "$src" ]]; then
         echo "Error: profile '$name' not found." >&2
         return 1
     fi
-    cp "$src/config.json" "$_CPRO_CONFIG"
-    cp "$src/mcp-config.json" "$_CPRO_MCP"
+    if [[ ! -f "$src/config.json" || ! -f "$src/mcp-config.json" ]]; then
+        echo "Error: profile '$name' is missing config.json or mcp-config.json." >&2
+        return 1
+    fi
+
+    ln -sfn "$src/config.json" "$_CPRO_CONFIG"
+    ln -sfn "$src/mcp-config.json" "$_CPRO_MCP"
+    if [[ -f "$src/copilot-instructions.md" ]]; then
+        ln -sfn "$src/copilot-instructions.md" "$_CPRO_INSTRUCTIONS"
+        echo "Profile '$name' loaded (with instructions)."
+    else
+        [[ -L "$_CPRO_INSTRUCTIONS" ]] && rm -f "$_CPRO_INSTRUCTIONS"
+        echo "Profile '$name' loaded."
+    fi
     echo "$name" > "$_CPRO_DIR/.active"
-    echo "Profile '$name' loaded."
 }
 
-function _cpro_delete() {
-    local name="$1"
-    if [[ -z "$name" ]]; then
-        echo "Usage: cpro delete <name>" >&2
-        return 1
-    fi
-    local src="$(_cpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
-    fi
-    rm -rf "$src"
-    if [[ "$(_cpro_active_name)" == "$name" ]]; then
-        rm -f "$_CPRO_DIR/.active"
-    fi
-    echo "Profile '$name' deleted."
-}
-
-# ── show / diff ──────────────────────────────────
-
-function _cpro_show() {
+_cpro_show() {
     local name="${1:-$(_cpro_active_name)}"
     if [[ "$name" == "(none)" ]]; then
         echo "── active config (no profile loaded) ──"
@@ -127,54 +119,30 @@ function _cpro_show() {
         jq '.' "$_CPRO_CONFIG"
         echo "\nmcp-config.json:"
         jq '.' "$_CPRO_MCP"
+        if [[ -e "$_CPRO_INSTRUCTIONS" ]]; then
+            echo "\ncopilot-instructions.md:"
+            cat "$_CPRO_INSTRUCTIONS"
+        fi
         return
     fi
+
     local src="$(_cpro_profile_path "$name")"
     if [[ ! -d "$src" ]]; then
-        echo "── active config (no profile loaded) ──"
-        echo "config.json:"
-        jq '.' "$_CPRO_CONFIG"
-        echo "\nmcp-config.json:"
-        jq '.' "$_CPRO_MCP"
-        return
+        echo "Error: profile '$name' not found." >&2
+        return 1
     fi
     echo "── profile: $name ──"
     echo "config.json:"
     jq '.' "$src/config.json"
     echo "\nmcp-config.json:"
     jq '.' "$src/mcp-config.json"
-}
-
-function _cpro_diff() {
-    local a="$1" b="$2"
-    if [[ -z "$a" ]]; then
-        echo "Usage: cpro diff <profile_a> [profile_b]" >&2
-        return 1
-    fi
-    local path_a="$(_cpro_profile_path "$a")"
-    if [[ ! -d "$path_a" ]]; then
-        echo "Error: profile '$a' not found." >&2
-        return 1
-    fi
-    if [[ -n "$b" ]]; then
-        local path_b="$(_cpro_profile_path "$b")"
-        if [[ ! -d "$path_b" ]]; then
-            echo "Error: profile '$b' not found." >&2
-            return 1
-        fi
-        echo "── config.json: $a vs $b ──"
-        diff --color=always <(jq --sort-keys '.' "$path_a/config.json") <(jq --sort-keys '.' "$path_b/config.json") || true
-        echo "\n── mcp-config.json: $a vs $b ──"
-        diff --color=always <(jq --sort-keys '.' "$path_a/mcp-config.json") <(jq --sort-keys '.' "$path_b/mcp-config.json") || true
-    else
-        echo "── config.json: $a vs active ──"
-        diff --color=always <(jq --sort-keys '.' "$path_a/config.json") <(jq --sort-keys '.' "$_CPRO_CONFIG") || true
-        echo "\n── mcp-config.json: $a vs active ──"
-        diff --color=always <(jq --sort-keys '.' "$path_a/mcp-config.json") <(jq --sort-keys '.' "$_CPRO_MCP") || true
+    if [[ -f "$src/copilot-instructions.md" ]]; then
+        echo "\ncopilot-instructions.md:"
+        cat "$src/copilot-instructions.md"
     fi
 }
 
-function _cpro_edit() {
+_cpro_edit() {
     local name="$1"
     if [[ -z "$name" ]]; then
         echo "Usage: cpro edit <name>" >&2
@@ -185,185 +153,37 @@ function _cpro_edit() {
         echo "Error: profile '$name' not found." >&2
         return 1
     fi
-    ${EDITOR:-nvim} "$src/config.json" "$src/mcp-config.json"
+    local files=("$src/config.json" "$src/mcp-config.json")
+    [[ -f "$src/copilot-instructions.md" ]] && files+=("$src/copilot-instructions.md")
+    ${EDITOR:-nvim} "${files[@]}"
 }
 
-# ── toggles: model ───────────────────────────────
-
-function _cpro_model() {
-    if [[ -z "$1" ]]; then
-        jq -r '.model // "not set"' "$_CPRO_CONFIG"
-        return
-    fi
-    local tmp
-    tmp=$(jq --arg m "$1" '.model = $m' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-    echo "Model set to: $1"
-}
-
-# ── toggles: reasoning ───────────────────────────
-
-function _cpro_reasoning() {
-    if [[ -z "$1" ]]; then
-        local effort show
-        effort=$(jq -r '.reasoning_effort // "not set"' "$_CPRO_CONFIG")
-        show=$(jq -r '.show_reasoning // "not set"' "$_CPRO_CONFIG")
-        echo "reasoning_effort: $effort"
-        echo "show_reasoning: $show"
-        return
-    fi
-    if [[ "$1" == "off" ]]; then
-        local tmp
-        tmp=$(jq '.show_reasoning = false' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-        echo "Reasoning display disabled."
-    else
-        local tmp
-        tmp=$(jq --arg e "$1" '.reasoning_effort = $e | .show_reasoning = true' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-        echo "Reasoning set to: $1 (display enabled)"
-    fi
-}
-
-# ── toggles: MCP servers ─────────────────────────
-
-function _cpro_mcp() {
-    local action="$1" server="$2"
-    if [[ -z "$action" ]]; then
-        echo "Configured MCP servers:"
-        jq -r '.mcpServers | keys[]' "$_CPRO_MCP" 2>/dev/null || echo "  (none)"
-        return
-    fi
-    if [[ -z "$server" ]]; then
-        echo "Usage: cpro mcp <on|off> <server>" >&2
-        return 1
-    fi
-    case "$action" in
-        on)
-            local disabled="$_CPRO_DIR/.disabled-mcp"
-            if [[ -f "$disabled/$server.json" ]]; then
-                local entry
-                entry=$(cat "$disabled/$server.json")
-                local tmp
-                tmp=$(jq --arg s "$server" --argjson e "$entry" '.mcpServers[$s] = $e' "$_CPRO_MCP") && echo "$tmp" > "$_CPRO_MCP"
-                rm "$disabled/$server.json"
-                echo "MCP server '$server' enabled."
-            else
-                echo "No disabled config found for '$server'." >&2
-                return 1
-            fi
-            ;;
-        off)
-            local entry
-            entry=$(jq --arg s "$server" '.mcpServers[$s]' "$_CPRO_MCP")
-            if [[ "$entry" == "null" ]]; then
-                echo "MCP server '$server' not found." >&2
-                return 1
-            fi
-            mkdir -p "$_CPRO_DIR/.disabled-mcp"
-            echo "$entry" > "$_CPRO_DIR/.disabled-mcp/$server.json"
-            local tmp
-            tmp=$(jq --arg s "$server" 'del(.mcpServers[$s])' "$_CPRO_MCP") && echo "$tmp" > "$_CPRO_MCP"
-            echo "MCP server '$server' disabled (config preserved)."
-            ;;
-        *)
-            echo "Usage: cpro mcp <on|off> <server>" >&2
-            return 1
-            ;;
-    esac
-}
-
-# ── toggles: skills ──────────────────────────────
-
-function _cpro_skill() {
-    local action="$1" dir="$2"
-    if [[ -z "$action" ]]; then
-        echo "Skill directories:"
-        jq -r '.skill_directories // [] | .[]' "$_CPRO_CONFIG" 2>/dev/null || echo "  (none)"
-        return
-    fi
-    if [[ -z "$dir" ]]; then
-        echo "Usage: cpro skill <add|rm> <directory>" >&2
-        return 1
-    fi
-    dir="${dir:A}"  # resolve to absolute path
-    case "$action" in
-        add)
-            local tmp
-            tmp=$(jq --arg d "$dir" '.skill_directories = ((.skill_directories // []) + [$d] | unique)' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-            echo "Skill directory added: $dir"
-            ;;
-        rm)
-            local tmp
-            tmp=$(jq --arg d "$dir" '.skill_directories = [(.skill_directories // [])[] | select(. != $d)]' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-            echo "Skill directory removed: $dir"
-            ;;
-        *)
-            echo "Usage: cpro skill <add|rm> <directory>" >&2
-            return 1
-            ;;
-    esac
-}
-
-# ── toggles: trusted folders ─────────────────────
-
-function _cpro_trust() {
-    local action="$1" dir="$2"
-    if [[ -z "$action" ]]; then
-        echo "Trusted folders:"
-        jq -r '.trusted_folders // [] | .[]' "$_CPRO_CONFIG" 2>/dev/null || echo "  (none)"
-        return
-    fi
-    if [[ -z "$dir" ]]; then
-        echo "Usage: cpro trust <add|rm> <directory>" >&2
-        return 1
-    fi
-    dir="${dir:A}"  # resolve to absolute path
-    case "$action" in
-        add)
-            local tmp
-            tmp=$(jq --arg d "$dir" '.trusted_folders = ((.trusted_folders // []) + [$d] | unique)' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-            echo "Trusted folder added: $dir"
-            ;;
-        rm)
-            local tmp
-            tmp=$(jq --arg d "$dir" '.trusted_folders = [(.trusted_folders // [])[] | select(. != $d)]' "$_CPRO_CONFIG") && echo "$tmp" > "$_CPRO_CONFIG"
-            echo "Trusted folder removed: $dir"
-            ;;
-        *)
-            echo "Usage: cpro trust <add|rm> <directory>" >&2
-            return 1
-            ;;
-    esac
-}
-
-# ── fzf picker ───────────────────────────────────
-
-function _cpro_pick() {
+_cpro_pick() {
     _cpro_ensure_dir
     local profiles=()
     for dir in "$_CPRO_DIR"/*(N/); do
         profiles+=("${dir:t}")
     done
     if (( ${#profiles} == 0 )); then
-        echo "No saved profiles. Use 'cpro save <name>' to create one." >&2
+        echo "No saved profiles. Use 'cpro new-profile <name>' to create one." >&2
         return 1
     fi
     if ! command -v fzf >/dev/null 2>&1; then
         echo "fzf is required for interactive selection. Use 'cpro load <name>' instead." >&2
         return 1
     fi
-    local active
+
+    local active choice
     active="$(_cpro_active_name)"
-    local choice
     choice=$(printf '%s\n' "${profiles[@]}" | \
-            fzf --height=50% --layout=reverse \
+        fzf --height=50% --layout=reverse \
             --prompt='Copilot Profile> ' \
             --header="Active: $active" \
-        --preview="echo '── config.json ──' && jq -C '.' '$_CPRO_DIR/{}/config.json' 2>/dev/null && echo '' && echo '── mcp-config.json ──' && jq -C '.' '$_CPRO_DIR/{}/mcp-config.json' 2>/dev/null")
+            --preview="echo '── config.json ──' && jq -C '.' '$_CPRO_DIR/{}/config.json' 2>/dev/null && echo '' && echo '── mcp-config.json ──' && jq -C '.' '$_CPRO_DIR/{}/mcp-config.json' 2>/dev/null && if [[ -f '$_CPRO_DIR/{}/copilot-instructions.md' ]]; then echo '' && echo '── copilot-instructions.md ──' && cat '$_CPRO_DIR/{}/copilot-instructions.md'; fi")
     if [[ -n "$choice" ]]; then
         _cpro_load "$choice"
     fi
 }
-
-# ── main entry point ─────────────────────────────
 
 function cpro() {
     _cpro_check_jq || return 1
@@ -372,49 +192,25 @@ function cpro() {
     shift 2>/dev/null || true
 
     case "$cmd" in
-        save)      _cpro_save "$@" ;;
-        load)      _cpro_load "$@" ;;
-        list|ls)   _cpro_list_names ;;
-        show)      _cpro_show "$@" ;;
-        delete|rm) _cpro_delete "$@" ;;
-        edit)      _cpro_edit "$@" ;;
-        diff)      _cpro_diff "$@" ;;
-        model)     _cpro_model "$@" ;;
-        reasoning) _cpro_reasoning "$@" ;;
-        mcp)       _cpro_mcp "$@" ;;
-        skill)     _cpro_skill "$@" ;;
-        trust)     _cpro_trust "$@" ;;
+        new-profile) _cpro_new_profile "$@" ;;
+        load)        _cpro_load "$@" ;;
+        list)        _cpro_list_names ;;
+        show)        _cpro_show "$@" ;;
+        edit)        _cpro_edit "$@" ;;
         help|-h)
             cat <<'EOF'
 cpro — Copilot CLI profile manager
 
-  Profiles:
-    cpro                          fzf-pick a profile to load
-    cpro save <name>              snapshot current config as a profile
-    cpro load <name>              load a saved profile
+  Commands:
+    cpro new-profile <name>       create a new profile in ~/.copilot/profiles
+    cpro load [name]              load profile (no name = pick via fzf)
     cpro list                     list saved profiles (* = active)
     cpro show [name]              show profile contents (default: active)
-    cpro delete <name>            delete a profile
     cpro edit <name>              open profile in $EDITOR
-    cpro diff <a> [b]             diff two profiles (b defaults to active)
-
-  Toggles (modify active config directly):
-    cpro model [name]             get/set model
-    cpro reasoning [off|low|medium|high]
-    cpro mcp                      list MCP servers
-    cpro mcp <on|off> <server>    enable/disable an MCP server
-    cpro skill                    list skill directories
-    cpro skill <add|rm> <dir>     add/remove a skill directory
-    cpro trust                    list trusted folders
-		cpro trust <add|rm> <dir>     add/remove a trusted folder
-
-	Env variables:
-		COPILOT_PROFILES_DIR			 		where profiles are saved
 EOF
             ;;
-        "")        _cpro_pick ;;
         *)
-            echo "Unknown command: $cmd (try 'cpro help')" >&2
+            echo "Usage: cpro <new-profile|load|list|show|edit>" >&2
             return 1
             ;;
     esac
