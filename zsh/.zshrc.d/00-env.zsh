@@ -15,4 +15,5 @@ case "$(uname -s)" in
     ;;
 esac
 
+export EDITOR="nvim"
 export PAGER="nvim +Man!"

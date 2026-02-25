@@ -16,6 +16,7 @@ brew "jq"
 brew "awscli"
 brew "tlrc"
 brew "yazi"
+brew "gh"
 
 # package managers
 brew "pnpm"
