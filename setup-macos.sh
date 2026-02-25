@@ -67,6 +67,7 @@ if command -v stow >/dev/null 2>&1; then
   stow tmux
   stow nvim
   stow ghostty
+  stow agents
   echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
   echo -e "${RED}stow not found — please install it and rerun this script.${RESET}"

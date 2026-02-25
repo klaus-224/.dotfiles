@@ -71,7 +71,7 @@ chmod +x setup-macos.sh
   - Powerlevel10k
   - zsh-autosuggestions
   - zsh-syntax-highlighting
-- Symlinks your dotfiles using stow
+- Symlinks your dotfiles using stow (zsh, tmux, nvim, ghostty, agents)
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
@@ -130,6 +130,34 @@ chmod +x setup-wsl.sh
 - Install and configure Oh My Zsh, Powerlevel10k, and Zsh plugins
 - Symlink dotfiles using stow
 - Install tmux plugin manager (TPM)
+
+# Stow Packages
+
+Each top-level directory is a stow package that mirrors `$HOME`:
+
+| Package    | What it links                          |
+| ---------- | -------------------------------------- |
+| `zsh`      | `.zshrc`, `.zshrc.d/`                  |
+| `tmux`     | `.tmux.conf`                           |
+| `nvim`     | `.config/nvim/`                        |
+| `ghostty`  | `.config/ghostty/`                     |
+| `agents`   | `.copilot/profiles/`, `.copilot/skills/` |
+
+```bash
+# Link everything
+cd ~/.dotfiles
+stow zsh tmux nvim ghostty agents
+
+# Link individual packages
+stow zsh
+stow tmux
+stow nvim
+stow ghostty
+stow agents
+
+# Re-link a single package (useful after changes)
+stow -R agents
+```
 
 # Tmux Commands
 
