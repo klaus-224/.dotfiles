@@ -14,6 +14,3 @@ case "$(uname -s)" in
     export OS_TYPE="linux"
     ;;
 esac
-
-export EDITOR="nvim"
-export PAGER="nvim +Man!"

@@ -3,7 +3,6 @@ brew "stow"
 brew "tmux"
 brew "neovim"
 brew "lazygit"
-brew "gitui"
 
 # cli tools
 brew "fzf"
