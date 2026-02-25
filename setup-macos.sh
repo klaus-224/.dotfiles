@@ -60,6 +60,31 @@ rm -f "$TMP_BREWFILE"
 echo -e "${GREEN}Brew bundle complete.${RESET}"
 
 # -----------------------------------------------------
+#  Rust/Cargo bootstrap + cargo package sync
+# -----------------------------------------------------
+if ! command -v cargo >/dev/null 2>&1; then
+  if command -v rustup-init >/dev/null 2>&1; then
+    echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
+    rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
+  else
+    echo -e "${YELLOW}rustup-init not found; skipping Rust toolchain bootstrap.${RESET}"
+  fi
+fi
+
+if [[ -f "$HOME/.cargo/env" ]]; then
+  # shellcheck disable=SC1090
+  source "$HOME/.cargo/env"
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
+if command -v cargo >/dev/null 2>&1; then
+  echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
+  "$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
+else
+  echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
+fi
+
+# -----------------------------------------------------
 #  Symlink dotfiles using stow
 # -----------------------------------------------------
 if command -v stow >/dev/null 2>&1; then

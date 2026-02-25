@@ -58,6 +58,27 @@ done < "$PKG_FILE"
 
 brew cleanup
 
+# -----------------------------------------------------
+#  Rust/Cargo bootstrap + cargo package sync
+# -----------------------------------------------------
+if ! command -v cargo >/dev/null 2>&1 && command -v rustup-init >/dev/null 2>&1; then
+  echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
+  rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
+fi
+
+if [[ -f "$HOME/.cargo/env" ]]; then
+  # shellcheck disable=SC1090
+  source "$HOME/.cargo/env"
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
+if command -v cargo >/dev/null 2>&1; then
+  echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
+  "$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
+else
+  echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
+fi
+
 cd "$HOME/.dotfiles"
 
 # -----------------------------------------------------
@@ -138,4 +159,3 @@ nvim --headless "+Lazy sync" +qa || true
 # -----------------------------------------------------
 echo -e "${GREEN}WSL Dotfiles setup complete!${RESET}"
 echo -e "${YELLOW}Restart your terminal or run \`exec zsh\` to start using your new shell.${RESET}"
-
