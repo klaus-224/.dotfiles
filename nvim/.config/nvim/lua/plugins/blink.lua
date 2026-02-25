@@ -18,7 +18,6 @@ return {
 		opts = {
 			keymap = {
 				preset = "default",
-				["<C-@>"] = { "show", "show_documentation", "hide_documentation" },
 			},
 			appearance = {
 				nerd_font_variant = "mono",
@@ -44,20 +43,13 @@ return {
 					show_with_selection = true,
 				},
 			},
-			signature = {
-				enabled = true,
-				trigger = {
-					enabled = true,
-					show_on_insert = true,
+			signature = { enabled = true },
+			fuzzy = {
+				implementation = "rust",
+				sorts = {
+					"score",
+					"sort_text",
 				},
-				keymap = {
-					["C-s"] = { "show_signature", "hide_signature", "fallback" },
-				},
-			},
-			fuzzy = { implementation = "rust" },
-			sorts = {
-				"score",
-				"sort_text",
 			},
 			sources = {
 				default = { "lazydev", "lsp", "path", "snippets", "buffer" },

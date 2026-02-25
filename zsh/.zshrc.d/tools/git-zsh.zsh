@@ -27,10 +27,11 @@ function _ghpr_require() {
 function _ghpr_pick_number() {
   _ghpr_require || return 1
 
+  local state=${1:-open}
   local selected_pr
   selected_pr=$(
-    gh pr list --json number,title --template '{{range .}}{{.number}} {{.title}}{{"\n"}}{{end}}' |
-      _fzf_git_fzf --ansi --border-label 'Pull requests ' \
+    gh pr list --state "$state" --json number,title --template '{{range .}}{{.number}} {{.title}}{{"\n"}}{{end}}' |
+      _fzf_git_fzf --ansi --border-label "Pull requests (${state}) " \
         --preview 'gh pr view {1} --comments'
   ) || return 1
 
@@ -78,8 +79,29 @@ EOF
 }
 
 function _ghpr_open_diff_file() {
-  local _pr_number=$1
+  local pr_number=$1
   local file=$2
+  local repo=$3
+  local state=${4:-open}
+  local repo_root cache_dir safe_file base_ref head_ref base_file head_file
+
+  if [[ "$state" == "closed" && ! -f "$file" ]]; then
+    repo_root=$(git rev-parse --show-toplevel) || return 1
+    cache_dir="${repo_root}/.git/tmp"
+    mkdir -p "$cache_dir" || return 1
+    safe_file=${file//\//__}
+    base_file="${cache_dir}/pr-${pr_number}-base-${safe_file}"
+    head_file="${cache_dir}/pr-${pr_number}-head-${safe_file}"
+
+    base_ref=$(gh pr view "$pr_number" --json baseRefOid -q '.baseRefOid') || return 1
+    head_ref=$(gh pr view "$pr_number" --json headRefOid -q '.headRefOid') || return 1
+
+    gh api -H "Accept: application/vnd.github.raw" "repos/${repo}/contents/${file}?ref=${base_ref}" > "$base_file" 2>/dev/null || : > "$base_file"
+    gh api -H "Accept: application/vnd.github.raw" "repos/${repo}/contents/${file}?ref=${head_ref}" > "$head_file" 2>/dev/null || : > "$head_file"
+
+    "${EDITOR:-nvim}" -d "$base_file" "$head_file"
+    return $?
+  fi
 
   git fetch origin main --quiet > /dev/null 2>&1 || return 1
 
@@ -87,17 +109,28 @@ function _ghpr_open_diff_file() {
 }
 
 function gpp() {
-  _ghpr_pick_number "$@"
+  local state=open
+  [[ "$1" == "--closed" ]] && state=closed
+  _ghpr_pick_number "$state"
 }
 
 unalias gpr 2> /dev/null
 function gpr() {
   _ghpr_require || return 1
 
-  local pr_number repo repo_root cache_dir tmpfile comments_file
-  pr_number=${1:-$(_ghpr_pick_number)} || return 1
+  local pr_number repo repo_root cache_dir tmpfile comments_file picker_state
+  picker_state=open
+  if [[ "$1" == "--closed" ]]; then
+    picker_state=closed
+    shift
+  fi
+  pr_number=${1:-$(_ghpr_pick_number "$picker_state")} || return 1
   [[ -z "$pr_number" ]] && return 1
-  _ghpr_checkout "$pr_number" || return 1
+  if [[ "$picker_state" == "open" ]]; then
+    _ghpr_checkout "$pr_number" || return 1
+  else
+    _ghpr_checkout "$pr_number" > /dev/null 2>&1 || true
+  fi
 
   repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner') || return 1
   repo_root=$(git rev-parse --show-toplevel) || return 1
@@ -128,7 +161,7 @@ function gpr() {
 function gpc() {
   _ghpr_require || return 1
 
-  local mode pr_number repo head_sha comments_file start_line end_line sent_csv tmp_comments selected delete_id confirm api_err
+  local mode pr_number repo head_sha comments_file start_line end_line sent_csv tmp_comments selected delete_id confirm api_err picker_state
   local -a delete_ids
   local delim=$'\x1f'
   local -a sent_ids
@@ -141,9 +174,18 @@ function gpc() {
     return 1
   fi
 
-  pr_number=${1:-$(_ghpr_pick_number)} || return 1
+  picker_state=open
+  if [[ "$1" == "--closed" ]]; then
+    picker_state=closed
+    shift
+  fi
+  pr_number=${1:-$(_ghpr_pick_number "$picker_state")} || return 1
   [[ -z "$pr_number" ]] && return 1
-  _ghpr_checkout "$pr_number" || return 1
+  if [[ "$picker_state" == "open" ]]; then
+    _ghpr_checkout "$pr_number" || return 1
+  else
+    _ghpr_checkout "$pr_number" > /dev/null 2>&1 || true
+  fi
   repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner') || return 1
 
   comments_file=$(_ghpr_comments_file "$pr_number") || return 1
@@ -308,26 +350,44 @@ function gpc() {
 function gpd() {
   _ghpr_require || return 1
 
-  local pr_number repo file
-  pr_number=${1:-$(_ghpr_pick_number)} || return 1
+  local pr_number repo file picker_state
+  picker_state=open
+  if [[ "$1" == "--closed" ]]; then
+    picker_state=closed
+    shift
+  fi
+  pr_number=${1:-$(_ghpr_pick_number "$picker_state")} || return 1
   [[ -z "$pr_number" ]] && return 1
-  _ghpr_checkout "$pr_number" || return 1
+  if [[ "$picker_state" == "open" ]]; then
+    _ghpr_checkout "$pr_number" || return 1
+  else
+    _ghpr_checkout "$pr_number" > /dev/null 2>&1 || true
+  fi
 
   repo=$(gh repo view --json nameWithOwner -q '.nameWithOwner') || return 1
   file=${2:-$(_ghpr_pick_file "$pr_number" "$repo")} || return 1
   [[ -z "$file" ]] && return 1
 
-  _ghpr_open_diff_file "$pr_number" "$file"
+  _ghpr_open_diff_file "$pr_number" "$file" "$repo" "$picker_state"
 }
 
 function gps() {
   _ghpr_require || return 1
 
-  local pr_number action repo_root cache_dir body_file
+  local pr_number action repo_root cache_dir body_file picker_state
   local -a body_args
-  pr_number=${1:-$(_ghpr_pick_number)} || return 1
+  picker_state=open
+  if [[ "$1" == "--closed" ]]; then
+    picker_state=closed
+    shift
+  fi
+  pr_number=${1:-$(_ghpr_pick_number "$picker_state")} || return 1
   [[ -z "$pr_number" ]] && return 1
-  _ghpr_checkout "$pr_number" || return 1
+  if [[ "$picker_state" == "open" ]]; then
+    _ghpr_checkout "$pr_number" || return 1
+  else
+    _ghpr_checkout "$pr_number" > /dev/null 2>&1 || true
+  fi
 
   action=$(
     printf "approve\nrequest-changes\ncomment\n" |
@@ -355,16 +415,17 @@ function gps() {
 function gph() {
   cat <<'EOF'
 PR review helpers:
-  gpp [PR?]     Pick and print PR number.
-  gpr [PR]      Open PR context markdown in your editor.
-  gpc --review [PR]  Open queued comments file for marking/editing.
-  gpc --send [PR]    Send only entries marked '- send: yes'.
-  gpc --delete [PR]  Pick one submitted PR comment and delete it (with confirm).
-  gpd [PR] [FILE] Open changed file in nvim -d vs PR base.
-  gps [PR]    	Submit review (approve / request-changes / comment).
+  gpp [--closed]     Pick and print PR number.
+  gpr [--closed] [PR]      Open PR context markdown in your editor.
+  gpc --review [--closed] [PR]  Open queued comments file for marking/editing.
+  gpc --send [--closed] [PR]    Send only entries marked '- send: yes'.
+  gpc --delete [--closed] [PR]  Pick one submitted PR comment and delete it (with confirm).
+  gpd [--closed] [PR] [FILE] Open changed file in nvim -d vs PR base.
+  gps [--closed] [PR]    	Submit review (approve / request-changes / comment).
 
 Usage:
   gpr           # pick PR interactively
+  gpr --closed  # pick from closed PRs
   gpr 123       # use PR 123 directly
 EOF
 }
