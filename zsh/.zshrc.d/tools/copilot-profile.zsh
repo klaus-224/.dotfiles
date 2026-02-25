@@ -406,9 +406,9 @@ cpro — Copilot CLI profile manager
     cpro skill                    list skill directories
     cpro skill <add|rm> <dir>     add/remove a skill directory
     cpro trust                    list trusted folders
-    cpro trust <add|rm> <dir>     add/remove a trusted folder
+		cpro trust <add|rm> <dir>     add/remove a trusted folder
 
-		Env variables:
+	Env variables:
 		COPILOT_PROFILES_DIR			 		where profiles are saved
 EOF
             ;;
