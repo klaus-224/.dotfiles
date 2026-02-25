@@ -15,3 +15,5 @@ _zsh tools_
 - remove neo-tree (use oil.nvim maybe?)
 - brew util to pick up os, combine Brewfiel, and call brew to install everything
 - [ ] agent md
+
+https://playbooks.com/skills/jeffallan/claude-skills/atlassian-mcp
