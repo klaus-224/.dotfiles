@@ -65,6 +65,7 @@ chmod +x setup-macos.sh
 
 - Installs Homebrew if missing
 - Installs all your CLI tools (fzf, bat, fd, eza, etc.)
+- Installs `rustup-init`, bootstraps Rust/Cargo, and syncs cargo packages from `packages/cargo.txt`
 - Installs Ghostty terminal via Homebrew
 - Installs and configures:
   - Oh My Zsh
@@ -175,6 +176,23 @@ stow ghostty
 ```zsh
 stow -R zsh tmux nvim ghostty
 ```
+
+# Cargo Package Management
+
+Cargo-managed CLI tools live in `packages/cargo.txt` (one crate name per line).
+
+```bash
+# install/update all listed cargo packages
+./scripts/sync-cargo-packages.sh
+
+# force reinstall all listed packages
+./scripts/sync-cargo-packages.sh reinstall
+
+# show configured package list
+./scripts/sync-cargo-packages.sh list
+```
+
+The setup scripts (`setup-macos.sh`, `setup-linux.sh`) call this automatically when `cargo` is available.
 
 ## Optional: Install Coding Agents
 

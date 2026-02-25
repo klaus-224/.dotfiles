@@ -19,6 +19,7 @@ brew "gh"
 
 # package managers
 brew "pnpm"
+brew "rustup-init"
 
 # infra stuff
 brew "aws-cdk"
