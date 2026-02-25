@@ -211,3 +211,4 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 - https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s
 - https://www.youtube.com/watch?v=03KsS09YS4E
+- https://playbooks.com/skills/jeffallan/claude-skills/atlassian-mcp

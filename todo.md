@@ -20,7 +20,6 @@
 - [ ] brew util to pick up os, combine Brewfile, and call brew to install everything
 - [ ] agent md
 
-https://playbooks.com/skills/jeffallan/claude-skills/atlassian-mcp
 
 # nvim todo:
 - [x] replace nvim-cmp with blink.cmp

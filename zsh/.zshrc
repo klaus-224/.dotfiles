@@ -5,7 +5,6 @@
 # 	- loops through zsh fragements in /.zshrc.d and
 # 		sources them
 # --------------------------------------------------
-
 [[ -n "${ZSH_VERSION:-}" ]] || return 0
 emulate -LR zsh
 
