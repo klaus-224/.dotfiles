@@ -10,17 +10,14 @@
 #   xpro profile <name>   # set active profile in config.toml
 #   xpro profile --clear  # remove top-level profile key
 #   xpro edit             # open config.toml in $EDITOR
-#   xpro paths            # print resolved paths
 # --------------------------------------------------
 
 _xpro_refresh_vars() {
-    _XPRO_CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-    _XPRO_DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
+    local script_dir repo_root
+    script_dir="${${(%):-%x}:A:h}"
+    repo_root="${script_dir}/../../.."
+    _XPRO_CODEX_HOME="${CODEX_HOME:-${repo_root}/agents/.codex}"
     _XPRO_CONFIG="${CODEX_CONFIG_FILE:-$_XPRO_CODEX_HOME/config.toml}"
-    _XPRO_DOTFILES_DIR="${XPRO_DOTFILES_DIR:-$_XPRO_DOTFILES_HOME/agents/.codex}"
-    _XPRO_DOTFILES_CONFIG="$_XPRO_DOTFILES_DIR/config.toml"
-    _XPRO_DOTFILES_SKILLS_DIR="${XPRO_DOTFILES_SKILLS_DIR:-$_XPRO_DOTFILES_HOME/agents/.codex-skills}"
-    _XPRO_SKILLS_DIR="$_XPRO_CODEX_HOME/skills"
 }
 
 _xpro_ensure_paths() {
@@ -85,6 +82,10 @@ _xpro_current_profile() {
 
 _xpro_write_profile() {
     local name="$1"
+    if [[ -z "$name" ]]; then
+        _xpro_clear_profile
+        return
+    fi
     local tmp
     tmp="$(mktemp)" || return 1
 
@@ -208,18 +209,9 @@ _xpro_cmd_pick() {
     [[ -n "$choice" ]] && _xpro_cmd_profile "$choice"
 }
 
-_xpro_cmd_paths() {
-    cat <<EOF
-CODEX_HOME=$_XPRO_CODEX_HOME
-CODEX_CONFIG=$_XPRO_CONFIG
-CODEX_SKILLS=$_XPRO_SKILLS_DIR
-DOTFILES_CODEX_DIR=$_XPRO_DOTFILES_DIR
-DOTFILES_CONFIG=$_XPRO_DOTFILES_CONFIG
-DOTFILES_CUSTOM_SKILLS_DIR=$_XPRO_DOTFILES_SKILLS_DIR
-EOF
-}
+unalias xpro 2>/dev/null
 
-xpro() {
+function xpro {
     _xpro_refresh_vars
     local cmd="${1:-}"
     shift 2>/dev/null || true
@@ -228,7 +220,6 @@ xpro() {
         profiles|list|ls) _xpro_cmd_profiles ;;
         profile|use)       _xpro_cmd_profile "$@" ;;
         edit)              _xpro_ensure_paths; [[ -f "$_XPRO_CONFIG" ]] || : > "$_XPRO_CONFIG"; ${EDITOR:-nvim} "$_XPRO_CONFIG" ;;
-        paths)             _xpro_cmd_paths ;;
         help|-h)
             cat <<'EOF'
 xpro - Minimal Codex profile helper
@@ -239,7 +230,6 @@ xpro - Minimal Codex profile helper
   xpro profile <name>   set top-level profile value
   xpro profile --clear  remove top-level profile key
   xpro edit             open config.toml in $EDITOR
-  xpro paths            show resolved paths
 EOF
             ;;
         "")
