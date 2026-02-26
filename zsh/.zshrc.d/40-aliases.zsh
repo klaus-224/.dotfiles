@@ -28,7 +28,6 @@ alias ls="eza --long --all --group-directories-first --no-user --no-time --icons
 alias lst="eza --tree --long --all --group-directories-first --no-user --no-time --icons"
 
 # tmux
-alias ta="tmux a"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
 
