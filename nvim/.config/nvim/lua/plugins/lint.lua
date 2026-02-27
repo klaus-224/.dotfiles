@@ -31,7 +31,9 @@ return {
 				if vim.bo[args.buf].buftype ~= "" then
 					return
 				end
-				lint_shellcheck(args.buf)
+				if vim.bo[args.buf].filetype == "zsh" then
+					lint_shellcheck(args.buf)
+				end
 			end,
 		})
 	end,
