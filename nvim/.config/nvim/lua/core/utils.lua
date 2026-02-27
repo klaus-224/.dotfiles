@@ -28,18 +28,4 @@ function M.copy_cwd()
 	vim.notify("Copied file path to clipboard")
 end
 
--- user-cmds
-vim.api.nvim_create_user_command("Setwd", function()
-	vim.cmd("cd " .. vim.fn.expand("%:p:h"))
-end, {})
-
--- auto-cmds
-vim.api.nvim_create_autocmd("DiagnosticChanged", {
-	callback = function()
-		vim.diagnostic.setloclist({ open = false })
-	end,
-})
-
-vim.api.nvim_create_autocmd("FileType", { pattern = "help", command = "wincmd L | vertical resize 80" })
-
 return M
