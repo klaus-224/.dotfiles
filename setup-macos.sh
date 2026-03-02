@@ -36,26 +36,10 @@ echo -e "${YELLOW}Updating Homebrew...${RESET}"
 brew update
 
 # -----------------------------------------------------
-#  Install packages via Brewfile (common + macos)
+#  Install packages via unified Brewfile
 # -----------------------------------------------------
-BREW_DIR="$DOTFILES_DIR/brewfiles"
-COMMON="$BREW_DIR/Brewfile.common"
-MACOS="$BREW_DIR/Brewfile.macos"
-
-if [[ ! -f "$COMMON" ]]; then
-  echo -e "${RED}Missing Brewfile: $COMMON${RESET}"
-  exit 1
-fi
-if [[ ! -f "$MACOS" ]]; then
-  echo -e "${RED}Missing Brewfile: $MACOS${RESET}"
-  exit 1
-fi
-
-echo -e "${YELLOW}Installing packages via Brewfiles...${RESET}"
-TMP_BREWFILE="$(mktemp)"
-cat "$COMMON" "$MACOS" > "$TMP_BREWFILE"
-brew bundle --file "$TMP_BREWFILE"
-rm -f "$TMP_BREWFILE"
+echo -e "${YELLOW}Installing packages via unified Brewfile...${RESET}"
+"$DOTFILES_DIR/scripts/install-brew-packages.sh"
 
 echo -e "${GREEN}Brew bundle complete.${RESET}"
 

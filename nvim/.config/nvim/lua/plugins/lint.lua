@@ -17,8 +17,6 @@ return {
 			local ft = vim.bo[bufnr].filetype
 			if ft == "zsh" then
 				shellcheck.args = { "--format", "json1", "--shell=bash", "-" }
-			else
-				shellcheck.args = default_args
 			end
 			lint.try_lint("shellcheck")
 			shellcheck.args = default_args
@@ -28,9 +26,6 @@ return {
 		vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "InsertLeave" }, {
 			group = group,
 			callback = function(args)
-				if vim.bo[args.buf].buftype ~= "" then
-					return
-				end
 				if vim.bo[args.buf].filetype == "zsh" then
 					lint_shellcheck(args.buf)
 				end

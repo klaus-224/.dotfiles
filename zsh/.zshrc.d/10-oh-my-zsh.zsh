@@ -17,16 +17,14 @@
 
 export ZSH="$HOME/.oh-my-zsh"
 
-ZSH_THEME="powerlevel10k/powerlevel10k"
+export ZSH_THEME="powerlevel10k/powerlevel10k"
 
 plugins=(
-					git
-					docker-compose 
-					docker
-					copyfile
-					zsh-autosuggestions
-					zsh-syntax-highlighting
-				)
+	git
+	copyfile
+	zsh-autosuggestions
+	zsh-syntax-highlighting
+)
 
 [[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
