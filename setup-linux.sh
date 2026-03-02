@@ -11,7 +11,6 @@ RED="\033[0;31m"
 RESET="\033[0m"
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PKG_FILE="$DOTFILES_DIR/packages/linux.txt"
 
 echo -e "${YELLOW}⚙️  Setting up your WSL environment with Homebrew...${RESET}"
 
@@ -36,26 +35,10 @@ echo -e "${YELLOW}Updating Homebrew...${RESET}"
 brew update
 
 # -----------------------------------------------------
-#  Install all packages listed in packages/linux.txt
+#  Install packages via unified Brewfile
 # -----------------------------------------------------
-if [[ ! -f "$PKG_FILE" ]]; then
-  echo -e "${RED}❌ Package list not found at: $PKG_FILE${RESET}"
-  exit 1
-fi
-
-echo -e "${YELLOW}Installing packages from ${BLUE}$PKG_FILE${RESET}"
-
-while read -r pkg; do
-  [[ -z "$pkg" || "$pkg" == \#* ]] && continue  # skip comments or empty lines
-
-  if brew list --formula | grep -q "^${pkg}\$"; then
-    echo -e "${GREEN}✔ $pkg already installed${RESET}"
-  else
-    echo -e "${YELLOW}→ Installing $pkg...${RESET}"
-    brew install "$pkg" || echo -e "${RED}Failed to install $pkg${RESET}"
-  fi
-done < "$PKG_FILE"
-
+echo -e "${YELLOW}Installing packages via unified Brewfile...${RESET}"
+"$DOTFILES_DIR/scripts/install-brew-packages.sh"
 brew cleanup
 
 # -----------------------------------------------------

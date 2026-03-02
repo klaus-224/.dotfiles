@@ -2,33 +2,33 @@
 
 <!-- mtoc-start -->
 
-- [Generating git SSH Keys](#generating-git-ssh-keys)
-  - [Generate a new SSH key](#generate-a-new-ssh-key)
-    - [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
-    - [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
-    - [Add the public key to Github](#add-the-public-key-to-github)
-    - [Test the connection](#test-the-connection)
-- [Installation](#installation)
-  - [Macos](#macos)
-    - [Install Homebrew](#install-homebrew)
-      - [Install git](#install-git)
-      - [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
-      - [Run the setup script](#run-the-setup-script)
-    - [Windows (wsl)](#windows-wsl)
-      - [Open Powershell as Admin](#open-powershell-as-admin)
-      - [Update wsl](#update-wsl)
-      - [Install Ubuntu](#install-ubuntu)
-      - [Update Linux Packages](#update-linux-packages)
-      - [Install git](#install-git-1)
-      - [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
-      - [Run the WSL Setup Script](#run-the-wsl-setup-script)
-- [Stow Packages](#stow-packages)
-  - [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
-- [Cargo Package Management](#cargo-package-management)
-- [Optional: Install Coding Agents](#optional-install-coding-agents)
-- [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
-- [Tmux Commands](#tmux-commands)
-- [References](#references)
+* [Generating git SSH Keys](#generating-git-ssh-keys)
+  * [Generate a new SSH key](#generate-a-new-ssh-key)
+    * [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
+    * [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
+    * [Add the public key to Github](#add-the-public-key-to-github)
+    * [Test the connection](#test-the-connection)
+* [Installation](#installation)
+  * [Macos](#macos)
+    * [Install Homebrew](#install-homebrew)
+      * [Install git](#install-git)
+      * [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
+      * [Run the setup script](#run-the-setup-script)
+    * [Windows (wsl)](#windows-wsl)
+      * [Open Powershell as Admin](#open-powershell-as-admin)
+      * [Update wsl](#update-wsl)
+      * [Install Ubuntu](#install-ubuntu)
+      * [Update Linux Packages](#update-linux-packages)
+      * [Install git](#install-git-1)
+      * [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
+      * [Run the WSL Setup Script](#run-the-wsl-setup-script)
+* [Stow Packages](#stow-packages)
+  * [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
+* [Cargo Package Management](#cargo-package-management)
+* [Optional: Install Coding Agents](#optional-install-coding-agents)
+* [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
+* [Tmux Commands](#tmux-commands)
+* [References](#references)
 
 <!-- mtoc-end -->
 
@@ -101,6 +101,7 @@ chmod +x setup-macos.sh
 
 - Installs Homebrew if missing
 - Installs all your CLI tools (fzf, bat, fd, eza, etc.)
+- Writes installed Homebrew package versions to `brewfiles/installed-versions/`
 - Installs `rustup-init`, bootstraps Rust/Cargo, and syncs cargo packages from `packages/cargo.txt`
 - Installs Ghostty terminal via Homebrew
 - Installs and configures:
@@ -165,6 +166,7 @@ chmod +x setup-wsl.sh
 **What this does:**
 
 - Install required CLI tools (tmux, zsh, neovim, etc.)
+- Write installed Homebrew package versions to `brewfiles/installed-versions/`
 - Install Alacritty on Windows via winget
 - Install and configure Oh My Zsh, Powerlevel10k, and Zsh plugins
 - Symlink dotfiles using stow
@@ -269,3 +271,5 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - https://www.youtube.com/watch?v=03KsS09YS4E
 - https://playbooks.com/skills/jeffallan/claude-skills/atlassian-mcp
 - https://github.com/openai/codex/blob/main/codex-rs/core/config.schema.json
+- https://www.passwordstore.org/
+- https://dyne.org/tomb/
