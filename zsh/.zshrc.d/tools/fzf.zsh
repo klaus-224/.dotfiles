@@ -5,7 +5,6 @@ if [[ -s "$HOME/.dotfiles/scripts/fzf-git.sh" ]]; then
 	source "$HOME/.dotfiles/scripts/fzf-git.sh"
 fi
 
-
 FD_DEFAULT_OPTIONS="--hidden --no-ignore --exclude .git --exclude node_modules"
 EZA_OPTIONS="--icons --tree --color=always {}"
 BAT_OPTIONS="--color=always -n --line-range :500 {}"
