@@ -2,7 +2,6 @@ brew "git"
 brew "stow"
 brew "tmux"
 brew "neovim"
-brew "lazygit"
 
 # cli tools
 brew "fzf"
@@ -12,10 +11,10 @@ brew "eza"
 brew "tree"
 brew "ripgrep"
 brew "jq"
-brew "awscli"
-brew "tlrc"
 brew "yazi"
 brew "gh"
+
+# zsh 
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 
@@ -23,6 +22,9 @@ brew "zsh-syntax-highlighting"
 brew "pnpm"
 brew "rustup-init"
 
-# infra stuff
+# aws
 brew "aws-cdk"
-brew "cdk"
+brew "awscli"
+
+# tuis
+brew "lazygit"
