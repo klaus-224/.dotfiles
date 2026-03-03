@@ -273,3 +273,4 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - https://github.com/openai/codex/blob/main/codex-rs/core/config.schema.json
 - https://www.passwordstore.org/
 - https://dyne.org/tomb/
+- https://github.com/dlvhdr/gh-dash
