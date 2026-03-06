@@ -27,16 +27,26 @@ return {
 						find_command = {
 							"rg",
 							"--files",
-							"--glob", "!**/node_modules/**",
-							"--glob", "!**/.git/**",
-							"--glob", "!**/.turbo/**",
-							"--glob", "!**/venv/**",
-							"--glob", "!**/.venv/**",
-							"--glob", "!**/site-packages/**",
-							"--glob", "!**/target/**",
-							"--glob", "!**/trace/**",
+							"--glob",
+							"!**/node_modules/**",
+							"--glob",
+							"!**/.git/**",
+							"--glob",
+							"!**/.turbo/**",
+							"--glob",
+							"!**/venv/**",
+							"--glob",
+							"!**/.venv/**",
+							"--glob",
+							"!**/site-packages/**",
+							"--glob",
+							"!**/target/**",
+							"--glob",
+							"!**/trace/**",
+							"--glob",
+							"!**/out/**",
 							"--path-separator",
-							"/"
+							"/",
 						},
 					},
 					live_grep = {
@@ -45,14 +55,24 @@ return {
 								"--hidden",
 								"--no-ignore",
 								"--no-ignore-vcs",
-								"--glob", "!**/node_modules/**",
-								"--glob", "!**/.git/**",
-								"--glob", "!**/.turbo/**",
-								"--glob", "!**/venv/**",
-								"--glob", "!**/.venv/**",
-								"--glob", "!**/site-packages/**",
-								"--glob", "!**/target/**",
-								"--glob", "!**/trace/**",
+								"--glob",
+								"!**/node_modules/**",
+								"--glob",
+								"!**/.git/**",
+								"--glob",
+								"!**/.turbo/**",
+								"--glob",
+								"!**/venv/**",
+								"--glob",
+								"!**/.venv/**",
+								"--glob",
+								"!**/site-packages/**",
+								"--glob",
+								"!**/target/**",
+								"--glob",
+								"!**/trace/**",
+								"--glob",
+								"!**/out/**",
 							}
 						end,
 					},
@@ -62,12 +82,12 @@ return {
 								["<CR>"] = function(prompt_bufnr)
 									local entry = telescope_actions_state.get_selected_entry()
 									telescope_actions.close(prompt_bufnr)
-									vim.cmd('DiffviewOpen ' .. entry.value)
+									vim.cmd("DiffviewOpen " .. entry.value)
 								end,
-							}
-						}
+							},
+						},
 					},
-				}
+				},
 			})
 
 			-- KEYMAPS

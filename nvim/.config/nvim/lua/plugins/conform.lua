@@ -39,6 +39,7 @@ return {
 				json = { "prettier" },
 				yaml = { "prettier" },
 				markdown = { "prettier" },
+				python = { "black" },
 				toml = { "tombi" },
 				sh = { "shfmt" },
 				bash = { "shfmt" },
