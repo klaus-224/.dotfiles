@@ -3,6 +3,17 @@
 return {
 	{
 		"stevearc/oil.nvim",
+		dependencies = {
+			{
+				"malewicz1337/oil-git.nvim",
+				dependencies = { "stevearc/oil.nvim" },
+				opts = {
+					show_file_highlights = true,
+					show_directory_highlights = false,
+					show_ignored_files = true,
+				},
+			},
+		},
 		lazy = false,
 		config = function()
 			local oil = require("oil")
@@ -18,9 +29,9 @@ return {
 					use_default_keymaps = false,
 					keymaps = {
 						["<CR>"] = { "actions.select" },
-						["gv"] = { "actions.select", opts = { vertical = true }},
-						["gh"] = { "actions.select", opts = { horizontal = true }},
-						["gq"] = {"actions.send_to_qflist", opts = {action = "a", target = "qflist"}},
+						["gv"] = { "actions.select", opts = { vertical = true } },
+						["gh"] = { "actions.select", opts = { horizontal = true } },
+						["gq"] = { "actions.send_to_qflist", opts = { action = "a", target = "qflist" } },
 					},
 				}
 			)
@@ -33,4 +44,5 @@ return {
 		dependencies = { "stevearc/oil.nvim" },
 		opts = {},
 	},
+	{ "malewicz1337/oil-git.nvim", dependencies = { "stevearc/oil.nvim" } },
 }
