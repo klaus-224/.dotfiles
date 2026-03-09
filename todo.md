@@ -86,3 +86,6 @@ Ignore all other lanes until complete.
 - [ ] Decide umbrella strategy
 - [ ] Run agents inside dev containers
 - [ ] Define agent execution patterns
+- [ ] handle secrets better (password, security)
+- [ ] tj devries stuff
+
