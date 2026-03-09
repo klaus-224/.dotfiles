@@ -1,5 +1,3 @@
----@module "lazy"
----@type LazySpec
 return {
 	{
 		"stevearc/oil.nvim",
@@ -19,8 +17,6 @@ return {
 			local oil = require("oil")
 
 			oil.setup(
-				---@module 'oil'
-				---@type oil.SetupOpts
 				{
 					delete_to_trash = true,
 					view_options = {

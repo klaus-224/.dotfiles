@@ -1,5 +1,3 @@
----@module "lazy"
----@type LazySpec
 return {
 	"github/copilot.vim",
 	enabled = function()

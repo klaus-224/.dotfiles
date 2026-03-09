@@ -1,5 +1,3 @@
----@module "lazy"
----@type LazySpec
 return {
 	-- for lua dev completions
 	{
