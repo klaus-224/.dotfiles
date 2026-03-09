@@ -1,46 +1,44 @@
-local utils = require("core.utils")
-local globals = require("core.globals")
+local set = vim.keymap.set
 
-globals.keymap.set("i", "jk", "<Esc>", utils.opts)
-globals.keymap.set("v", "q", "<Esc>", utils.opts)
--- globals.keymap.set("n", "<leader>w", ":write<CR>", utils.opts_with_desc("Save buffer"))
--- globals.keymap.set("n", "<leader>q", ":quit<CR>", utils.opts_with_desc("Close current buffer"))
--- globals.keymap.set("n", "<leader>Q", ":qa!<CR>", utils.opts_with_desc("Force quit all buffers"))
+set("i", "jk", "<Esc>")
+set("v", "q", "<Esc>")
+
+set("n", "<leader>x", function()
+	vim.cmd(".lua")
+end, { desc = "Execute the current line" })
+
+set("n", "<leader><leader>x", function()
+	vim.cmd("source %")
+	vim.notify("lua file reloaded")
+end, { desc = "Execute the current file" })
 
 -- select all
-globals.keymap.set("n", "<C-a>", "gg<S-v>G", utils.opts_with_desc("Select all"))
-
--- qf list
-globals.keymap.set("n", "D-j", ":cnext", {});
-globals.keymap.set("n", "D-k", ":cprev", {});
+set("n", "<C-a>", "gg<S-v>G")
 
 -- move selected lines up/down and keep selection
-globals.keymap.set("v", "J", ":m '>+1<CR>gv=gv", utils.opts_with_desc("Move selected lines down"))
-globals.keymap.set("v", "K", ":m '<-2<CR>gv=gv", utils.opts_with_desc("Move selected lines up"))
-
--- diagnostics
-globals.keymap.set("n", "<leader>e", vim.diagnostic.open_float, utils.opts_with_desc("Show line diagnostics"))
-globals.keymap.set("n", "[e", vim.diagnostic.get_prev, utils.opts_with_desc("Previous diagnostic"))
-globals.keymap.set("n", "]e", vim.diagnostic.get_next, utils.opts_with_desc("Next diagnostic"))
+set("v", "J", ":m '>+1<CR>gv=gv")
+set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- windows
-globals.keymap.set("n", "<leader>=", [[<cmd>vertical resize +5<cr>]], utils.opts_with_desc("Increase window width"))
-globals.keymap.set("n", "<leader>-", [[<cmd>vertical resize -5<cr>]], utils.opts_with_desc("Decrease window width"))
-globals.keymap.set("n", "<leader>+", [[<cmd>horizontal resize +10<cr>]], utils.opts_with_desc("Increasewindow height"))
-
--- close all floating windows
-globals.keymap.set("n", "<leader>W", utils.close_all_windows, utils.opts_with_desc("Close all floating windows"))
+set("n", "<M-,>", "<c-w>5<")
+set("n", "<M-.>", "<c-w>5>")
+set("n", "<M-t>", "<C-W>+")
+set("n", "<M-s>", "<C-W>-")
 
 -- copy current buffer absolute file path to system clipboard
-globals.keymap.set("n", "<leader>yp", utils.copy_cwd, utils.opts_with_desc("Copy full file path to clipboard"))
+set("n", "<leader>YY", function()
+	vim.fn.setreg("+", vim.fn.expand("%:p"))
+	vim.notify("Copied file path to clipboard")
+end)
 
 -- copy current selection to the system clipboad
-globals.keymap.set(
-	{ "v", "n" },
-	"<leader>yY",
-	utils.copy_to_clipboard,
-	utils.opts_with_desc("Copy visual selection to clipboard")
-)
+set({ "v", "n" }, "<leader>Y", function()
+	vim.cmd('normal! "+y')
+	vim.notify("Copied selection to clipboard")
+end, { desc = "Copy visual selection to clipboard" })
 
--- bullets
-globals.keymap.set("n", "<M-l>", "o- [ ] ", utils.opts_with_desc("Add TODO bullet in markdown"))
+set("n", "]]", "<cmd>cnext<CR>", { silent = true })
+set("n", "[[", "<cmd>cprev<CR>", { silent = true })
+
+set("n", "<left>", "gT")
+set("n", "<right>", "gt")

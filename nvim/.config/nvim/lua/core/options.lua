@@ -1,10 +1,11 @@
+local opt = vim.opt
 -- Text width and wrapping
-vim.opt.textwidth = 80
-vim.opt.wrap = true
-vim.opt.wrapmargin = 0
-vim.opt.linebreak = true
-vim.opt.exrc = true
-vim.opt.termguicolors = true
+opt.textwidth = 80
+opt.wrap = true
+opt.wrapmargin = 0
+opt.linebreak = true
+opt.exrc = true
+opt.termguicolors = true
 
 vim.diagnostic.config({
 	virtual_text = true,
@@ -15,80 +16,76 @@ vim.diagnostic.config({
 vim.g.mapleader = " "
 
 --Enable line numbers
-vim.opt.number = true
-vim.opt.relativenumber = true -- relative line numbers
-vim.opt.title = true
+opt.number = true
+opt.relativenumber = true -- relative line numbers
+opt.title = true
 
 -- Enable automatic indentation matching the previous line
-vim.opt.autoindent = true
+opt.autoindent = true
 
 -- Enable smart indentation (automatic indentation in code blocks)
-vim.opt.smartindent = true
+opt.smartindent = true
 
 -- Highlight all search matches
-vim.opt.hlsearch = true
+opt.hlsearch = true
 
 -- Disable file backups when writing changes
-vim.opt.backup = false
+opt.backup = false
 
 -- Show the command you're typing in the lower-right corner
-vim.opt.showcmd = true
+opt.showcmd = true
 
 -- Set command line height to 0 (hide command line when not in use)
-vim.opt.cmdheight = 1
+opt.cmdheight = 1
 
 -- Disable status line at the bottom of the window
-vim.opt.laststatus = 0
+opt.laststatus = 0
 
 -- Keep at least 10 lines of context above and below the cursor while scrolling
-vim.opt.scrolloff = 10
+opt.scrolloff = 10
 
 -- Show live preview of substitute commands in a split window
-vim.opt.inccommand = "split"
+opt.inccommand = "split"
 
 -- Ignore case when searching
-vim.opt.ignorecase = true
+opt.ignorecase = true
 
 -- Use smart tab behavior (align tabs based on indentation level)
-vim.opt.smarttab = true
+opt.smarttab = true
 
 -- Preserve indentation for wrapped lines
-vim.opt.breakindent = true
+opt.breakindent = true
 
 -- Fold
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldlevelstart = 99
-vim.opt.foldnestmax = 20
-vim.opt.foldopen:remove("hor")
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevelstart = 99
+opt.foldopen:remove("hor")
 vim.filetype.add({ extension = { har = "json" } })
 
 -- Set the number of spaces to use for each indentation level
-vim.opt.shiftwidth = 2
+opt.shiftwidth = 2
 
 -- Set the width of a tab character to 2 spaces
-vim.opt.tabstop = 2
+opt.tabstop = 2
 
 -- Configure backspace to delete over indentation, eol, and start of line
-vim.opt.backspace = { "start", "eol", "indent" }
+opt.backspace = { "start", "eol", "indent" }
 
 -- Allow searching for files in subdirectories recursively
-vim.opt.path:append({ "**" })
+opt.path:append({ "**" })
 
 -- Ignore node_modules directories when doing file name completion
-vim.opt.wildignore:append({ "*/node_modules/*" })
+opt.wildignore:append({ "*/node_modules/*" })
 
 -- Open new horizontal splits below the current window
-vim.opt.splitbelow = true
+opt.splitbelow = true
 
 -- Open new vertical splits to the right of the current window
-vim.opt.splitright = true
+opt.splitright = true
 
 -- Keep the cursor position when opening splits (no scroll)
-vim.opt.splitkeep = "cursor"
-
--- Disable mouse support in Vim
-vim.opt.mouse = ""
+opt.splitkeep = "cursor"
 
 -- Automatically insert comment leader characters when pressing Enter in block comments
-vim.opt.formatoptions:append({ "r" })
+opt.formatoptions:append({ "r" })

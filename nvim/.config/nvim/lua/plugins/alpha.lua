@@ -1,113 +1,61 @@
 return {
 	"goolord/alpha-nvim",
-	dependencies = {
-		"nvim-tree/nvim-web-devicons",
-	},
+	dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = function()
 		local alpha = require("alpha")
-		local dashboard = require("alpha.themes.dashboard")
 
-		_Gopts = {
-			position = "center",
-			hl = "Type",
-			wrap = "overflow",
+		local quote = {
+			'"I can do nothing for you but work on myself...',
+			'         you can do nothing for me but work on yourself"',
 		}
 
-		-- DASHBOARD HEADER
+		local author = { "                              — Ram Dass" }
 
-		local function getGreeting(name)
-			local tableTime = os.date("*t")
-			local datetime = os.date(" %Y-%m-%d-%A   %H:%M:%S ")
-			local hour = tableTime.hour
-			local greetingsTable = {
-				[1] = "  Sleep well",
-				[2] = "  Good morning",
-				[3] = "  Good afternoon",
-				[4] = "  Good evening",
-				[5] = "󰖔  Good night",
-			}
-			local greetingIndex = 0
-			if hour == 23 or hour < 7 then
-				greetingIndex = 1
-			elseif hour < 12 then
-				greetingIndex = 2
-			elseif hour >= 12 and hour < 18 then
-				greetingIndex = 3
-			elseif hour >= 18 and hour < 21 then
-				greetingIndex = 4
-			elseif hour >= 21 then
-				greetingIndex = 5
-			end
-			return datetime .. "  " .. greetingsTable[greetingIndex] .. ", " .. name
+		local function center_padding()
+			local height = vim.fn.winheight(0)
+			local content_height = #quote + #author
+			return math.floor((height - content_height) / 2) - 1
 		end
 
-		local logo = [[
+		vim.api.nvim_set_hl(0, "AlphaRegular", { fg="#e8b589", italic = true })
+		vim.api.nvim_set_hl(0, "AlphaItalic", { fg="#c48282", italic = true })
+		vim.api.nvim_set_hl(0, "AlphaAuthor", { fg="#6e94b2", italic = true })
 
-"I can do nothing for you but work on myself...you can do nothing for me but work on yourself" - Ram Dass
-      ]]
+		alpha.setup({
+			layout = {
+				{ type = "padding", val = center_padding() },
 
-		local userName = "Lazy"
-		local greeting = getGreeting(userName)
-		local marginBottom = 0
-		dashboard.section.header.val = vim.split(logo, "\n")
+				{
+					type = "text",
+					val = { quote[1] },
+					opts = {
+						position = "center",
+						hl = "AlphaRegular",
+					},
+				},
 
-		-- Split logo into lines
-		local logoLines = {}
-		for line in logo:gmatch("[^\r\n]+") do
-			table.insert(logoLines, line)
-		end
+				{
+					type = "text",
+					val = { quote[2] },
+					opts = {
+						position = "center",
+						hl = "AlphaItalic",
+					},
+				},
 
-		-- Calculate padding for centering the greeting
-		local logoWidth = logo:find("\n") - 1 -- Assuming the logo width is the width of the first line
-		local greetingWidth = #greeting
-		local padding = math.floor((logoWidth - greetingWidth) / 2)
+				{ type = "padding", val = 1 },
 
-		-- Generate spaces for padding
-		local paddedGreeting = string.rep(" ", padding) .. greeting
+				{
+					type = "text",
+					val = author,
+					opts = {
+						position = "center",
+						hl = "AlphaAuthor",
+					},
+				},
+				{ type = "padding", val = center_padding() },
+			},
 
-		-- Add margin lines below the padded greeting
-		local margin = string.rep("\n", marginBottom)
-
-		-- Concatenate logo, padded greeting, and margin
-		local adjustedLogo = logo .. "\n" .. paddedGreeting .. margin
-
-		dashboard.section.buttons.val = {
-			dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
-			dashboard.button(
-				"f",
-				"  Find file",
-				":cd $HOME | silent Telescope find_files hidden=true no_ignore=true <CR>"
-			),
-			dashboard.button("t", "  Find text", ":Telescope live_grep <CR>"),
-			dashboard.button("r", "󰄉  Recent files", ":Telescope oldfiles <CR>"),
-			dashboard.button("u", "󱐥  Update plugins", "<cmd>Lazy update<CR>"),
-			dashboard.button("c", "  Settings", ":e $HOME/.config/nvim/init.lua<CR>"),
-			dashboard.button("p", "  Projects", ":e $HOME/Documents/github <CR>"),
-			dashboard.button("d", "󱗼  Dotfiles", ":e $HOME/dotfiles <CR>"),
-			dashboard.button("q", "󰿅  Quit", "<cmd>qa<CR>"),
-		}
-
-		-- local function footer()
-		-- 	return "Footer Text"
-		-- end
-
-		-- dashboard.section.footer.val = vim.split('\n\n' .. getGreeting 'Lazy', '\n')
-
-		vim.api.nvim_create_autocmd("User", {
-			pattern = "LazyVimStarted",
-			desc = "Add Alpha dashboard footer",
-			once = true,
-			callback = function()
-				local stats = require("lazy").stats()
-				local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
-				dashboard.section.footer.val =
-					{ " ", " ", " ", " Loaded " .. stats.count .. " plugins  in " .. ms .. " ms " }
-				dashboard.section.header.opts.hl = "DashboardFooter"
-				pcall(vim.cmd.AlphaRedraw)
-			end,
 		})
-
-		dashboard.opts.opts.noautocmd = true
-		alpha.setup(dashboard.opts)
 	end,
 }
