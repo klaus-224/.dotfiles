@@ -17,7 +17,7 @@
 alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
-alias cdnc="~/.dotfiles/nvim/.config/nvim"
+alias cdnc="cd ~/.dotfiles/nvim/.config/nvim"
 
 # editors
 alias vi="nvim"
@@ -36,3 +36,13 @@ alias python="python3"
 alias pip="pip3"
 alias pyenv-create="python -m venv .venv"
 alias pyenv-activate="source .venv/bin/activate"
+
+# git
+alias lg="lazygit"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+alias gP="git pull"
+alias gf="git fetch"
+alias gpr="gh pr create"
