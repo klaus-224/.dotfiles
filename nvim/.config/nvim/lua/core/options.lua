@@ -84,3 +84,24 @@ opt.splitkeep = "cursor"
 
 -- Automatically insert comment leader characters when pressing Enter in block comments
 opt.formatoptions:append({ "r" })
+
+-- show tabline if there are atleast 2 pages
+vim.o.showtabline = 1
+
+function _G.my_tabline()
+  local s = ""
+
+  for i = 1, vim.fn.tabpagenr("$") do
+    local name = vim.fn.gettabvar(i, "tabname", "")
+    if name == "" then
+      local bufnr = vim.fn.tabpagebuflist(i)[vim.fn.tabpagewinnr(i)]
+      name = vim.fn.fnamemodify(vim.fn.bufname(bufnr), ":t")
+    end
+
+    s = s .. "%" .. i .. "T " .. name .. " "
+  end
+
+  return s
+end
+
+vim.o.tabline = "%!v:lua.my_tabline()"

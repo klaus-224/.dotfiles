@@ -45,14 +45,13 @@ set("n", "[[", "<cmd>cprev<CR>", { silent = true })
 set("n", "<left>", "gT")
 set("n", "<right>", "gt")
 
+-- clear search hightlights
 set("n", "<CR>", function()
-  ---@diagnostic disable-next-line: undefined-field
-  if vim.v.hlsearch == 1 then
-    vim.cmd.nohl()
-    return ""
-  else
-    return k "<CR>"
-  end
+	---@diagnostic disable-next-line: undefined-field
+	if vim.v.hlsearch == 1 then
+		vim.cmd.nohl()
+		return ""
+	else
+		return k("<CR>")
+	end
 end, { expr = true })
-
-

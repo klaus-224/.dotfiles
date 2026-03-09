@@ -3,8 +3,14 @@ local M = {}
 function M.apply_line_number_highlights()
 	vim.api.nvim_set_hl(0, "LineNrAbove", { fg = "#5c6370", bg = "#1e222a" })
 	vim.api.nvim_set_hl(0, "LineNrBelow", { fg = "#5c6370", bg = "#1e222a" })
-	vim.api.nvim_set_hl(0, "LineNr", { fg = "#5c6370", bg = "#1e222a" })
-	vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#ffd166", bg = "#1e222a", bold = true })
+	vim.api.nvim_set_hl(0, "LineNr", { fg = "#ffd166", bg = "#1e222a", bold = true })
+
+end
+
+function M.apply_tab_line_highlights()
+	vim.api.nvim_set_hl(0, "TabLine", {link = "LineNrAbove"})
+	vim.api.nvim_set_hl(0, "TabLineSel", {})
+	vim.api.nvim_set_hl(0, "TabLineFill", {})
 end
 
 function M.setup()
@@ -13,8 +19,14 @@ function M.setup()
 		callback = M.apply_line_number_highlights,
 	})
 
+	vim.api.nvim_create_autocmd("ColorScheme", {
+		pattern = "*",
+		callback = M.apply_tab_line_highlights,
+	})
+
 	if vim.g.colors_name then
 		M.apply_line_number_highlights()
+		M.apply_tab_line_highlights()
 	end
 end
 
