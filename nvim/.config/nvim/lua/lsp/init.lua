@@ -12,7 +12,7 @@ local servers = {
 	"css_ls",
 	"tailwindcss_ls",
 	"json_ls",
-	"sql_ls",
+	-- "sql_ls", -- disabled: causes false syntax errors in dadbod-ui
 	"tombi_ls",
 }
 
