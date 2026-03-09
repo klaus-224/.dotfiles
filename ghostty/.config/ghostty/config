@@ -25,5 +25,6 @@ clipboard-trim-trailing-spaces = true
 macos-option-as-alt = true
 
 bell-features = border
+desktop-notifications = false
 
 # macos-titlebar-style = hidden
