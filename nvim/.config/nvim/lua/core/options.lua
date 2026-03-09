@@ -35,7 +35,7 @@ vim.opt.backup = false
 vim.opt.showcmd = true
 
 -- Set command line height to 0 (hide command line when not in use)
-vim.opt.cmdheight = 0
+vim.opt.cmdheight = 1
 
 -- Disable status line at the bottom of the window
 vim.opt.laststatus = 0
