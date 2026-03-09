@@ -81,8 +81,24 @@ return {
 							n = {
 								["<CR>"] = function(prompt_bufnr)
 									local entry = telescope_actions_state.get_selected_entry()
+
+									if #entry < 1 or entry[1] == nil then
+										vim.notify("No Diff")
+										return
+									end
+
 									telescope_actions.close(prompt_bufnr)
-									vim.cmd("DiffviewOpen " .. entry.value)
+
+									print(entry[1])
+
+									local file = entry.path
+
+									vim.cmd("vsplit")
+									vim.cmd("read !git show HEAD~1:" .. file)
+									vim.cmd("0d_") -- remove empty first line
+									vim.cmd("diffthis")
+									vim.cmd("wincmd p")
+									vim.cmd("diffthis")
 								end,
 							},
 						},
@@ -93,11 +109,10 @@ return {
 			-- KEYMAPS
 			local builtin = require("telescope.builtin")
 
-			vim.keymap.set("n", "<leader>ff", function()
+			vim.keymap.set("n", "<leader><leader>", function()
 				builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
 			end, { desc = "Telescope find files" })
 			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
-			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
 			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
 			vim.keymap.set("n", "<leader>ds", builtin.lsp_document_symbols, {})
 			vim.keymap.set("n", "<leader>ws", builtin.lsp_workspace_symbols, {})

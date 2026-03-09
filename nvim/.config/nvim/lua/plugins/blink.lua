@@ -11,8 +11,6 @@ return {
 			"rafamadriz/friendly-snippets",
 		},
 		version = "1.*",
-		---@module 'blink.cmp'
-		---@type blink.cmp.Config
 		opts = {
 			keymap = {
 				preset = "default",
@@ -66,7 +64,6 @@ return {
 						enabled = function()
 							return vim.bo.omnifunc ~= "v:lua.vim.lsp.omnifunc"
 						end,
-						---@type blink.cmp.CompleteFuncOpts
 						opts = {
 							complete_func = function()
 								return vim.bo.omnifunc
