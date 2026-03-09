@@ -14,3 +14,8 @@ done
 
 # sourece custom env vars
 source "$HOME/.zshenv"
+
+# Options
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT

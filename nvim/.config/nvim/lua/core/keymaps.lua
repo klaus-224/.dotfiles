@@ -1,5 +1,5 @@
 local set = vim.keymap.set
-
+local k = vim.keycode
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
@@ -37,8 +37,22 @@ set({ "v", "n" }, "<leader>Y", function()
 	vim.notify("Copied selection to clipboard")
 end, { desc = "Copy visual selection to clipboard" })
 
+-- quickfix, loclist nav
 set("n", "]]", "<cmd>cnext<CR>", { silent = true })
 set("n", "[[", "<cmd>cprev<CR>", { silent = true })
 
+-- tabs
 set("n", "<left>", "gT")
 set("n", "<right>", "gt")
+
+set("n", "<CR>", function()
+  ---@diagnostic disable-next-line: undefined-field
+  if vim.v.hlsearch == 1 then
+    vim.cmd.nohl()
+    return ""
+  else
+    return k "<CR>"
+  end
+end, { expr = true })
+
+

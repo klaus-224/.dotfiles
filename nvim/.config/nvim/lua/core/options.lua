@@ -7,11 +7,6 @@ opt.linebreak = true
 opt.exrc = true
 opt.termguicolors = true
 
-vim.diagnostic.config({
-	virtual_text = true,
-	signs = false,
-})
-
 -- Set leader to spacebar
 vim.g.mapleader = " "
 

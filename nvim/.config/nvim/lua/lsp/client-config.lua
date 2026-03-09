@@ -1,5 +1,11 @@
 local M = {}
 
+-- - "grn" is mapped in Normal mode to |vim.lsp.buf.rename()|
+-- - "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
+-- - "grr" is mapped in Normal mode to |vim.lsp.buf.references()|
+-- - "gri" is mapped in Normal mode to |vim.lsp.buf.implementation()|
+-- - "grt" is mapped in Normal mode to |vim.lsp.buf.type_definition()|
+-- - "gO" is mapped in Normal mode to |vim.lsp.buf.document_symbol()|
 do
 	local ok, blink = pcall(require, "blink.cmp")
 	if ok and blink.get_lsp_capabilities then
@@ -9,27 +15,9 @@ do
 	end
 end
 
-M.on_attach = function(_, bufnr)
-	local map = function(mode, lhs, rhs, desc)
-		vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
-	end
-
-	map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
-	map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
-	map("n", "gd", vim.lsp.buf.definition, "Go to definition")
-	map("n", "gI", vim.lsp.buf.implementation, "Go to implementation")
-	map("n", "K", function()
-		vim.lsp.buf.hover({ border = "rounded" })
-	end, "LSP hover")
-	map("n", "gl", function()
-		vim.diagnostic.open_float({ border = "rounded" })
-	end, "Line diagnostics")
-end
-
 function M.base()
 	return {
 		capabilities = M.capabilities,
-		on_attach = M.on_attach,
 	}
 end
 
