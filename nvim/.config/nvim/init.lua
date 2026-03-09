@@ -1,6 +1,6 @@
 require("core.options")
 require("core.keymaps")
-require("core.autocmds").setup()
+require("core.diagnostics")
 require("core.usercmds").setup()
 require("core.lazy")
 require("lsp")

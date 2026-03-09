@@ -14,16 +14,16 @@ cmd() {
       for name in ${(k)aliases}; do
         printf "%-20s %s\n" "$name" "${aliases[$name]}"
       done
-
-      for name in ${(k)functions}; do
-        printf "%-20s %s\n" "$name" "[function]"
-      done
-
-      for name in ${(k)commands}; do
-        printf "%-20s %s\n" "$name" "$(whence -p "$name")"
-      done
     } | sort -u | fzf
   )
+
+      # for name in ${(k)functions}; do
+      #   printf "%-20s %s\n" "$name" "[function]"
+      # done
+      #
+      # for name in ${(k)commands}; do
+      #   printf "%-20s %s\n" "$name" "$(whence -p "$name")"
+      # done
 
   [[ -z $selected ]] && return
 

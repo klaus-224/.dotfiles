@@ -10,9 +10,30 @@ EZA_OPTIONS="--icons --tree --color=always {}"
 BAT_OPTIONS="--color=always -n --line-range :500 {}"
 
 export FZF_DEFAULT_OPTS="--style minimal"
-export FZF_CTRL_T_OPTS="--prompt 'All> ' \
-  --header 'CTRL-D: Directories / CTRL-F: Files' \
-  --preview '[[ -d {} ]] && eza $EZA_OPTIONS | head -200 || bat $BAT_OPTIONS' \
-  --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d $FD_DEFAULT_OPTIONS)' \
-  --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f  $FD_DEFAULT_OPTIONS)' \
-  --bind 'ctrl-a:change-prompt(All> )+reload(fd $FD_DEFAULT_OPTIONS)'"
+
+# file picker
+export FZF_CTRL_T_OPTS="--prompt 'Files> ' \
+  --preview 'bat $BAT_OPTIONS'"
+
+fzf-cd-widget() {
+  local dir
+
+  dir=$(
+    fd --type d $FD_DEFAULT_OPTIONS |
+    fzf \
+      --prompt "Directories> " \
+      --preview "eza $EZA_OPTIONS | head -200"
+  )
+
+  [[ -z "$dir" ]] && return
+  cd "$dir" || exit
+}
+zle -N fzf-cd-widget
+bindkey '^G' fzf-cd-widget
+
+# export FZF_CTRL_T_OPTS="--prompt 'All> ' \
+#   --header 'CTRL-D: Directories / CTRL-F: Files' \
+#   --preview '[[ -d {} ]] && eza $EZA_OPTIONS | head -200 || bat $BAT_OPTIONS' \
+#   --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d $FD_DEFAULT_OPTIONS)' \
+#   --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f  $FD_DEFAULT_OPTIONS)' \
+#   --bind 'ctrl-a:change-prompt(All> )+reload(fd $FD_DEFAULT_OPTIONS)'"
