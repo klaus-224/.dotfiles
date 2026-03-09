@@ -10,6 +10,10 @@ globals.keymap.set("v", "q", "<Esc>", utils.opts)
 -- select all
 globals.keymap.set("n", "<C-a>", "gg<S-v>G", utils.opts_with_desc("Select all"))
 
+-- qf list
+globals.keymap.set("n", "D-j", ":cnext", {});
+globals.keymap.set("n", "D-k", ":cprev", {});
+
 -- move selected lines up/down and keep selection
 globals.keymap.set("v", "J", ":m '>+1<CR>gv=gv", utils.opts_with_desc("Move selected lines down"))
 globals.keymap.set("v", "K", ":m '<-2<CR>gv=gv", utils.opts_with_desc("Move selected lines up"))

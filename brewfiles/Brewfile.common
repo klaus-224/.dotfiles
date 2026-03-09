@@ -28,3 +28,6 @@ brew "awscli"
 
 # tuis
 brew "lazygit"
+
+# coding agent notifications https://github.com/PeonPing/peon-ping
+brew "PeonPing/tap/peon-ping"
