@@ -28,3 +28,4 @@ bell-features = border
 desktop-notifications = false
 
  macos-titlebar-style = hidden
+background-blur-radius = 10
