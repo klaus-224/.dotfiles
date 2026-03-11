@@ -1,89 +1,89 @@
-local opt = vim.opt
+local o = vim.opt
 -- Text width and wrapping
-opt.textwidth = 80
-opt.wrap = true
-opt.wrapmargin = 0
-opt.linebreak = true
-opt.exrc = true
-opt.termguicolors = true
+o.textwidth = 80
+o.wrap = true
+o.wrapmargin = 0
+o.linebreak = true
+o.exrc = true
+o.termguicolors = true
 
 -- Set leader to spacebar
 vim.g.mapleader = " "
 
 --Enable line numbers
-opt.number = true
-opt.relativenumber = true -- relative line numbers
-opt.title = true
+o.number = true
+o.relativenumber = true -- relative line numbers
+o.title = true
 
 -- Enable automatic indentation matching the previous line
-opt.autoindent = true
+o.autoindent = true
 
 -- Enable smart indentation (automatic indentation in code blocks)
-opt.smartindent = true
+o.smartindent = true
 
 -- Highlight all search matches
-opt.hlsearch = true
+o.hlsearch = true
 
 -- Disable file backups when writing changes
-opt.backup = false
+o.backup = false
 
 -- Show the command you're typing in the lower-right corner
-opt.showcmd = true
+o.showcmd = true
 
 -- Set command line height to 0 (hide command line when not in use)
-opt.cmdheight = 1
+o.cmdheight = 1
 
 -- Disable status line at the bottom of the window
-opt.laststatus = 0
+o.laststatus = 2
 
 -- Keep at least 10 lines of context above and below the cursor while scrolling
-opt.scrolloff = 10
+o.scrolloff = 10
 
 -- Show live preview of substitute commands in a split window
-opt.inccommand = "split"
+o.inccommand = "split"
 
 -- Ignore case when searching
-opt.ignorecase = true
+o.ignorecase = true
 
 -- Use smart tab behavior (align tabs based on indentation level)
-opt.smarttab = true
+o.smarttab = true
 
 -- Preserve indentation for wrapped lines
-opt.breakindent = true
+o.breakindent = true
 
 -- Fold
-opt.foldmethod = "expr"
-opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-opt.foldlevelstart = 99
-opt.foldopen:remove("hor")
+o.foldmethod = "expr"
+o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+o.foldlevelstart = 99
+o.foldopen:remove("hor")
 vim.filetype.add({ extension = { har = "json" } })
 
 -- Set the number of spaces to use for each indentation level
-opt.shiftwidth = 2
+o.shiftwidth = 2
 
 -- Set the width of a tab character to 2 spaces
-opt.tabstop = 2
+o.tabstop = 2
 
 -- Configure backspace to delete over indentation, eol, and start of line
-opt.backspace = { "start", "eol", "indent" }
+o.backspace = { "start", "eol", "indent" }
 
 -- Allow searching for files in subdirectories recursively
-opt.path:append({ "**" })
+o.path:append({ "**" })
 
 -- Ignore node_modules directories when doing file name completion
-opt.wildignore:append({ "*/node_modules/*" })
+o.wildignore:append({ "*/node_modules/*" })
 
 -- Open new horizontal splits below the current window
-opt.splitbelow = true
+o.splitbelow = true
 
 -- Open new vertical splits to the right of the current window
-opt.splitright = true
+o.splitright = true
 
 -- Keep the cursor position when opening splits (no scroll)
-opt.splitkeep = "cursor"
+o.splitkeep = "cursor"
 
 -- Automatically insert comment leader characters when pressing Enter in block comments
-opt.formatoptions:append({ "r" })
+o.formatoptions:append({ "r" })
 
 -- show tabline if there are atleast 2 pages
 vim.o.showtabline = 1
