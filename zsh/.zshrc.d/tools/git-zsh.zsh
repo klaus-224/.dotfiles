@@ -3,17 +3,15 @@
 # PR review helpers for gh + Neovim
 #
 # Function Pneumonics
-# [G]ithub [P]R [P]pick = gpp
-# [G]ithub [P]R [R]eview = gpr
-# [G]ithub [P]R [C]omment = gpc
+# [G]ithub [P]R [P]ipeline = gpp
+# gpp actions: review | send | delete
 # [G]ithub [P]R [D]iff open = gpd
 # [G]ithub [P]R [S]submit = gps
 # [G]ithub [P]R [H]elp = gph
 #
 # Workflow:
 # 1) Pick/enter PR number (all commands accept optional PR number)
-# 2) gpr [PR]     -> open PR context markdown in Neovim
-# 3) gpc [PR]  -> add one inline comment to a changed file/line
+# 2) gpp review [PR] -> open queued comments for marking/editing
 # 4) gpd [PR] [FILE] -> open file in nvim -d against PR base
 # 5) gps [PR]   -> submit approve/request-changes/comment review
 # Help gph
@@ -108,12 +106,6 @@ function _ghpr_open_diff_file() {
 	"${EDITOR:-nvim}" -d <(git show "origin/main:${file}" 2>/dev/null || echo) "$file"
 }
 
-function gpp() {
-	local state=open
-	[[ "$1" == "--closed" ]] && state=closed
-	_ghpr_pick_number "$state"
-}
-
 unalias gpr 2>/dev/null
 function gpr() {
 	_ghpr_require || return 1
@@ -158,7 +150,8 @@ function gpr() {
 	GHPR_NUMBER="$pr_number" "${EDITOR:-nvim}" "+lua require('custom.git-pr').setup(${pr_number})" "$tmpfile"
 }
 
-function gpc() {
+unalias gpp 2>/dev/null
+function gpp() {
 	_ghpr_require || return 1
 
 	local mode pr_number repo head_sha comments_file start_line end_line sent_csv tmp_comments selected delete_id confirm api_err picker_state
@@ -169,10 +162,22 @@ function gpc() {
 
 	mode=$1
 	shift || true
-	if [[ "$mode" != "--review" && "$mode" != "--send" && "$mode" != "--delete" ]]; then
-		echo "Usage: gpc --review [PR] | gpc --send [PR] | gpc --delete [PR]"
+
+	case "$mode" in
+	review | --review | comments | --comments)
+		mode="--review"
+		;;
+	send | --send)
+		mode="--send"
+		;;
+	delete | --delete)
+		mode="--delete"
+		;;
+	*)
+		echo "Usage: gpp review|send|delete [--closed] [PR]"
 		return 1
-	fi
+		;;
+	esac
 
 	picker_state=open
 	if [[ "$1" == "--closed" ]]; then
@@ -328,7 +333,7 @@ function gpc() {
 	)
 
 	if [[ ${#sent_ids[@]} -eq 0 ]]; then
-		echo "No marked comments were sent. Mark entries with '- send: yes' and run gpc again."
+		echo "No marked comments were sent. Mark entries with '- send: yes' and run gpp send again."
 		GHPR_NUMBER="$pr_number" "${EDITOR:-nvim}" "$comments_file"
 		return $failed
 	fi
@@ -424,17 +429,13 @@ function gps() {
 function gph() {
 	cat <<'EOF'
 PR review helpers:
-  gpp [--closed]     						Pick and print PR number.
-  gpr [--closed] [PR]      			Open PR context markdown in your editor.
-  gpc --review [--closed] [PR]  Open queued comments file for marking/editing.
-  gpc --send [--closed] [PR]    Send only entries marked '- send: yes'.
-  gpc --delete [--closed] [PR]  Pick one submitted PR comment and delete it (with confirm).
-  gpd [--closed] [PR] [FILE] 		Open changed file in nvim -d vs PR base.
-  gps [--closed] [PR]    				Submit review (approve / request-changes / comment).
+  gpp review [--closed] [PR]    Open queued comments file for marking/editing.
+  gpp send [--closed] [PR]      Send only entries marked '- send: yes'.
+  gpp delete [--closed] [PR]    Pick submitted PR comments and delete them (with confirm).
 
 Usage:
-  gpr           # pick PR interactively
-  gpr --closed  # pick from closed PRs
-  gpr 123       # use PR 123 directly
+  gpp review           # pick PR interactively
+  gpp review --closed  # pick from closed PRs
+  gpp send 123           # send marked comments for PR 123
 EOF
 }
