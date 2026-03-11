@@ -9,7 +9,7 @@ return {
 			'         you can do nothing for me but work on yourself"',
 		}
 
-		local author = { "                              — Ram Dass - Darci Miller"}
+		local author = { "                              — Ram Dass - Darci Miller" }
 
 		local function center_padding()
 			local height = vim.fn.winheight(0)
@@ -17,11 +17,12 @@ return {
 			return math.floor((height - content_height) / 2) - 1
 		end
 
-		vim.api.nvim_set_hl(0, "AlphaRegular", { fg="#e8b589", italic = true })
-		vim.api.nvim_set_hl(0, "AlphaItalic", { fg="#c48282", italic = true })
-		vim.api.nvim_set_hl(0, "AlphaAuthor", { fg="#6e94b2", italic = true })
+		vim.api.nvim_set_hl(0, "AlphaRegular", { fg = "#e8b589", italic = true })
+		vim.api.nvim_set_hl(0, "AlphaItalic", { fg = "#c48282", italic = true })
+		vim.api.nvim_set_hl(0, "AlphaAuthor", { fg = "#6e94b2", italic = true })
 
 		alpha.setup({
+
 			layout = {
 				{ type = "padding", val = center_padding() },
 
@@ -55,7 +56,6 @@ return {
 				},
 				{ type = "padding", val = center_padding() },
 			},
-
 		})
 	end,
 }
