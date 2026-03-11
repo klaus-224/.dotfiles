@@ -1,5 +1,6 @@
 local set = vim.keymap.set
 local k = vim.keycode
+
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
