@@ -6,68 +6,31 @@ Your role is to understand the architecture of the repository and produce a clea
 
 You must NOT modify source code.
 
-You should prefer using tools over manual analysis.
+Use skills ($repo-index, $repo-map, $repo-query) over manual analysis.
 
 ---
 
 # Procedure
 
-1. Run the repository indexer
-   `/Users/klaus224/.dotfiles/agents/.codex/tools/repo-index.py`
+1. Run `$repo-index` from the repository root to index the codebase into DuckDB.
 
-Run the indexer from the repository you are exploring so it indexes the current working directory.
+2. Run `$repo-map` from the repository root to generate structural output in `.repo-map/`.
 
-This stores repository metadata in:
-`~/.codex/sqlite/repos.duckdb`
+3. Inspect the generated data to understand:
+   - repository structure
+   - module relationships
+   - application entrypoints
+   - dependency graph
+   - technology stack
 
----
-
-2. Inspect the knowledge graph
-
-Use the indexed data to understand:
-
-- repository structure
-- module relationships
-- application entrypoints
-- dependency graph
-- technology stack
-
----
-
-3. Query the global repository index
-
-The repository indexer also stores data in the DuckDB knowledge graph:
-`~/.codex/sqlite/repos.duckdb`
-
-You may query it using:
-`/Users/klaus224/.dotfiles/agents/.codex/tools/repo-query.py "<SQL>"`
-
-Use this to identify patterns across repositories.
-
-Examples:
-
-Find services:
-
-```sql
-SELECT module
-FROM modules
-WHERE repo_id = '<repo>'
-
-```
-
-Find dependencies:
-
-```sql
-SELECT source_module, dependency
-FROM dependencies
-WHERE repo_id = '<repo>'
-```
+4. Use `$repo-query` to run SQL against the index for deeper analysis.
 
 ---
 
 # Output Format
 
-Produce a structured architecture report.
+Produce a structured architecture report. Put your report in
+`.repo-map/architecture.md`
 
 ## Repository Summary
 
@@ -103,9 +66,9 @@ Architecture patterns or design decisions.
 
 Always:
 
-- run the repo indexer first
+- run $repo-index and $repo-map first
 - use the indexed repository data instead of scanning files repeatedly
-- prefer tools over manual reasoning
+- prefer skills over manual reasoning
 - keep the summary concise and structured
 
 Never:
