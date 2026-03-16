@@ -22,7 +22,6 @@ apps = true
 model = "gpt-5.4"
 model_reasoning_effort = "high"
 approval_policy = "on-request"
-agent = "repo-explorer"
 model_instructions_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/instruction.md"
 
 # [profiles.repo-planner]
@@ -108,4 +107,10 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/rohineshram/.codex"]
+trust_level = "trusted"
+
+[projects."/Users/rohineshram/code/qa-tools"]
+trust_level = "trusted"
+
+[projects."/Users/rohineshram/.dotfiles"]
 trust_level = "trusted"
