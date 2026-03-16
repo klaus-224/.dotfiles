@@ -1,0 +1,4 @@
+{
+  "tools": ["shell", "git", "rg", "grep", "fd", "jq", "duckdb"],
+  "blocked_tools": ["write_file", "apply_patch", "edit_file"]
+}
