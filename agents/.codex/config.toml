@@ -1,30 +1,29 @@
-################################################################################
+## ##############################################################################
 # Core Model
-################################################################################
+## ##############################################################################
 
 model = "gpt-5.4"
 model_provider = "openai"
 personality = "pragmatic"
 
-################################################################################
+## ##############################################################################
 # Features
-################################################################################
+## ##############################################################################
 
 [features]
 multi_agent = true
 apps = true
 
-################################################################################
+## ##############################################################################
 # Profiles
-################################################################################
+## ##############################################################################
 
 [profiles.repo-explorer]
 model = "gpt-5.4"
 model_reasoning_effort = "high"
 approval_policy = "on-request"
 agent = "repo-explorer"
-model_instructions_file = "/Users/klaus224/.dotfiles/agents/.codex/agents/repo-explorer/instruction.md"
-
+model_instructions_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/instruction.md"
 
 # [profiles.repo-planner]
 # model = "gpt-5.4"
@@ -44,9 +43,9 @@ model_instructions_file = "/Users/klaus224/.dotfiles/agents/.codex/agents/repo-e
 # approval_policy = "never"
 # agent = "reviewer"
 
-################################################################################
+## ##############################################################################
 # Agents
-################################################################################
+## ##############################################################################
 
 [agents]
 max_threads = 8
@@ -54,7 +53,7 @@ max_depth = 3
 
 [agents.repo-explorer]
 description = "Explores and understands the repository"
-config_file= "/Users/klaus224/.dotfiles/agents/.codex/agents/repo-explorer/config.toml"
+config_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/config.toml"
 
 # [agents.planner]
 # description = "Creates implementation plans"
@@ -68,9 +67,9 @@ config_file= "/Users/klaus224/.dotfiles/agents/.codex/agents/repo-explorer/confi
 # description = "Reviews code for correctness and security"
 # config_file = "~/.dotfiles/codex/agents/reviewer.toml"
 
-################################################################################
+## ##############################################################################
 # UI
-################################################################################
+## ##############################################################################
 
 [tui]
 status_line = [
@@ -85,17 +84,16 @@ theme = "1337"
 [tui.model_availability_nux]
 "gpt-5.3-codex-spark" = 4
 
-
-################################################################################
+## ##############################################################################
 # MCP Servers
-################################################################################
+## ##############################################################################
 
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
-################################################################################
+## ##############################################################################
 # Misc
-################################################################################
+## ##############################################################################
 
 [analytics]
 enabled = false
@@ -107,4 +105,7 @@ enabled = false
 trust_level = "trusted"
 
 [projects."/Users/klaus224/.dotfiles"]
+trust_level = "trusted"
+
+[projects."/Users/rohineshram/.codex"]
 trust_level = "trusted"
