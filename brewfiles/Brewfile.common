@@ -30,4 +30,5 @@ brew "awscli"
 brew "lazygit"
 
 # coding agent notifications https://github.com/PeonPing/peon-ping
+brew "codex"
 brew "PeonPing/tap/peon-ping"
