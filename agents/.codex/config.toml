@@ -21,7 +21,7 @@ apps = true
 [profiles.repo-explorer]
 model = "gpt-5.4"
 model_reasoning_effort = "high"
-approval_policy = "never"
+approval_policy = "on-request"
 agent = "repo-explorer"
 model_instructions_file = "/Users/klaus224/.dotfiles/agents/.codex/agents/repo-explorer/instruction.md"
 
@@ -104,4 +104,7 @@ enabled = false
 enabled = false
 
 [projects."/Users/klaus224/code/circl-social"]
+trust_level = "trusted"
+
+[projects."/Users/klaus224/.dotfiles"]
 trust_level = "trusted"
