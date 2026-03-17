@@ -8,7 +8,7 @@ return {
 		config = function()
 			local telescope = require("telescope")
 			local telescope_actions = require("telescope.actions")
-			local telescope_actions_state = require("telescope.actions.state")
+			local telescope_previewer = require("telescope.previewers")
 
 			-- CONFIGURATION
 			telescope.setup({
@@ -20,6 +20,7 @@ return {
 					},
 					preview = {
 						wrap = true,
+						file_size_limit = 0.1,
 					},
 				},
 				pickers = {
