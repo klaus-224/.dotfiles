@@ -22,7 +22,7 @@ return {
 				"typescript",
 				"tsx",
 				"rust",
-				"sql"
+				"sql",
 			},
 		})
 
