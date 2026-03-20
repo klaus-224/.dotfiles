@@ -1,14 +1,15 @@
 vim.diagnostic.config({
-	virtual_text = false,
+	virtual_text = true,
 	signs = false,
 	float = {
 		border = "rounded",
 	},
-	virtual_lines = {
-		format = function(diagnostic)
-			return diagnostic.message
-		end,
-	},
+	virtual_lines = false,
+	-- virtual_lines = {
+	-- 	format = function(diagnostic)
+	-- 		return diagnostic.message
+	-- 	end,
+	-- },
 	jump = {
 		float = true,
 	},
