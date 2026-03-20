@@ -32,7 +32,10 @@ vim.lsp.config("basedpyright", {
 		basedpyright = {
 			analysis = {
 				autoSearchPaths = true,
-				diagnosticMode = "",
+				diagnosticMode = "workspace",
+				inlayHints = {
+					genericTypes = true,
+				},
 			},
 		},
 	},
