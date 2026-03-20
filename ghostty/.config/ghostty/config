@@ -1,7 +1,8 @@
 # Configuration for Ghostty https://ghostty.org/docs
 custom-shader = shaders/cursor_tail.glsl
 
-theme = Black Metal (Bathory)
+theme = Vague
+background = black
 # font-family = Hack Nerd Font Mono
 font-family = Iosevka Term
 font-thicken = true

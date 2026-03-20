@@ -8,12 +8,15 @@
 [[ -n "${ZSH_VERSION:-}" ]] || return 0
 emulate -LR zsh
 
+eval "$(starship init zsh)"
+
 for file in "$HOME/.zshrc.d/"*.zsh; do
 	[ -f "$file" ] && source "$file"
 done
 
 # sourece custom env vars
 source "$HOME/.zshenv"
+
 # Options
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS

@@ -38,19 +38,16 @@ bindkey -M viins '^W' backward-kill-word
 # 2 q = block
 # 6 q = beam
 function zle-keymap-select {
-  if [[ $KEYMAP == vicmd ]]; then
-    printf '\e[2 q'
-  else
-    printf '\e[6 q'
-  fi
+	if [[ $KEYMAP == vicmd ]]; then
+		printf '\e[2 q'
+	else
+		printf '\e[6 q'
+	fi
 }
 
 function zle-line-init {
-  printf '\e[6 q'
+	printf '\e[6 q'
 }
 
 zle -N zle-keymap-select
 zle -N zle-line-init
-
-# Reset cursor to insert-style before running commands
-preexec() { printf '\e[6 q' }

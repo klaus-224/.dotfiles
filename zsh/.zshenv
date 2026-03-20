@@ -13,3 +13,6 @@ export COPILOT_MCP_CONFIG_FILE="${COPILOT_MCP_CONFIG_FILE:-$COPILOT_HOME/mcp-con
 ## General stuff I like
 export EDITOR="nvim"
 export PAGER="nvim +Man!"
+
+export STARSHIP_CONFIG="$HOME/.dotfiles/starship/starship.toml"
+
