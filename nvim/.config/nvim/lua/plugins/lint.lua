@@ -4,6 +4,13 @@ return {
 	config = function()
 		local lint = require("lint")
 
+		vim.filetype.add({
+			pattern = {
+				["%.env"] = "dotenv",
+				["%.env%..*"] = "dotenv",
+			},
+		})
+
 		lint.linters_by_ft = {
 			sh = { "shellcheck" },
 			bash = { "shellcheck" },
@@ -26,8 +33,11 @@ return {
 		vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "InsertLeave" }, {
 			group = group,
 			callback = function(args)
-				if vim.bo[args.buf].filetype == "zsh" then
+				local ft = vim.bo[args.buf].filetype
+				if ft == "zsh" or ft == "sh" or ft == "bash" then
 					lint_shellcheck(args.buf)
+				elseif ft == "dotenv" then
+					return
 				end
 			end,
 		})

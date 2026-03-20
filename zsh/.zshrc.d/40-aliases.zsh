@@ -46,3 +46,6 @@ alias gc="git commit"
 alias gp="git push"
 alias gf="git fetch"
 alias gpr="gh pr create"
+
+# graphivz
+alias D2S="dot -Tsvg ${1} > ${2}"

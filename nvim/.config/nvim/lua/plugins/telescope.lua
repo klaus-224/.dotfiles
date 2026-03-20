@@ -8,7 +8,7 @@ return {
 		config = function()
 			local telescope = require("telescope")
 			local telescope_actions = require("telescope.actions")
-			local telescope_actions_state = require("telescope.actions.state")
+			local telescope_previewer = require("telescope.previewers")
 
 			-- CONFIGURATION
 			telescope.setup({
@@ -20,6 +20,7 @@ return {
 					},
 					preview = {
 						wrap = true,
+						file_size_limit = 0.1,
 					},
 				},
 				pickers = {
@@ -112,12 +113,14 @@ return {
 			vim.keymap.set("n", "<leader><leader>", function()
 				builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
 			end, { desc = "Telescope find files" })
-			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
 			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
-			vim.keymap.set("n", "<leader>ds", builtin.lsp_document_symbols, {})
-			vim.keymap.set("n", "<leader>ws", builtin.lsp_workspace_symbols, {})
-			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Telescope list warnings and errors" })
-			vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "List git branches" })
+			vim.keymap.set("n", "<leader>fs", builtin.lsp_workspace_symbols, {})
+			vim.keymap.set("n", "<leader>fd", builtin.diagnostics)
+			vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags)
+
+			vim.keymap.set("n", "<leader>fb", builtin.git_branches, { desc = "List git branches" })
+
+			require("custom.multigrep").setup()
 		end,
 	},
 	{

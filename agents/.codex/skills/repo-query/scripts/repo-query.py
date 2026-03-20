@@ -3,13 +3,14 @@
 # dependencies = ["duckdb"]
 # ///
 
+import os
 import pathlib
 import sys
 
 import duckdb
 
 
-DB = pathlib.Path.home() / ".codex/sqlite/repos.duckdb"
+DEFAULT_DB_DIR = pathlib.Path.home() / ".codex/sqlite"
 
 
 def main() -> int:
@@ -19,11 +20,19 @@ def main() -> int:
 
     sql = sys.argv[1]
 
-    if not DB.exists():
-        print(f"Database not found: {DB}", file=sys.stderr)
+    db_dir = pathlib.Path(
+        os.environ.get("CODEX_REPO_DB_DIR", str(DEFAULT_DB_DIR))
+    ).expanduser()
+    db_path = db_dir / "repos.duckdb"
+
+    if not db_path.exists():
+        print(
+            f"Database not found: {db_path}",
+            file=sys.stderr,
+        )
         return 1
 
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(db_path), read_only=True)
     try:
         rows = con.execute(sql).fetchall()
         for row in rows:
