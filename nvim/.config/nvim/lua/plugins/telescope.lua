@@ -8,7 +8,6 @@ return {
 		config = function()
 			local telescope = require("telescope")
 			local telescope_actions = require("telescope.actions")
-			local telescope_previewer = require("telescope.previewers")
 
 			-- CONFIGURATION
 			telescope.setup({
@@ -46,6 +45,10 @@ return {
 							"!**/trace/**",
 							"--glob",
 							"!**/out/**",
+							"--glob",
+							"!**/.uv-cache/**",
+							"--glob",
+							"!**/__pycache__/**",
 							"--path-separator",
 							"/",
 						},
@@ -81,7 +84,8 @@ return {
 						mappings = {
 							n = {
 								["<CR>"] = function(prompt_bufnr)
-									local entry = telescope_actions_state.get_selected_entry()
+									local action_state = require("telescope.actions.state")
+									local entry = action_state.get_selected_entry()
 
 									if #entry < 1 or entry[1] == nil then
 										vim.notify("No Diff")
