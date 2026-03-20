@@ -55,7 +55,6 @@ function M.setup()
 	vim.api.nvim_create_autocmd("FileType", {
 		pattern = "qf",
 		callback = function(args)
-			vim.cmd("wincmd L")
 			local title = (vim.fn.getloclist(0, { title = 1 }).title or "")
 			local pr_number = title:match("PR Files #(%d+)")
 			if not pr_number then
