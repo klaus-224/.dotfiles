@@ -5,11 +5,11 @@ return {
 		local alpha = require("alpha")
 
 		local quote = {
-			'"I can do nothing for you but work on myself...',
-			'         you can do nothing for me but work on yourself"',
+			'"Shane is a bitch ass...',
+			'         frfr no cap"',
 		}
 
-		local author = { "                              — Ram Dass - Darci Miller" }
+		local author = { "                              — Isaac Newton - Rohinesh Ram" }
 
 		local function center_padding()
 			local height = vim.fn.winheight(0)
