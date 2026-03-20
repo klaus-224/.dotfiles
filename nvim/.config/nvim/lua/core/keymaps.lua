@@ -1,5 +1,8 @@
 local set = vim.keymap.set
 local k = vim.keycode
+local f = require("custom.f")
+local fn = f.fn
+
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
@@ -43,6 +46,11 @@ set("n", "[[", "<cmd>cprev<CR>", { silent = true })
 
 -- lsp
 set("n", "gd", vim.lsp.buf.definition)
+set("n", "]d", fn(vim.diagnostic.jump, { count = 1, float = true }))
+set("n", "[d", fn(vim.diagnostic.jump, { count = -1, float = true }))
+--
+-- set("n", "]d", fn(vim.diagnostic.jump, { count = 1, float = true }))
+-- set("n", "[d", fn(vim.diagnostic.jump, { count = -1, float = true }))
 
 -- tabs
 set("n", "<left>", "gT")
