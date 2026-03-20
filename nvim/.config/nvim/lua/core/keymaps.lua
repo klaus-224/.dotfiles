@@ -35,10 +35,10 @@ set("n", "<leader>YY", function()
 end)
 
 -- copy current selection to the system clipboad
-set({ "v", "n" }, "<leader>Y", function()
-	vim.cmd('normal! "+y')
-	vim.notify("Copied selection to clipboard")
-end, { desc = "Copy visual selection to clipboard" })
+-- set({ "v", "n" }, "<leader>Y", function()
+-- 	vim.cmd('normal! "+y')
+-- 	vim.notify("Copied selection to clipboard")
+-- end, { desc = "Copy visual selection to clipboard" })
 
 -- quickfix, loclist nav
 set("n", "]]", "<cmd>cnext<CR>", { silent = true })
@@ -48,9 +48,6 @@ set("n", "[[", "<cmd>cprev<CR>", { silent = true })
 set("n", "gd", vim.lsp.buf.definition)
 set("n", "]d", fn(vim.diagnostic.jump, { count = 1, float = true }))
 set("n", "[d", fn(vim.diagnostic.jump, { count = -1, float = true }))
---
--- set("n", "]d", fn(vim.diagnostic.jump, { count = 1, float = true }))
--- set("n", "[d", fn(vim.diagnostic.jump, { count = -1, float = true }))
 
 -- tabs
 set("n", "<left>", "gT")
@@ -65,4 +62,5 @@ set("n", "<CR>", function()
 	else
 		return k("<CR>")
 	end
+	-- copy current selection to the system clipboad
 end, { expr = true })
