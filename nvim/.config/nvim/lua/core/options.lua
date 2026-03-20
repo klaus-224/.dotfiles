@@ -1,7 +1,5 @@
 local o = vim.opt
 
-vim.g.mapleader = " "
-
 o.textwidth = 80
 o.wrap = true
 o.wrapmargin = 0
