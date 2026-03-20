@@ -35,5 +35,6 @@ Requires `uv` (the script uses inline script dependencies).
 
 ## Output
 
-Writes to `~/.codex/sqlite/repos.duckdb`. The `repo_id` is the directory name
-of the repository root.
+Writes to `~/.codex/sqlite/repos.duckdb` by default. Set
+`CODEX_REPO_DB_DIR` to override. The `repo_id` is the directory name of the
+repository root.

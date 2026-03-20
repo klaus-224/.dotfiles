@@ -2,17 +2,25 @@
 # /// script
 # dependencies = ["duckdb"]
 # ///
-
-import duckdb
+import os
 import pathlib
 import re
 import time
 
+import duckdb
+
 ROOT = pathlib.Path(".").resolve()
 REPO_ID = ROOT.name
 
-DB = pathlib.Path.home() / ".codex/sqlite/repos.duckdb"
-DB.parent.mkdir(parents=True, exist_ok=True)
+DB_DIR = pathlib.Path.home() / ".codex/sqlite"
+
+
+def resolve_db_dir() -> pathlib.Path:
+    configured = pathlib.Path(
+        os.environ.get("CODEX_REPO_DB_DIR", str(DB_DIR))
+    ).expanduser()
+    configured.mkdir(parents=True, exist_ok=True)
+    return configured
 
 IGNORE_DIRS = {".git", "node_modules", ".venv", "dist", "build", "__pycache__"}
 
@@ -47,7 +55,7 @@ def ensure_schema(con):
     CREATE TABLE IF NOT EXISTS repositories (
         repo_id TEXT,
         path TEXT,
-        indexed_at BIGINT
+        indexed_at INTEGER
     )
     """)
 
@@ -83,8 +91,9 @@ def ensure_schema(con):
 
 
 def index_repo():
-
-    con = duckdb.connect(DB)
+    db_dir = resolve_db_dir()
+    db_path = db_dir / "repos.duckdb"
+    con = duckdb.connect(str(db_path))
 
     ensure_schema(con)
 
@@ -112,7 +121,7 @@ def index_repo():
 
         try:
             text = f.read_text(errors="ignore")
-        except:
+        except OSError:
             continue
 
         for pattern in IMPORT_PATTERNS:
@@ -129,7 +138,7 @@ def index_repo():
 
     con.close()
 
-    print(f"Indexed repo '{REPO_ID}' into {DB}")
+    print(f"Indexed repo '{REPO_ID}' into {db_path} (duckdb)")
 
 
 if __name__ == "__main__":
