@@ -41,6 +41,9 @@ end, { desc = "Copy visual selection to clipboard" })
 set("n", "]]", "<cmd>cnext<CR>", { silent = true })
 set("n", "[[", "<cmd>cprev<CR>", { silent = true })
 
+-- lsp
+set("n", "gd", vim.lsp.buf.definition)
+
 -- tabs
 set("n", "<left>", "gT")
 set("n", "<right>", "gt")

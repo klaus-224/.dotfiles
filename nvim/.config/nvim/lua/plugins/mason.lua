@@ -15,7 +15,7 @@ return {
 			"cssls",
 			"tailwindcss",
 			"jsonls",
-			"pyright",
+			"basedpyright",
 			"sqlls",
 			"shellcheck",
 		},
