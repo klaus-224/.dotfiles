@@ -15,17 +15,17 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo -e "${YELLOW}⚙️  Setting up your WSL environment with Homebrew...${RESET}"
 
 # -----------------------------------------------------
-#  Install Homebrew 
+#  Install Homebrew
 # -----------------------------------------------------
 if ! command -v brew &>/dev/null; then
-  echo -e "${YELLOW}Installing Homebrew...${RESET}"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo -e "${YELLOW}Installing Homebrew...${RESET}"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.bashrc
+	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 else
-  echo -e "${GREEN}Homebrew already installed.${RESET}"
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	echo -e "${GREEN}Homebrew already installed.${RESET}"
+	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
 # -----------------------------------------------------
@@ -45,21 +45,21 @@ brew cleanup
 #  Rust/Cargo bootstrap + cargo package sync
 # -----------------------------------------------------
 if ! command -v cargo >/dev/null 2>&1 && command -v rustup-init >/dev/null 2>&1; then
-  echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
-  rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
+	echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
+	rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
 fi
 
 if [[ -f "$HOME/.cargo/env" ]]; then
-  # shellcheck disable=SC1090
-  source "$HOME/.cargo/env"
+	# shellcheck disable=SC1090
+	source "$HOME/.cargo/env"
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
 if command -v cargo >/dev/null 2>&1; then
-  echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
-  "$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
+	echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
+	"$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
 else
-  echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
+	echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
 fi
 
 cd "$HOME/.dotfiles"
@@ -68,54 +68,35 @@ cd "$HOME/.dotfiles"
 #  Symlink dotfiles using stow
 # -----------------------------------------------------
 if command -v stow >/dev/null 2>&1; then
-  echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
+	echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
 
-  mkdir -p "$HOME/.config"
-  stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" alacritty
-  stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" nvim
-  stow --verbose -d "$DOTFILES_DIR" -t "$HOME" zsh
-  stow --verbose -d "$DOTFILES_DIR" -t "$HOME" tmux
+	mkdir -p "$HOME/.config"
+	stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" alacritty
+	stow --verbose -d "$DOTFILES_DIR/.config" -t "$HOME/.config" nvim
+	stow --verbose -d "$DOTFILES_DIR" -t "$HOME" zsh
+	stow --verbose -d "$DOTFILES_DIR" -t "$HOME" tmux
 
-  echo -e "${GREEN}Symlinking complete.${RESET}"
+	echo -e "${GREEN}Symlinking complete.${RESET}"
 else
-  echo -e "${RED}stow not found — please install and rerun this script.${RESET}"
-  exit 1
-fi
-
-# -----------------------------------------------------
-#  Oh My Zsh + Powerlevel10k + Plugins
-# -----------------------------------------------------
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  echo -e "${YELLOW}Installing Oh My Zsh...${RESET}"
-  RUNZSH=no KEEP_ZSHRC=yes \
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-else
-  echo -e "${GREEN}Oh My Zsh already installed.${RESET}"
-fi
-
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-
-# Powerlevel10k
-if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
-  echo -e "${YELLOW}Installing Powerlevel10k...${RESET}"
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+	echo -e "${RED}stow not found — please install and rerun this script.${RESET}"
+	exit 1
 fi
 
 # Plugins
 for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
-  case $plugin in
-    zsh-autosuggestions)
-      repo="https://github.com/zsh-users/zsh-autosuggestions"
-      ;;
-    zsh-syntax-highlighting)
-      repo="https://github.com/zsh-users/zsh-syntax-highlighting.git"
-      ;;
-  esac
+	case $plugin in
+	zsh-autosuggestions)
+		repo="https://github.com/zsh-users/zsh-autosuggestions"
+		;;
+	zsh-syntax-highlighting)
+		repo="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+		;;
+	esac
 
-  if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
-    echo -e "${YELLOW}Installing ${plugin}...${RESET}"
-    git clone "$repo" "$ZSH_CUSTOM/plugins/$plugin"
-  fi
+	if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
+		echo -e "${YELLOW}Installing ${plugin}...${RESET}"
+		git clone "$repo" "$ZSH_CUSTOM/plugins/$plugin"
+	fi
 done
 
 # -----------------------------------------------------
@@ -123,11 +104,11 @@ done
 # -----------------------------------------------------
 ZSHRC="$HOME/.zshrc"
 if ! grep -q "powerlevel10k" "$ZSHRC"; then
-  echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >> "$ZSHRC"
+	echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >>"$ZSHRC"
 fi
 
 if ! grep -q "zsh-autosuggestions" "$ZSHRC"; then
-  sed -i 's/^plugins=(/&zsh-autosuggestions zsh-syntax-highlighting /' "$ZSHRC" || true
+	sed -i 's/^plugins=(/&zsh-autosuggestions zsh-syntax-highlighting /' "$ZSHRC" || true
 fi
 
 # -----------------------------------------------------
