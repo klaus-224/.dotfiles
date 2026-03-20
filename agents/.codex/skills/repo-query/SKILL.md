@@ -23,6 +23,8 @@ $HOME/.codex/skills/repo-query/scripts/repo-query.py "<SQL>"
 ```
 
 Requires `uv` and a pre-existing index (run `$repo-index` first).
+Reads from `~/.codex/sqlite/repos.duckdb` by default. Set
+`CODEX_REPO_DB_DIR` to override.
 
 ## Available tables
 

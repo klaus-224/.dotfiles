@@ -2,9 +2,10 @@
 # Core Model
 ## ##############################################################################
 
-model = "gpt-5.4"
+model = "gpt-5.3-codex-spark"
 model_provider = "openai"
 personality = "pragmatic"
+model_reasoning_effort = "high"
 
 ## ##############################################################################
 # Features
@@ -83,12 +84,12 @@ theme = "1337"
 [tui.model_availability_nux]
 "gpt-5.3-codex-spark" = 4
 
-## ##############################################################################
-# MCP Servers
-## ##############################################################################
-
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
+
+[mcp_servers.stitch]
+command = "npx"
+args = ["-y", "@_davideast/stitch-mcp", "proxy"]
 
 ## ##############################################################################
 # Misc
@@ -120,3 +121,6 @@ trust_level = "trusted"
 
 [projects."/Users/klaus224/code/events-web-scraper"]
 trust_level = "trusted"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
