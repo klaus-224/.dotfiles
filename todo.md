@@ -35,7 +35,6 @@ Ignore all other lanes until complete.
 
 ### Shell Architecture
 
-- [ ] Remove oh-my-zsh
 - [ ] Implement OS-detecting brew util:
   - [ ] Detect macOS vs Linux
   - [ ] Combine Brewfiles
@@ -88,4 +87,3 @@ Ignore all other lanes until complete.
 - [ ] Define agent execution patterns
 - [ ] handle secrets better (password, security)
 - [ ] tj devries stuff
-
