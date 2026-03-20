@@ -1,4 +1,5 @@
 local o = vim.opt
+vim.g.mapleader = " "
 
 o.textwidth = 80
 o.wrap = true
@@ -49,3 +50,5 @@ o.splitkeep = "cursor"
 o.formatoptions:append({ "r" })
 
 o.showtabline = 1
+
+o.clipboard = "unnamedplus"
