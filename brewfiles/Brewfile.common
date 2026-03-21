@@ -2,6 +2,7 @@ brew "git"
 brew "stow"
 brew "tmux"
 brew "neovim"
+brew "starship"
 
 # cli tools
 brew "fzf"
@@ -29,6 +30,4 @@ brew "awscli"
 # tuis
 brew "lazygit"
 
-# coding agent notifications https://github.com/PeonPing/peon-ping
 brew "codex"
-brew "PeonPing/tap/peon-ping"
