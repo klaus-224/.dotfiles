@@ -20,16 +20,14 @@ echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 if ! command -v brew >/dev/null 2>&1; then
 	echo -e "${YELLOW}Homebrew not found. Installing...${RESET}"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-	BREW_PATH="/opt/homebrew/bin/brew"
-	if [[ -x $BREW_PATH ]]; then
-		eval "$("$BREW_PATH" shellenv)"
-	else
-		echo -e "${RED}Homebrew not found at $BREW_PATH${RESET}"
-		exit 1
-	fi
+BREW_PATH="$(command -v brew || true)"
+if [[ -x "$BREW_PATH" ]]; then
+	eval "$($BREW_PATH shellenv)"
 else
-	echo -e "${GREEN}Homebrew already installed.${RESET}"
+	echo -e "${RED}Unable to locate Homebrew executable.${RESET}"
+	exit 1
 fi
 
 echo -e "${YELLOW}Updating Homebrew...${RESET}"
@@ -84,13 +82,10 @@ else
 fi
 
 # -----------------------------------------------------
-#  ZSH Plugins
+#  Optional zsh plugin dirs (no framework required)
 # -----------------------------------------------------
-[[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]] &&
-	git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-
-[[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]] &&
-	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.zsh/plugins}"
+mkdir -p "$ZSH_CUSTOM/plugins"
 
 # -----------------------------------------------------
 #  TMUX Plugin Manager
