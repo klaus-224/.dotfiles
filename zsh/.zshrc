@@ -22,6 +22,8 @@ setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/rohineshram/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+### Rancher Desktop (if installed) START (DO NOT EDIT)
+if [ -d "$HOME/.rd/bin" ]; then
+	export PATH="$HOME/.rd/bin:$PATH"
+fi
+### Rancher Desktop END
