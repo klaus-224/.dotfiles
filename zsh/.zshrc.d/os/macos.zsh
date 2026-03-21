@@ -12,4 +12,7 @@
 # --------------------------------------------------
 
 # homebrew path
-eval "$(/opt/homebrew/bin/brew shellenv)"
+BREW_BIN="$(command -v brew || true)"
+if [[ -n "$BREW_BIN" ]]; then
+	eval "$($BREW_BIN shellenv)"
+fi

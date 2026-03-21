@@ -15,17 +15,19 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo -e "${YELLOW}⚙️  Setting up your WSL environment with Homebrew...${RESET}"
 
 # -----------------------------------------------------
-#  Install Homebrew
+#  Homebrew
 # -----------------------------------------------------
 if ! command -v brew &>/dev/null; then
 	echo -e "${YELLOW}Installing Homebrew...${RESET}"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >>~/.bashrc
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+BREW_PATH="$(command -v brew || true)"
+if [[ -x "$BREW_PATH" ]]; then
+	eval "$("$BREW_PATH" shellenv)"
 else
-	echo -e "${GREEN}Homebrew already installed.${RESET}"
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	echo -e "${RED}Unable to locate Homebrew executable.${RESET}"
+	exit 1
 fi
 
 # -----------------------------------------------------
@@ -40,6 +42,8 @@ brew update
 echo -e "${YELLOW}Installing packages via unified Brewfile...${RESET}"
 "$DOTFILES_DIR/scripts/install-brew-packages.sh"
 brew cleanup
+
+echo -e "${GREEN}Brew bundle complete.${RESET}"
 
 # -----------------------------------------------------
 #  Rust/Cargo bootstrap + cargo package sync
@@ -82,40 +86,25 @@ else
 	exit 1
 fi
 
-# Plugins
-for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
-	case $plugin in
-	zsh-autosuggestions)
-		repo="https://github.com/zsh-users/zsh-autosuggestions"
-		;;
-	zsh-syntax-highlighting)
-		repo="https://github.com/zsh-users/zsh-syntax-highlighting.git"
-		;;
-	esac
-
-	if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
-		echo -e "${YELLOW}Installing ${plugin}...${RESET}"
-		git clone "$repo" "$ZSH_CUSTOM/plugins/$plugin"
-	fi
-done
-
 # -----------------------------------------------------
-#  Update .zshrc with Powerlevel10k and plugin references
+#  TMUX Plugin Manager
 # -----------------------------------------------------
-ZSHRC="$HOME/.zshrc"
-if ! grep -q "powerlevel10k" "$ZSHRC"; then
-	echo 'ZSH_THEME="powerlevel10k/powerlevel10k"' >>"$ZSHRC"
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+if [[ ! -d "$TPM_DIR" ]]; then
+	echo -e "${YELLOW}Installing TPM...${RESET}"
+	git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
 fi
 
-if ! grep -q "zsh-autosuggestions" "$ZSHRC"; then
-	sed -i 's/^plugins=(/&zsh-autosuggestions zsh-syntax-highlighting /' "$ZSHRC" || true
-fi
+# -----------------------------------------------------
+#  Optional zsh plugin dirs (no framework required)
+# -----------------------------------------------------
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.zsh/plugins}"
+mkdir -p "$ZSH_CUSTOM/plugins"
 
 # -----------------------------------------------------
 #  Source configs
 # -----------------------------------------------------
 echo -e "${YELLOW}Reloading configurations...${RESET}"
-source "$HOME/.zshrc" || true
 nvim --headless "+Lazy sync" +qa || true
 
 # -----------------------------------------------------
