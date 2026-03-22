@@ -20,8 +20,3 @@ export PNPM_HOME="$HOME/Library/pnpm"
 # cargo
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 [[ ":$PATH:" != *":$CARGO_HOME/bin:"* ]] && PATH="$CARGO_HOME/bin:$PATH"
-
-# rancher
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="$HOME/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
