@@ -70,9 +70,9 @@ format = "[py:$version]($style) "
 
 [aws]
 symbol = ""
-style = "#6c7086"
+style = "#ff964f"
 format = "[aws:$profile]($style)"
-force_display = true
+force_display = false
 disabled = false
 
 [shell]

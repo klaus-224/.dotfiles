@@ -6,7 +6,6 @@ set -euo pipefail
 # -----------------------------------------------------
 GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
-BLUE="\033[1;34m"
 RED="\033[0;31m"
 RESET="\033[0m"
 
@@ -82,16 +81,18 @@ else
 fi
 
 # -----------------------------------------------------
-#  Optional zsh plugin dirs (no framework required)
-# -----------------------------------------------------
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.zsh/plugins}"
-mkdir -p "$ZSH_CUSTOM/plugins"
-
-# -----------------------------------------------------
 #  TMUX Plugin Manager
 # -----------------------------------------------------
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 [[ ! -d "$TPM_DIR" ]] && git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+
+# -----------------------------------------------------
+#  zsh-syntax-highlighting 
+#	 zsh-auto
+#  post-install 
+# -----------------------------------------------------
+source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # -----------------------------------------------------
 #  FZF post-install
