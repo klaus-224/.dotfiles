@@ -27,3 +27,13 @@ vim.api.nvim_create_autocmd("DiagnosticChanged", {
 		vim.notify_once("Diagnostics updated", vim.log.levels.INFO, { title = "Diagnostics" })
 	end,
 })
+
+-- ignore .env
+local group = vim.api.nvim_create_augroup("__env", { clear = true })
+vim.api.nvim_create_autocmd("BufEnter", {
+	pattern = ".env*", -- Pattern to match .env, .env.local, etc.
+	group = group,
+	callback = function(args)
+		vim.diagnostic.disable(args.buf)
+	end,
+})
