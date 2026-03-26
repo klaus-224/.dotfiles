@@ -27,3 +27,7 @@ if [ -d "$HOME/.rd/bin" ]; then
 	export PATH="$HOME/.rd/bin:$PATH"
 fi
 ### Rancher Desktop END
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rohineshram/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
