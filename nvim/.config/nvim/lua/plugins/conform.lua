@@ -47,7 +47,7 @@ return {
 			},
 			-- Set up format-on-save
 			format_on_save = {
-				timeout_ms = 500,
+				timeout_ms = 1000,
 				lsp_fallback = true,
 			},
 			-- Notify on format errors

@@ -1,9 +1,10 @@
 # Configuration for Ghostty https://ghostty.org/docs
 custom-shader = shaders/cursor_tail.glsl
 
-theme = Black Metal (Bathory)
-# font-family = Hack Nerd Font Mono
-font-family = Iosevka Term
+theme = Vague
+background = black
+font-family = Hack Nerd Font Mono
+# font-family = Iosevka Term
 font-thicken = true
 font-size = 16
 
@@ -27,4 +28,4 @@ macos-option-as-alt = true
 bell-features = border
 desktop-notifications = false
 
- macos-titlebar-style = hidden
+macos-titlebar-style = hidden

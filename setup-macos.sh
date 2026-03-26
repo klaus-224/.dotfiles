@@ -6,7 +6,6 @@ set -euo pipefail
 # -----------------------------------------------------
 GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
-BLUE="\033[1;34m"
 RED="\033[0;31m"
 RESET="\033[0m"
 
@@ -18,18 +17,16 @@ echo -e "${YELLOW}Setting up macOS dotfiles environment...${RESET}"
 #  Homebrew bootstrap
 # -----------------------------------------------------
 if ! command -v brew >/dev/null 2>&1; then
-  echo -e "${YELLOW}Homebrew not found. Installing...${RESET}"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo -e "${YELLOW}Homebrew not found. Installing...${RESET}"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-  BREW_PATH="/opt/homebrew/bin/brew"
-  if [[ -x $BREW_PATH ]]; then
-    eval "$("$BREW_PATH" shellenv)"
-  else
-    echo -e "${RED}Homebrew not found at $BREW_PATH${RESET}"
-    exit 1
-  fi
+BREW_PATH="$(command -v brew || true)"
+if [[ -x "$BREW_PATH" ]]; then
+	eval "$($BREW_PATH shellenv)"
 else
-  echo -e "${GREEN}Homebrew already installed.${RESET}"
+	echo -e "${RED}Unable to locate Homebrew executable.${RESET}"
+	exit 1
 fi
 
 echo -e "${YELLOW}Updating Homebrew...${RESET}"
@@ -47,73 +44,41 @@ echo -e "${GREEN}Brew bundle complete.${RESET}"
 #  Rust/Cargo bootstrap + cargo package sync
 # -----------------------------------------------------
 if ! command -v cargo >/dev/null 2>&1; then
-  if command -v rustup-init >/dev/null 2>&1; then
-    echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
-    rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
-  else
-    echo -e "${YELLOW}rustup-init not found; skipping Rust toolchain bootstrap.${RESET}"
-  fi
+	if command -v rustup-init >/dev/null 2>&1; then
+		echo -e "${YELLOW}Installing Rust toolchain via rustup-init...${RESET}"
+		rustup-init -y --profile minimal --default-toolchain stable --no-modify-path
+	else
+		echo -e "${YELLOW}rustup-init not found; skipping Rust toolchain bootstrap.${RESET}"
+	fi
 fi
 
 if [[ -f "$HOME/.cargo/env" ]]; then
-  # shellcheck disable=SC1090
-  source "$HOME/.cargo/env"
+	# shellcheck disable=SC1090
+	source "$HOME/.cargo/env"
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
 if command -v cargo >/dev/null 2>&1; then
-  echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
-  "$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
+	echo -e "${YELLOW}Syncing cargo packages from packages/cargo.txt...${RESET}"
+	"$DOTFILES_DIR/scripts/sync-cargo-packages.sh" sync
 else
-  echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
+	echo -e "${YELLOW}cargo not found; skipping cargo package sync.${RESET}"
 fi
 
 # -----------------------------------------------------
 #  Symlink dotfiles using stow
 # -----------------------------------------------------
 if command -v stow >/dev/null 2>&1; then
-  echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
-  stow zsh
-  stow tmux
-  stow nvim
-  stow ghostty
+	echo -e "${YELLOW}Linking dotfiles using stow...${RESET}"
+	stow zsh
+	stow tmux
+	stow nvim
+	stow ghostty
 
-  echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
+	echo -e "${GREEN}Dotfiles linked successfully.${RESET}"
 else
-  echo -e "${RED}stow not found — please install it and rerun this script.${RESET}"
+	echo -e "${RED}stow not found — please install it and rerun this script.${RESET}"
 fi
-
-# -----------------------------------------------------
-#  oh-my-zsh
-# -----------------------------------------------------
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  echo -e "${YELLOW}Installing Oh My Zsh...${RESET}"
-  RUNZSH=no KEEP_ZSHRC=yes \
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-else
-  echo -e "${GREEN}Oh My Zsh already installed.${RESET}"
-fi
-
-# -----------------------------------------------------
-#  Powerlevel10k
-# -----------------------------------------------------
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-THEME_DIR="$ZSH_CUSTOM/themes/powerlevel10k"
-if [[ ! -d "$THEME_DIR" ]]; then
-  echo -e "${YELLOW}Installing Powerlevel10k theme...${RESET}"
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
-else
-  echo -e "${GREEN}Powerlevel10k already installed.${RESET}"
-fi
-
-# -----------------------------------------------------
-#  ZSH Plugins
-# -----------------------------------------------------
-[[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]] && \
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-
-[[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]] && \
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 
 # -----------------------------------------------------
 #  TMUX Plugin Manager
@@ -122,18 +87,26 @@ TPM_DIR="$HOME/.tmux/plugins/tpm"
 [[ ! -d "$TPM_DIR" ]] && git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
 
 # -----------------------------------------------------
+#  zsh-syntax-highlighting 
+#	 zsh-auto
+#  post-install 
+# -----------------------------------------------------
+source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+# -----------------------------------------------------
 #  FZF post-install
 # -----------------------------------------------------
 if command -v fzf >/dev/null 2>&1; then
-  echo -e "${YELLOW}Running fzf install script...${RESET}"
-  "$(brew --prefix)"/opt/fzf/install --all --no-bash --no-fish
+	echo -e "${YELLOW}Running fzf install script...${RESET}"
+	"$(brew --prefix)"/opt/fzf/install --all --no-bash --no-fish
 fi
 
 if command -v duti >/dev/null 2>&1; then
-  echo -e "${YELLOW}Setting Ghostty as default terminal for .command files...${RESET}"
-  duti -s com.mitchellh.ghostty .command all
+	echo -e "${YELLOW}Setting Ghostty as default terminal for .command files...${RESET}"
+	duti -s com.mitchellh.ghostty .command all
 else
-  echo -e "${YELLOW}'duti' not found — install it to set Ghostty as default terminal.${RESET}"
+	echo -e "${YELLOW}'duti' not found — install it to set Ghostty as default terminal.${RESET}"
 fi
 
 # -----------------------------------------------------

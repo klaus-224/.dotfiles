@@ -4,7 +4,7 @@ local servers = {
 	"docker_ls",
 	"terraform_ls",
 	"bash_ls",
-	"pyright_ls",
+	"basedpyright_ls",
 	"ts_ls",
 	"prisma_ls",
 	"svelte_ls",
@@ -19,4 +19,3 @@ local servers = {
 for _, server in ipairs(servers) do
 	require("lsp.servers." .. server)
 end
-

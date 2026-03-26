@@ -74,7 +74,7 @@ ssh -T git@github.com
 ```zsh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$($(command -v brew) shellenv)"
 ```
 
 #### Install git
@@ -104,11 +104,7 @@ chmod +x setup-macos.sh
 - Writes installed Homebrew package versions to `brewfiles/installed-versions/`
 - Installs `rustup-init`, bootstraps Rust/Cargo, and syncs cargo packages from `packages/cargo.txt`
 - Installs Ghostty terminal via Homebrew
-- Installs and configures:
-  - Oh My Zsh
-  - Powerlevel10k
-  - zsh-autosuggestions
-  - zsh-syntax-highlighting
+- Installs and configures zsh/tmux/nvim/ghostty stow-managed dotfiles.
 - Symlinks your core dotfiles using stow (`zsh`, `tmux`, `nvim`, `ghostty`)
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
@@ -168,7 +164,7 @@ chmod +x setup-wsl.sh
 - Install required CLI tools (tmux, zsh, neovim, etc.)
 - Write installed Homebrew package versions to `brewfiles/installed-versions/`
 - Install Alacritty on Windows via winget
-- Install and configure Oh My Zsh, Powerlevel10k, and Zsh plugins
+- Symlink stow packages for zsh/tmux/nvim, including any optional shell plugins.
 - Symlink dotfiles using stow
 - Install tmux plugin manager (TPM)
 
@@ -182,7 +178,7 @@ Each top-level directory is a stow package that mirrors `$HOME`:
 | --------- | -------------- | ----------------------------------------------------------------------------- |
 | `zsh`     | `stow zsh`     | `.zshrc`, `.zshrc.d/`                                                         |
 | `tmux`    | `stow tmux`    | `.tmux.conf`                                                                  |
-| `nvim`    | `stow nvimj`   | `.config/nvim/`                                                               |
+| `nvim`    | `stow nvim`   | `.config/nvim/`                                                               |
 | `ghostty` | `stow ghostty` | `.config/ghostty/`                                                            |
 | `agents`  |                | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
 
