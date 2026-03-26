@@ -1,24 +1,25 @@
 vim.diagnostic.config({
-	virtual_text = false,
+	virtual_text = true,
 	signs = false,
 	float = {
 		border = "rounded",
 	},
-	virtual_lines = {
-		format = function(diagnostic)
-			return diagnostic.message
-		end,
-	},
+	virtual_lines = false,
+	-- virtual_lines = {
+	-- 	format = function(diagnostic)
+	-- 		return diagnostic.message
+	-- 	end,
+	-- },
 	jump = {
 		float = true,
 	},
 })
 
--- keymaps
-vim.keymap.set("n", "gK", function()
-	local new_config = not vim.diagnostic.config().virtual_lines
-	vim.diagnostic.config({ virtual_lines = new_config })
-end, { desc = "Toggle diagnostic virtual_lines" })
+local set = vim.keymap.set
+set("n", "gK", function()
+	local new_config = not vim.diagnostic.config().virtual_text
+	vim.diagnostic.config({ virtual_text = new_config })
+end, { desc = "Toggle Diagnostics" })
 
 -- autocmds
 vim.api.nvim_create_autocmd("DiagnosticChanged", {
