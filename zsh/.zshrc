@@ -9,8 +9,10 @@
 emulate -LR zsh
 
 for file in "$HOME/.zshrc.d/"*.zsh; do
-  [ -f "$file" ] && source "$file"
+	[ -f "$file" ] && source "$file"
 done
+
+eval "$(starship init zsh)"
 
 # sourece custom env vars
 source "$HOME/.zshenv"
@@ -19,3 +21,9 @@ source "$HOME/.zshenv"
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
+
+### Rancher Desktop (if installed) START (DO NOT EDIT)
+if [ -d "$HOME/.rd/bin" ]; then
+	export PATH="$HOME/.rd/bin:$PATH"
+fi
+### Rancher Desktop END

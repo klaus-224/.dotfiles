@@ -9,7 +9,7 @@ return {
 			'         you can do nothing for me but work on yourself"',
 		}
 
-		local author = { "                              — Ram Dass - Darci Miller" }
+		local author = { "                              — Ram Dass" }
 
 		local function center_padding()
 			local height = vim.fn.winheight(0)
