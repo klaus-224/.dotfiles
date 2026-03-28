@@ -4,6 +4,10 @@
 #   AWS CLI helpers.
 # --------------------------------------------------
 
+function _aws_cli_auth(){
+	aws login
+}
+
 function _aws_require_cli() {
   if command -v aws >/dev/null 2>&1; then
     return 0
@@ -41,6 +45,7 @@ EOF
   fi
 
   _aws_require_cli || return 1
+	_aws_cli_auth
 
   s3_path="$(_aws_s3_normalize_uri "$1")"
   shift
