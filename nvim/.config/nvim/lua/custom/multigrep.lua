@@ -7,7 +7,7 @@ local M = {}
 
 local live_multigrep = function(opts)
 	opts = opts or {}
-	opts.cwd = opts.cwd or vim.uv.cwd()
+	opts.cwd = opts.cwd
 
 	local finder = finders.new_async_job({
 		command_generator = function(prompt)
@@ -38,14 +38,14 @@ local live_multigrep = function(opts)
 	})
 
 	pickers
-		.new(opts, {
-			debounce = 100,
-			prompt_title = "Multi Grep",
-			finder = finder,
-			previewer = conf.grep_previewer(opts),
-			sorter = require("telescope.sorters").empty(),
-		})
-		:find()
+			.new(opts, {
+				debounce = 100,
+				prompt_title = "Multi Grep",
+				finder = finder,
+				previewer = conf.grep_previewer(opts),
+				sorter = require("telescope.sorters").empty(),
+			})
+			:find()
 end
 
 M.setup = function()
