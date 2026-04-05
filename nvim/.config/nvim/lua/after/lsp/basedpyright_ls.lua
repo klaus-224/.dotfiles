@@ -1,5 +1,6 @@
 local client_config = require("lsp.client-config")
 
+---@diagnostic disable: undefined-field
 local is_windows = vim.uv.os_uname().sysname:match("Windows") ~= nil
 local venv_names = { ".venv", "venv", "env" }
 local python_bin = is_windows and { "Scripts/python.exe", "python.exe" } or { "bin/python", "bin/python3" }
@@ -225,31 +226,6 @@ local function apply_extra_paths(client, paths)
 	return true
 end
 
-local function set_python_path(command)
-	local bufnr = vim.api.nvim_get_current_buf()
-	local clients = vim.lsp.get_clients({
-		bufnr = bufnr,
-		name = "basedpyright",
-	})
-
-	if vim.tbl_isempty(clients) then
-		vim.notify("No active basedpyright client for this buffer", vim.log.levels.WARN)
-		return
-	end
-
-	for _, client in ipairs(clients) do
-		local path = command.args ~= "" and command.args
-			or detect_python_path(vim.api.nvim_buf_get_name(bufnr), client.config.root_dir)
-
-		if not path then
-			vim.notify("Unable to resolve a Python interpreter for basedpyright", vim.log.levels.WARN)
-			return
-		end
-
-		apply_python_path(client, path)
-	end
-end
-
 local function configure_workspace(client, bufnr)
 	local bufname = vim.api.nvim_buf_get_name(bufnr)
 	local path = detect_python_path(bufname, client.config.root_dir)
@@ -262,7 +238,7 @@ local function configure_workspace(client, bufnr)
 	apply_extra_paths(client, detect_extra_paths(bufname, client.config.root_dir))
 end
 
-vim.lsp.config("basedpyright", vim.tbl_deep_extend("force", client_config.base(), {
+return vim.tbl_deep_extend("force", client_config.base(), {
 	cmd = { "basedpyright-langserver", "--stdio" },
 	filetypes = { "python" },
 	root_dir = function(bufnr, on_dir)
@@ -311,14 +287,5 @@ vim.lsp.config("basedpyright", vim.tbl_deep_extend("force", client_config.base()
 		end, {
 			desc = "Organize Imports",
 		})
-
-		-- TODO: Probably don't need this
-		vim.api.nvim_buf_create_user_command(bufnr, "LspPyrightSetPythonPath", set_python_path, {
-			desc = "Reconfigure basedpyright with the provided python path, or auto-detect when omitted",
-			nargs = "?",
-			complete = "file",
-		})
 	end,
-}))
-
-vim.lsp.enable("basedpyright")
+})

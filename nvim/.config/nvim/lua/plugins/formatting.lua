@@ -1,5 +1,6 @@
 return {
 	"stevearc/conform.nvim",
+	enabled = false,
 	cmd = { "ConformInfo" },
 
 	keys = {

@@ -1,10 +1,4 @@
 return {
-	-- for lua dev completions
-	{
-		"folke/lazydev.nvim",
-		ft = "lua",
-		opts = {},
-	},
 	{
 		"saghen/blink.cmp",
 		dependencies = {
