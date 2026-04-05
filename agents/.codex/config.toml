@@ -2,7 +2,7 @@
 # Core Model
 ## ##############################################################################
 
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.4"
 model_provider = "openai"
 personality = "pragmatic"
 model_reasoning_effort = "high"
@@ -119,6 +119,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/klaus224/code/weave/events-web-scraper"]
+trust_level = "trusted"
+
+[projects."/Users/klaus224/code/events-webscraper"]
 trust_level = "trusted"
 
 [notice.model_migrations]

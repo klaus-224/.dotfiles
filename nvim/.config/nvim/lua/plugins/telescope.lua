@@ -118,7 +118,8 @@ return {
 				builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
 			end, { desc = "Telescope find files" })
 			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find, { desc = "Fuzzy search in current buffer" })
-			vim.keymap.set("n", "<leader>fs", builtin.lsp_workspace_symbols, {})
+			vim.keymap.set("n", "<leader>FS", builtin.lsp_workspace_symbols, {})
+			vim.keymap.set("n", "<leader>fs", builtin.lsp_document_symbols, {})
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics)
 			vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags)
 
