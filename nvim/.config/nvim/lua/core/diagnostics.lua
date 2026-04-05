@@ -4,12 +4,11 @@ vim.diagnostic.config({
 	float = {
 		border = "rounded",
 	},
-	virtual_lines = false,
-	-- virtual_lines = {
-	-- 	format = function(diagnostic)
-	-- 		return diagnostic.message
-	-- 	end,
-	-- },
+	virtual_lines = {
+		format = function(diagnostic)
+			return diagnostic.message
+		end,
+	},
 	jump = {
 		float = true,
 	},
@@ -34,7 +33,7 @@ local group = vim.api.nvim_create_augroup("__env", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
 	pattern = ".env*", -- Pattern to match .env, .env.local, etc.
 	group = group,
-	callback = function(args)
-		vim.diagnostic.disable(args.buf)
+	callback = function()
+		vim.diagnostic.enable(false)
 	end,
 })

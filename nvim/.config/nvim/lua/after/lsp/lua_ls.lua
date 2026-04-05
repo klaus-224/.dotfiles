@@ -1,11 +1,11 @@
 local client_config = require("lsp.client-config")
 
-vim.lsp.config["lua_ls"] = vim.tbl_deep_extend("force", client_config.base(), {
+return vim.tbl_deep_extend("force", client_config.base(), {
 	cmd = { "lua-language-server" },
 	settings = {
 		Lua = {
 			diagnostics = {
-				globals = { "vim" },
+				globals = { "vim", "require" },
 			},
 			workspace = {
 				checkThirdParty = false,
@@ -13,5 +13,3 @@ vim.lsp.config["lua_ls"] = vim.tbl_deep_extend("force", client_config.base(), {
 		},
 	},
 })
-
-vim.lsp.enable("lua_ls")
