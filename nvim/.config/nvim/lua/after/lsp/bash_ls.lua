@@ -1,8 +1,7 @@
 local client_config = require("lsp.client-config")
 
-vim.lsp.config["bashls"] = vim.tbl_deep_extend("force", client_config.base(), {
+return vim.tbl_deep_extend("force", client_config.base(), {
 	cmd = { "bash-language-server", "start" },
-	---@type lspconfig.settings.bashls
 	settings = {
 		bashIde = {
 			-- Glob pattern for finding and parsing shell script files in the workspace.
@@ -18,5 +17,3 @@ vim.lsp.config["bashls"] = vim.tbl_deep_extend("force", client_config.base(), {
 	filetypes = { "bash", "sh" },
 	root_markers = { ".git" },
 })
-
-vim.lsp.enable("bashls")
