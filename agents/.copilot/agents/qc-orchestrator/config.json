@@ -1,0 +1,7 @@
+{
+  "name": "qc-orchestrator",
+  "model": "claude-opus-4.6",
+  "sandbox": "workspace-write",
+  "tools": ["shell", "read", "edit", "search", "skill", "ask_user", "web_search", "web_fetch", "atlassian/*"],
+  "skills": ["playwright-cli"]
+}
