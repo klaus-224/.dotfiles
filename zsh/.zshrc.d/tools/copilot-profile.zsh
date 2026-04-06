@@ -40,10 +40,23 @@ _cpro_profile_path() { printf '%s/%s' "$_CPRO_DIR" "$1"; }
 
 _cpro_list_names() {
     _cpro_ensure_dir
-    local active
+    local active names=()
     active="$(_cpro_active_name)"
-    for dir in "$_CPRO_DIR"/*(N/); do
-        local name="${dir:t}"
+
+    # Directory profiles
+    for entry in "$_CPRO_DIR"/*(N/); do
+        names+=("${entry:t}")
+    done
+
+    # JSON file profiles (skip if a same-named directory exists)
+    for entry in "$_CPRO_DIR"/*.json(N-.); do
+        local base="${entry:t:r}"
+        if [[ ! -d "$_CPRO_DIR/$base" ]]; then
+            names+=("$base")
+        fi
+    done
+
+    for name in ${(o)names}; do
         if [[ "$name" == "$active" ]]; then
             printf '* %s\n' "$name"
         else
@@ -90,25 +103,40 @@ _cpro_load() {
 
     _cpro_ensure_dir
     local src="$(_cpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
-    fi
-    if [[ ! -f "$src/config.json" || ! -f "$src/mcp-config.json" ]]; then
-        echo "Error: profile '$name' is missing config.json or mcp-config.json." >&2
-        return 1
+
+    # Directory profile
+    if [[ -d "$src" ]]; then
+        if [[ ! -f "$src/config.json" || ! -f "$src/mcp-config.json" ]]; then
+            echo "Error: profile '$name' is missing config.json or mcp-config.json." >&2
+            return 1
+        fi
+        ln -sfn "$src/config.json" "$_CPRO_CONFIG"
+        ln -sfn "$src/mcp-config.json" "$_CPRO_MCP"
+        if [[ -f "$src/copilot-instructions.md" ]]; then
+            ln -sfn "$src/copilot-instructions.md" "$_CPRO_INSTRUCTIONS"
+            echo "Profile '$name' loaded (with instructions)."
+        else
+            [[ -L "$_CPRO_INSTRUCTIONS" ]] && rm -f "$_CPRO_INSTRUCTIONS"
+            echo "Profile '$name' loaded."
+        fi
+        echo "$name" > "$_CPRO_DIR/.active"
+        return 0
     fi
 
-    ln -sfn "$src/config.json" "$_CPRO_CONFIG"
-    ln -sfn "$src/mcp-config.json" "$_CPRO_MCP"
-    if [[ -f "$src/copilot-instructions.md" ]]; then
-        ln -sfn "$src/copilot-instructions.md" "$_CPRO_INSTRUCTIONS"
-        echo "Profile '$name' loaded (with instructions)."
-    else
+    # JSON file profile
+    local json_file="$src.json"
+    [[ ! -f "$json_file" && "$src" == *.json && -f "$src" ]] && json_file="$src"
+    if [[ -f "$json_file" ]]; then
+        ln -sfn "$json_file" "$_CPRO_CONFIG"
+        [[ -L "$_CPRO_MCP" ]] && rm -f "$_CPRO_MCP"
         [[ -L "$_CPRO_INSTRUCTIONS" ]] && rm -f "$_CPRO_INSTRUCTIONS"
-        echo "Profile '$name' loaded."
+        echo "Profile '$name' loaded (JSON)."
+        echo "$name" > "$_CPRO_DIR/.active"
+        return 0
     fi
-    echo "$name" > "$_CPRO_DIR/.active"
+
+    echo "Error: profile '$name' not found." >&2
+    return 1
 }
 
 _cpro_show() {
@@ -127,19 +155,32 @@ _cpro_show() {
     fi
 
     local src="$(_cpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
+
+    # Directory profile
+    if [[ -d "$src" ]]; then
+        echo "── profile: $name ──"
+        echo "config.json:"
+        jq '.' "$src/config.json"
+        echo "\nmcp-config.json:"
+        jq '.' "$src/mcp-config.json"
+        if [[ -f "$src/copilot-instructions.md" ]]; then
+            echo "\ncopilot-instructions.md:"
+            cat "$src/copilot-instructions.md"
+        fi
+        return
     fi
-    echo "── profile: $name ──"
-    echo "config.json:"
-    jq '.' "$src/config.json"
-    echo "\nmcp-config.json:"
-    jq '.' "$src/mcp-config.json"
-    if [[ -f "$src/copilot-instructions.md" ]]; then
-        echo "\ncopilot-instructions.md:"
-        cat "$src/copilot-instructions.md"
+
+    # JSON file profile
+    local json_file="$src.json"
+    [[ ! -f "$json_file" && "$src" == *.json && -f "$src" ]] && json_file="$src"
+    if [[ -f "$json_file" ]]; then
+        echo "── profile: $name (JSON) ──"
+        jq '.' "$json_file"
+        return
     fi
+
+    echo "Error: profile '$name' not found." >&2
+    return 1
 }
 
 _cpro_edit() {
@@ -149,21 +190,44 @@ _cpro_edit() {
         return 1
     fi
     local src="$(_cpro_profile_path "$name")"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: profile '$name' not found." >&2
-        return 1
+
+    # Directory profile
+    if [[ -d "$src" ]]; then
+        local files=("$src/config.json" "$src/mcp-config.json")
+        [[ -f "$src/copilot-instructions.md" ]] && files+=("$src/copilot-instructions.md")
+        ${EDITOR:-nvim} "${files[@]}"
+        return
     fi
-    local files=("$src/config.json" "$src/mcp-config.json")
-    [[ -f "$src/copilot-instructions.md" ]] && files+=("$src/copilot-instructions.md")
-    ${EDITOR:-nvim} "${files[@]}"
+
+    # JSON file profile
+    local json_file="$src.json"
+    [[ ! -f "$json_file" && "$src" == *.json && -f "$src" ]] && json_file="$src"
+    if [[ -f "$json_file" ]]; then
+        ${EDITOR:-nvim} "$json_file"
+        return
+    fi
+
+    echo "Error: profile '$name' not found." >&2
+    return 1
 }
 
 _cpro_pick() {
     _cpro_ensure_dir
     local profiles=()
+
+    # Directory profiles
     for dir in "$_CPRO_DIR"/*(N/); do
         profiles+=("${dir:t}")
     done
+
+    # JSON file profiles (skip if a same-named directory exists)
+    for file in "$_CPRO_DIR"/*.json(N-.); do
+        local base="${file:t:r}"
+        if [[ ! -d "$_CPRO_DIR/$base" ]]; then
+            profiles+=("$base")
+        fi
+    done
+
     if (( ${#profiles} == 0 )); then
         echo "No saved profiles. Use 'cpro new-profile <name>' to create one." >&2
         return 1
@@ -175,11 +239,11 @@ _cpro_pick() {
 
     local active choice
     active="$(_cpro_active_name)"
-    choice=$(printf '%s\n' "${profiles[@]}" | \
+    choice=$(printf '%s\n' "${profiles[@]}" | sort -u | \
         fzf --height=50% --layout=reverse \
             --prompt='Copilot Profile> ' \
             --header="Active: $active" \
-            --preview="echo '── config.json ──' && jq -C '.' '$_CPRO_DIR/{}/config.json' 2>/dev/null && echo '' && echo '── mcp-config.json ──' && jq -C '.' '$_CPRO_DIR/{}/mcp-config.json' 2>/dev/null && if [[ -f '$_CPRO_DIR/{}/copilot-instructions.md' ]]; then echo '' && echo '── copilot-instructions.md ──' && cat '$_CPRO_DIR/{}/copilot-instructions.md'; fi")
+            --preview="if [[ -d '$_CPRO_DIR/{}' ]]; then echo '── config.json ──' && jq -C '.' '$_CPRO_DIR/{}/config.json' 2>/dev/null && echo '' && echo '── mcp-config.json ──' && jq -C '.' '$_CPRO_DIR/{}/mcp-config.json' 2>/dev/null && if [[ -f '$_CPRO_DIR/{}/copilot-instructions.md' ]]; then echo '' && echo '── copilot-instructions.md ──' && cat '$_CPRO_DIR/{}/copilot-instructions.md'; fi; elif [[ -f '$_CPRO_DIR/{}.json' ]]; then jq -C '.' '$_CPRO_DIR/{}.json' 2>/dev/null; fi")
     if [[ -n "$choice" ]]; then
         _cpro_load "$choice"
     fi

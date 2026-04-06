@@ -106,7 +106,7 @@ function _today_run_copilot_prompt() {
 	local desired_profile active_profile profiles_dir
 
 	desired_profile="${TODAY_COPILOT_PROFILE:-}"
-	profiles_dir="${COPILOT_PROFILES_DIR/.copilot/profiles}"
+	profiles_dir="${COPILOT_PROFILES_DIR:-$HOME/.copilot/profiles}"
 
 	if [[ -f "$profiles_dir/.active" ]]; then
 		active_profile="$(<"$profiles_dir/.active")"
@@ -123,11 +123,11 @@ function _today_run_copilot_prompt() {
 		fi
 		active_profile="$desired_profile"
 	elif [[ -z "$active_profile" ]] && typeset -f cpro >/dev/null 2>&1; then
-		if ! cpro load coder >&2; then
-			echo "Unable to load fallback Copilot profile: coder" >&2
+		if ! cpro load jira-agent >&2; then
+			echo "Unable to load fallback Copilot profile: jira-agent" >&2
 			return 1
 		fi
-		active_profile="coder"
+		active_profile="jira-agent"
 	fi
 
 	if [[ -n "$TODAY_COPILOT_CMD" ]]; then

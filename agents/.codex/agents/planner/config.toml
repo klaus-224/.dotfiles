@@ -1,0 +1,8 @@
+name = "planner"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_instructions_file = "~/.dotfiles/agents/.codex/agents/planner/planner.md"
+sandbox = "workspace-write"
+
+[skills]
+allowed = ["repo-index", "repo-query"]
