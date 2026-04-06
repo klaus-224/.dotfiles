@@ -4,7 +4,7 @@
 
 model = "gpt-5.4"
 model_provider = "openai"
-personality = "pragmatic"
+personality = "friendly"
 model_reasoning_effort = "high"
 
 ## ##############################################################################
@@ -16,34 +16,6 @@ multi_agent = true
 apps = true
 
 ## ##############################################################################
-# Profiles
-## ##############################################################################
-
-[profiles.repo-explorer]
-model = "gpt-5.4"
-model_reasoning_effort = "high"
-approval_policy = "on-request"
-model_instructions_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/instruction.md"
-
-# [profiles.repo-planner]
-# model = "gpt-5.4"
-# model_reasoning_effort = "high"
-# approval_policy = "never"
-# agent = "planner"
-#
-# [profiles.repo-implementer]
-# model = "gpt-5.4"
-# model_reasoning_effort = "high"
-# approval_policy = "never"
-# agent = "implementer"
-#
-# [profiles.repo-reviewer]
-# model = "gpt-5.4"
-# model_reasoning_effort = "high"
-# approval_policy = "never"
-# agent = "reviewer"
-
-## ##############################################################################
 # Agents
 ## ##############################################################################
 
@@ -51,21 +23,21 @@ model_instructions_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/instru
 max_threads = 8
 max_depth = 3
 
-# [agents.repo-explorer]
-# description = "Explores and understands the repository"
-# config_file = "~/.dotfiles/agents/.codex/agents/repo-explorer/config.toml"
+[agents.explorer]
+description = "Explores and maps the repository architecture"
+config_file = "~/.dotfiles/agents/.codex/agents/explorer/config.toml"
 
-# [agents.planner]
-# description = "Creates implementation plans"
-# config_file = "~/.dotfiles/codex/agents/planner.toml"
-#
-# [agents.implementer]
-# description = "Writes and modifies code"
-# config_file = "~/.dotfiles/codex/agents/implementer.toml"
-#
-# [agents.reviewer]
-# description = "Reviews code for correctness and security"
-# config_file = "~/.dotfiles/codex/agents/reviewer.toml"
+[agents.planner]
+description = "Creates structured implementation plans for coding and testing tasks"
+config_file = "~/.dotfiles/agents/.codex/agents/planner/config.toml"
+
+[agents.implementer]
+description = "Executes implementation plans — coding changes or manual testing with Playwright"
+config_file = "~/.dotfiles/agents/.codex/agents/implementer/config.toml"
+
+[agents.reviewer]
+description = "Reviews code changes for smells and correctness, or test reports for validity"
+config_file = "~/.dotfiles/agents/.codex/agents/reviewer/config.toml"
 
 ## ##############################################################################
 # UI
@@ -81,9 +53,6 @@ status_line = [
 ]
 theme = "1337"
 
-[tui.model_availability_nux]
-"gpt-5.3-codex-spark" = 4
-
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
@@ -96,33 +65,3 @@ enabled = false
 
 [feedback]
 enabled = false
-
-[projects."/Users/klaus224/code/circl-social"]
-trust_level = "trusted"
-
-[projects."/Users/klaus224/.dotfiles"]
-trust_level = "trusted"
-
-[projects."/Users/rohineshram/.codex"]
-trust_level = "trusted"
-
-[projects."/Users/rohineshram/code/qa-tools"]
-trust_level = "trusted"
-
-[projects."/Users/rohineshram/.dotfiles"]
-trust_level = "trusted"
-
-[projects."/Users/klaus224"]
-trust_level = "trusted"
-
-[projects."/Users/klaus224/code/events-web-scraper"]
-trust_level = "trusted"
-
-[projects."/Users/klaus224/code/weave/events-web-scraper"]
-trust_level = "trusted"
-
-[projects."/Users/klaus224/code/events-webscraper"]
-trust_level = "trusted"
-
-[notice.model_migrations]
-"gpt-5.3-codex" = "gpt-5.4"

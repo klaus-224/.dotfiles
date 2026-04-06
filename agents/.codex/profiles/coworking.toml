@@ -1,0 +1,10 @@
+name = "coworking"
+description = "Collaborative session — works with the user interactively"
+
+[autonomy]
+approval_policy = "on-request"
+sandbox = "workspace-write"
+multi_agent = false
+
+[agents]
+available = ["planner", "implementer", "reviewer", "explorer"]

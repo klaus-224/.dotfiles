@@ -1,0 +1,16 @@
+{
+  "name": "multi-agent",
+  "description": "Orchestration environment — coordinates multiple specialized agents in isolated worktrees",
+  "model": "claude-sonnet-4.5",
+  "autonomy": {
+    "multi_agent": true
+  },
+  "orchestration": {
+    "flow": "explorer → planner → implementer → reviewer"
+  },
+  "workspace": {
+    "use_worktrees": true,
+    "worktree_dir": ".worktrees"
+  },
+  "agents": ["planner", "implementer", "reviewer", "explorer"]
+}

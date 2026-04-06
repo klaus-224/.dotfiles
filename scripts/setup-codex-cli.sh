@@ -6,7 +6,6 @@ CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CODEX_CONFIG_FILE="${CODEX_CONFIG_FILE:-$CODEX_HOME/config.toml}"
 AGENTS_DIR="$DOTFILES_HOME/agents"
 CODEX_STOW_PKG=".codex"
-CODEX_SKILLS_STOW_PKG=".codex-skills"
 
 export DOTFILES_HOME
 export CODEX_HOME
@@ -30,8 +29,7 @@ fi
 echo "Installing Codex CLI..."
 brew install codex
 
-mkdir -p "$CODEX_HOME" "$CODEX_HOME/skills"
-mkdir -p "$AGENTS_DIR/$CODEX_SKILLS_STOW_PKG"
+mkdir -p "$CODEX_HOME"
 
 if [[ ! -f "$AGENTS_DIR/$CODEX_STOW_PKG/config.toml" ]]; then
   if [[ -f "$CODEX_CONFIG_FILE" ]]; then
@@ -43,13 +41,6 @@ fi
 
 echo "Stowing Codex config into $CODEX_HOME..."
 stow --verbose --restow --adopt --dir "$AGENTS_DIR" --target "$CODEX_HOME" "$CODEX_STOW_PKG"
-
-if find "$AGENTS_DIR/$CODEX_SKILLS_STOW_PKG" -mindepth 1 -maxdepth 1 | grep -q .; then
-  echo "Stowing custom Codex skills into $CODEX_HOME/skills..."
-  stow --verbose --restow --adopt --dir "$AGENTS_DIR" --target "$CODEX_HOME/skills" "$CODEX_SKILLS_STOW_PKG"
-else
-  echo "No custom Codex skills found in $AGENTS_DIR/$CODEX_SKILLS_STOW_PKG (skipping)."
-fi
 
 echo "Codex setup ready:"
 echo "  DOTFILES_HOME=$DOTFILES_HOME"

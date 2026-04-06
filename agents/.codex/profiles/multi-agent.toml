@@ -1,0 +1,24 @@
+name = "multi-agent"
+description = "Orchestration environment — coordinates multiple specialized agents in isolated worktrees"
+
+[autonomy]
+approval_policy = "on-request"
+sandbox = "workspace-write"
+multi_agent = true
+
+[orchestration]
+flow = "planner → implementer → reviewer"
+
+[workspace]
+# Create git worktrees for agent isolation
+use_worktrees = true
+worktree_dir = ".worktrees"
+# implementer works in .worktrees/implement/, reviewer in .worktrees/review/
+setup = """
+mkdir -p .worktrees
+rg -qxF '.worktrees/' .gitignore 2>/dev/null || echo '.worktrees/' >> .gitignore
+rg -qxF '.agent-output/' .gitignore 2>/dev/null || echo '.agent-output/' >> .gitignore
+"""
+
+[agents]
+available = ["planner", "implementer", "reviewer", "explorer"]
