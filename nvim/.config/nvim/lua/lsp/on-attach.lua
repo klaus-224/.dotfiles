@@ -10,7 +10,7 @@ function M.setup()
       local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
 			-- don't check markdown
-    	if vim.bo[bufnr].filetype == "markdown" then
+    	if vim.bo[bufnr].filetype == "markdown" or vim.bo[bufnr].filetype =="json" then
     	  vim.lsp.stop_client(client.id)
     	end
 
