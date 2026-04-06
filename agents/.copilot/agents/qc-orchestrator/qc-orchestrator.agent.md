@@ -58,29 +58,35 @@ fi
 mkdir -p "$REPORTS_DIR"
 ```
 
-### 1.2 Authenticate the browser session
+### 1.2 Load credentials from the Playwright .env file
+
+Export `SKYON_USERNAME` and `SKYON_PASSWORD` from the Playwright tests `.env`
+file. `SKYON_DATA_ENV` and `SKYON_FLAG_ENV` are already set via the agent
+`config.json` env block.
+
+```bash
+PW_ENV="$HOME/code/skyon/apps/playwright-tests/.env"
+
+# Extract and export only the credentials we need
+export SKYON_USERNAME=$(grep -m1 '^SKYON_USERNAME=' "$PW_ENV" | cut -d'=' -f2- | tr -d "'\"")
+export SKYON_PASSWORD=$(grep -m1 '^SKYON_PASSWORD=' "$PW_ENV" | cut -d'=' -f2- | tr -d "'\"")
+
+if [ -z "$SKYON_USERNAME" ] || [ -z "$SKYON_PASSWORD" ]; then
+  echo "ERROR: Could not load SKYON_USERNAME / SKYON_PASSWORD from $PW_ENV"
+  exit 1
+fi
+
+echo "✓ Loaded credentials for: $SKYON_USERNAME"
+```
+
+### 1.3 Authenticate the browser session
 
 Run the Playwright setup spec to generate the auth storage state. This creates
 `~/code/skyon/apps/playwright-tests/.auth/dev.json` which sub-agents will load
 into their browser contexts.
 
-**Required environment variables** (must be set before running):
-- `SKYON_USERNAME` — dev test user credentials
-- `SKYON_PASSWORD` — dev test user credentials
-- `SKYON_DATA_ENV=dev` — hardcoded to dev
-- `SKYON_FLAG_ENV=dev` — hardcoded to dev
-
 ```bash
 cd ~/code/skyon/apps/playwright-tests
-
-# Verify env vars are set
-if [ -z "$SKYON_USERNAME" ] || [ -z "$SKYON_PASSWORD" ]; then
-  echo "ERROR: SKYON_USERNAME and SKYON_PASSWORD must be set"
-  exit 1
-fi
-
-export SKYON_DATA_ENV=dev
-export SKYON_FLAG_ENV=dev
 
 # Run the setup spec to generate .auth/dev.json
 npx playwright test setup.spec.ts --project=setup
@@ -88,6 +94,14 @@ npx playwright test setup.spec.ts --project=setup
 
 Verify that `~/code/skyon/apps/playwright-tests/.auth/dev.json` exists before
 proceeding. If authentication fails, stop and report the error to the user.
+
+### 1.4 Switch to the main agent worktree
+
+All subsequent orchestration work happens from the main worktree:
+
+```bash
+cd "$MAIN_WORKTREE"
+```
 
 ---
 
