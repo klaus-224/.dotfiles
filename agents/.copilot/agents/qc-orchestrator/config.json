@@ -2,6 +2,10 @@
   "name": "qc-orchestrator",
   "model": "claude-opus-4.6",
   "sandbox": "workspace-write",
-  "tools": ["shell", "read", "edit", "search", "skill", "ask_user", "web_search", "web_fetch", "atlassian/*"],
-  "skills": ["playwright-cli"]
+  "tools": ["shell", "read", "edit", "search", "skill", "ask_user", "web_search", "web_fetch", "atlassian/*", "github/*"],
+  "skills": ["playwright-cli"],
+  "env": {
+    "SKYON_DATA_ENV": "dev",
+    "SKYON_FLAG_ENV": "dev"
+  }
 }
