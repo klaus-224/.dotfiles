@@ -2,6 +2,6 @@
   "name": "qc-test-planner",
   "model": "claude-sonnet-4.5",
   "sandbox": "workspace-write",
-  "tools": ["shell", "read", "search", "skill", "ask_user", "web_search", "web_fetch", "atlassian/*"],
+  "tools": ["shell", "read", "edit", "search", "skill", "ask_user", "web_search", "web_fetch", "atlassian/*", "github/*"],
   "skills": ["repo-query"]
 }

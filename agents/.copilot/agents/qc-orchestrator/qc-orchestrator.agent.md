@@ -132,7 +132,18 @@ if [ ! -d "$WORKTREE_PATH" ]; then
 fi
 ```
 
-### 3.2 Spawn qc-test-planner
+### 3.2 Copy auth state into the worktree
+
+The sub-agents operate within `workspace-write` sandbox and may not access paths
+outside the worktree. Copy the auth state file into each worktree so the
+executer can load it:
+
+```bash
+mkdir -p "$WORKTREE_PATH/.auth"
+cp ~/code/skyon/apps/playwright-tests/.auth/dev.json "$WORKTREE_PATH/.auth/dev.json"
+```
+
+### 3.3 Spawn qc-test-planner
 
 Launch the **qc-test-planner** sub-agent with the following context:
 
@@ -144,7 +155,7 @@ Acceptance Criteria: <acceptance-criteria>
 PR URL: <github-pr-url>
 PR Number: <pr-number>
 Worktree Path: <worktree-path>
-Auth State Path: ~/code/skyon/apps/playwright-tests/.auth/dev.json
+Auth State Path: <worktree-path>/.auth/dev.json
 Jira Instance: https://orennia.atlassian.net
 GitHub Repo: orennia/skyon
 ```
@@ -153,7 +164,7 @@ The planner will produce a `test-plan.md` file in the worktree directory.
 
 **Wait for the planner to complete before launching the executer.**
 
-### 3.3 Spawn qc-test-executer
+### 3.4 Spawn qc-test-executer
 
 Once the test plan is ready, launch the **qc-test-executer** sub-agent with:
 
@@ -161,7 +172,7 @@ Once the test plan is ready, launch the **qc-test-executer** sub-agent with:
 Ticket: <ticket-key>
 Test Plan Path: <worktree-path>/test-plan.md
 Worktree Path: <worktree-path>
-Auth State Path: ~/code/skyon/apps/playwright-tests/.auth/dev.json
+Auth State Path: <worktree-path>/.auth/dev.json
 App URL: https://skyon.orennia.dev
 ```
 

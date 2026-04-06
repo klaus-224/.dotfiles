@@ -59,11 +59,11 @@ Synthesize this into a clear understanding of **what changed and why**.
 
 ### 2. Analyze the PR
 
-Use the **GitHub MCP** tools to read the PR:
+Use the **GitHub MCP** tools (`github/*`) to read the PR:
 
-- `get` — PR title, description, labels
-- `get_diff` — the actual code changes
-- `get_files` — list of files changed
+- `github/pull_request_read` with method `get` — PR title, description, labels
+- `github/pull_request_read` with method `get_diff` — the actual code changes
+- `github/pull_request_read` with method `get_files` — list of files changed
 
 Focus on:
 
