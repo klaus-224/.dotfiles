@@ -1,0 +1,18 @@
+{
+  "banner": "never",
+  "model": "claude-opus-4.6",
+  "renderMarkdown": true,
+  "theme": "auto",
+  "trusted_folders": [
+    "/Users/rohineshram/.dotfiles/nvim/.config/nvim"
+  ],
+  "show_reasoning": true,
+  "skillDirectories": [
+    "/Users/rohineshram/.copilot/skills/playwright-cli",
+    "/Users/rohineshram/.copilot/skills/slack"
+  ],
+  "disabledSkills": [
+    "documentation-lookup"
+  ],
+  "firstLaunchAt": "2026-03-11T00:00:00.000Z"
+}
