@@ -39,7 +39,11 @@ return {
 				json = { "prettier" },
 				yaml = { "prettier" },
 				markdown = { "prettier" },
-				python = { "black" },
+				python = {
+					"ruff_fix",
+					"ruff_organize_imports",
+					"ruff_format",
+				},
 				toml = { "tombi" },
 				sh = { "shfmt" },
 				bash = { "shfmt" },

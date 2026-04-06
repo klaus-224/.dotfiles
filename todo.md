@@ -1,5 +1,3 @@
-
-- [ ] rework nvim/lsp [ json schema, mason-installer ](https://github.com/tjdevries/config.nvim/blob/master/lua/custom/plugins/lsp.lua)  
 - [ ] TUIs
   - [ ] HTTP requests
   - [ ] Monitor network
