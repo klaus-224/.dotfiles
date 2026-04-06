@@ -10,9 +10,9 @@ function M.setup()
       local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
 			-- don't check markdown
-    	if vim.bo[bufnr].filetype == "markdown" or vim.bo[bufnr].filetype =="json" then
-    	  vim.lsp.stop_client(client.id)
-    	end
+    	-- if vim.bo[bufnr].filetype == "markdown" or vim.bo[bufnr].filetype =="json" then
+    	--   vim.lsp.stop_client(client.id)
+    	-- end
 
       local map = function(mode, lhs, rhs, desc)
         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
