@@ -1,7 +1,0 @@
-{
-  "name": "explorer",
-  "model": "claude-sonnet-4.5",
-  "sandbox": "workspace-write",
-  "tools": ["shell", "read", "search", "skill", "ask_user"],
-  "skills": ["repo-index", "repo-map", "repo-query"]
-}

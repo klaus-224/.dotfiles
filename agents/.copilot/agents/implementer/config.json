@@ -1,7 +1,0 @@
-{
-  "name": "implementer",
-  "model": "claude-sonnet-4.5",
-  "sandbox": "danger-full-access",
-  "tools": ["shell", "read", "edit", "search", "skill", "ask_user", "web_search", "web_fetch"],
-  "skills": ["playwright-cli", "documentation", "repo-query"]
-}

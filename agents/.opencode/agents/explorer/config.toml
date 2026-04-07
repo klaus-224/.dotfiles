@@ -1,8 +1,0 @@
-name = "explorer"
-model = "gpt-5.4"
-model_reasoning_effort = "high"
-model_instructions_file = "~/.dotfiles/agents/.opencode/agents/explorer/explorer.md"
-sandbox = "workspace-write"
-
-[skills]
-allowed = ["repo-index", "repo-map", "repo-query"]

@@ -1,9 +1,0 @@
-{
-  "name": "repo-explorer",
-  "description": "Codebase discovery — optimized for indexing, mapping, and architecture understanding",
-  "model": "claude-sonnet-4.5",
-  "autonomy": {
-    "multi_agent": false
-  },
-  "agents": ["explorer"]
-}
