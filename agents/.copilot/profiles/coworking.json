@@ -1,9 +1,0 @@
-{
-  "name": "coworking",
-  "description": "Collaborative session — works with the user interactively",
-  "model": "claude-sonnet-4.5",
-  "autonomy": {
-    "multi_agent": false
-  },
-  "agents": ["planner", "implementer", "reviewer", "explorer"]
-}
