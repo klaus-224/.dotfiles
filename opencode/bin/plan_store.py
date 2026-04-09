@@ -1,0 +1,819 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import gzip
+import json
+import os
+import sqlite3
+import sys
+from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any
+
+SCHEMA_SQL = """
+PRAGMA journal_mode=WAL;
+PRAGMA foreign_keys=ON;
+
+CREATE TABLE IF NOT EXISTS plans (
+  id TEXT PRIMARY KEY,
+  task_key TEXT NOT NULL,
+  title TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('drafting', 'reviewing', 'approved', 'executing', 'done', 'abandoned')),
+  owner_agent TEXT,
+  current_version INTEGER,
+  approved_version INTEGER,
+  lease_owner TEXT,
+  lease_expires_at TEXT,
+  final_markdown_path TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_plans_task_key ON plans(task_key);
+CREATE INDEX IF NOT EXISTS idx_plans_state ON plans(state);
+
+CREATE TABLE IF NOT EXISTS plan_versions (
+  plan_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  parent_version INTEGER,
+  change_note TEXT,
+  plan_json TEXT NOT NULL,
+  plan_summary TEXT,
+  plan_gzip BLOB,
+  PRIMARY KEY (plan_id, version),
+  FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS plan_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  plan_id TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  payload_json TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS plan_comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  plan_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  author_agent TEXT NOT NULL,
+  comment_type TEXT NOT NULL CHECK (comment_type IN ('review', 'blocker', 'suggestion', 'note')),
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
+  FOREIGN KEY (plan_id, version) REFERENCES plan_versions(plan_id, version) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_plan_versions_plan_id ON plan_versions(plan_id, version DESC);
+CREATE INDEX IF NOT EXISTS idx_plan_comments_plan_id ON plan_comments(plan_id, version);
+CREATE INDEX IF NOT EXISTS idx_plan_events_plan_id ON plan_events(plan_id, created_at);
+"""
+
+VALID_STATES = {"drafting", "reviewing", "approved", "executing", "done", "abandoned"}
+
+
+def utc_now() -> str:
+    return (
+        datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+def parse_iso(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    return datetime.fromisoformat(value)
+
+
+def db_path() -> Path:
+    raw = os.environ.get("OPENCODE_PLAN_DB")
+    if raw:
+        return Path(raw).expanduser()
+    return Path("~/.local/state/opencode-plan-store/plans.db").expanduser()
+
+
+def connect() -> sqlite3.Connection:
+    path = db_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys=ON")
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
+    return conn
+
+
+@contextmanager
+def write_txn(conn: sqlite3.Connection):
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        yield
+    except Exception:
+        conn.rollback()
+        raise
+    else:
+        conn.commit()
+
+
+def emit(obj: dict[str, Any]) -> None:
+    sys.stdout.write(json.dumps(obj, indent=2, sort_keys=True))
+    sys.stdout.write("\n")
+
+
+def fail(message: str, *, code: int = 1) -> None:
+    emit({"ok": False, "error": message})
+    raise SystemExit(code)
+
+
+def init_db(conn: sqlite3.Connection) -> None:
+    conn.executescript(SCHEMA_SQL)
+
+
+def row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
+    if row is None:
+        return None
+    return {k: row[k] for k in row.keys() if not isinstance(row[k], bytes)}
+
+
+def plan_exists(conn: sqlite3.Connection, plan_id: str) -> bool:
+    row = conn.execute("SELECT 1 FROM plans WHERE id = ?", (plan_id,)).fetchone()
+    return row is not None
+
+
+def fetch_plan(conn: sqlite3.Connection, plan_id: str) -> sqlite3.Row:
+    row = conn.execute("SELECT * FROM plans WHERE id = ?", (plan_id,)).fetchone()
+    if row is None:
+        fail(f"plan not found: {plan_id}")
+    return row
+
+
+def current_version_number(conn: sqlite3.Connection, plan_id: str) -> int:
+    row = conn.execute(
+        "SELECT COALESCE(MAX(version), 0) AS version FROM plan_versions WHERE plan_id = ?",
+        (plan_id,),
+    ).fetchone()
+    return int(row["version"])
+
+
+def current_version_row(
+    conn: sqlite3.Connection, plan_id: str, version: int | None = None
+) -> sqlite3.Row | None:
+    if version is None:
+        version = current_version_number(conn, plan_id)
+    if version <= 0:
+        return None
+    return conn.execute(
+        "SELECT * FROM plan_versions WHERE plan_id = ? AND version = ?",
+        (plan_id, version),
+    ).fetchone()
+
+
+def latest_comments(
+    conn: sqlite3.Connection, plan_id: str, version: int | None = None
+) -> list[dict[str, Any]]:
+    if version is None:
+        version = current_version_number(conn, plan_id)
+    rows = conn.execute(
+        """
+        SELECT id, plan_id, version, author_agent, comment_type, body, created_at
+        FROM plan_comments
+        WHERE plan_id = ? AND version = ?
+        ORDER BY id ASC
+        """,
+        (plan_id, version),
+    ).fetchall()
+    return [row_to_dict(row) for row in rows]
+
+
+def event(
+    conn: sqlite3.Connection,
+    plan_id: str,
+    actor: str,
+    event_type: str,
+    payload: dict[str, Any] | None = None,
+) -> None:
+    conn.execute(
+        """
+        INSERT INTO plan_events (plan_id, actor, event_type, payload_json, created_at)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            plan_id,
+            actor,
+            event_type,
+            json.dumps(payload, sort_keys=True) if payload is not None else None,
+            utc_now(),
+        ),
+    )
+
+
+def assert_lease(conn: sqlite3.Connection, plan_id: str, agent: str) -> None:
+    row = fetch_plan(conn, plan_id)
+    lease_owner = row["lease_owner"]
+    lease_expires_at = parse_iso(row["lease_expires_at"])
+    now = datetime.now(timezone.utc)
+    if not lease_owner:
+        fail(f"plan {plan_id} is not claimed")
+    if lease_owner != agent and lease_expires_at and lease_expires_at > now:
+        fail(
+            f"plan {plan_id} is leased by {lease_owner} until {row['lease_expires_at']}"
+        )
+    if lease_expires_at and lease_expires_at <= now:
+        fail(f"plan {plan_id} lease expired; reclaim before writing")
+
+
+def summarize_plan(plan: dict[str, Any]) -> str:
+    goal = str(plan.get("goal", "")).strip()
+    steps = plan.get("steps", [])
+    criteria = plan.get("acceptance_criteria", [])
+    return (
+        f"goal={goal[:120]!r}; steps={len(steps)}; acceptance_criteria={len(criteria)}"
+    )
+
+
+def load_plan_json(args: argparse.Namespace) -> dict[str, Any]:
+    raw: str
+    if args.stdin:
+        raw = sys.stdin.read()
+    elif args.json_file:
+        raw = Path(args.json_file).read_text(encoding="utf-8")
+    else:
+        fail("provide --stdin or --json-file")
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        fail(f"invalid JSON payload: {exc}")
+    if not isinstance(value, dict):
+        fail("plan JSON must be an object")
+    return value
+
+
+def render_markdown(
+    plan_row: sqlite3.Row, version_row: sqlite3.Row, comments: list[dict[str, Any]]
+) -> str:
+    plan = json.loads(version_row["plan_json"])
+    title = plan_row["title"]
+    goal = plan.get("goal", "")
+    assumptions = plan.get("assumptions", [])
+    steps = plan.get("steps", [])
+    acceptance = plan.get("acceptance_criteria", [])
+    validation = plan.get("validation", [])
+    risks = plan.get("risks", [])
+    touched = plan.get("touched_files", [])
+    notes = plan.get("execution_notes", [])
+    version = version_row["version"]
+
+    lines: list[str] = []
+    lines.append(f"# {title}")
+    lines.append("")
+    lines.append(f"- Plan ID: `{plan_row['id']}`")
+    lines.append(f"- Task key: `{plan_row['task_key']}`")
+    lines.append(f"- State: `{plan_row['state']}`")
+    lines.append(f"- Version: `{version}`")
+    lines.append(f"- Approved version: `{plan_row['approved_version']}`")
+    lines.append("")
+    lines.append("## Goal")
+    lines.append("")
+    lines.append(goal or "_No goal provided._")
+    lines.append("")
+
+    def render_list(title: str, items: list[Any]) -> None:
+        lines.append(f"## {title}")
+        lines.append("")
+        if not items:
+            lines.append("_None_")
+            lines.append("")
+            return
+        for item in items:
+            lines.append(f"- {item}")
+        lines.append("")
+
+    render_list("Assumptions", assumptions)
+
+    lines.append("## Steps")
+    lines.append("")
+    if not steps:
+        lines.append("_None_")
+        lines.append("")
+    else:
+        for idx, step in enumerate(steps, 1):
+            if isinstance(step, dict):
+                title = step.get("title", f"Step {idx}")
+                status = step.get("status", "todo")
+                owner = step.get("owner", "")
+                lines.append(f"{idx}. **{title}**")
+                lines.append(f"   - status: `{status}`")
+                if owner:
+                    lines.append(f"   - owner: `{owner}`")
+                notes = step.get("notes", [])
+                if notes:
+                    for note in notes:
+                        lines.append(f"   - note: {note}")
+            else:
+                lines.append(f"{idx}. {step}")
+        lines.append("")
+
+    render_list("Acceptance Criteria", acceptance)
+    render_list("Validation", validation)
+    render_list("Touched Files", touched)
+    render_list("Risks", risks)
+    render_list("Execution Notes", notes)
+
+    lines.append("## Review Comments")
+    lines.append("")
+    if not comments:
+        lines.append("_None_")
+    else:
+        for comment in comments:
+            lines.append(
+                f"- [{comment['comment_type']}] `{comment['author_agent']}` at {comment['created_at']}: {comment['body']}"
+            )
+    lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def cmd_init_db(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    emit({"ok": True, "db_path": str(db_path())})
+
+
+def cmd_create(args: argparse.Namespace) -> None:
+    import uuid
+
+    conn = connect()
+    init_db(conn)
+    now = utc_now()
+    plan_id = args.plan_id or str(uuid.uuid4())
+    with write_txn(conn):
+        conn.execute(
+            """
+            INSERT INTO plans (
+              id, task_key, title, state, owner_agent, current_version, approved_version,
+              lease_owner, lease_expires_at, final_markdown_path, created_at, updated_at
+            )
+            VALUES (?, ?, ?, 'drafting', ?, 0, NULL, NULL, NULL, NULL, ?, ?)
+            """,
+            (plan_id, args.task_key, args.title, args.agent, now, now),
+        )
+        payload = {
+            "goal": args.goal,
+            "assumptions": [],
+            "steps": [],
+            "acceptance_criteria": [],
+            "validation": [],
+            "touched_files": [],
+            "risks": [],
+            "execution_notes": [],
+        }
+        plan_json = json.dumps(payload, indent=2, sort_keys=True)
+        conn.execute(
+            """
+            INSERT INTO plan_versions (
+              plan_id, version, created_by, created_at, parent_version, change_note,
+              plan_json, plan_summary, plan_gzip
+            )
+            VALUES (?, 1, ?, ?, NULL, ?, ?, ?, ?)
+            """,
+            (
+                plan_id,
+                args.agent,
+                now,
+                "initial draft shell",
+                plan_json,
+                summarize_plan(payload),
+                gzip.compress(plan_json.encode("utf-8")),
+            ),
+        )
+        conn.execute(
+            "UPDATE plans SET current_version = 1, updated_at = ? WHERE id = ?",
+            (now, plan_id),
+        )
+        event(
+            conn,
+            plan_id,
+            args.agent,
+            "created",
+            {"title": args.title, "task_key": args.task_key},
+        )
+
+    emit({"ok": True, "plan_id": plan_id, "state": "drafting", "current_version": 1})
+
+
+def cmd_get(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    plan = fetch_plan(conn, args.plan_id)
+    version_num = (
+        args.version or plan["approved_version"]
+        if args.approved
+        else args.version or plan["current_version"]
+    )
+    version = current_version_row(conn, args.plan_id, version_num)
+    emit(
+        {
+            "ok": True,
+            "plan": row_to_dict(plan),
+            "version": row_to_dict(version),
+            "comments": latest_comments(conn, args.plan_id, version_num),
+        }
+    )
+
+
+def cmd_list(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    query = """
+    SELECT id, task_key, title, state, owner_agent, current_version, approved_version, lease_owner, lease_expires_at, updated_at
+    FROM plans
+    """
+    params: list[Any] = []
+    where: list[str] = []
+    if args.state:
+        where.append("state = ?")
+        params.append(args.state)
+    if args.owner_agent:
+        where.append("owner_agent = ?")
+        params.append(args.owner_agent)
+    if where:
+        query += " WHERE " + " AND ".join(where)
+    query += " ORDER BY updated_at DESC"
+    rows = conn.execute(query, params).fetchall()
+    emit({"ok": True, "plans": [row_to_dict(r) for r in rows]})
+
+
+def cmd_claim(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    expires_at = (
+        (datetime.now(timezone.utc) + timedelta(seconds=args.ttl))
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+    with write_txn(conn):
+        plan = fetch_plan(conn, args.plan_id)
+        current_owner = plan["lease_owner"]
+        current_expiry = parse_iso(plan["lease_expires_at"])
+        now = datetime.now(timezone.utc)
+        if (
+            current_owner
+            and current_owner != args.agent
+            and current_expiry
+            and current_expiry > now
+        ):
+            fail(
+                f"plan {args.plan_id} is already leased by {current_owner} until {plan['lease_expires_at']}"
+            )
+        conn.execute(
+            """
+            UPDATE plans
+            SET lease_owner = ?, lease_expires_at = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (args.agent, expires_at, utc_now(), args.plan_id),
+        )
+        event(
+            conn,
+            args.plan_id,
+            args.agent,
+            "claimed",
+            {"ttl_seconds": args.ttl, "lease_expires_at": expires_at},
+        )
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "lease_owner": args.agent,
+            "lease_expires_at": expires_at,
+        }
+    )
+
+
+def cmd_release(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    with write_txn(conn):
+        assert_lease(conn, args.plan_id, args.agent)
+        conn.execute(
+            "UPDATE plans SET lease_owner = NULL, lease_expires_at = NULL, updated_at = ? WHERE id = ?",
+            (utc_now(), args.plan_id),
+        )
+        event(conn, args.plan_id, args.agent, "released", None)
+    emit({"ok": True, "plan_id": args.plan_id, "lease_owner": None})
+
+
+def cmd_revise(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    payload = load_plan_json(args)
+    with write_txn(conn):
+        assert_lease(conn, args.plan_id, args.agent)
+        current = fetch_plan(conn, args.plan_id)
+        prev_version = int(current["current_version"] or 0)
+        next_version = prev_version + 1
+        plan_json = json.dumps(payload, indent=2, sort_keys=True)
+        conn.execute(
+            """
+            INSERT INTO plan_versions (
+              plan_id, version, created_by, created_at, parent_version, change_note,
+              plan_json, plan_summary, plan_gzip
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                args.plan_id,
+                next_version,
+                args.agent,
+                utc_now(),
+                prev_version if prev_version > 0 else None,
+                args.change_note,
+                plan_json,
+                summarize_plan(payload),
+                gzip.compress(plan_json.encode("utf-8")),
+            ),
+        )
+        conn.execute(
+            """
+            UPDATE plans
+            SET current_version = ?, state = ?, owner_agent = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (next_version, args.state, args.agent, utc_now(), args.plan_id),
+        )
+        event(
+            conn,
+            args.plan_id,
+            args.agent,
+            "revised",
+            {
+                "version": next_version,
+                "change_note": args.change_note,
+                "state": args.state,
+            },
+        )
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "version": next_version,
+            "state": args.state,
+        }
+    )
+
+
+def cmd_comment(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    version = args.version or current_version_number(conn, args.plan_id)
+    if version <= 0:
+        fail("cannot comment on a plan with no versions")
+    with write_txn(conn):
+        conn.execute(
+            """
+            INSERT INTO plan_comments (plan_id, version, author_agent, comment_type, body, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                args.plan_id,
+                version,
+                args.agent,
+                args.comment_type,
+                args.body,
+                utc_now(),
+            ),
+        )
+        conn.execute(
+            "UPDATE plans SET updated_at = ? WHERE id = ?", (utc_now(), args.plan_id)
+        )
+        event(
+            conn,
+            args.plan_id,
+            args.agent,
+            "commented",
+            {"version": version, "comment_type": args.comment_type},
+        )
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "version": version,
+            "comment_type": args.comment_type,
+        }
+    )
+
+
+def cmd_transition(args: argparse.Namespace) -> None:
+    if args.state not in VALID_STATES:
+        fail(f"invalid state: {args.state}")
+    conn = connect()
+    init_db(conn)
+    with write_txn(conn):
+        if args.require_lease:
+            assert_lease(conn, args.plan_id, args.agent)
+        conn.execute(
+            """
+            UPDATE plans
+            SET state = ?, owner_agent = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (args.state, args.owner_agent, utc_now(), args.plan_id),
+        )
+        event(
+            conn,
+            args.plan_id,
+            args.agent,
+            "transitioned",
+            {"state": args.state, "owner_agent": args.owner_agent},
+        )
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "state": args.state,
+            "owner_agent": args.owner_agent,
+        }
+    )
+
+
+def cmd_approve(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    with write_txn(conn):
+        if args.require_lease:
+            assert_lease(conn, args.plan_id, args.agent)
+        version = args.version or current_version_number(conn, args.plan_id)
+        if version <= 0:
+            fail("cannot approve a plan with no versions")
+        conn.execute(
+            """
+            UPDATE plans
+            SET state = 'approved', approved_version = ?, owner_agent = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (version, args.agent, utc_now(), args.plan_id),
+        )
+        event(conn, args.plan_id, args.agent, "approved", {"version": version})
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "approved_version": version,
+            "state": "approved",
+        }
+    )
+
+
+def cmd_render(args: argparse.Namespace) -> None:
+    conn = connect()
+    init_db(conn)
+    plan = fetch_plan(conn, args.plan_id)
+    version_num = (
+        args.version
+        or (plan["approved_version"] if args.approved else None)
+        or plan["current_version"]
+    )
+    version = current_version_row(conn, args.plan_id, version_num)
+    if version is None:
+        fail("no version available to render")
+    comments = latest_comments(conn, args.plan_id, version_num)
+    markdown = render_markdown(plan, version, comments)
+    if args.out:
+        out = Path(args.out).expanduser()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(markdown, encoding="utf-8")
+        with write_txn(conn):
+            conn.execute(
+                "UPDATE plans SET final_markdown_path = ?, updated_at = ? WHERE id = ?",
+                (str(out), utc_now(), args.plan_id),
+            )
+            event(
+                conn,
+                args.plan_id,
+                args.agent,
+                "rendered",
+                {"version": version_num, "out": str(out)},
+            )
+        emit(
+            {
+                "ok": True,
+                "plan_id": args.plan_id,
+                "version": version_num,
+                "path": str(out),
+            }
+        )
+        return
+    emit(
+        {
+            "ok": True,
+            "plan_id": args.plan_id,
+            "version": version_num,
+            "markdown": markdown,
+        }
+    )
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Collaborative plan store for OpenCode agents"
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("init-db")
+    p.set_defaults(func=cmd_init_db)
+
+    p = sub.add_parser("create")
+    p.add_argument("--plan-id")
+    p.add_argument("--task-key", required=True)
+    p.add_argument("--title", required=True)
+    p.add_argument("--agent", required=True)
+    p.add_argument("--goal", required=True)
+    p.set_defaults(func=cmd_create)
+
+    p = sub.add_parser("get")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--version", type=int)
+    p.add_argument("--approved", action="store_true")
+    p.set_defaults(func=cmd_get)
+
+    p = sub.add_parser("list")
+    p.add_argument("--state")
+    p.add_argument("--owner-agent")
+    p.set_defaults(func=cmd_list)
+
+    p = sub.add_parser("claim")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", required=True)
+    p.add_argument("--ttl", type=int, default=900)
+    p.set_defaults(func=cmd_claim)
+
+    p = sub.add_parser("release")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", required=True)
+    p.set_defaults(func=cmd_release)
+
+    p = sub.add_parser("revise")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", required=True)
+    p.add_argument("--change-note", required=True)
+    p.add_argument("--state", default="drafting", choices=sorted(VALID_STATES))
+    p.add_argument("--json-file")
+    p.add_argument("--stdin", action="store_true")
+    p.set_defaults(func=cmd_revise)
+
+    p = sub.add_parser("comment")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--version", type=int)
+    p.add_argument("--agent", required=True)
+    p.add_argument(
+        "--comment-type",
+        required=True,
+        choices=["review", "blocker", "suggestion", "note"],
+    )
+    p.add_argument("--body", required=True)
+    p.set_defaults(func=cmd_comment)
+
+    p = sub.add_parser("transition")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", required=True)
+    p.add_argument("--state", required=True, choices=sorted(VALID_STATES))
+    p.add_argument("--owner-agent", required=True)
+    p.add_argument("--require-lease", action="store_true")
+    p.set_defaults(func=cmd_transition)
+
+    p = sub.add_parser("approve")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", required=True)
+    p.add_argument("--version", type=int)
+    p.add_argument("--require-lease", action="store_true")
+    p.set_defaults(func=cmd_approve)
+
+    p = sub.add_parser("render")
+    p.add_argument("--plan-id", required=True)
+    p.add_argument("--agent", default="system")
+    p.add_argument("--version", type=int)
+    p.add_argument("--approved", action="store_true")
+    p.add_argument("--out")
+    p.set_defaults(func=cmd_render)
+
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
