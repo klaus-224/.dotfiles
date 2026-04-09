@@ -40,7 +40,6 @@ set("n", "[[", "<cmd>cprev<CR>")
 
 -- lsp
 set("n", "gd", vim.lsp.buf.definition)
-set("n", "K", vim.lsp.buf.hover)
 set("n", "gD", vim.lsp.buf.declaration)
 set("n", "gT", vim.lsp.buf.type_definition)
 set("n", "<leader>ca", vim.lsp.buf.code_action)
