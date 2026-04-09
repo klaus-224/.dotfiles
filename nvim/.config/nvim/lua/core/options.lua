@@ -1,6 +1,18 @@
 local o = vim.opt
 vim.g.mapleader = " "
 
+function _G.user_treesitter_foldexpr()
+	local ft = vim.bo.filetype
+	local bt = vim.bo.buftype
+
+	if bt ~= "" or ft == "help" then
+		return "0"
+	end
+
+	local ok, value = pcall(vim.treesitter.foldexpr)
+	return ok and value or "0"
+end
+
 o.textwidth = 80
 o.wrap = true
 o.wrapmargin = 0
@@ -30,7 +42,7 @@ o.smarttab = true
 o.breakindent = true
 
 o.foldmethod = "expr"
-o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+o.foldexpr = "v:lua.user_treesitter_foldexpr()"
 o.foldlevelstart = 99
 o.foldopen:remove("hor")
 vim.filetype.add({ extension = { har = "json" } })
@@ -42,6 +54,7 @@ o.backspace = { "start", "eol", "indent" }
 
 o.path:append({ "**" })
 o.wildignore:append({ "*/node_modules/*" })
+
 
 o.splitbelow = true
 o.splitright = true
