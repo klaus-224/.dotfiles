@@ -1,9 +1,9 @@
 ---
-description: Scaffold or refine an OpenCode agent
+description: Start agent design workflow
 agent: opencode-expert
 ---
 
-Create or refine an OpenCode agent.
+Start the agent design workflow.
 
 Requirements:
 - produce a complete markdown agent file

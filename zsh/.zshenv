@@ -1,6 +1,8 @@
 export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.json"
 export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode"
+export OPENCODE_PLAN_STORE_BIN="$DOTFILES_HOME/opencode/bin/plan_store.py"
+export OPENCODE_PLAN_DB="$HOME/code/skyon-code.worktrees/agents/plans.db"
 
 ## codex cli config
 # export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"

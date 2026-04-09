@@ -1,9 +1,9 @@
 ---
-description: Review completed work
-agent: workflow-reviewer
+description: Start code review workflow
+agent: code-reviewer
 ---
 
-Review the completed work critically.
+Start the code review workflow on the completed code work.
 
 Return:
 - verdict
