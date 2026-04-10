@@ -9,8 +9,6 @@ const scriptPath =
 
 const pythonBin = process.env.OPENCODE_PLAN_STORE_PYTHON ?? "python3";
 
-type ToolArgs = Record<string, unknown>;
-
 async function runPlanStore(args: string[], stdin?: string) {
   return await new Promise<string>((resolve, reject) => {
     const child = spawn(pythonBin, [scriptPath, ...args], {
