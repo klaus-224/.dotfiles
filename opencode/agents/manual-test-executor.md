@@ -52,3 +52,14 @@ Rules:
 - capture only evidence that helps explain failures, blockers, or important confirmations
 - record concise execution notes back into the provided current-run plan-store handoff
 - stop and surface blockers instead of guessing
+
+Artifact directory:
+
+- derive the artifact root from `$OPENCODE_PLAN_DB`: the artifact dir is `$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/`
+- at the start of execution (not critique), resolve and create this directory: `mkdir -p "$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/"`
+- use `--filename="$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/<name>.png"` for all `playwright-cli screenshot` commands
+- use `--filename="$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/<name>.yaml"` for all `playwright-cli snapshot` commands that capture evidence
+- direct `playwright-cli tracing-stop` output to `"$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/trace.zip"`
+- use `plan_render --out "$(dirname "$OPENCODE_PLAN_DB")/<plan_id>/plan.md"` when rendering a plan handoff
+- reference artifact paths in execution notes so they are discoverable from the plan store
+- never store artifacts in the repo working directory or in a temp directory
