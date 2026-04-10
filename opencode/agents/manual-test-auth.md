@@ -12,9 +12,8 @@ permission:
     "ls apps/playwright-tests/setup.spec.ts": allow
     "ls apps/playwright-tests/.auth*": allow
     "cd apps/playwright-tests": allow
-    "NODE_OPTIONS='--env-file=.env' pnpm playwright test setup.spec.ts*": allow
+    "pnpm exec dotenv -e .env -- pnpm playwright test setup.spec.ts*": allow
     "pnpm playwright test setup.spec.ts*": allow
-    "grep -i base*url apps/playwright-tests/.env*": allow
     "grep -i base*url apps/playwright-tests/playwright.config*": allow
   task:
     "*": deny
