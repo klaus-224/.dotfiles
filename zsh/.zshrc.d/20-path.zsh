@@ -13,10 +13,16 @@
 #   - No aliases or functions
 # --------------------------------------------------
 
-# pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
-[[ ":$PATH:" != *":$PNPM_HOME:"* ]] && PATH="$PNPM_HOME:$PATH"
+typeset -U path PATH
 
-# cargo
+export PNPM_HOME="$HOME/Library/pnpm"
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
-[[ ":$PATH:" != *":$CARGO_HOME/bin:"* ]] && PATH="$CARGO_HOME/bin:$PATH"
+
+path=(
+	"$HOME/.dotfiles/bin" # custom scripts
+	"$CARGO_HOME/bin"
+	"$PNPM_HOME"
+	"${path[@]}"
+)
+
+export PATH
