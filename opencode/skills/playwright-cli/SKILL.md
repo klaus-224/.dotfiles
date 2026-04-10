@@ -223,6 +223,25 @@ npx playwright-cli open https://example.com
 npx playwright-cli click e1
 ```
 
+## Auth with secrets-based env injection (manual testing)
+
+When auth setup depends on secrets from keychain, prefer running the existing auth command through your `secrets` wrapper so env vars are injected only for the process lifecycle.
+
+```bash
+# refresh shared auth state for manual testing
+cd apps/playwright-tests
+secrets pnpm playwright test setup.spec.ts
+
+# example with explicit required env vars enforced by the wrapper
+REQUIRED_ENV_VARS="BASE_URL,TEST_EMAIL,TEST_PASSWORD" secrets pnpm playwright test setup.spec.ts
+```
+
+Notes:
+
+- Do not print secret values.
+- Treat `apps/playwright-tests/.auth/dev.json` as sensitive and never commit it.
+- If `secrets` is unavailable, fall back to your repo's standard non-secret bootstrap only when explicitly allowed.
+
 ## Example: Form submission
 
 ```bash
