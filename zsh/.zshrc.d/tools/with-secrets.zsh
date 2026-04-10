@@ -1,15 +1,65 @@
-withsecrets() {
-	local entry="${SECRETS_ENTRY:-env/work}"
-	local data
-	data="$(pass show "$entry")" || return 1
+set_secret() {
 
-	# Build env assignments safely
-	local -a env_args
-	local line
-	while IFS= read -r line; do
-		[[ -z "$line" || "$line" == \#* ]] && continue
-		env_args+=("$line")
-	done <<<"$data"
+	_set_secret_usage() {
+		print -u2 "usage: set_secret SECRET_NAME"
+	}
 
-	env "${env_args[@]}" "$@"
+	(($# != 1)) && {
+		_set_secret_usage
+		return 1
+	}
+
+	if [[ -z "$1" ]]; then
+		_set_secret_usage
+		return 1
+	fi
+
+	security add-generic-password -a "$USER" -s "$1" -w
+}
+
+# execute a command with secrets injected at run time
+# as environement variables
+with_secrets() {
+	local -a secret_names cmd env_args
+	local arg parsing_secrets=1 value
+
+	_with_secrets_usage() {
+		print -u2 "usage: with_secrets SECRET_NAME ... -- COMMAND"
+	}
+
+	(($# > 0)) || {
+		_with_secrets_usage
+		return 1
+	}
+
+	for arg in "$@"; do
+		# we stop parsing secrets once we see the delimiter
+		# and then we parse the command
+		if [[ "$arg" == "--" ]]; then
+			parsing_secrets=0
+			continue
+		fi
+
+		if ((parsing_secrets)); then
+			secret_names+=("$arg")
+		else
+			cmd+=("$arg")
+		fi
+	done
+
+	if ((${#secret_names[@]} == 0 || ${#cmd[@]} == 0 || parsing_secrets)); then
+		_with_secrets_usage
+		return 1
+	fi
+
+	# grab secrets from macos keychain from the USER space
+	for arg in "${secret_names[@]}"; do
+		value="$(security find-generic-password -a "$USER" -s "$arg" -w)" || {
+			print -u2 "with_secrets: failed to read secret: $arg"
+			return 1
+		}
+		env_args+=("${arg}=${value}")
+	done
+
+	env "${env_args[@]}" "${cmd[@]}"
 }
