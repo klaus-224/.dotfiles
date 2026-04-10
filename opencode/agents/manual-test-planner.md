@@ -1,7 +1,7 @@
 ---
 description: Produces and revises risk-focused manual test plans from Jira ticket context handoffs
 mode: subagent
-model: github-copilot/claude-opus-4.6
+model: github-copilot/claude-sonnet-4.6
 variant: default
 permission:
   edit: deny
