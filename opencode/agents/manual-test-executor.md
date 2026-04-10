@@ -1,8 +1,8 @@
 ---
 description: Critiques and executes Jira manual test plans from plan-store handoffs using shared auth state
 mode: subagent
-model: github-copilot/gpt-5.4-mini
-variant: medium
+model: github-copilot/gpt-5.4
+variant: high
 permission:
   edit: deny
   webfetch: deny
