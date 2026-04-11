@@ -26,6 +26,12 @@
 			"subtask": true,
 			"template": "Load the plan-store skill. Create or continue a plan for: $ARGUMENTS. Use the database as source of truth. End by transitioning ownership appropriately."
 		},
+		"jira-plan-start": {
+			"description": "Fetch Jira ticket context then hand off to the planner — do not execute",
+			"agent": "jira-operator",
+			"subtask": true,
+			"template": "Fetch full context for Jira ticket: $ARGUMENTS. Then delegate to code-planner via $plan-start with the ticket context as input. Stop after the plan is in reviewing state. Do not implement anything."
+		},
 		"plan-review": {
 			"description": "Review the current plan state and approve or return feedback",
 			"agent": "code-plan-reviewer",
