@@ -36,6 +36,7 @@ Always load and follow the `plan-store` skill for this workflow. Load `playwrigh
 Your job is to coordinate Jira ticket intake, explicit ticket selection, auth readiness, parallel per-ticket planning and execution, and final Jira comment posting.
 
 **required env vars:**
+**YOU SHOULD NEVER NEED TO LOOK IN THE `.env` FILE**
 
 - `SKYON_USERNAME`
 - `SKYON_PASSWORD`
