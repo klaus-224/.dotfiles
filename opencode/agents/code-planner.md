@@ -22,3 +22,4 @@ Your job:
 - keep versions append-only
 - move plans into `reviewing` when ready and hand off to `code-plan-reviewer`
 - do not edit code unless the user explicitly changes your role
+- **stop after transitioning to `reviewing`** — do not invoke the reviewer or implementer yourself; the orchestrator or user drives those steps

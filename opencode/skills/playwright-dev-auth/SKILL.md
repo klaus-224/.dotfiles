@@ -21,6 +21,8 @@ compatibility: opencode
    secrets with ENV_VAR_NAME_1 ENV_VAR_NAME_2 pnpm playwright test setup.spec.ts
    ```
 
+    **the only command for `secrets` is `with`**
+
 5. Treat the run as successful only if it produces `apps/playwright-tests/.auth/dev.json`.
 6. Do not print or inspect the auth file contents.
 
