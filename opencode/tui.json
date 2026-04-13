@@ -16,8 +16,8 @@
     "session_interrupt": "escape",
     "session_compact": "<leader>c",
     "session_child_first": "<leader>j",
-    "session_child_cycle": "<leader>l",
-    "session_child_cycle_reverse": "<leader>h",
-    "session_parent": "<leader>k"
+    "session_child_cycle": "l",
+    "session_child_cycle_reverse": "h",
+    "session_parent": "k"
   }
 }
