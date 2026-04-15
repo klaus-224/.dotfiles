@@ -1,0 +1,18 @@
+[core]
+	editor = nvim
+	pager = delta
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = false
+
+[push]
+	autoSetupRemote = true
+
+[alias]
+	lg = log --oneline --graph --decorate
+
+[include]
+	path = ~/.gitconfig.local

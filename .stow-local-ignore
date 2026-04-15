@@ -15,3 +15,5 @@
 ^/LICENSE.*
 ^/.gitignore.*
 ^/bootstrap.*
+
+^/gitconfig.local.sample*
