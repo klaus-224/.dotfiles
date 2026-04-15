@@ -28,6 +28,7 @@
 * [Optional: Install Coding Agents](#optional-install-coding-agents)
 * [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
 * [Tmux Commands](#tmux-commands)
+* [CLI Tool Reference](#cli-tool-reference)
 * [References](#references)
 
 <!-- mtoc-end -->
@@ -178,7 +179,7 @@ Each top-level directory is a stow package that mirrors `$HOME`:
 | --------- | -------------- | ----------------------------------------------------------------------------- |
 | `zsh`     | `stow zsh`     | `.zshrc`, `.zshrc.d/`                                                         |
 | `tmux`    | `stow tmux`    | `.tmux.conf`                                                                  |
-| `nvim`    | `stow nvim`   | `.config/nvim/`                                                               |
+| `nvim`    | `stow nvim`    | `.config/nvim/`                                                               |
 | `ghostty` | `stow ghostty` | `.config/ghostty/`                                                            |
 | `agents`  |                | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
 
@@ -261,12 +262,30 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 ---
 
+---
+
+# CLI Tool Reference
+
+- [ gh-dash ](https://www.gh-dash.dev/getting-started) - TUI dashboard for GH PRs and issues
+
+  ```zsh
+    gh extension install dlvhdr/gh-dash
+  ```
+
+- [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
+- [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
+
+- **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet
+  calculator
+- **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
+- **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
+- [just](https://github.com/casey/just)
+
+---
+
 # References
 
-- https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s
-- https://www.youtube.com/watch?v=03KsS09YS4E
-- https://playbooks.com/skills/jeffallan/claude-skills/atlassian-mcp
-- https://github.com/openai/codex/blob/main/codex-rs/core/config.schema.json
-- https://www.passwordstore.org/
-- https://dyne.org/tomb/
-- https://github.com/dlvhdr/gh-dash
+- [awesome-modern-cli](https://github.com/thegdsks/awesome-modern-cli)
+- [getdesign.md](https://getdesign.md/)
+- [stich](https://stitch.withgoogle.com/)
+- [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
