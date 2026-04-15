@@ -8,7 +8,6 @@ export OPENCODE_PLAN_DB="$HOME/code/skyon-code.worktrees/agents/plans.db"
 
 ## General stuff I like
 export EDITOR="nvim"
-export PAGER="nvim +Man!"
 
 # prompt config
 export STARSHIP_CONFIG="$HOME/.dotfiles/starship/starship.toml"

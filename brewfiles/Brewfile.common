@@ -14,6 +14,10 @@ brew "ripgrep"
 brew "jq"
 brew "yazi"
 brew "gh"
+brew "git-delta"
+brew "hyperfine"
+brew "gping"
+brew "broot"
 
 # zsh 
 brew "zsh-autosuggestions"
