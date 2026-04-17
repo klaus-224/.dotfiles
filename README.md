@@ -28,6 +28,7 @@
 * [Optional: Install Coding Agents](#optional-install-coding-agents)
 * [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
 * [Tmux Commands](#tmux-commands)
+* [Opencode plugins](#opencode-plugins)
 * [CLI Tool Reference](#cli-tool-reference)
 * [References](#references)
 
@@ -262,6 +263,11 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 ---
 
+# Opencode plugins
+
+- [opentmux](https://github.com/AnganSamadder/opentmux) - tmux integration for viewing agent execution in real-time
+- [plannotator](https://github.com/backnotprop/plannotator) - annotate agents plans 
+
 ---
 
 # CLI Tool Reference
@@ -289,3 +295,4 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [getdesign.md](https://getdesign.md/)
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
+- [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode) 

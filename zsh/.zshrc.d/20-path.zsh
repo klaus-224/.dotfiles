@@ -20,6 +20,7 @@ export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 
 path=(
 	"$HOME/.dotfiles/bin" # custom scripts
+	"$HOME/.local/bin"    # binaries from other tools
 	"$CARGO_HOME/bin"
 	"$PNPM_HOME"
 	"${path[@]}"
