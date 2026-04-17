@@ -9,6 +9,9 @@
 			"./skills"
 		]
 	},
+	"tools": {
+		"paths": true
+	},
 	"mcp": {
 		"atlassian": {
 			"type": "remote",
@@ -16,11 +19,7 @@
 			"enabled": true
 		}
 	},
-	"tools": {
-		"jira_*": false
-	},
 	"plugin": [
-		// "@plannotator/opencode@latest",
 		"@mohak34/opencode-notifier@latest"
 	]
 }
