@@ -20,6 +20,12 @@
 		}
 	},
 	"plugin": [
+<<<<<<< Updated upstream
+||||||| Stash base
+=======
+		"@plannotator/opencode@latest"
+	],
+>>>>>>> Stashed changes
 	"tools": {
 		"jira_*": false
 	},
