@@ -1,33 +1,41 @@
 ---
-description: Fetch full Jira ticket context including PR links and comments
+description: Fetch Jira ticket context for one ticket and persist it into the plan store
 agent: jira-operator
 ---
 
-Fetch all details for Jira ticket: $ARGUMENTS
+## Input
 
-Collect:
-- Summary, description, status, priority, assignee
-- All comments (summarize long threads, keep recent ones verbatim)
-- Linked PRs / remote links
-- Subtasks and linked issues
-- Acceptance criteria (if present in description or custom fields)
+- `ticket` is required
+- `plan_id` is required
 
-Return a single structured block:
+## Task
 
-```
-ticket_key: ...
-summary: ...
-status: ...
-priority: ...
-assignee: ...
-description_summary: ...
-acceptance_criteria: [...]
-comments_summary: ...
-recent_comments: [...]
-pr_links: [...]
-linked_issues: [...]
-subtasks: [...]
-blockers: [...]
-```
+Fetch Jira context for the provided ticket and write it into the plan store.
 
-Do not create or modify any plans. Do not delegate. Do not invent data. Just fetch and return.
+Capture:
+
+- key
+- summary
+- status
+- priority
+- assignee
+- description_summary
+- acceptance_criteria
+- recent_comments
+- linked_issues
+- subtasks
+- blockers
+
+## Output
+
+Write fetched Jira context into the plan store via `plan_revise`.
+
+## Rules
+
+- Require both `ticket` and `plan_id`.
+- Do not create a new plan.
+- Do not delegate.
+- Do not invent missing Jira data.
+- Do not transition ticket status.
+
+Context: $ARGUMENTS
