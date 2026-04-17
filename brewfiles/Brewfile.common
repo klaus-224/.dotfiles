@@ -8,7 +8,6 @@ brew "starship"
 # vsc
 brew "git"
 brew "gh"
-brew "gh-dash"
 brew "git-delta"
 
 # file listing
@@ -54,5 +53,5 @@ brew "rustup-init"
 brew "aws-cdk"
 brew "awscli"
 
-# agents
-brew "codex"
+# llm cli
+brew "anomalyco/tap/opencode"
