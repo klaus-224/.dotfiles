@@ -1,26 +1,29 @@
 ---
-description: Post validated manual test results as a Jira comment
+description: Post a final Jira comment from execution results stored in the plan store
 agent: jira-operator
 ---
 
 ## Input
 
-- `plan_id` is required — the plan store contains execution results
+- `plan_id` is required
 
 ## Task
 
-Read execution results from the plan store and post a concise comment on the Jira ticket.
+Read stored execution results and post a concise Jira comment for the ticket in the plan.
 
-Comment should include:
-- Tested scope
-- Outcome (pass / fail / partial)
-- Key findings
-- User impact
-- Next action
+The comment should include:
+
+- what was tested
+- pass, fail, and blocker summary
+- important evidence references
+- follow-up recommendation when needed
 
 ## Rules
 
-- Only use validated execution findings — do not invent results
-- Do not transition the ticket or change its status
+- Require `plan_id`.
+- Comment only from validated execution results.
+- Do not invent results.
+- Do not transition ticket status.
+- Keep the comment concise and operational.
 
 Context: $ARGUMENTS
