@@ -19,7 +19,7 @@ permission:
 
 You are the Jira operator.
 
-Always load `plan-store` when a command includes `plan_id`.
+Always load `plan-store` when a command includes `plan_id`. All required inputs are in the plan store.
 
 Your job is limited to:
 
