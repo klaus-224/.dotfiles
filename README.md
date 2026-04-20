@@ -2,35 +2,35 @@
 
 <!-- mtoc-start -->
 
-* [Generating git SSH Keys](#generating-git-ssh-keys)
-  * [Generate a new SSH key](#generate-a-new-ssh-key)
-    * [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
-    * [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
-    * [Add the public key to Github](#add-the-public-key-to-github)
-    * [Test the connection](#test-the-connection)
-* [Installation](#installation)
-  * [Macos](#macos)
-    * [Install Homebrew](#install-homebrew)
-      * [Install git](#install-git)
-      * [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
-      * [Run the setup script](#run-the-setup-script)
-    * [Windows (wsl)](#windows-wsl)
-      * [Open Powershell as Admin](#open-powershell-as-admin)
-      * [Update wsl](#update-wsl)
-      * [Install Ubuntu](#install-ubuntu)
-      * [Update Linux Packages](#update-linux-packages)
-      * [Install git](#install-git-1)
-      * [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
-      * [Run the WSL Setup Script](#run-the-wsl-setup-script)
-* [Stow Packages](#stow-packages)
-  * [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
-* [Cargo Package Management](#cargo-package-management)
-* [Optional: Install Coding Agents](#optional-install-coding-agents)
-* [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
-* [Tmux Commands](#tmux-commands)
-* [Opencode plugins](#opencode-plugins)
-* [CLI Tool Reference](#cli-tool-reference)
-* [References](#references)
+- [Generating git SSH Keys](#generating-git-ssh-keys)
+  - [Generate a new SSH key](#generate-a-new-ssh-key)
+    - [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
+    - [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
+    - [Add the public key to Github](#add-the-public-key-to-github)
+    - [Test the connection](#test-the-connection)
+- [Installation](#installation)
+  - [Macos](#macos)
+    - [Install Homebrew](#install-homebrew)
+      - [Install git](#install-git)
+      - [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
+      - [Run the setup script](#run-the-setup-script)
+    - [Windows (wsl)](#windows-wsl)
+      - [Open Powershell as Admin](#open-powershell-as-admin)
+      - [Update wsl](#update-wsl)
+      - [Install Ubuntu](#install-ubuntu)
+      - [Update Linux Packages](#update-linux-packages)
+      - [Install git](#install-git-1)
+      - [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
+      - [Run the WSL Setup Script](#run-the-wsl-setup-script)
+- [Stow Packages](#stow-packages)
+  - [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
+- [Cargo Package Management](#cargo-package-management)
+- [Optional: Install Coding Agents](#optional-install-coding-agents)
+- [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
+- [Tmux Commands](#tmux-commands)
+- [Opencode plugins](#opencode-plugins)
+- [CLI Tool Reference](#cli-tool-reference)
+- [References](#references)
 
 <!-- mtoc-end -->
 
@@ -266,7 +266,7 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 # Opencode plugins
 
 - [opentmux](https://github.com/AnganSamadder/opentmux) - tmux integration for viewing agent execution in real-time
-- [plannotator](https://github.com/backnotprop/plannotator) - annotate agents plans 
+- [plannotator](https://github.com/backnotprop/plannotator) - annotate agents plans
 
 ---
 
@@ -291,8 +291,9 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 # References
 
+- [mintlify-wiki](https://mintlify.wiki/explore)
 - [awesome-modern-cli](https://github.com/thegdsks/awesome-modern-cli)
 - [getdesign.md](https://getdesign.md/)
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
-- [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode) 
+- [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
