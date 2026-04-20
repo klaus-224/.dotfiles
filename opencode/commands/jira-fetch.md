@@ -5,10 +5,14 @@ agent: jira-operator
 
 ## Input
 
-- `ticket` is required
-- `plan_id` is required
+Either:
+
+- `ticket` and `plan_id` -- fetch one ticket and store context in the plan
+- `assigned_to_me` -- query all tickets assigned to the current user and return the list
 
 ## Task
+
+### Single ticket mode
 
 Fetch Jira context for the provided ticket and write it into the plan store.
 
@@ -22,17 +26,22 @@ Capture:
 - description_summary
 - acceptance_criteria
 - recent_comments
-- linked_issues
+- linked_issues (including linked PRs)
 - subtasks
 - blockers
 
+### Assigned-to-me mode
+
+Query Jira for all tickets assigned to the current user. Return the list of ticket keys and summaries.
+
 ## Output
 
-Write fetched Jira context into the plan store via `plan_revise`.
+- Single ticket: Write fetched Jira context into the plan store via `plan_revise`.
+- Assigned-to-me: Return the list of ticket keys and summaries.
 
 ## Rules
 
-- Require both `ticket` and `plan_id`.
+- Single ticket mode requires both `ticket` and `plan_id`.
 - Do not create a new plan.
 - Do not delegate.
 - Do not invent missing Jira data.
