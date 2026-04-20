@@ -41,6 +41,14 @@ vim.keymap.set("n", "gK", function()
 	})
 end)
 
+vim.keymap.set("n", "]d", function()
+	vim.diagnostic.jump({ count = 1, float = true })
+end)
+
+vim.keymap.set("n", "[d", function()
+	vim.diagnostic.jump({ count = -1, float = true })
+end)
+
 -- Populate loclist for current window/buffer, but do NOT open it.
 -- Sort by severity first: ERROR -> WARN -> INFO -> HINT
 local function set_diagnostic_loclist(opts)

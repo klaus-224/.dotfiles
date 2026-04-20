@@ -6,7 +6,10 @@ return {
 		-- Neovim 0.12.1 can crash in injected markdown/help docs when the
 		-- fenced-code info-string directive resolves an invalid node.
 		vim.treesitter.query.set("vimdoc", "injections", "")
-		vim.treesitter.query.set("markdown", "injections", [[
+		vim.treesitter.query.set(
+			"markdown",
+			"injections",
+			[[
 ((html_block) @injection.content
   (#set! injection.language "html")
   (#set! injection.combined)
@@ -27,11 +30,12 @@ return {
   (pipe_table_cell)
 ] @injection.content
   (#set! injection.language "markdown_inline"))
-		]])
+		]]
+		)
 
 		require("nvim-treesitter.configs").setup({
-			highlight = {
-				-- enable = true,
+		highlight = {
+			enable = true,
 				disable = function(lang, buf)
 					return lang == "markdown" and vim.bo[buf].buftype == "nofile"
 				end,
@@ -51,6 +55,7 @@ return {
 				"jsonc",
 				"javascript",
 				"typescript",
+				"svelte",
 				"tsx",
 				"rust",
 				"sql",
