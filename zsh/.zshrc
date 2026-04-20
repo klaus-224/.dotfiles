@@ -9,30 +9,32 @@
 emulate -LR zsh
 
 # source custom env vars
+# shellcheck source=/dev/null
 source "$HOME/.zshenv"
+
 # add to path
 eval "$(starship init zsh)"
 
 # source all config files
-for file in "$HOME/.zshrc.d/"*.zsh; do
-	[ -f "$file" ] && source "$file"
+for file in "$HOME"/.zshrc.d/*.zsh; do
+	[[ -f "$file" ]] || continue
+	# shellcheck disable=SC1090
+	source "$file"
 done
 
 # move zshcompdump to ~/.cache/zsh/ so that it's not annoying
 autoload -Uz compinit
-compinit -d ~/.cache/zsh/zcompdump-$ZSH_VERSION
+compinit -d ~/.cache/zsh/zcompdump-"$ZSH_VERSION"
 
 # Options
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 
-
 # >>> opentmux >>>
 export OPENCODE_PORT=4096
 alias opencode='opentmux'
 # <<< opentmux <<<
-
 
 # >>> opencode-agent-tmux >>>
 export OPENCODE_PORT=4096
