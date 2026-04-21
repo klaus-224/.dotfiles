@@ -4,9 +4,10 @@ local k = vim.keycode
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
+-- execute current line
 set("n", "<leader>x", function()
 	vim.cmd(".lua")
-end, { desc = "Execute the current line" })
+end)
 
 set("n", "<leader><leader>x", function()
 	vim.cmd("source %")
@@ -33,8 +34,8 @@ set("n", "[[", "<cmd>cprev<CR>")
 -- lsp
 set("n", "K", vim.lsp.buf.hover)
 set("n", "grr", vim.lsp.buf.references)
-set("n", "gd", vim.lsp.buf.definition)
-set("n", "gD", vim.lsp.buf.declaration)
+set("n", "gD", vim.lsp.buf.definition)
+set("n", "gd", vim.lsp.buf.declaration)
 set("n", "<leader>ca", vim.lsp.buf.code_action)
 
 -- tabs

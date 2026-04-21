@@ -37,7 +37,10 @@ o.laststatus = 2
 o.scrolloff = 10
 
 o.inccommand = "split"
+
+o.smartcase = true
 o.ignorecase = true
+
 o.smarttab = true
 o.breakindent = true
 
@@ -54,7 +57,6 @@ o.backspace = { "start", "eol", "indent" }
 
 o.path:append({ "**" })
 o.wildignore:append({ "*/node_modules/*" })
-
 
 o.splitbelow = true
 o.splitright = true
