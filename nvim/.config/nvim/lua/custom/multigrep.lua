@@ -39,7 +39,7 @@ local live_multigrep = function(opts)
 
 	pickers
 			.new(opts, {
-				debounce = 100,
+				debounce = 50,
 				prompt_title = "Multi Grep",
 				finder = finder,
 				previewer = conf.grep_previewer(opts),
