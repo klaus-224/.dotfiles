@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://gh-dash.dev/schema.json
+
+prSections:
+  - title: "My Pull Requests"
+    filters: "is:open author:@me"
+  - title: "All"
+    filters: "is:open"
+  - title: "Needs My Review"
+    filters: "is:open review-requested:@me"
+keybindings:
+  prs:
+    - key: D
+      name: diff with delta
+      command: PAGER=delta gh pr diff {{.PrNumber}}

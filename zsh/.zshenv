@@ -10,4 +10,10 @@ export OPENCODE_PLAN_DB="$HOME/code/skyon-code.worktrees/agents/plans.db"
 export EDITOR="nvim"
 
 # prompt config
-export STARSHIP_CONFIG="$HOME/.dotfiles/starship/starship.toml"
+export STARSHIP_CONFIG="$DOTFILES_HOME/starship/starship.toml"
+
+# gh dash
+export GH_DASH_CONFIG="$DOTFILES_HOME/git/gh-dash/config.yml"
+
+# delta as pager
+export PAGER=delta
