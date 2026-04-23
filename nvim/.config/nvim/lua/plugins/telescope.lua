@@ -85,17 +85,14 @@ return {
 
 			-- KEYMAPS
 			local builtin = require("telescope.builtin")
+			local set = vim.keymap.set
 
 			vim.keymap.set("n", "<leader><leader>", function()
 				builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
 			end)
-			vim.keymap.set("n", "?", builtin.current_buffer_fuzzy_find)
-			vim.keymap.set("n", "<leader>FS", builtin.lsp_workspace_symbols)
-			vim.keymap.set("n", "<leader>fs", builtin.lsp_document_symbols)
-			vim.keymap.set("n", "<leader>fh", builtin.help_tags)
-			vim.keymap.set("n", "<leader>ff", builtin.buffers)
-			vim.keymap.set("n", "<leader>li", builtin.lsp_incoming_calls)
-			vim.keymap.set("n", "<leader>lo", builtin.lsp_outgoing_calls)
+			set("n", "?", builtin.current_buffer_fuzzy_find)
+			set("n", "<leader>fh", builtin.help_tags)
+			set("n", "<leader>ff", builtin.buffers)
 
 			require("custom.multigrep").setup()
 		end,
