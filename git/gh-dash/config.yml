@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://gh-dash.dev/schema.json
+
+pager:
+  diff: delta
+
+prSections:
+  - title: "My Pull Requests"
+    filters: "is:open author:@me"
+  - title: "All"
+    filters: "is:open"
+  - title: "Needs My Review"
+    filters: "is:open review-requested:@me"
+keybindings:
+  prs:
+    - key: T
+      name: github workflow
+      command: >
+        tmux new-window 'gh enhance -R {{.RepoName}} {{.PrNumber}}'
+    # - key: C
+    #   name: code review
+    #   command: >
+    #     tmux new-window -c {{.RepoPath}} "git fetch origin pull/{{.PrNumber}}/head:pr-{{.PrNumber}} && nvim"
+    - key: C
+      name: code review
+      command: gh pr diff {{.PrNumber}} --repo {{.RepoName}} | nvim -

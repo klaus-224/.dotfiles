@@ -1,0 +1,30 @@
+[core]
+	editor = nvim
+	pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    dark = true  
+		side-by-side = true
+		line-numbers = true
+
+[merge]
+    conflictStyle = zdiff3
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[alias]
+	lg = log --oneline --graph --decorate
+
+[include]
+	path = ~/.gitconfig.local

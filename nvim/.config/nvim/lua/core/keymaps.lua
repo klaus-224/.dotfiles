@@ -1,19 +1,18 @@
 local set = vim.keymap.set
 local k = vim.keycode
-local f = require("custom.f")
-local fn = f.fn
 
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
+-- execute current line
 set("n", "<leader>x", function()
 	vim.cmd(".lua")
-end, { desc = "Execute the current line" })
+end)
 
 set("n", "<leader><leader>x", function()
 	vim.cmd("source %")
 	vim.notify("lua file reloaded")
-end, { desc = "Execute the current file" })
+end)
 
 -- select all
 set("n", "<C-a>", "gg<S-v>G")
@@ -28,23 +27,31 @@ set("n", "<M-.>", "<c-w>5>")
 set("n", "<M-t>", "<C-W>+")
 set("n", "<M-s>", "<C-W>-")
 
--- copy current buffer absolute file path to system clipboard
-set("n", "<leader>YY", function()
-	vim.fn.setreg("+", vim.fn.expand("%:p"))
-	vim.notify("Copied file path to clipboard")
-end)
-
 -- quickfix, loclist nav
 set("n", "]]", "<cmd>cnext<CR>")
 set("n", "[[", "<cmd>cprev<CR>")
 
 -- lsp
+set("n", "K", vim.lsp.buf.hover)
 set("n", "gd", vim.lsp.buf.definition)
 set("n", "gD", vim.lsp.buf.declaration)
-set("n", "gT", vim.lsp.buf.type_definition)
-set("n", "<leader>ca", vim.lsp.buf.code_action)
-set("n", "]d", fn(vim.diagnostic.jump, { count = 1, float = true }))
-set("n", "[d", fn(vim.diagnostic.jump, { count = -1, float = true }))
+set("n", "<leader>ds", vim.lsp.buf.document_symbol)
+set("n", "<leader>dS", vim.lsp.buf.workspace_symbol)
+set("n", "<leader>dq", function()
+	vim.diagnostic.setqflist()
+	vim.cmd("copen")
+end)
+set("n", "<leader>dl", function()
+	vim.diagnostic.setloclist()
+	vim.cmd("lopen")
+end)
+set("n", "<leader>cd", vim.diagnostic.open_float)
+set("n", "]d", function()
+	vim.diagnostic.jump({ count = 1, float = true })
+end)
+set("n", "[d", function()
+	vim.diagnostic.jump({ count = -1, float = true })
+end)
 
 -- tabs
 set("n", "<left>", "gT")

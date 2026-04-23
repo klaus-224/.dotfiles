@@ -1,0 +1,6 @@
+# This is where things that should not be tracked live. This file needs to be
+# symlinked to ~/.gitconfig.local
+[user]
+	name = <NAME>
+	email = <EMAIL>
+

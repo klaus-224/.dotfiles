@@ -1,19 +1,45 @@
-brew "git"
+# tuis and stuff
 brew "stow"
 brew "tmux"
 brew "neovim"
 brew "starship"
 
-# cli tools
-brew "fzf"
-brew "fd"
-brew "bat"
+## CLI TOOLS ## 
+# vsc
+brew "git"
+brew "gh"
+brew "git-delta"
+
+# file listing
+brew "broot"
 brew "eza"
 brew "tree"
+
+# file search
+brew "fd"
+
+# text search
 brew "ripgrep"
-brew "jq"
-brew "yazi"
-brew "gh"
+
+# text viewing
+brew "bat"
+
+# fuzzy finding
+brew "fzf"
+
+# json/yaml/csv
+brew "jsongrep"
+brew "csvlens"
+brew "dasel"
+
+# monitoring
+brew "hyperfine"
+brew "gping"
+
+# tuis
+brew "lazygit"
+
+## END CLI TOOLS ##
 
 # zsh 
 brew "zsh-autosuggestions"
@@ -27,7 +53,5 @@ brew "rustup-init"
 brew "aws-cdk"
 brew "awscli"
 
-# tuis
-brew "lazygit"
-
-brew "codex"
+# llm cli
+brew "anomalyco/tap/opencode"
