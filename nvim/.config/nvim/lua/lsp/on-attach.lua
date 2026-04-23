@@ -6,28 +6,20 @@ function M.setup()
 	vim.api.nvim_create_autocmd("LspAttach", {
 		group = group,
 		callback = function(args)
-			local bufnr = args.buf
 			local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-
 			local set = vim.keymap.set
+			local lsp = vim.lsp
 
-			local ok_telescope, builtin = pcall(require, "telescope.builtin")
-
-			if ok_telescope then
-				set("n", "<leader>wd", builtin.lsp_document_symbols)
-				set("n", "<leader>ww", function()
-					builtin.diagnostics({ root_dir = true })
-				end)
+			if client:supports_method("textDocument/inlayHint") then
+				lsp.inlay_hint.enable(true, { bufnr = args.buf })
 			end
 
-			-- Example: disable semantic tokens for selected filetypes
-			local disable_semantic_tokens = {
-				-- lua = true,
-			}
+			if client:supports_method("callHierarchy/incomingCalls") then
+				set("n", "<leader>li", lsp.buf.incoming_calls)
+			end
 
-			local ft = vim.bo[bufnr].filetype
-			if disable_semantic_tokens[ft] then
-				client.server_capabilities.semanticTokensProvider = nil
+			if client:supports_method("callHierarchy/incomingCalls") then
+				set("n", "<leader>lo", lsp.buf.outgoing_calls, { noremap = false })
 			end
 		end,
 	})

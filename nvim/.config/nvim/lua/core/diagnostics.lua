@@ -1,5 +1,4 @@
 local diag = vim.diagnostic
-local sev = vim.diagnostic.severity
 
 local function diagnostic_jump_callback(diagnostic, bufnr)
 	if not diagnostic then
@@ -16,8 +15,8 @@ end
 diag.config({
 	signs = false,
 	underline = true,
-	virtual_text = false, -- default OFF
-	virtual_lines = false, -- default OFF except on jump callback
+	virtual_text = false,
+	virtual_lines = false,
 	severity_sort = true,
 	float = {
 		border = "rounded",
@@ -27,17 +26,23 @@ diag.config({
 	},
 })
 
--- Toggle virtual text
+-- Toggle virtual text and lines
 vim.keymap.set("n", "gK", function()
 	local cfg = diag.config()
-	local enabled = cfg.virtual_text
 
-	if type(enabled) == "table" then
-		enabled = true
+	---@diagnostic disable-next-line: need-check-nil
+	local text_enabled = cfg.virtual_text
+	---@diagnostic disable-next-line: need-check-nil
+	local lines_enabled = cfg.virtual_lines
+
+	if type(text_enabled) == "table" and type(lines_enabled) == "table" then
+		text_enabled = true
+		lines_enabled = true
 	end
 
 	diag.config({
-		virtual_text = not enabled,
+		virtual_text = not text_enabled,
+		virtual_lines = not lines_enabled,
 	})
 end)
 
@@ -49,47 +54,15 @@ vim.keymap.set("n", "[d", function()
 	vim.diagnostic.jump({ count = -1, float = true })
 end)
 
--- Populate loclist for current window/buffer, but do NOT open it.
--- Sort by severity first: ERROR -> WARN -> INFO -> HINT
-local function set_diagnostic_loclist(opts)
-	opts = opts or {}
+vim.keymap.set("n", "<leader>dq", function()
+	vim.diagnostic.setqflist()
+	vim.cmd("copen")
+end, { desc = "All diagnostics" })
 
-	local bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
-	local winnr = opts.winnr or 0
-
-	local diagnostics = diag.get(bufnr, { severity = { min = sev.WARN } })
-
-	table.sort(diagnostics, function(a, b)
-		if a.severity ~= b.severity then
-			return a.severity < b.severity
-		end
-		if a.lnum ~= b.lnum then
-			return a.lnum < b.lnum
-		end
-		return a.col < b.col
-	end)
-
-	local items = diag.toqflist(diagnostics)
-
-	vim.fn.setloclist(winnr, {}, " ", {
-		items = items,
-	})
-end
-
--- Populate loclist whenever diagnostics change, but never open it
-vim.api.nvim_create_autocmd("DiagnosticChanged", {
-	callback = function(args)
-		if args.buf == vim.api.nvim_get_current_buf() then
-			set_diagnostic_loclist({ bufnr = args.buf })
-		end
-	end,
-})
-
--- Optional mapping to open the already-populated loclist
 vim.keymap.set("n", "<leader>dl", function()
-	set_diagnostic_loclist()
+	vim.diagnostic.setloclist()
 	vim.cmd("lopen")
-end, { desc = "Open diagnostic loclist" })
+end, { desc = "Buffer/window diagnostics" })
 
 -- ignore .env
 local group = vim.api.nvim_create_augroup("__env", { clear = true })
