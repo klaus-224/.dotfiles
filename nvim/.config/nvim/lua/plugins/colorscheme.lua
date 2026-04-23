@@ -22,15 +22,6 @@ return {
 			vim.cmd.colorscheme("vague")
 			apply_vague_overrides()
 
-			local group = vim.api.nvim_create_augroup("vague-highlight-overrides", { clear = true })
-			vim.api.nvim_create_autocmd("ColorScheme", {
-				group = group,
-				callback = function(args)
-					if args.match == "vague" then
-						apply_vague_overrides()
-					end
-				end,
-			})
 			vim.api.nvim_create_autocmd("VimEnter", {
 				group = group,
 				callback = function()
@@ -38,17 +29,6 @@ return {
 						vim.schedule(apply_vague_overrides)
 					end
 				end,
-			})
-		end,
-	},
-	{
-		"catppuccin/nvim",
-		name = "catppuccin",
-		enabled = false,
-		lazy = true,
-		config = function()
-			require("catppuccin").setup({
-				flavour = "mocha",
 			})
 		end,
 	},

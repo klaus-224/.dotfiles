@@ -1,18 +1,6 @@
 local o = vim.opt
 vim.g.mapleader = " "
 
-function _G.user_treesitter_foldexpr()
-	local ft = vim.bo.filetype
-	local bt = vim.bo.buftype
-
-	if bt ~= "" or ft == "help" then
-		return "0"
-	end
-
-	local ok, value = pcall(vim.treesitter.foldexpr)
-	return ok and value or "0"
-end
-
 o.textwidth = 80
 o.wrap = true
 o.wrapmargin = 0
