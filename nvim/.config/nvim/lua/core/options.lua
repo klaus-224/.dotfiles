@@ -1,6 +1,6 @@
 vim.g.mapleader = " "
 
-vim.opt.textwidth = 100
+vim.opt.textwidth = 80
 vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.exrc = true
