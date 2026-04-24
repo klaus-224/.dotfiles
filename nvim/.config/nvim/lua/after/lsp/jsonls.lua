@@ -1,6 +1,5 @@
-local client_config = require("lsp.client-config")
 
-return vim.tbl_deep_extend("force", client_config.base(), {
+return {
 	cmd = { "vscode-json-language-server", "--stdio" },
 	filetypes = { "json", "jsonc" },
 	settings = {
@@ -13,4 +12,4 @@ return vim.tbl_deep_extend("force", client_config.base(), {
 		provideFormatter = true,
 	},
 	root_markers = { ".git" },
-})
+}
