@@ -10,7 +10,7 @@ font-size = 16
 
 cursor-opacity = 1
 bold-is-bright = true
-background-opacity = 0.9
+background-opacity = 1
 selection-background = "#0a385c"
 
 window-decoration = none
@@ -29,4 +29,4 @@ bell-features = border
 desktop-notifications = false
 
 macos-titlebar-style = hidden
-background-blur-radius = 10
+# background-blur-radius = 10
