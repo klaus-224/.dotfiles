@@ -1,6 +1,5 @@
-local client_config = require("lsp.client-config")
 
-return vim.tbl_deep_extend("force", client_config.base(), {
+return {
 	cmd = { "basedpyright-langserver", "--stdio" },
 	filetypes = { "python" },
 	root_markers = {
@@ -18,4 +17,4 @@ return vim.tbl_deep_extend("force", client_config.base(), {
 			disableOrganizeImports = true,
 		},
 	},
-})
+}

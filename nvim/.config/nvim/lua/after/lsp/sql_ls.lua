@@ -1,2 +1,0 @@
--- Disabled: sqlls produces false syntax errors in dadbod-ui buffers.
--- Completion is handled by vim-dadbod-completion instead.

@@ -1,6 +1,5 @@
-local client_config = require("lsp.client-config")
 
-return vim.tbl_deep_extend("force", client_config.base(), {
+return {
 	cmd = { "yaml-language-server", "--stdio" },
 	filetypes = { "yaml", "yml" },
 	settings = {
@@ -19,4 +18,4 @@ return vim.tbl_deep_extend("force", client_config.base(), {
 		client.server_capabilities.documentFormattingProvider = true
 	end,
 	root_markers = { ".git" },
-})
+}
