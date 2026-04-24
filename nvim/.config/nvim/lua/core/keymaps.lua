@@ -1,70 +1,68 @@
-local set = vim.keymap.set
-local k = vim.keycode
 
-set("i", "jk", "<Esc>")
-set("v", "q", "<Esc>")
+vim.keymap.set("i", "jk", "<Esc>")
+vim.keymap.set("v", "q", "<Esc>")
 
 -- execute current line
-set("n", "<leader>x", function()
+vim.keymap.set("n", "<leader>x", function()
 	vim.cmd(".lua")
 end)
 
-set("n", "<leader><leader>x", function()
+vim.keymap.set("n", "<leader><leader>x", function()
 	vim.cmd("source %")
 	vim.notify("lua file reloaded")
 end)
 
 -- select all
-set("n", "<C-a>", "gg<S-v>G")
+vim.keymap.set("n", "<C-a>", "gg<S-v>G")
 
 -- move selected lines up/down and keep selection
-set("v", "J", ":m '>+1<CR>gv=gv")
-set("v", "K", ":m '<-2<CR>gv=gv")
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- windows
-set("n", "<M-,>", "<c-w>5<")
-set("n", "<M-.>", "<c-w>5>")
-set("n", "<M-t>", "<C-W>+")
-set("n", "<M-s>", "<C-W>-")
+vim.keymap.set("n", "<M-,>", "<c-w>5<")
+vim.keymap.set("n", "<M-.>", "<c-w>5>")
+vim.keymap.set("n", "<M-t>", "<C-W>+")
+vim.keymap.set("n", "<M-s>", "<C-W>-")
 
 -- quickfix, loclist nav
-set("n", "]]", "<cmd>cnext<CR>")
-set("n", "[[", "<cmd>cprev<CR>")
+vim.keymap.set("n", "]]", "<cmd>cnext<CR>")
+vim.keymap.set("n", "[[", "<cmd>cprev<CR>")
 
 -- lsp
-set("n", "K", vim.lsp.buf.hover)
-set("n", "gd", vim.lsp.buf.definition)
-set("n", "gD", vim.lsp.buf.declaration)
-set("n", "<leader>ds", vim.lsp.buf.document_symbol)
-set("n", "<leader>dS", vim.lsp.buf.workspace_symbol)
-set("n", "<leader>dq", function()
+vim.keymap.set("n", "K", vim.lsp.buf.hover)
+vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
+vim.keymap.set("n", "<leader>ds", vim.lsp.buf.document_symbol)
+vim.keymap.set("n", "<leader>dS", vim.lsp.buf.workspace_symbol)
+vim.keymap.set("n", "<leader>dq", function()
 	vim.diagnostic.setqflist()
 	vim.cmd("copen")
 end)
-set("n", "<leader>dl", function()
+vim.keymap.set("n", "<leader>dl", function()
 	vim.diagnostic.setloclist()
 	vim.cmd("lopen")
 end)
-set("n", "<leader>cd", vim.diagnostic.open_float)
-set("n", "]d", function()
+vim.keymap.set("n", "<leader>cd", vim.diagnostic.open_float)
+vim.keymap.set("n", "]d", function()
 	vim.diagnostic.jump({ count = 1, float = true })
 end)
-set("n", "[d", function()
+vim.keymap.set("n", "[d", function()
 	vim.diagnostic.jump({ count = -1, float = true })
 end)
 
 -- tabs
-set("n", "<left>", "gT")
-set("n", "<right>", "gt")
+vim.keymap.set("n", "<left>", "gT")
+vim.keymap.set("n", "<right>", "gt")
 
 -- clear search hightlights
-set("n", "<CR>", function()
+vim.keymap.set("n", "<CR>", function()
 	---@diagnostic disable-next-line: undefined-field
 	if vim.v.hlsearch == 1 then
 		vim.cmd.nohl()
 		return ""
 	else
-		return k("<CR>")
+		return vim.keycode("<CR>")
 	end
 	-- copy current selection to the system clipboad
 end, { expr = true })

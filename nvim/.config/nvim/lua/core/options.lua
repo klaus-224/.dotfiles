@@ -1,57 +1,32 @@
-local o = vim.opt
 vim.g.mapleader = " "
-
-o.textwidth = 80
-o.wrap = true
-o.wrapmargin = 0
-o.linebreak = true
-o.exrc = true
-o.termguicolors = true
-
-o.number = true
-o.relativenumber = true
-
-o.autoindent = true
-o.smartindent = true
-
-o.hlsearch = true
-
-o.backup = false
-
-o.showcmd = true
-o.cmdheight = 1
-
-o.laststatus = 2
-o.scrolloff = 10
-
-o.inccommand = "split"
-
-o.smartcase = true
-o.ignorecase = true
-
-o.smarttab = true
-o.breakindent = true
-
-o.foldmethod = "expr"
-o.foldexpr = "v:lua.user_treesitter_foldexpr()"
-o.foldlevelstart = 99
-o.foldopen:remove("hor")
-vim.filetype.add({ extension = { har = "json" } })
-
-o.shiftwidth = 2
-o.tabstop = 2
-
-o.backspace = { "start", "eol", "indent" }
-
-o.path:append({ "**" })
-o.wildignore:append({ "*/node_modules/*" })
-
-o.splitbelow = true
-o.splitright = true
-o.splitkeep = "cursor"
-
-o.formatoptions:append({ "r" })
-
-o.showtabline = 1
-
-o.clipboard = "unnamedplus"
+vim.opt.textwidth = 80
+vim.opt.wrap = true
+vim.opt.wrapmargin = 0
+vim.opt.linebreak = true
+vim.opt.exrc = true
+vim.opt.termguicolors = true
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.autoindent = true
+vim.opt.smartindent = true
+vim.opt.hlsearch = true
+vim.opt.showcmd = true
+vim.opt.cmdheight = 1
+vim.opt.laststatus = 2
+vim.opt.scrolloff = 10
+vim.opt.inccommand = "split"
+vim.opt.smartcase = true
+vim.opt.ignorecase = true
+vim.opt.smarttab = true
+vim.opt.breakindent = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.backspace = { "start", "eol", "indent" }
+vim.opt.path:append({ "**" })
+vim.opt.wildignore:append({ "*/node_modules/*" })
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.splitkeep = "cursor"
+vim.opt.formatoptions:append({ "r" })
+vim.opt.showtabline = 1
+vim.opt.clipboard = "unnamedplus"
