@@ -4,16 +4,6 @@ local k = vim.keycode
 set("i", "jk", "<Esc>")
 set("v", "q", "<Esc>")
 
--- execute current line
-set("n", "<leader>x", function()
-	vim.cmd(".lua")
-end)
-
-set("n", "<leader><leader>x", function()
-	vim.cmd("source %")
-	vim.notify("lua file reloaded")
-end)
-
 -- select all
 set("n", "<C-a>", "gg<S-v>G")
 
@@ -37,6 +27,8 @@ set("n", "gd", vim.lsp.buf.definition)
 set("n", "gD", vim.lsp.buf.declaration)
 set("n", "<leader>ds", vim.lsp.buf.document_symbol)
 set("n", "<leader>dS", vim.lsp.buf.workspace_symbol)
+
+-- diagnostics
 set("n", "<leader>dq", function()
 	vim.diagnostic.setqflist()
 	vim.cmd("copen")
@@ -53,6 +45,26 @@ set("n", "[d", function()
 	vim.diagnostic.jump({ count = -1, float = true })
 end)
 
+-- Toggle virtual text and lines
+vim.keymap.set("n", "gK", function()
+	local cfg = vim.diagnostic.config()
+
+	---@diagnostic disable-next-line: need-check-nil
+	local text_enabled = cfg.virtual_text
+	---@diagnostic disable-next-line: need-check-nil
+	local lines_enabled = cfg.virtual_lines
+
+	if type(text_enabled) == "table" and type(lines_enabled) == "table" then
+		text_enabled = true
+		lines_enabled = true
+	end
+
+	vim.diagnostic.config({
+		virtual_text = not text_enabled,
+		virtual_lines = not lines_enabled,
+	})
+end)
+
 -- tabs
 set("n", "<left>", "gT")
 set("n", "<right>", "gt")
@@ -66,5 +78,4 @@ set("n", "<CR>", function()
 	else
 		return k("<CR>")
 	end
-	-- copy current selection to the system clipboad
 end, { expr = true })
