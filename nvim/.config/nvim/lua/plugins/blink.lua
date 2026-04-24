@@ -18,15 +18,14 @@ return {
 				completion = { menu = { auto_show = true } },
 			},
 			completion = {
-				documentation = { auto_show = true },
 				keyword = {
 					range = "full",
 				},
-				trigger = {
-					show_on_backspace = true,
-					show_on_backspace_after_insert_enter = true,
-					show_on_insert = true,
-				},
+				-- trigger = {
+				-- 	show_on_backspace = true,
+				-- 	show_on_backspace_after_insert_enter = true,
+				-- 	show_on_insert = true,
+				-- },
 				ghost_text = {
 					enabled = true,
 					show_with_menu = true,
@@ -42,13 +41,17 @@ return {
 				},
 			},
 			sources = {
-				default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+				default = {
+					"buffer",
+					"path",
+					"lsp",
+					"snippets",
+					"lazydev",
+				},
 				providers = {
 					lazydev = {
 						name = "LazyDev",
 						module = "lazydev.integrations.blink",
-						-- make lazydev completions top priority (see `:h blink.cmp`)
-						score_offset = 100,
 					},
 					cmdline = {
 						module = "blink.cmp.sources.cmdline",
