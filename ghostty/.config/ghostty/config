@@ -29,4 +29,13 @@ bell-features = border
 desktop-notifications = false
 
 macos-titlebar-style = hidden
-# background-blur-radius = 10
+background-blur-radius = 10
+
+# unbind digit hotkeys
+keybind = ctrl+0=unbind 
+keybind = ctrl+1=unbind                     
+keybind = ctrl+2=unbind                     
+keybind = ctrl+3=unbind                     
+keybind = ctrl+4=unbind                     
+keybind = ctrl+5=unbind                     
+
