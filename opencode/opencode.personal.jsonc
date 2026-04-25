@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "enabled_providers": [
+    "openai",
+    "opencode-zen"
+  ],
+  "skills": {
+    "paths": [
+      "./skills"
+    ]
+  },
+  "tools": {
+    "paths": true
+  },
+  "mcp": {},
+  "plugin": [
+    "@plannotator/opencode@latest"
+  ]
+}
