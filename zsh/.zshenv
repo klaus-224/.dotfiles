@@ -1,7 +1,7 @@
 export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 
 # open code
-if [[ "$USER" == "klaus-224" ]]; then
+if [[ "$USER" == "klaus224" ]]; then
   export OPENCODE_CONFIG="${DOTFILES_HOME:-$HOME/.dotfiles}/opencode/opencode.personal.jsonc"
 else
   export OPENCODE_CONFIG="${DOTFILES_HOME:-$HOME/.dotfiles}/opencode/opencode.work.jsonc"
