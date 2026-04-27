@@ -39,6 +39,9 @@ alias pip="pip3"
 # git
 alias lg="lazygit"
 
+# launch dadbodui
+alias dbui="vi -c DBUI"
+
 # smolvm
 alias svmrust="smolfile_render \${DOTFILES_HOME}/smolvm/rust-dev.smolfile.tmpl \${CODE_DIR}/smolvm/rust-dev.smolfile"
 alias svmc="smolvm machine create"
