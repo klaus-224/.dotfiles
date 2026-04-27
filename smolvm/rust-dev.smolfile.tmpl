@@ -1,0 +1,33 @@
+image = "rust:bookworm"
+cpus = 4
+memory = 8192
+net = true
+
+[network]
+allow_hosts = [
+  "github.com",
+  "api.github.com",
+  "objects.githubusercontent.com",
+  "raw.githubusercontent.com",
+  "crates.io",
+  "static.crates.io",
+  "index.crates.io",
+  "docker.io"
+]
+
+[dev]
+# Host-mounted workspace. smolvm supports directory mounts, not single files.
+volumes = [
+  "${SMOLVM_WORKSPACE}:/workspace"
+]
+
+init = [
+  "apt-get update",
+  "apt-get install -y git curl ca-certificates pkg-config build-essential clang libssl-dev",
+  "rustc --version",
+  "cargo --version",
+  "git --version"
+]
+
+[auth]
+ssh_agent = true
