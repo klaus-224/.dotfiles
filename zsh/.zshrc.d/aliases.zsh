@@ -35,17 +35,15 @@ alias tkp="tmux killp"
 # python
 alias python="python3"
 alias pip="pip3"
-alias pyenv-create="python -m venv .venv"
-alias pyenv-activate="source .venv/bin/activate"
 
 # git
 alias lg="lazygit"
-alias gs="git status"
-alias ga="git add"
-alias gc="git commit"
-alias gp="git push"
-alias gf="git fetch"
-alias gpr="gh pr create"
 
-# graphivz
-alias D2S="dot -Tsvg ${1} > ${2}"
+# smolvm
+alias svmrust="smolfile_render \${DOTFILES_HOME}/smolvm/rust-dev.smolfile.tmpl \${CODE_DIR}/smolvm/rust-dev.smolfile"
+alias svmc="smolvm machine create"
+alias svmd="smolvm machine delete"
+alias svmls="smolvm machine ls"
+alias svmstart="smolvm machine start"
+alias svmstop="smolvm machine stop"
+alias svmex="smolvm machine exec"

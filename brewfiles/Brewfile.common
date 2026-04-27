@@ -39,6 +39,9 @@ brew "gping"
 # tuis
 brew "lazygit"
 
+# gettext: https://formulae.brew.sh/formula/gettext
+brew "gettext"
+
 ## END CLI TOOLS ##
 
 # zsh 
