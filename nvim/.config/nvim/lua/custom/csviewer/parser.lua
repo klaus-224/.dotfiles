@@ -4,16 +4,6 @@ local function split_line(line, delimiter)
 	return vim.split(line, delimiter or ",", { plain = true })
 end
 
-local function row_to_record(headers, row)
-	local record = {}
-
-	for i, header in ipairs(headers) do
-		record[header] = row[i] or ""
-	end
-
-	return record
-end
-
 local function update_widths(widths, row)
 	for i, cell in ipairs(row) do
 		widths[i] = math.max(widths[i] or 0, #cell)
@@ -34,7 +24,6 @@ M.parse = function(lines, opts)
 
 		update_widths(widths, row)
 		table.insert(rows, row)
-		table.insert(records, row_to_record(headers, row))
 	end
 
 	return {
@@ -43,6 +32,27 @@ M.parse = function(lines, opts)
 		records = records,
 		widths = widths,
 	}
+end
+
+function M.from_model(model, opts)
+	opts = opts or {}
+
+	local delimiter = opts.delimiter or ","
+	local lines = {}
+
+	table.insert(lines, table.concat(model.headers, delimiter))
+
+	for _, row in ipairs(model.rows) do
+		local cells = {}
+
+		for i = 1, #model.headers do
+			cells[i] = row[i] or ""
+		end
+
+		table.insert(lines, table.concat(cells, delimiter))
+	end
+
+	return lines
 end
 
 return M

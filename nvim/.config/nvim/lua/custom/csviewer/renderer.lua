@@ -5,40 +5,74 @@ local function pad_cell(cell, width)
 	return cell .. string.rep(" ", width - #cell)
 end
 
-M.render = function(model)
-	local headers = model.headers
-	local rows = model.rows
-	local widths = model.widths
+local function render_row(row, widths, column_count, separator)
+	local parts = {}
+	local ranges = {}
 
-	local pretty = {}
+	local col = 0
 
-	-- Header row
-	local header_parts = {}
-	for i, cell in ipairs(headers) do
-		table.insert(header_parts, pad_cell(cell, widths[i]))
-	end
-	table.insert(pretty, table.concat(header_parts, " │ "))
+	for i = 1, column_count do
+		local raw = row[i] or ""
+		local padded = pad_cell(raw, widths[i] or 0)
 
-	-- Separator row
-	local separator_parts = {}
-	for _, width in ipairs(widths) do
-		table.insert(separator_parts, string.rep("─", width))
-	end
+		table.insert(parts, padded)
 
-	table.insert(pretty, table.concat(separator_parts, "─┼─"))
+		table.insert(ranges, {
+			start_col = col,
+			end_col = col + #padded,
+		})
 
-	-- Data rows
-	for _, row in ipairs(rows) do
-		local parts = {}
+		col = col + #padded
 
-		for i = 1, #headers do
-			table.insert(parts, pad_cell(row[i], widths[i]))
+		if i < column_count then
+			col = col + #separator
 		end
-
-		table.insert(pretty, table.concat(parts, " │ "))
 	end
 
-	return pretty
+	return table.concat(parts, separator), ranges
+end
+
+function M.render(model, opts)
+	opts = opts or {}
+
+	local separator = opts.view_separator or " │ "
+	local column_count = #model.headers
+
+	local lines = {}
+	local cells = {}
+
+	local header_line, header_ranges = render_row(model.headers, model.widths, column_count, separator)
+
+	table.insert(lines, header_line)
+	table.insert(cells, header_ranges)
+
+	for _, row in ipairs(model.rows) do
+		local line, ranges = render_row(row, model.widths, column_count, separator)
+
+		table.insert(lines, line)
+		table.insert(cells, ranges)
+	end
+
+	return {
+		lines = lines,
+		cells = cells,
+	}
+end
+
+function M.cell_at(cells, row, col)
+	local ranges = cells[row]
+
+	if not ranges then
+		return nil
+	end
+
+	for i, range in ipairs(ranges) do
+		if col >= range.start_col and col < range.end_col then
+			return range, i
+		end
+	end
+
+	return nil
 end
 
 return M

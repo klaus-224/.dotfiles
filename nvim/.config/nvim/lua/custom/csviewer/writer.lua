@@ -15,10 +15,8 @@ function M.to_csv(lines, opts)
 
 	local csv_lines = {}
 
-	for i, line in ipairs(lines) do
-		if i ~= 2 then
-			table.insert(csv_lines, pretty_line_to_csv(line, opts.delimiter))
-		end
+	for _, line in ipairs(lines) do
+		table.insert(csv_lines, pretty_line_to_csv(line, opts.delimiter))
 	end
 
 	return csv_lines

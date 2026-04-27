@@ -7,7 +7,13 @@ require("custom.floating_terminal").setup({
 local csviewer = require("custom.csviewer.init").setup()
 
 vim.api.nvim_create_user_command("CsvView", function()
-	-- if csviewer then
 	csviewer.open()
-	-- end
+end, {})
+
+vim.api.nvim_create_user_command("CsvInsertCol", function()
+	csviewer.insert_col()
+end, {})
+
+vim.api.nvim_create_user_command("CsvDeleteCol", function()
+	csviewer.delete_col()
 end, {})
