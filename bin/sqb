@@ -1,11 +1,14 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
 # --------------------------------------------------
 # mnemonic: [S][Q]L SCRATCH [B]UFFER
 # Opens a temporary SQL buffer in Neovim with syntax highlighting and LSP
 #
 # Usage:
-#   sql              			# Open empty SQL scratch buffer
-#   pbpaste | sqlb    # Pipe SQL from clipboard
-#   cat query.sql | sql
+#   sqb              			# Open empty SQL scratch buffer
+#   pbpaste | sqb    # Pipe SQL from clipboard
+#   cat query.sql | sqb
 # --------------------------------------------------
 
 function sqb() {
@@ -23,3 +26,5 @@ function sqb() {
     $EDITOR -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile' -
   fi
 }
+
+sqb "$@"
