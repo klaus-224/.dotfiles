@@ -1,12 +1,12 @@
 # --------------------------------------------------
-# git.zsh
+# git-helpers.zsh
 # PR review helpers for gh + Neovim
 #
-# Function Pneumonics
+# Function Mnemonics
 # [G]ithub [P]R [P]ipeline = gpp
 # gpp actions: review | send | delete
 # [G]ithub [P]R [D]iff open = gpd
-# [G]ithub [P]R [S]submit = gps
+# [G]ithub [P]R [S]ubmit = gps
 # [G]ithub [P]R [H]elp = gph
 #
 # Workflow:
@@ -41,7 +41,7 @@ function _ghpr_pick_file() {
 	local repo=$2
 
 	gh api "repos/${repo}/pulls/${pr_number}/files" --paginate --jq '.[].filename' |
-		_fzf_git_fzf --border-label "📄 PR #${pr_number} files " \
+		_fzf_git_fzf --border-label "PR #${pr_number} files " \
 			--preview "gh pr diff \"$pr_number\" -- {} | sed -n '1,200p'"
 }
 
@@ -205,7 +205,7 @@ function gpp() {
 		selected=$(
 			gh api "repos/${repo}/pulls/${pr_number}/comments" --paginate --jq '.[] | [.id, .path, ((.line // 0)|tostring), (.body|gsub("\n";"\\n"))] | @tsv' |
 				_fzf_git_fzf -m --ansi --delimiter=$'\t' --with-nth=2,3,4 \
-					--border-label "🗑️ Delete submitted comment " --header 'TAB to multi-select, ENTER to confirm' \
+					--border-label "Delete submitted comment " --header 'TAB to multi-select, ENTER to confirm' \
 					--preview "printf '%s' {4} | sed 's/\\\\\\\\n/\\n/g' | (command -v bat >/dev/null && bat --style=plain --color=always -l md || cat)"
 		) || return 1
 
@@ -405,7 +405,7 @@ function gps() {
 
 	action=$(
 		printf "approve\nrequest-changes\ncomment\n" |
-			_fzf_git_fzf --border-label "✅ PR #${pr_number} review action "
+			_fzf_git_fzf --border-label "PR #${pr_number} review action "
 	) || return 1
 
 	repo_root=$(git rev-parse --show-toplevel) || return 1

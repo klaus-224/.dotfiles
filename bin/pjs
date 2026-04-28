@@ -1,3 +1,6 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
 # --------------------------------------------------
 # mnemonic: [P]ackage [J]son [S]cripts
 # Browse scripts in the nearest package.json with fzf,
@@ -50,3 +53,5 @@ function pjs() {
         echo "No script selected"
     fi
 }
+
+pjs "$@"
