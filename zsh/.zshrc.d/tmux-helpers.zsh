@@ -1,7 +1,13 @@
 # --------------------------------------------------
-# START HELPERS
+# tmux-helpers.zsh
+# Purpose:
+#   Tmux session creation helpers (tl, t3).
 # --------------------------------------------------
-function _check_in_tmux() {
+
+# --------------------------------------------------
+# HELPERS
+# --------------------------------------------------
+function _check_tmux_installed() {
 	if ! command -v tmux &>/dev/null; then
 		echo "Error: tmux is required but not installed" >&2
 		return 1
@@ -24,9 +30,6 @@ function _check_duplicate_window() {
 		return 1
 	fi
 }
-# --------------------------------------------------
-# END HELPERS
-# --------------------------------------------------
 
 # --------------------------------------------------
 # mnemonic: [T]mux [L]aunch
@@ -46,7 +49,7 @@ function _check_duplicate_window() {
 # --------------------------------------------------
 
 function tl() {
-	_check_in_tmux
+	_check_tmux_installed || return 1
 
 	if [[ $# -lt 1 ]]; then
 		echo "Usage: tl <config.json> [session-name]" >&2
@@ -106,17 +109,8 @@ function t3() {
 	local session_name="${1:-$(basename "$PWD")}"
 	local workdir="$PWD"
 
-	_check_duplicate_session "$session_name"
-
-	if ! command -v tmux &>/dev/null; then
-		echo "Error: tmux is required but not installed" >&2
-		return 1
-	fi
-
-	if tmux has-session -t "$session_name" 2>/dev/null; then
-		echo "Error: session already exists: $session_name" >&2
-		return 1
-	fi
+	_check_tmux_installed || return 1
+	_check_duplicate_session "$session_name" || return 1
 
 	tmux new-session -d -s "$session_name" -n "explorer" -c "$workdir"
 	tmux send-keys -t "$session_name:explorer" "yazi" Enter

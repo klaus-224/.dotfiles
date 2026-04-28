@@ -1,5 +1,5 @@
 # --------------------------------------------------
-# ghostty-transparency.zsh
+# ghostty.zsh
 # Purpose:
 #   Toggle or set Ghostty background transparency from the shell.
 # Usage:
@@ -58,7 +58,7 @@ _ghostty_transparency_write() {
 }
 
 ghostty-transparency() {
-  local action="$1" op blur msg current
+  local action="${1:-}" op blur msg current
   shift || true
 
   local default_opacity="${GHOSTTY_TRANSPARENT_OPACITY:-0.6}"

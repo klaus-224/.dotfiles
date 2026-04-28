@@ -1,5 +1,5 @@
 # --------------------------------------------------
-# aws-utils.zsh
+# aws-util.zsh
 # Purpose:
 #   AWS CLI helpers.
 # --------------------------------------------------
@@ -44,7 +44,7 @@ EOF
 		return 1
 	fi
 
-  _aws_require_cli || return 1
+	_aws_require_cli || return 1
 	_aws_cli_auth
 
 	s3_path="$(_aws_s3_normalize_uri "$1")"

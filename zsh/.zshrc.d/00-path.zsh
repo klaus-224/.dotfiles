@@ -3,6 +3,7 @@ typeset -U path PATH
 export PNPM_HOME="$HOME/Library/pnpm"
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 export LOCAL_BIN="/usr/local"
+export NVM_DIR="$HOME/.nvm"
 
 path=(
 	"$HOME/.dotfiles/bin" # custom scripts
