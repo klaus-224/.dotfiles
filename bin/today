@@ -1,19 +1,11 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
 # --------------------------------------------------
 # today.zsh
 # Purpose:
 #   Daily list workflow for Jira -> markdown -> nvim.
 # --------------------------------------------------
-
-# Remove a legacy alias after all zsh fragments are sourced.
-# This keeps `today` available as a function even if an alias is defined later.
-autoload -Uz add-zsh-hook
-function _today_unalias_legacy_once() {
-	if alias today >/dev/null 2>&1; then
-		unalias today 2>/dev/null
-	fi
-	add-zsh-hook -d precmd _today_unalias_legacy_once 2>/dev/null
-}
-add-zsh-hook precmd _today_unalias_legacy_once
 
 function _today_lists_dir() {
 	echo "${TODAY_LISTS_DIR:-$HOME/Documents/lists}"
@@ -271,3 +263,5 @@ EOT
 		;;
 	esac
 }
+
+today "$@"

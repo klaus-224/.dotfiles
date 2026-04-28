@@ -1,3 +1,6 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
 # --------------------------------------------------
 # mnemonic: [G]it [F]ile [D]iff
 # Browse commits for a file with fzf, then open a
@@ -26,7 +29,7 @@ function gfd() {
 	local commit
 	commit=$(git log --follow --oneline -- "$file" |
 		fzf --height=80% \
-			--preview "git show {1}:$GFD_FILE 2>/dev/null | bat --color=always --style=numbers --file-name=$GFD_FILE || echo "File not found in this commit"" \
+			--preview "git show {1}:$GFD_FILE 2>/dev/null | bat --color=always --style=numbers --file-name=$GFD_FILE || echo 'File not found in this commit'" \
 			--preview-window=right:60% \
 			--header="Select commit to diff against current version (ESC to cancel)" |
 		awk '{print $1}')
@@ -42,3 +45,5 @@ function gfd() {
 		echo "No commit selected"
 	fi
 }
+
+gfd "$@"

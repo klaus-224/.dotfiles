@@ -1,9 +1,9 @@
 # --------------------------------------------------
 # cmd.zsh
 # Purpose:
-# 	Lists all aliases, functions, and commands available in the current shell
-# 	session and allows the user to interactively select one using fzf. The
-# 	selected command is then printed to the command line for execution.
+# 	Lists all aliases available in the current shell session and allows
+# 	the user to interactively select one using fzf. The selected command
+# 	is then printed to the command line for execution.
 # --------------------------------------------------
 
 cmd() {

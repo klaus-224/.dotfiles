@@ -1,3 +1,9 @@
+# --------------------------------------------------
+# fzf.zsh
+# Purpose:
+#   fzf configuration, keybindings, and widgets.
+# --------------------------------------------------
+
 eval "$(fzf --zsh)"
 
 # fzf-git
@@ -26,14 +32,7 @@ fzf-cd-widget() {
   )
 
   [[ -z "$dir" ]] && return
-  cd "$dir" || exit
+  cd "$dir" || return
 }
 zle -N fzf-cd-widget
 bindkey '^G' fzf-cd-widget
-
-# export FZF_CTRL_T_OPTS="--prompt 'All> ' \
-#   --header 'CTRL-D: Directories / CTRL-F: Files' \
-#   --preview '[[ -d {} ]] && eza $EZA_OPTIONS | head -200 || bat $BAT_OPTIONS' \
-#   --bind 'ctrl-d:change-prompt(Directories> )+reload(fd --type d $FD_DEFAULT_OPTIONS)' \
-#   --bind 'ctrl-f:change-prompt(Files> )+reload(fd --type f  $FD_DEFAULT_OPTIONS)' \
-#   --bind 'ctrl-a:change-prompt(All> )+reload(fd $FD_DEFAULT_OPTIONS)'"
