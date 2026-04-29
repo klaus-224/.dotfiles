@@ -6,6 +6,7 @@ local win_settings = {
   border = "rounded",
 }
 
+
 function M.setup(opts)
   opts = opts or {}
 
