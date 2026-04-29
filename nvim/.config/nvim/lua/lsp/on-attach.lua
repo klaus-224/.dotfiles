@@ -18,7 +18,7 @@ function M.setup()
 				set("n", "<leader>li", lsp.buf.incoming_calls)
 			end
 
-			if client:supports_method("callHierarchy/incomingCalls") then
+			if client:supports_method("callHierarchy/outgoingCalls") then
 				set("n", "<leader>lo", lsp.buf.outgoing_calls, { noremap = false })
 			end
 		end,

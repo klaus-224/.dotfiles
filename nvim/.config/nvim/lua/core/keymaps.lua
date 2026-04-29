@@ -51,6 +51,26 @@ vim.keymap.set("n", "[d", function()
 	vim.diagnostic.jump({ count = -1, float = true })
 end)
 
+-- Toggle virtual text and lines
+vim.keymap.set("n", "gK", function()
+	local cfg = vim.diagnostic.config()
+
+	---@diagnostic disable-next-line: need-check-nil
+	local text_enabled = cfg.virtual_text
+	---@diagnostic disable-next-line: need-check-nil
+	local lines_enabled = cfg.virtual_lines
+
+	if type(text_enabled) == "table" and type(lines_enabled) == "table" then
+		text_enabled = true
+		lines_enabled = true
+	end
+
+	vim.diagnostic.config({
+		virtual_text = not text_enabled,
+		virtual_lines = not lines_enabled,
+	})
+end)
+
 -- tabs
 vim.keymap.set("n", "<left>", "gT")
 vim.keymap.set("n", "<right>", "gt")
@@ -64,5 +84,4 @@ vim.keymap.set("n", "<CR>", function()
 	else
 		return vim.keycode("<CR>")
 	end
-	-- copy current selection to the system clipboad
 end, { expr = true })

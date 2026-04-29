@@ -1,7 +1,7 @@
 vim.g.mapleader = " "
+
 vim.opt.textwidth = 80
 vim.opt.wrap = true
-vim.opt.wrapmargin = 0
 vim.opt.linebreak = true
 vim.opt.exrc = true
 vim.opt.termguicolors = true
@@ -18,15 +18,16 @@ vim.opt.inccommand = "split"
 vim.opt.smartcase = true
 vim.opt.ignorecase = true
 vim.opt.smarttab = true
+vim.opt.expandtab = true
 vim.opt.breakindent = true
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevelstart = 99
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.backspace = { "start", "eol", "indent" }
-vim.opt.path:append({ "**" })
-vim.opt.wildignore:append({ "*/node_modules/*" })
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.splitkeep = "cursor"
-vim.opt.formatoptions:append({ "r" })
 vim.opt.showtabline = 1
 vim.opt.clipboard = "unnamedplus"

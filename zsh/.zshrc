@@ -22,22 +22,14 @@ for file in "$HOME"/.zshrc.d/*.zsh; do
 	source "$file"
 done
 
+source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
 # move zshcompdump to ~/.cache/zsh/ so that it's not annoying
 autoload -Uz compinit
 compinit -d ~/.cache/zsh/zcompdump-"$ZSH_VERSION"
 
-# Options
+# options
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
-
-# >>> opentmux >>>
-export OPENCODE_PORT=4096
-alias opencode='opentmux'
-# <<< opentmux <<<
-
-
-# >>> opencode-agent-tmux >>>
-export OPENCODE_PORT=4096
-alias opencode='opencode-tmux'
-# <<< opencode-agent-tmux <<<
