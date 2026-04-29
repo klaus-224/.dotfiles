@@ -7,12 +7,16 @@ vim.pack.add({
   { src = 'https://github.com/goolord/alpha-nvim' },
   { src = 'https://github.com/brenoprata10/nvim-highlight-colors' },
 
-  -- lsp
+  -- lsp/completions
   { src = 'https://github.com/mason-org/mason.nvim' },
   { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
   { src = 'https://github.com/b0o/SchemaStore.nvim' },
   { src = 'https://github.com/folke/lazydev.nvim' },
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
+  { src = 'https://github.com/L3MON4D3/LuaSnip' },
+  { src = 'https://github.com/rafamadriz/friendly-snippets' },
+  { src = 'https://github.com/saghen/blink.lib' },
+  { src = 'https://github.com/saghen/blink.cmp' },
 
   -- oil
   { src = 'https://github.com/stevearc/oil.nvim' },
@@ -25,7 +29,7 @@ vim.pack.add({
 
 require 'custom.ui'.setup()
 
--- lsp
+-- start lsp setup/config
 require 'mason'.setup()
 require 'mason-tool-installer'.setup({
   ensure_installed = {
@@ -48,17 +52,45 @@ require 'mason-tool-installer'.setup({
   },
 })
 
--- lua types
 require("lazydev").setup({
   library = {
     { path = "${3rd}/luv/library", words = { "vim%.uv" } },
   },
 })
 
--- setup lua lsp
 vim.lsp.enable({ "lua_ls" })
 
--- oil
+require("luasnip.loaders.from_vscode").lazy_load()
+local cmp = require 'blink.cmp'
+-- cmp.build():wait(60000)
+
+-- @type blink.cmp.Config
+cmp.setup({
+  appearance = {
+    nerd_font_variant = "mono",
+  },
+  completion = {
+    documentation = { auto_show = true, auto_show_delay_ms = 500 },
+    ghost_text = {
+      enabled = true,
+      show_with_selection = true,
+      show_without_selection = false,
+      show_with_menu = true,
+      show_without_menu = true,
+    },
+    menu = {
+      border = 'rounded',
+      auto_show = true,
+      draw = {
+        treesitter = { "lsp" },
+        columns = { { "kind_icon", "label", "label_description", gap = 1 }, { "kind" } },
+      },
+    },
+  },
+})
+-- end lsp setup/config
+
+-- start oil setup.config
 require "oil".setup({
   delete_to_trash = true,
   view_options = {
@@ -80,8 +112,8 @@ require 'oil-git-status'.setup({
 })
 require 'oil-lsp-diagnostics'.setup()
 
--- highlights
-require 'nvim-highlight-colors'.setup()
-
-
 vim.keymap.set({ "n", "v" }, '-', "<cmd>Oil<cr>")
+-- end oil setup.config
+
+-- highlights
+require 'nvim-highlight-colors'.setup({})

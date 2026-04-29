@@ -23,15 +23,13 @@ vim.keymap.set("n", "<C-a>", "gg<S-v>G")
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
--- windows
-vim.keymap.set("n", "<M-,>", "<c-w>5<")
-vim.keymap.set("n", "<M-.>", "<c-w>5>")
-vim.keymap.set("n", "<M-t>", "<C-W>+")
-vim.keymap.set("n", "<M-s>", "<C-W>-")
+-- window resizing
+vim.keymap.set("n", "<M-Up>", "5<C-w>+")
+vim.keymap.set("n", "<M-Down>", "5<C-w>-")
 
 -- quickfix, loclist nav
 vim.keymap.set("n", "]]", "<cmd>cnext<CR>")
-vim.keymap.set("n", "[[", "<cmd>cprev<CR>")
+vim.keymap.set("n", "[[", "<cmd>cprargs<CR>")
 
 -- lsp
 vim.keymap.set("n", "K", vim.lsp.buf.hover)
@@ -62,6 +60,7 @@ vim.keymap.set("n", "gK", function()
 
   ---@diagnostic disable-next-line: need-check-nil
   local text_enabled = cfg.virtual_text
+
   ---@diagnostic disable-next-line: need-check-nil
   local lines_enabled = cfg.virtual_lines
 
@@ -77,8 +76,8 @@ vim.keymap.set("n", "gK", function()
 end)
 
 -- tabs
-vim.keymap.set("n", "<left>", "T")
-vim.keymap.set("n", "<right>", "gt")
+vim.keymap.set("n", "<leader>t]", "<cmd>tabn<cr>")
+vim.keymap.set("n", "<leader>t[", "<cmd>tabp<cr>")
 
 -- clear search hightlights
 vim.keymap.set("n", "<CR>", function()

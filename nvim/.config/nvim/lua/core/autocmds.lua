@@ -1,9 +1,9 @@
 -- update tree sitter when pack is added
 vim.api.nvim_create_autocmd('PackChanged', {
-  callback = function(ev)
-    local name, kind = ev.data.spec.name, ev.data.kind
+  callback = function(args)
+    local name, kind = args.data.spec.name, args.data.kind
     if name == 'nvim-treesitter' and kind == 'update' then
-      if not ev.data.active then vim.cmd.packadd('nvim-treesitter') end
+      if not args.data.active then vim.cmd.packadd('nvim-treesitter') end
       vim.cmd('TSUpdate')
     end
   end
@@ -12,13 +12,24 @@ vim.api.nvim_create_autocmd('PackChanged', {
 -- enable lsp stuff
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('MyLSP', {}),
-  callback = function(ev)
-    local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
-    --       if client:supports_method('textDocument/implementation') then
-    --         -- Create a keymap for vim.lsp.buf.implementation ...
-    --       end
+  callback = function(args)
+    local lsp = vim.lsp
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
     if client:supports_method('textDocument/completion') then
-      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+      lsp.completion.enable(true, client.id, args.buf)
+    end
+
+    if client:supports_method("textDocument/inlayHint") then
+      lsp.inlay_hint.enable(true, { bufnr = args.buf })
+    end
+
+    if client:supports_method("callHierarchy/incomingCalls") then
+      vim.set("n", "<leader>li", lsp.buf.incoming_calls)
+    end
+
+    if client:supports_method("callHierarchy/outgoingCalls") then
+      vim.set("n", "<leader>lo", lsp.buf.outgoing_calls, { noremap = false })
     end
     -- Auto-format ("lint") on save.
     -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
@@ -26,9 +37,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     --            and client:supports_method('textDocument/formatting') then
     --          vim.api.nvim_create_autocmd('BufWritePre', {
     --            group = vim.api.nvim_create_augroup('my.lsp', {clear=false}),
-    --            buffer = ev.buf,
+    --            buffer = args.buf,
     --            callback = function()
-    --              vim.lsp.buf.format({ bufnr = ev.buf, id = client.id, timeout_ms = 1000 })
+    --              vim.lsp.buf.format({ bufnr = args.buf, id = client.id, timeout_ms = 1000 })
     --            end,
     --          })
     --        end
