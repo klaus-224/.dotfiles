@@ -31,3 +31,4 @@ vim.opt.splitright = true
 vim.opt.splitkeep = "cursor"
 vim.opt.showtabline = 1
 vim.opt.clipboard = "unnamedplus"
+vim.opt.completeopt="menu,popup,noinsert,fuzzy"

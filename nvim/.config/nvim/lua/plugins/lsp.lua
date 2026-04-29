@@ -3,7 +3,6 @@ return {
 	{
 		"mason-org/mason.nvim",
 		dependencies = {
-			"neovim/nvim-lspconfig",
 			-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins.
 			{
 				"folke/lazydev.nvim",
@@ -39,7 +38,6 @@ return {
 		opts = {},
 		config = function(_, opts)
 			require("mason").setup(opts)
-			require("lsp").setup()
 		end,
 	},
 }
