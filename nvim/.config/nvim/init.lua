@@ -1,5 +1,5 @@
-require("core")
-require("vim._core.ui2").enable()
+require "core"
+require "vim._core.ui2".enable()
 
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
@@ -30,12 +30,8 @@ vim.pack.add({
   -- 'https://github.com/refractalize/oil-git-status.nvim'
 })
 
--- COLOR SCHEME
-vim.cmd.colorscheme("vague")
+require 'custom.ui'.setup()
 
-require "vague".setup({
-  italic = false,
-})
 -- TODO: ADD ALPHA CONFIG HERE
 
 -- LSP
@@ -70,7 +66,6 @@ require("lazydev").setup({
 
 -- setup lua lsp
 vim.lsp.enable({ "lua_ls" })
-
 
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('my.lsp', {}),
