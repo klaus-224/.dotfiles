@@ -24,7 +24,8 @@ vim.pack.add({
   { src = 'https://github.com/refractalize/oil-git-status.nvim' },
 
   -- editing
-  { src = "https://github.com/kylechui/nvim-surround",                   version = vim.version.range("4.x") }
+  { src = "https://github.com/kylechui/nvim-surround",                   version = vim.version.range("4.x") },
+  { src = "https://github.com/windwp/nvim-autopairs"}
 })
 
 require 'custom.ui'.setup()

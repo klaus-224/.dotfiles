@@ -36,6 +36,10 @@
       "rev": "cb8445f8ce85d957416c106b780efd51c6298f89",
       "src": "https://github.com/mason-org/mason.nvim"
     },
+    "nvim-autopairs": {
+      "rev": "59bce2eef357189c3305e25bc6dd2d138c1683f5",
+      "src": "https://github.com/windwp/nvim-autopairs"
+    },
     "nvim-highlight-colors": {
       "rev": "e2cb22089cc2358b2b995c09578224f142de6039",
       "src": "https://github.com/brenoprata10/nvim-highlight-colors"

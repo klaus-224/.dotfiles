@@ -34,7 +34,7 @@
 
 ---@type vim.lsp.Config
 return {
-  cmd = { 'terraform-ls', 'serve' },
+  cmd = { 'terraform', 'serve' },
   filetypes = { 'terraform', 'terraform-vars' },
   root_markers = { '.terraform', '.git' },
 }
