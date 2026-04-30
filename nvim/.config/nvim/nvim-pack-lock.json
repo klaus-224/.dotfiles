@@ -40,6 +40,10 @@
       "rev": "e2cb22089cc2358b2b995c09578224f142de6039",
       "src": "https://github.com/brenoprata10/nvim-highlight-colors"
     },
+    "nvim-lspconfig": {
+      "rev": "cb5bc0b2b35a6d513e3298d285db81453e791f4f",
+      "src": "https://github.com/neovim/nvim-lspconfig"
+    },
     "nvim-surround": {
       "rev": "61319d4bd1c5e336e197defa15bd104c51f0fb29",
       "src": "https://github.com/kylechui/nvim-surround",

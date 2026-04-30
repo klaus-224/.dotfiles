@@ -33,22 +33,22 @@ require 'custom.ui'.setup()
 require 'mason'.setup()
 require 'mason-tool-installer'.setup({
   ensure_installed = {
-    --"basedpyright",
-    --"bash-language-server",
-    --"css-lsp",
-    --"docker-language-server",
-    --"html-lsp",
-    --"json-lsp",
-    --"prisma-language-server",
-    --"ruff",
-    --"shellcheck",
-    --"svelte-language-server",
-    --"tailwindcss-language-server",
-    --"terraform",
-    --"tombi",
-    --"typescript-language-server",
-    --"yaml-language-server",
+    "basedpyright",
+    "bash-language-server",
+    "css-lsp",
+    "docker-language-server",
+    "html-lsp",
+    "json-lsp",
     "lua-language-server",
+    "prisma-language-server",
+    "ruff",
+    "shellcheck",
+    "svelte-language-server",
+    "tailwindcss-language-server",
+    "terraform",
+    "tombi",
+    "typescript-language-server",
+    "yaml-language-server",
   },
 })
 
@@ -59,6 +59,21 @@ require("lazydev").setup({
 })
 
 vim.lsp.enable({ "lua_ls" })
+vim.lsp.enable({ "basedpyright" })
+vim.lsp.enable({ "bashls" })
+vim.lsp.enable({ "cssls" })
+vim.lsp.enable({ "dockerls" })
+vim.lsp.enable({ "html_ls" })
+vim.lsp.enable({ "jsonls" })
+vim.lsp.enable({ "prismals" })
+vim.lsp.enable({ "ruff" })
+vim.lsp.enable({ "zshcs" })
+vim.lsp.enable({ "svelte" })
+vim.lsp.enable({ "tailwindcss" })
+vim.lsp.enable({ "terraformls" })
+vim.lsp.enable({ "ts_ls" })
+vim.lsp.enable({ "yamlls" })
+vim.lsp.enable({ "tombi" })
 
 require("luasnip.loaders.from_vscode").lazy_load()
 local cmp = require 'blink.cmp'
