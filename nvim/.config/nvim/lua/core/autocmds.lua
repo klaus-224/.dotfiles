@@ -27,11 +27,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     if client:supports_method('callHierarchy/incomingCalls') then
-      vim.set('n', '<leader>li', lsp.buf.incoming_calls)
+      vim.keymap.set('n', '<leader>li', lsp.buf.incoming_calls)
     end
 
     if client:supports_method('callHierarchy/outgoingCalls') then
-      vim.set('n', '<leader>lo', lsp.buf.outgoing_calls, { noremap = false })
+      vim.keymap.set('n', '<leader>lo', lsp.buf.outgoing_calls, { noremap = false })
     end
     -- Auto-format ("lint") on save.
     -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
