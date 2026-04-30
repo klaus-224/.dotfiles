@@ -10,8 +10,13 @@ vim.opt.relativenumber = true
 vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.hlsearch = true
+
 vim.opt.showcmd = true
+vim.opt.showcmdloc = 'statusline'
+
 vim.opt.cmdheight = 1
+vim.opt.cmdwinheight = 10
+
 vim.opt.laststatus = 3
 vim.opt.scrolloff = 10
 vim.opt.inccommand = 'split'
@@ -26,9 +31,27 @@ vim.opt.foldlevelstart = 99
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.backspace = { 'start', 'eol', 'indent' }
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-vim.opt.splitkeep = 'cursor'
-vim.opt.showtabline = 1
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.completeopt = 'menu,popup,noinsert,fuzzy'
+
+vim.opt.showmatch = true
+
+vim.opt.winborder = 'rounded'
+
+vim.opt.virtualedit = 'block'
+
+-- keyword search
+vim.opt.grepprg = 'rg --vimgrep --smart-case'
+vim.opt.grepformat = '%f:%l:%c:%m'
+
+-- file searching
+vim.opt.path:append('**')
+vim.opt.wildignore:append({
+  '*/.git/*',
+  '*/node_modules/*',
+  '*/dist/*',
+  '*/build/*',
+})
+
+-- bar on top
+-- vim.opt.winbar = '%=%m %f %h'

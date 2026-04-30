@@ -78,25 +78,20 @@ M.setup = function()
   local float_fg = '#cdcdcd'
   local border = '#ffd166'
   local select_bg = '#222222'
+  local select_fg = '#ffd166'
 
   -- generic floating windows
   vim.api.nvim_set_hl(0, 'NormalFloat', { bg = float_bg, fg = float_fg })
   vim.api.nvim_set_hl(0, 'FloatBorder', { bg = float_bg, fg = border })
-
   -- popup menus
-  vim.api.nvim_set_hl(0, 'Pmenu', { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = select_bg, fg = '#ffffff' })
-  vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = '#111111' })
-  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = '#444444' })
+  vim.api.nvim_set_hl(0, 'Pmenu', { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = select_bg, fg = select_fg })
+  vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = 'NONE' })
+  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = 'NONE' })
 
   -- lsp diagnostic floats
   vim.api.nvim_set_hl(0, 'LspInfoBorder', { bg = float_bg, fg = border })
-
-  -- blink.cmp docs/menu
-  vim.api.nvim_set_hl(0, 'BlinkCmpMenu', { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, 'BlinkCmpMenuBorder', { bg = float_bg, fg = border })
-  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, 'BlinkCmpDocBorder', { bg = float_bg, fg = border })
 
   setup_alpha()
 end
