@@ -68,3 +68,28 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     pcall(vim.cmd, "wshada!")
   end,
 })
+
+vim.api.nvim_create_autocmd("InsertEnter", {
+  group = vim.api.nvim_create_augroup('nvim-autopairs', { clear = true }),
+  callback = function()
+    require "nvim-autopairs".setup({
+      enable_check_bracket_line = true,
+      ignored_next_char = "[%w%.]",
+      fast_wrap = {},
+      check_ts = true, -- treesitter
+    })
+
+    require "nvim-ts-autotag".setup({
+      opts = {
+        enable_close = true,           -- Auto close tags
+        enable_rename = true,          -- Auto rename pairs of tags
+        enable_close_on_slash = false, -- Auto close on trailing </
+      },
+      per_filetype = {
+        ["html"] = {
+          enable_close = false,
+        },
+      }
+    })
+  end
+})

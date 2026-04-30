@@ -23,9 +23,11 @@ vim.pack.add({
   { src = 'https://github.com/JezerM/oil-lsp-diagnostics.nvim' },
   { src = 'https://github.com/refractalize/oil-git-status.nvim' },
 
-  -- editing
+  -- editing/formatting
   { src = "https://github.com/kylechui/nvim-surround",                   version = vim.version.range("4.x") },
-  { src = "https://github.com/windwp/nvim-autopairs"}
+  { src = "https://github.com/windwp/nvim-autopairs" },
+  { src = "https://github.com/windwp/nvim-ts-autotag" },
+  { src = "https://github.com/stevearc/conform.nvim" }
 })
 
 require 'custom.ui'.setup()
@@ -75,6 +77,40 @@ vim.lsp.enable({ "terraformls" })
 vim.lsp.enable({ "ts_ls" })
 vim.lsp.enable({ "yamlls" })
 vim.lsp.enable({ "tombi" })
+
+-- formatting
+require("conform").setup({
+  formatters_by_ft = {
+    lua = { 'stylua' },
+
+    -- web
+    javascript = { "biome", "prettierd" },
+    javascriptreact = { "biome", "prettierd" },
+    typescript = { "biome", "prettierd" },
+    typescriptreact = { "biome", "prettierd" },
+
+    -- data/config
+    json = { "biome", "prettierd" },
+    jsonc = { "biome", "prettierd" },
+    yaml = { "prettierd" },
+    markdown = { "prettierd" },
+
+    -- python
+    python = { "ruff_format" },
+
+    -- infra
+    terraform = { "terraform_fmt" },
+    hcl = { "terraform_fmt" },
+
+    -- toml
+    toml = { "tombi" },
+  },
+
+  format_on_save = {
+    timeout_ms = 3000,
+    lsp_format = "fallback",
+  },
+})
 
 require("luasnip.loaders.from_vscode").lazy_load()
 local cmp = require 'blink.cmp'
