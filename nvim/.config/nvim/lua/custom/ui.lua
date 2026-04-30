@@ -6,7 +6,7 @@ local function setup_alpha()
     '         you can do nothing for me but work on yourself"',
   }
 
-  local author = { "                              — Ram Dass" }
+  local author = { '                              — Ram Dass' }
 
   local function center_padding()
     local height = vim.fn.winheight(0)
@@ -14,90 +14,89 @@ local function setup_alpha()
     return math.floor((height - content_height) / 2) - 1
   end
 
-  vim.api.nvim_set_hl(0, "AlphaRegular", { fg = "#e8b589", italic = true })
-  vim.api.nvim_set_hl(0, "AlphaItalic", { fg = "#c48282", italic = true })
-  vim.api.nvim_set_hl(0, "AlphaAuthor", { fg = "#6e94b2", italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaRegular', { fg = '#e8b589', italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaItalic', { fg = '#c48282', italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaAuthor', { fg = '#6e94b2', italic = true })
 
   -- alpha
-  require "alpha".setup({
+  require('alpha').setup({
     layout = {
-      { type = "padding", val = center_padding() },
+      { type = 'padding', val = center_padding() },
 
       {
-        type = "text",
+        type = 'text',
         val = { quote[1] },
         opts = {
-          position = "center",
-          hl = "AlphaRegular",
+          position = 'center',
+          hl = 'AlphaRegular',
         },
       },
 
       {
-        type = "text",
+        type = 'text',
         val = { quote[2] },
         opts = {
-          position = "center",
-          hl = "AlphaItalic",
+          position = 'center',
+          hl = 'AlphaItalic',
         },
       },
 
-      { type = "padding", val = 1 },
+      { type = 'padding', val = 1 },
 
       {
-        type = "text",
+        type = 'text',
         val = author,
         opts = {
-          position = "center",
-          hl = "AlphaAuthor",
+          position = 'center',
+          hl = 'AlphaAuthor',
         },
       },
-      { type = "padding", val = center_padding() },
-    }
+      { type = 'padding', val = center_padding() },
+    },
   })
 end
 
 M.setup = function()
-  require "vague".setup({
+  require('vague').setup({
     italic = false,
   })
 
-
-  vim.cmd.colorscheme("vague")
+  vim.cmd.colorscheme('vague')
 
   -- transarent background
-  vim.api.nvim_set_hl(0, 'Normal', { bg = "NONE", ctermbg = "NONE" })
+  vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE', ctermbg = 'NONE' })
   -- overrides
-  vim.api.nvim_set_hl(0, "StatusLine", { fg = "#ffd166", bg = "#282828" })
-  vim.api.nvim_set_hl(0, "LineNrAbove", { fg = "#5c6370", bg = "#282828" })
-  vim.api.nvim_set_hl(0, "LineNrBelow", { fg = "#5c6370", bg = "#282828" })
-  vim.api.nvim_set_hl(0, "LineNr", { fg = "#ffd166", bg = "#282828", bold = true })
-  vim.api.nvim_set_hl(0, "TabLine", { link = "LineNrAbove" })
-  vim.api.nvim_set_hl(0, "TabLineFill", { link = "LineNrAbove" })
-  vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#ffd166", bg = "#282828" })
+  vim.api.nvim_set_hl(0, 'StatusLine', { fg = '#ffd166', bg = '#282828' })
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#5c6370', bg = '#282828' })
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#5c6370', bg = '#282828' })
+  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = '#282828', bold = true })
+  vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
+  vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
+  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = '#282828' })
 
-  local float_bg = "#000000"
-  local float_fg = "#cdcdcd"
-  local border = "#ffd166"
-  local select_bg = "#222222"
+  local float_bg = '#000000'
+  local float_fg = '#cdcdcd'
+  local border = '#ffd166'
+  local select_bg = '#222222'
 
   -- generic floating windows
-  vim.api.nvim_set_hl(0, "NormalFloat", { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, "FloatBorder", { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = float_bg, fg = float_fg })
+  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = float_bg, fg = border })
 
   -- popup menus
-  vim.api.nvim_set_hl(0, "Pmenu", { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, "PmenuSel", { bg = select_bg, fg = "#ffffff" })
-  vim.api.nvim_set_hl(0, "PmenuSbar", { bg = "#111111" })
-  vim.api.nvim_set_hl(0, "PmenuThumb", { bg = "#444444" })
+  vim.api.nvim_set_hl(0, 'Pmenu', { bg = float_bg, fg = float_fg })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = select_bg, fg = '#ffffff' })
+  vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = '#111111' })
+  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = '#444444' })
 
   -- lsp diagnostic floats
-  vim.api.nvim_set_hl(0, "LspInfoBorder", { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'LspInfoBorder', { bg = float_bg, fg = border })
 
   -- blink.cmp docs/menu
-  vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { bg = float_bg, fg = border })
-  vim.api.nvim_set_hl(0, "BlinkCmpDoc", { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'BlinkCmpMenu', { bg = float_bg, fg = float_fg })
+  vim.api.nvim_set_hl(0, 'BlinkCmpMenuBorder', { bg = float_bg, fg = border })
+  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { bg = float_bg, fg = float_fg })
+  vim.api.nvim_set_hl(0, 'BlinkCmpDocBorder', { bg = float_bg, fg = border })
 
   setup_alpha()
 end

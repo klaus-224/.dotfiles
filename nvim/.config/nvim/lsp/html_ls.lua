@@ -36,7 +36,6 @@ return {
   end,
   filetypes = { 'html' },
   root_markers = { 'package.json', '.git' },
-  ---@type lspconfig.settings.html
   settings = {},
   init_options = {
     provideFormatter = true,
@@ -44,4 +43,3 @@ return {
     configurationSection = { 'html', 'css', 'javascript' },
   },
 }
-
