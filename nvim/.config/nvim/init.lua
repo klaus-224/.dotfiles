@@ -1,5 +1,5 @@
-require "core"
-require "vim._core.ui2".enable()
+require('core')
+require('vim._core.ui2').enable()
 
 vim.pack.add({
   -- theme and ui
@@ -24,102 +24,103 @@ vim.pack.add({
   { src = 'https://github.com/refractalize/oil-git-status.nvim' },
 
   -- editing/formatting
-  { src = "https://github.com/kylechui/nvim-surround",                   version = vim.version.range("4.x") },
-  { src = "https://github.com/windwp/nvim-autopairs" },
-  { src = "https://github.com/windwp/nvim-ts-autotag" },
-  { src = "https://github.com/stevearc/conform.nvim" }
+  { src = 'https://github.com/kylechui/nvim-surround', version = vim.version.range('4.x') },
+  { src = 'https://github.com/windwp/nvim-autopairs' },
+  { src = 'https://github.com/windwp/nvim-ts-autotag' },
+  { src = 'https://github.com/stevearc/conform.nvim' },
 })
 
-require 'custom.ui'.setup()
+require('custom.ui').setup()
 
 -- start lsp setup/config
-require 'mason'.setup()
-require 'mason-tool-installer'.setup({
+require('mason').setup()
+require('mason-tool-installer').setup({
   ensure_installed = {
-    "basedpyright",
-    "bash-language-server",
-    "css-lsp",
-    "docker-language-server",
-    "html-lsp",
-    "json-lsp",
-    "lua-language-server",
-    "prisma-language-server",
-    "ruff",
-    "shellcheck",
-    "svelte-language-server",
-    "tailwindcss-language-server",
-    "terraform",
-    "tombi",
-    "typescript-language-server",
-    "yaml-language-server",
+    'basedpyright',
+    'bash-language-server',
+    'css-lsp',
+    'docker-language-server',
+    'html-lsp',
+    'json-lsp',
+    'lua-language-server',
+    'prisma-language-server',
+    'ruff',
+    'shellcheck',
+    'svelte-language-server',
+    'tailwindcss-language-server',
+    'terraform',
+    'tombi',
+    'typescript-language-server',
+    'yaml-language-server',
+    'stylua',
   },
 })
 
-require("lazydev").setup({
+require('lazydev').setup({
   library = {
-    { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+    { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
   },
 })
 
-vim.lsp.enable({ "lua_ls" })
-vim.lsp.enable({ "basedpyright" })
-vim.lsp.enable({ "bashls" })
-vim.lsp.enable({ "cssls" })
-vim.lsp.enable({ "dockerls" })
-vim.lsp.enable({ "html_ls" })
-vim.lsp.enable({ "jsonls" })
-vim.lsp.enable({ "prismals" })
-vim.lsp.enable({ "ruff" })
-vim.lsp.enable({ "zshcs" })
-vim.lsp.enable({ "svelte" })
-vim.lsp.enable({ "tailwindcss" })
-vim.lsp.enable({ "terraformls" })
-vim.lsp.enable({ "ts_ls" })
-vim.lsp.enable({ "yamlls" })
-vim.lsp.enable({ "tombi" })
+vim.lsp.enable({ 'lua_ls' })
+vim.lsp.enable({ 'basedpyright' })
+vim.lsp.enable({ 'bashls' })
+vim.lsp.enable({ 'cssls' })
+vim.lsp.enable({ 'dockerls' })
+vim.lsp.enable({ 'html_ls' })
+vim.lsp.enable({ 'jsonls' })
+vim.lsp.enable({ 'prismals' })
+vim.lsp.enable({ 'ruff' })
+vim.lsp.enable({ 'zshcs' })
+vim.lsp.enable({ 'svelte' })
+vim.lsp.enable({ 'tailwindcss' })
+vim.lsp.enable({ 'terraformls' })
+vim.lsp.enable({ 'ts_ls' })
+vim.lsp.enable({ 'yamlls' })
+vim.lsp.enable({ 'tombi' })
 
 -- formatting
-require("conform").setup({
+require('conform').setup({
   formatters_by_ft = {
     lua = { 'stylua' },
 
     -- web
-    javascript = { "biome", "prettierd" },
-    javascriptreact = { "biome", "prettierd" },
-    typescript = { "biome", "prettierd" },
-    typescriptreact = { "biome", "prettierd" },
+    javascript = { 'biome', 'prettierd' },
+    javascriptreact = { 'biome', 'prettierd' },
+    typescript = { 'biome', 'prettierd' },
+    typescriptreact = { 'biome', 'prettierd' },
 
     -- data/config
-    json = { "biome", "prettierd" },
-    jsonc = { "biome", "prettierd" },
-    yaml = { "prettierd" },
-    markdown = { "prettierd" },
+    json = { 'biome', 'prettierd' },
+    jsonc = { 'biome', 'prettierd' },
+    yaml = { 'prettierd' },
+    markdown = { 'prettierd' },
 
     -- python
-    python = { "ruff_format" },
+    python = { 'ruff_format' },
 
     -- infra
-    terraform = { "terraform_fmt" },
-    hcl = { "terraform_fmt" },
+    terraform = { 'terraform_fmt' },
+    hcl = { 'terraform_fmt' },
 
     -- toml
-    toml = { "tombi" },
+    toml = { 'tombi' },
   },
 
   format_on_save = {
     timeout_ms = 3000,
-    lsp_format = "fallback",
+    lsp_format = 'fallback',
   },
 })
 
-require("luasnip.loaders.from_vscode").lazy_load()
-local cmp = require 'blink.cmp'
+require('luasnip.loaders.from_vscode').lazy_load()
+local cmp = require('blink.cmp')
 -- cmp.build():wait(60000)
 
 -- @type blink.cmp.Config
 cmp.setup({
   appearance = {
-    nerd_font_variant = "mono",
+    nerd_font_variant = 'mono',
   },
   completion = {
     documentation = { auto_show = true, auto_show_delay_ms = 500 },
@@ -134,8 +135,8 @@ cmp.setup({
       border = 'rounded',
       auto_show = true,
       draw = {
-        treesitter = { "lsp" },
-        columns = { { "kind_icon", "label", "label_description", gap = 1 }, { "kind" } },
+        treesitter = { 'lsp' },
+        columns = { { 'kind_icon', 'label', 'label_description', gap = 1 }, { 'kind' } },
       },
     },
   },
@@ -143,29 +144,29 @@ cmp.setup({
 -- end lsp setup/config
 
 -- start oil setup.config
-require "oil".setup({
+require('oil').setup({
   delete_to_trash = true,
   view_options = {
     show_hidden = true,
   },
   win_options = {
-    signcolumn = "yes:2", -- apparently needed by git-status
+    signcolumn = 'yes:2', -- apparently needed by git-status
   },
   use_default_keymaps = false,
   keymaps = {
-    ["<CR>"] = { "actions.select" },
-    ["gq"] = { "actions.send_to_qflist", opts = { action = "a", target = "qflist" } },
+    ['<CR>'] = { 'actions.select' },
+    ['gq'] = { 'actions.send_to_qflist', opts = { action = 'a', target = 'qflist' } },
   },
 })
-require 'oil-git-status'.setup({
+require('oil-git-status').setup({
   show_file_highlights = true,
   show_directory_highlights = false,
   show_ignored_files = true,
 })
-require 'oil-lsp-diagnostics'.setup()
+require('oil-lsp-diagnostics').setup()
 
-vim.keymap.set({ "n", "v" }, '-', "<cmd>Oil<cr>")
+vim.keymap.set({ 'n', 'v' }, '-', '<cmd>Oil<cr>')
 -- end oil setup.config
 
 -- highlights
-require 'nvim-highlight-colors'.setup({})
+require('nvim-highlight-colors').setup({})
