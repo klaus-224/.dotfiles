@@ -157,7 +157,7 @@ cmp.setup({
     },
 
     menu = {
-      auto_show = true,
+      auto_show = false,
       draw = {
         treesitter = { 'lsp' },
         columns = {
@@ -166,9 +166,14 @@ cmp.setup({
           { 'source_name' },
         },
       },
+      winhighlight = table.concat({
+        'Normal:BlinkCmpMenu',
+        'FloatBorder:BlinkCmpMenuBorder',
+        'CursorLine:BlinkCmpMenuSelection',
+        'Search:None',
+      }, ','),
     },
   },
-
   cmdline = {
     enabled = true,
     keymap = {

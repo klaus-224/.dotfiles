@@ -74,24 +74,32 @@ M.setup = function()
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = '#282828' })
 
-  local float_bg = '#000000'
-  local float_fg = '#cdcdcd'
-  local border = '#ffd166'
-  local select_bg = '#222222'
-  local select_fg = '#ffd166'
+  local colors = {
+    bg = '#000000',
+    fg = '#b4bcc8',
+    muted = '#747b89',
+    border = '#e6c384',
+    selection = '#23252e',
+    blue = '#8aadf4',
+    yellow = '#e6c384',
+  }
 
-  -- generic floating windows
-  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = float_bg, fg = float_fg })
-  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = float_bg, fg = border })
-  -- popup menus
-  vim.api.nvim_set_hl(0, 'Pmenu', { bg = float_bg, fg = border })
-  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = float_bg, fg = border })
-  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = select_bg, fg = select_fg })
-  vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = 'NONE' })
-  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = 'NONE' })
+  -- generic floats: hover, cmd+k, docs, random plugin popups
+  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = colors.bg, fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = colors.bg, fg = colors.border })
+  vim.api.nvim_set_hl(0, 'FloatTitle', { bg = colors.bg, fg = colors.blue, bold = true })
+  vim.api.nvim_set_hl(0, 'FloatFooter', { bg = colors.bg, fg = colors.muted, italic = true })
 
-  -- lsp diagnostic floats
-  vim.api.nvim_set_hl(0, 'LspInfoBorder', { bg = float_bg, fg = border })
+  -- generic completion menu groups
+  vim.api.nvim_set_hl(0, 'Pmenu', { bg = colors.bg, fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.fg, bold = true })
+  vim.api.nvim_set_hl(0, 'PmenuKind', { bg = colors.bg, fg = colors.blue })
+  vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = colors.bg, fg = colors.muted })
+  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = colors.bg, fg = colors.border })
+
+  -- scrollbar, if visible
+  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = colors.border })
+  vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = colors.bg })
 
   setup_alpha()
 end
