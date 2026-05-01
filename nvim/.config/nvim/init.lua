@@ -233,10 +233,6 @@ require('nvim-highlight-colors').setup({})
 
 -- load dadbod
 vim.api.nvim_create_user_command('DBUIT', function()
-  require('vim-dadbod').setup()
-  require('vim-dadbod-ui').setup()
-  require('vim-dadbod-completion').setup()
-
   vim.g.db_ui_use_nerd_fonts = 1
   vim.g.db_ui_show_database_icon = 1
   vim.g.db_ui_winwidth = 30
