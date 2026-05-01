@@ -1,7 +1,5 @@
 todo:
-
 - migrate:
-  - [] dadbod
   - [] markdown
   - [] blame
 - custom status line

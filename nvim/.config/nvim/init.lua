@@ -33,6 +33,9 @@ vim.pack.add({
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
+
+  -- git
+  { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
 require('custom.ui').setup()
@@ -252,3 +255,12 @@ vim.api.nvim_create_user_command('DBUIT', function()
   vim.cmd('tabnew')
   vim.cmd('DBUI')
 end, {})
+
+-- gitblame
+require('gitblame').setup({
+  enabled = false,
+  message_template = ' <summary> • <date> • <author> • <<sha>>',
+  date_format = '%r',
+  virtual_text_column = 0,
+  use_blame_commit_file_urls = false,
+})
