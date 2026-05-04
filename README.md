@@ -2,36 +2,36 @@
 
 <!-- mtoc-start -->
 
-* [Generating git SSH Keys](#generating-git-ssh-keys)
-  * [Generate a new SSH key](#generate-a-new-ssh-key)
-    * [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
-    * [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
-    * [Add the public key to Github](#add-the-public-key-to-github)
-    * [Test the connection](#test-the-connection)
-* [Installation](#installation)
-  * [Macos](#macos)
-    * [Install Homebrew](#install-homebrew)
-      * [Install git](#install-git)
-      * [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
-      * [Run the setup script](#run-the-setup-script)
-    * [Windows (wsl)](#windows-wsl)
-      * [Open Powershell as Admin](#open-powershell-as-admin)
-      * [Update wsl](#update-wsl)
-      * [Install Ubuntu](#install-ubuntu)
-      * [Update Linux Packages](#update-linux-packages)
-      * [Install git](#install-git-1)
-      * [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
-      * [Run the WSL Setup Script](#run-the-wsl-setup-script)
-* [Stow Packages](#stow-packages)
-  * [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
-* [Cargo Package Management](#cargo-package-management)
-* [Optional: Install Coding Agents](#optional-install-coding-agents)
-* [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
-* [Tmux Commands](#tmux-commands)
-* [Opencode plugins](#opencode-plugins)
-* [TODO](#todo)
-* [CLI Tool Reference](#cli-tool-reference)
-* [References](#references)
+- [Generating git SSH Keys](#generating-git-ssh-keys)
+  - [Generate a new SSH key](#generate-a-new-ssh-key)
+    - [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
+    - [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
+    - [Add the public key to Github](#add-the-public-key-to-github)
+    - [Test the connection](#test-the-connection)
+- [Installation](#installation)
+  - [Macos](#macos)
+    - [Install Homebrew](#install-homebrew)
+      - [Install git](#install-git)
+      - [Clone dotfiles repo into `$HOME`](#clone-dotfiles-repo-into-home)
+      - [Run the setup script](#run-the-setup-script)
+    - [Windows (wsl)](#windows-wsl)
+      - [Open Powershell as Admin](#open-powershell-as-admin)
+      - [Update wsl](#update-wsl)
+      - [Install Ubuntu](#install-ubuntu)
+      - [Update Linux Packages](#update-linux-packages)
+      - [Install git](#install-git-1)
+      - [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
+      - [Run the WSL Setup Script](#run-the-wsl-setup-script)
+- [Stow Packages](#stow-packages)
+  - [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
+- [Cargo Package Management](#cargo-package-management)
+- [Optional: Install Coding Agents](#optional-install-coding-agents)
+- [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
+- [Tmux Commands](#tmux-commands)
+- [Opencode plugins](#opencode-plugins)
+- [TODO](#todo)
+- [CLI Tool Reference](#cli-tool-reference)
+- [References](#references)
 
 <!-- mtoc-end -->
 
@@ -272,6 +272,7 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 ---
 
 # TODO
+
 - [ ] transform zsh tools binaries
 - [ ] consolidate everything into 1 `setup.sh` script
 - [ ] look into dev containers [devpod](https://devpod.sh/)
@@ -286,12 +287,16 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 - [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
 - [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
+- [just](https://github.com/casey/just)
+
+- [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
+- [vmux](https://github.com/yazgoo/vmux) - using nvim as a mulitplexer (NO USE FOR THIS)
+- [miri](https://github.com/maria-rcks/miri) - niri-ish window manager manager
 
 - **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet
   calculator
 - **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
 - **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
-- [just](https://github.com/casey/just)
 
 ---
 
