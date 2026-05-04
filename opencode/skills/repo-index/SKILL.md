@@ -22,7 +22,7 @@ fast querying with `$repo-query`.
 Execute from the repository root:
 
 ```bash
-$HOME/.codex/skills/repo-index/scripts/repo-index.py
+$OPENCODE_CONFIG_DIR/skills/repo-index/scripts/repo-index.py
 ```
 
 Requires `uv` (the script uses inline script dependencies).
@@ -35,6 +35,6 @@ Requires `uv` (the script uses inline script dependencies).
 
 ## Output
 
-Writes to `~/.codex/sqlite/repos.duckdb` by default. Set
-`CODEX_REPO_DB_DIR` to override. The `repo_id` is the directory name of the
+Writes to `$OPENCODE_CONFIG_DIR/sqlite/repos.duckdb` by default. Set
+`REPO_DB_DIR` to override. The `repo_id` is the directory name of the
 repository root.

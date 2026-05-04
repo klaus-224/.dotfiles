@@ -16,11 +16,10 @@ DB_DIR = pathlib.Path.home() / ".codex/sqlite"
 
 
 def resolve_db_dir() -> pathlib.Path:
-    configured = pathlib.Path(
-        os.environ.get("CODEX_REPO_DB_DIR", str(DB_DIR))
-    ).expanduser()
+    configured = pathlib.Path(os.environ.get("REPO_DB_DIR", str(DB_DIR))).expanduser()
     configured.mkdir(parents=True, exist_ok=True)
     return configured
+
 
 IGNORE_DIRS = {".git", "node_modules", ".venv", "dist", "build", "__pycache__"}
 
@@ -109,7 +108,6 @@ def index_repo():
     )
 
     for f in collect_files():
-
         con.execute("INSERT INTO files VALUES (?, ?)", [REPO_ID, str(f)])
 
         if f.suffix not in {".py", ".ts", ".js"}:

@@ -23,7 +23,7 @@ Graphviz dependency graph.
 Execute from the repository root:
 
 ```bash
-$HOME/.codex/skills/repo-map/scripts/repo-map.py
+$OPENCODE_CONFIG_DIR/skills/repo-map/scripts/repo-map.py
 ```
 
 Requires `uv`.
