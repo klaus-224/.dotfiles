@@ -15,13 +15,13 @@ DEFAULT_DB_DIR = pathlib.Path.home() / ".codex/sqlite"
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print(f"Usage: {pathlib.Path(sys.argv[0]).name} \"<SQL>\"", file=sys.stderr)
+        print(f'Usage: {pathlib.Path(sys.argv[0]).name} "<SQL>"', file=sys.stderr)
         return 1
 
     sql = sys.argv[1]
 
     db_dir = pathlib.Path(
-        os.environ.get("CODEX_REPO_DB_DIR", str(DEFAULT_DB_DIR))
+        os.environ.get("REPO_DB_DIR", str(DEFAULT_DB_DIR))
     ).expanduser()
     db_path = db_dir / "repos.duckdb"
 
