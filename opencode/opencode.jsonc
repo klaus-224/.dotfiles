@@ -1,0 +1,26 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"disabled_providers": [
+		"opencode",
+		"opencode"
+		// "openai"
+	],
+	"skills": {
+		"paths": [
+			"./skills"
+		]
+	},
+	"tools": {
+		"paths": true
+	},
+	"mcp": {
+		"atlassian": {
+			"type": "remote",
+			"url": "https://mcp.atlassian.com/v1/mcp",
+			"enabled": true
+		}
+	},
+	"plugin": [
+		"@plannotator/opencode@latest"
+	]
+}
