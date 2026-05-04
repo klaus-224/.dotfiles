@@ -39,6 +39,7 @@ vim.pack.add({
 })
 
 require('custom.ui').setup()
+require('custom.statusline').setup()
 
 -- start lsp setup/config
 require('mason').setup()
