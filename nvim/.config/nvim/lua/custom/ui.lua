@@ -65,14 +65,12 @@ M.setup = function()
 
   -- transarent background
   vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE', ctermbg = 'NONE' })
-  -- overrides
-  vim.api.nvim_set_hl(0, 'StatusLine', { fg = '#ffd166', bg = '#282828' })
-  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#5c6370', bg = '#282828' })
-  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#5c6370', bg = '#282828' })
-  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = '#282828', bold = true })
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#606079', bg = '#0f1117' })
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#606079', bg = '#0f1117' })
+  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = '#0f1117', bold = true })
   vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
-  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = '#282828' })
+  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = '#0f1117' })
 
   local colors = {
     bg = '#000000',
