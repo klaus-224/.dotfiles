@@ -1,41 +1,34 @@
 ---
-description: Run the manual testing workflow for one Jira ticket
-agent: test-orchestrator
+description: Run manual testing for one Jira ticket
+agent: general
 ---
 
-Run the manual testing workflow for exactly one Jira ticket.
+Run the manual testing workflow for one Jira ticket.
 
 ## Input
 
-Arguments must include:
+Arguments: `<TICKET> <BASE_URL>`
 
-- one Jira ticket key or Jira ticket link
-- one Playwright base URL (the target URL to test against)
+- One Jira ticket key or link
+- One base URL to test against
 
 Examples:
 
-- `/manual-test-single PROJ-123 https://dev.example.com`
-- `/manual-test-single https://your-company.atlassian.net/browse/PROJ-123 https://dev.example.com`
+- `/manual-test-single ION-1234 https://next.skyon.app`
+- `/manual-test-single https://orennia.atlassian.net/browse/ION-1234 https://next.skyon.app`
 
 ## Flow
 
-1. Parse the Jira input into a canonical ticket key.
-2. Normalize the base URL.
-3. Create a fresh `plan_id`.
-4. Store ticket and base URL in the plan store.
-5. Dispatch `jira-operator` to fetch ticket details.
-6. Create a git worktree for isolation.
-7. Dispatch `test-executor` to authenticate, plan, and execute tests.
-8. Save the report to the plan-store DB directory.
-9. Dispatch `jira-operator` to comment a summary on the ticket.
-10. Clean up the worktree.
-11. Return the final summary.
+1. Parse the ticket key and base URL from arguments.
+2. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL>`
+3. Receive `plan_id` from planner.
+4. Dispatch `test-executor` (Task tool) with prompt: `plan_id=<plan_id>`
+5. Return the executor's report to the user.
 
 ## Rules
 
-- One run handles one ticket only.
-- Do not discover multiple tickets.
-- Do not batch runs.
-- Stop and report missing or invalid input instead of guessing.
+- Exactly two sequential Task dispatches. Nothing else.
+- If either agent returns an error, surface it and stop.
+- Do not add logic, retries, or extra steps.
 
 Context: $ARGUMENTS
