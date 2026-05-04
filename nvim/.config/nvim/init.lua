@@ -94,16 +94,16 @@ require('conform').setup({
     lua = { 'stylua' },
 
     -- web
-    javascript = { 'biome', 'prettierd' },
-    javascriptreact = { 'biome', 'prettierd' },
-    typescript = { 'biome', 'prettierd' },
-    typescriptreact = { 'biome', 'prettierd' },
+    javascript = { 'biome', 'prettier' },
+    javascriptreact = { 'biome', 'prettier' },
+    typescript = { 'biome', 'prettier' },
+    typescriptreact = { 'biome', 'prettier' },
 
     -- data/config
-    json = { 'biome', 'prettierd' },
-    jsonc = { 'biome', 'prettierd' },
-    yaml = { 'prettierd' },
-    markdown = { 'prettierd' },
+    json = { 'biome', 'prettier' },
+    jsonc = { 'biome', 'prettier' },
+    yaml = { 'prettier' },
+    markdown = { 'prettier' },
 
     -- python
     python = { 'ruff_format' },
