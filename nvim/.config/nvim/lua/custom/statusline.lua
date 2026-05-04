@@ -171,13 +171,13 @@ local function set_colors()
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBufferActive', {
-    fg = '#ffd166',
+    fg = '#cdcdcd',
     bg = '#0f1117',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBuffer', {
-    fg = '#cdcdcd',
+    fg = '#747b89',
     bg = '#0f1117',
     bold = true,
   })
