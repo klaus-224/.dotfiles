@@ -19,12 +19,12 @@ Query the indexed repository database with arbitrary SQL.
 ## How to run
 
 ```bash
-$HOME/.codex/skills/repo-query/scripts/repo-query.py "<SQL>"
+$OPENCODE_CONFIG_DIR/skills/repo-query/scripts/repo-query.py "<SQL>"
 ```
 
-Requires `uv` and a pre-existing index (run `$repo-index` first).
-Reads from `~/.codex/sqlite/repos.duckdb` by default. Set
-`CODEX_REPO_DB_DIR` to override.
+Requires `uv` and a pre-existing index (run `$OPENCODE_CONFIG_DIR/skills/repo-index/scripts/repo-index.py` first).
+Reads from `$OPENCODE_CONFIG_DIR/sqlite/repos.duckdb` by default. Set
+`REPO_DB_DIR` to override.
 
 ## Available tables
 
