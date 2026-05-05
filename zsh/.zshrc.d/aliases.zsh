@@ -47,3 +47,7 @@ alias svmls="smolvm machine ls"
 alias svmstart="smolvm machine start"
 alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
+
+# misc
+alias awake='caffeinate -dimsu &'
+alias sleep-ok='pkill caffeinate'
