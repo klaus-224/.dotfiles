@@ -21,7 +21,7 @@ def resolve_db_dir() -> pathlib.Path:
     return configured
 
 
-IGNORE_DIRS = {".git", "node_modules", ".venv", "dist", "build", "__pycache__"}
+IGNORE_DIRS = {".git", "node_modules", ".venv", "dist", "build", "__pycache__", "playwright-tests"}
 
 IMPORT_PATTERNS = [
     r"import ([a-zA-Z0-9_\.]+)",
