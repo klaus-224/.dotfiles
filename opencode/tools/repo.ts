@@ -3,9 +3,9 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
-const skillsDir = path.join(homedir(), ".dotfiles", "opencode", "skills");
-const indexScript = path.join(skillsDir, "repo-index", "scripts", "repo-index.py");
-const queryScript = path.join(skillsDir, "repo-query", "scripts", "repo-query.py");
+const binDir = path.join(homedir(), ".dotfiles", "bin");
+const indexScript = path.join(binDir, "repo_index");
+const queryScript = path.join(binDir, "repo_query");
 
 async function run(script: string, args: string[] = [], cwd?: string) {
   return await new Promise<string>((resolve, reject) => {
