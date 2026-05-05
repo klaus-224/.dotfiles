@@ -15,4 +15,4 @@ else
 fi
 export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode"
 export OPENCODE_PLAN_STORE_BIN="$DOTFILES_HOME/opencode/bin/plan_store.py"
-
+. "/Users/rohineshram/.cargo}/env"

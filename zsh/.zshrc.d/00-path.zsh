@@ -1,7 +1,7 @@
 typeset -U path PATH
 
 export PNPM_HOME="$HOME/Library/pnpm"
-export CARGO_HOME="$HOME/.cargo}"
+export CARGO_HOME="$HOME/.cargo"
 export LOCAL_BIN="/usr/local"
 export NVM_DIR="$HOME/.nvm"
 
