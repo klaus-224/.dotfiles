@@ -18,10 +18,11 @@ vim.pack.add({
   { src = 'https://github.com/saghen/blink.lib' },
   { src = 'https://github.com/saghen/blink.cmp' },
 
-  -- oil
+  -- oil/file search and nav
   { src = 'https://github.com/stevearc/oil.nvim' },
   { src = 'https://github.com/JezerM/oil-lsp-diagnostics.nvim' },
   { src = 'https://github.com/refractalize/oil-git-status.nvim' },
+  { src = 'https://github.com/ibhagwan/fzf-lua' },
 
   -- editing/formatting
   { src = 'https://github.com/kylechui/nvim-surround', version = vim.version.range('4.x') },
@@ -227,10 +228,18 @@ require('oil-git-status').setup({
   show_directory_highlights = false,
   show_ignored_files = true,
 })
+
 require('oil-lsp-diagnostics').setup()
 
 vim.keymap.set({ 'n', 'v' }, '-', '<cmd>Oil<cr>')
 -- end oil setup.config
+
+-- start fzf-lua setup
+require('fzf-lua').setup({
+  winopts = {
+    split = 'belowright vnew',
+  },
+})
 
 -- highlights
 require('nvim-highlight-colors').setup({})
