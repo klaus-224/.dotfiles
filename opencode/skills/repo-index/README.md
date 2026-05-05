@@ -29,3 +29,26 @@ To re-index after structural changes, run the same command again.
 |----------|---------|---------|
 | `REPO_DB_DIR` | `$OPENCODE_CONFIG_DIR/sqlite` | Directory for the DuckDB file |
 | `OPENCODE_CONFIG_DIR` | `~/.dotfiles/opencode` | Base config directory |
+
+## Tables
+
+| Table | Columns | Description |
+|-------|---------|-------------|
+| `repositories` | repo_id, path, indexed_at | Indexed repos |
+| `files` | repo_id, path | All files |
+| `modules` | repo_id, module, path | Python/JS/TS modules |
+| `dependencies` | repo_id, source_module, dependency | Import relationships |
+| `entrypoints` | repo_id, path | Main/app entrypoints |
+| `testids` | repo_id, testid, component, filepath, line, context | `data-testid` attributes |
+
+## Querying data-testids
+
+After indexing, agents can discover testable UI elements via `repo-query`:
+
+```sql
+SELECT testid, component, filepath, line, context
+FROM testids
+WHERE repo_id = 'skyon-worktree'
+  AND component LIKE '%Button%'
+ORDER BY component, testid;
+```
