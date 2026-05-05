@@ -55,12 +55,13 @@ vim.opt.grepprg = 'rg --vimgrep --smart-case'
 vim.opt.grepformat = '%f:%l:%c:%m'
 
 -- file search
-vim.opt.path:append('**')
+vim.opt.path:append({ '**' })
 vim.opt.wildignore:append({
   '*/.git/*',
   '*/node_modules/*',
   '*/dist/*',
   '*/build/*',
+  '*/target/*',
 })
 
 -- winbar

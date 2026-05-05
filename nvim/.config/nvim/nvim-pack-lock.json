@@ -28,6 +28,10 @@
       "rev": "6cd7280adead7f586db6fccbd15d2cac7e2188b9",
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
+    "fzf-lua": {
+      "rev": "cf4c30892644f01ebfb1e248eeca9e259856f9dc",
+      "src": "https://github.com/ibhagwan/fzf-lua"
+    },
     "git-blame.nvim": {
       "rev": "5c536e2d4134d064aa3f41575280bc8a2a0e03d7",
       "src": "https://github.com/f-person/git-blame.nvim"

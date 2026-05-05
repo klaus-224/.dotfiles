@@ -54,6 +54,9 @@ vim.keymap.set('n', '[d', function()
 end)
 vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format)
 
+-- fzf-lua (needs fzf-lua install + require)
+vim.keymap.set({ 'n', 'v' }, '<leader><leader>', '<cmd>FzfLua files<cr>')
+
 -- Toggle virtual text and lines
 vim.keymap.set('n', 'gK', function()
   local cfg = vim.diagnostic.config()
