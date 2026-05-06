@@ -215,7 +215,7 @@ require('oil').setup({
     show_hidden = true,
   },
   win_options = {
-    signcolumn = 'yes:2', -- apparently needed by git-status
+    -- signcolumn = 'yes:2', -- apparently needed by git-status
   },
   use_default_keymaps = false,
   keymaps = {
@@ -223,11 +223,12 @@ require('oil').setup({
     ['gq'] = { 'actions.send_to_qflist', opts = { action = 'a', target = 'qflist' } },
   },
 })
-require('oil-git-status').setup({
-  show_file_highlights = true,
-  show_directory_highlights = false,
-  show_ignored_files = true,
-})
+
+-- require('oil-git-status').setup({
+--   show_file_highlights = true,
+--   show_directory_highlights = false,
+--   show_ignored_files = true,
+-- })
 
 require('oil-lsp-diagnostics').setup()
 
