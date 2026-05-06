@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# ///
+"""Learnings store CLI — init, query, add subcommands."""
+import argparse
+import json
+import sqlite3
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+DB_PATH = Path.home() / "code/.agents/learnings.db"
+
+VALID_CATEGORIES = [
+    "navigation", "tool-usage", "codebase", "gotcha",
+    "fixture", "selector", "debugging",
+]
+
+SCHEMA = """
+PRAGMA journal_mode=WAL;
+
+CREATE TABLE IF NOT EXISTS learnings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+  category TEXT NOT NULL CHECK (category IN (
+    'navigation', 'tool-usage', 'codebase', 'gotcha',
+    'fixture', 'selector', 'debugging'
+  )),
+  summary TEXT NOT NULL,
+  detail TEXT,
+  tags TEXT,
+  plan_id TEXT,
+  agent TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_learnings_category ON learnings(category);
+CREATE INDEX IF NOT EXISTS idx_learnings_tags ON learnings(tags);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS learnings_fts USING fts5(
+  summary, detail, content=learnings, content_rowid=id
+);
+
+CREATE TRIGGER IF NOT EXISTS learnings_ai AFTER INSERT ON learnings BEGIN
+  INSERT INTO learnings_fts(rowid, summary, detail) VALUES (new.id, new.summary, new.detail);
+END;
+"""
+
+
+def cmd_init(args):
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.executescript(SCHEMA)
+    conn.close()
+    print(json.dumps({"ok": True, "path": str(DB_PATH)}))
+
+
+def cmd_query(args):
+    if not DB_PATH.exists():
+        print("Error: learnings database not found. Run init first.", file=sys.stderr)
+        sys.exit(1)
+
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+
+    if args.recent:
+        rows = conn.execute(
+            "SELECT * FROM learnings ORDER BY created_at DESC LIMIT ?",
+            (args.recent,),
+        ).fetchall()
+    else:
+        conditions = []
+        params = []
+
+        if args.category:
+            conditions.append("l.category = ?")
+            params.append(args.category)
+
+        if args.tags:
+            for tag in args.tags.split(","):
+                conditions.append("l.tags LIKE ?")
+                params.append(f"%{tag.strip()}%")
+
+        if args.search:
+            fts_ids = conn.execute(
+                "SELECT rowid FROM learnings_fts WHERE learnings_fts MATCH ?",
+                (args.search,),
+            ).fetchall()
+            if not fts_ids:
+                print(json.dumps([]))
+                conn.close()
+                return
+            id_list = ",".join(str(r[0]) for r in fts_ids)
+            conditions.append(f"l.id IN ({id_list})")
+
+        where = "WHERE " + " AND ".join(conditions) if conditions else ""
+        limit = args.limit or 20
+        rows = conn.execute(
+            f"SELECT * FROM learnings l {where} ORDER BY l.created_at DESC LIMIT ?",
+            params + [limit],
+        ).fetchall()
+
+    conn.close()
+    print(json.dumps([dict(r) for r in rows], indent=2))
+
+
+def cmd_add(args):
+    if not DB_PATH.exists():
+        print("Error: learnings database not found. Run init first.", file=sys.stderr)
+        sys.exit(1)
+
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.execute(
+        "INSERT INTO learnings (created_at, category, summary, detail, tags, plan_id, agent) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            datetime.now(timezone.utc).isoformat(),
+            args.category,
+            args.summary,
+            args.detail,
+            args.tags,
+            args.plan_id,
+            args.agent,
+        ),
+    )
+    conn.commit()
+    row_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    conn.close()
+    print(json.dumps({"ok": True, "id": row_id}))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Learnings store")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("init", help="Initialize the database")
+
+    q = sub.add_parser("query", help="Query learnings")
+    q.add_argument("--category", choices=VALID_CATEGORIES)
+    q.add_argument("--tags", help="Comma-separated tags (AND)")
+    q.add_argument("--search", help="Full-text search")
+    q.add_argument("--recent", type=int, help="Show N most recent")
+    q.add_argument("--limit", type=int, default=20)
+
+    a = sub.add_parser("add", help="Add a learning")
+    a.add_argument("--category", required=True, choices=VALID_CATEGORIES)
+    a.add_argument("--summary", required=True)
+    a.add_argument("--detail")
+    a.add_argument("--tags")
+    a.add_argument("--plan-id", dest="plan_id")
+    a.add_argument("--agent", default="regression-writer")
+
+    args = parser.parse_args()
+    {"init": cmd_init, "query": cmd_query, "add": cmd_add}[args.command](args)
+
+
+if __name__ == "__main__":
+    main()
