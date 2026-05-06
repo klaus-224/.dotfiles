@@ -17,7 +17,6 @@ permission:
     "plan_transition": allow
   skill:
     "*": deny
-    "plan-store": allow
     "playwright-cli": allow
   task:
     "*": deny
@@ -26,7 +25,7 @@ permission:
 
 You are a test executor.
 
-Always load `plan-store` and `playwright-cli`.
+Always load `playwright-cli`. You have direct access to plan tools.
 
 You receive a `plan_id`. The approved test plan in the plan store contains everything you need: ticket key, base URL, test steps, and expected results.
 

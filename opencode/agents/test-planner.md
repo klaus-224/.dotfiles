@@ -20,17 +20,17 @@ permission:
     "plan_transition": allow
     "plan_claim": allow
     "plan_release": allow
-  skill:
+  repo:
     "*": deny
-    "plan-store": allow
-    "repo-query": allow
+    "repo_index": allow
+    "repo_query": allow
   task:
     "*": deny
 ---
 
 You are a test planner.
 
-Always load `plan-store`.
+Always load `playwright-cli` if needed. You have direct access to plan and repo tools.
 
 You receive a Jira ticket key and a base URL. Your job is to gather all relevant context and produce a complete, actionable test plan.
 
