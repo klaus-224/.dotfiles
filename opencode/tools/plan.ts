@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 
 const scriptPath =
   process.env.OPENCODE_PLAN_STORE_BIN ??
-  path.join(homedir(), ".dotfiles", "opencode", "bin", "plan_store.py");
+  path.join(homedir(), ".dotfiles", "bin", "plan_store");
 
 const pythonBin = process.env.OPENCODE_PLAN_STORE_PYTHON ?? "python3";
 

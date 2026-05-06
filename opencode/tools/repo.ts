@@ -3,13 +3,11 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
-const binDir = path.join(homedir(), ".dotfiles", "bin");
-const indexScript = path.join(binDir, "repo_index");
-const queryScript = path.join(binDir, "repo_query");
+const repoScript = path.join(homedir(), ".dotfiles", "bin", "repo");
 
-async function run(script: string, args: string[] = [], cwd?: string) {
+async function run(args: string[] = [], cwd?: string) {
   return await new Promise<string>((resolve, reject) => {
-    const child = spawn("uv", ["run", "--script", script, ...args], {
+    const child = spawn("uv", ["run", "--script", repoScript, ...args], {
       env: process.env,
       cwd: cwd || process.cwd(),
       stdio: ["pipe", "pipe", "pipe"],
@@ -41,7 +39,7 @@ export const repo_index = tool({
     "Indexes the current repository's files, modules, dependencies, entrypoints, and data-testids into a DuckDB database. Use when asked to index, scan, or catalog a repo, or before using repo_query for the first time.",
   args: {},
   async execute() {
-    const result = await run(indexScript);
+    const result = await run(["index"]);
     return result || "Index complete.";
   },
 });
@@ -53,7 +51,7 @@ export const repo_query = tool({
     sql: tool.schema.string().describe("SQL query to run against repos.duckdb"),
   },
   async execute(args) {
-    const result = await run(queryScript, [args.sql]);
+    const result = await run(["query", args.sql]);
     return result || "(no rows)";
   },
 });
