@@ -1,0 +1,280 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["duckdb"]
+# ///
+"""Unified repo tool — index, query, and map repositories.
+
+Usage:
+    repo index          Index the current repo into DuckDB
+    repo query "<SQL>"  Query the indexed repo with SQL
+    repo map            Generate a local repo map as JSON + Graphviz
+"""
+import argparse
+import json
+import os
+import pathlib
+import re
+import sys
+import time
+
+# ---------------------------------------------------------------------------
+# Shared config
+# ---------------------------------------------------------------------------
+
+DEFAULT_DB_DIR = pathlib.Path.home() / ".local/opencode/"
+
+IGNORE_DIRS = {
+    ".git", "node_modules", ".venv", "dist", "build", "__pycache__",
+    "playwright-tests",
+}
+
+IMPORT_PATTERNS = [
+    r"import ([a-zA-Z0-9_\.]+)",
+    r"from ([a-zA-Z0-9_\.]+) import",
+    r"require\(['\"](.*?)['\"]\)",
+    r"import .* from ['\"](.*?)['\"]",
+]
+
+ENTRYPOINT_PATTERNS = [
+    r"if __name__ == ['\"]__main__['\"]",
+    r"app\.listen",
+    r"FastAPI\(",
+    r"main\(",
+]
+
+TESTID_EXTENSIONS = {".svelte", ".tsx", ".ts", ".jsx", ".js", ".html"}
+TESTID_RE = re.compile(r'data-testid=["\']([^"\']+)["\']')
+
+
+def resolve_db_dir() -> pathlib.Path:
+    d = pathlib.Path(os.environ.get("REPO_DB_DIR", str(DEFAULT_DB_DIR))).expanduser()
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def is_ignored(p: pathlib.Path) -> bool:
+    return any(part in IGNORE_DIRS for part in p.parts)
+
+
+def collect_files(root: pathlib.Path):
+    for p in root.rglob("*"):
+        if p.is_file() and not is_ignored(p):
+            yield p
+
+
+# ---------------------------------------------------------------------------
+# index subcommand
+# ---------------------------------------------------------------------------
+
+def ensure_schema(con):
+    import duckdb  # noqa: F811
+    con.execute("""CREATE TABLE IF NOT EXISTS repositories (
+        repo_id TEXT, path TEXT, indexed_at INTEGER)""")
+    con.execute("""CREATE TABLE IF NOT EXISTS files (
+        repo_id TEXT, path TEXT)""")
+    con.execute("""CREATE TABLE IF NOT EXISTS modules (
+        repo_id TEXT, module TEXT, path TEXT)""")
+    con.execute("""CREATE TABLE IF NOT EXISTS dependencies (
+        repo_id TEXT, source_module TEXT, dependency TEXT)""")
+    con.execute("""CREATE TABLE IF NOT EXISTS entrypoints (
+        repo_id TEXT, path TEXT)""")
+    con.execute("""CREATE TABLE IF NOT EXISTS testids (
+        repo_id TEXT, testid TEXT, component TEXT,
+        filepath TEXT, line INTEGER, context TEXT)""")
+
+
+def kebab_to_pascal(name: str) -> str:
+    return "".join(word.capitalize() for word in name.replace("_", "-").split("-"))
+
+
+def scan_testids(con, root, repo_id):
+    for f in collect_files(root):
+        if f.suffix not in TESTID_EXTENSIONS:
+            continue
+        try:
+            lines = f.read_text(errors="ignore").splitlines()
+        except OSError:
+            continue
+        component = kebab_to_pascal(f.stem)
+        rel_path = str(f.relative_to(root))
+        for i, line in enumerate(lines, 1):
+            for m in TESTID_RE.finditer(line):
+                con.execute(
+                    "INSERT INTO testids VALUES (?, ?, ?, ?, ?, ?)",
+                    [repo_id, m.group(1), component, rel_path, i, line.strip()],
+                )
+
+
+def cmd_index(args):
+    import duckdb
+
+    root = pathlib.Path(".").resolve()
+    repo_id = root.name
+    db_path = resolve_db_dir() / "repos.duckdb"
+    con = duckdb.connect(str(db_path))
+
+    ensure_schema(con)
+
+    # Clear previous index
+    for table in ("files", "modules", "dependencies", "entrypoints", "testids"):
+        con.execute(f"DELETE FROM {table} WHERE repo_id=?", [repo_id])
+
+    con.execute("INSERT INTO repositories VALUES (?, ?, ?)",
+                [repo_id, str(root), int(time.time())])
+
+    for f in collect_files(root):
+        con.execute("INSERT INTO files VALUES (?, ?)", [repo_id, str(f)])
+
+        if f.suffix not in {".py", ".ts", ".js"}:
+            continue
+
+        module = f.stem
+        con.execute("INSERT INTO modules VALUES (?, ?, ?)", [repo_id, module, str(f)])
+
+        try:
+            text = f.read_text(errors="ignore")
+        except OSError:
+            continue
+
+        for pattern in IMPORT_PATTERNS:
+            for m in re.findall(pattern, text):
+                con.execute("INSERT INTO dependencies VALUES (?, ?, ?)",
+                            [repo_id, module, m])
+
+        for pattern in ENTRYPOINT_PATTERNS:
+            if re.search(pattern, text):
+                con.execute("INSERT INTO entrypoints VALUES (?, ?)", [repo_id, str(f)])
+                break
+
+    scan_testids(con, root, repo_id)
+    con.close()
+    print(f"Indexed repo '{repo_id}' into {db_path}")
+
+
+# ---------------------------------------------------------------------------
+# query subcommand
+# ---------------------------------------------------------------------------
+
+def cmd_query(args):
+    import duckdb
+
+    db_path = resolve_db_dir() / "repos.duckdb"
+    if not db_path.exists():
+        print(f"Database not found: {db_path}", file=sys.stderr)
+        raise SystemExit(1)
+
+    con = duckdb.connect(str(db_path), read_only=True)
+    try:
+        rows = con.execute(args.sql).fetchall()
+        for row in rows:
+            print("\t".join("" if v is None else str(v) for v in row))
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------------
+# map subcommand
+# ---------------------------------------------------------------------------
+
+def cmd_map(args):
+    root = pathlib.Path(".")
+    out = root / ".repo-map"
+    out.mkdir(exist_ok=True)
+
+    files = [p for p in collect_files(root)]
+
+    # Stack detection
+    stack = {"languages": set(), "frameworks": set()}
+    for f in files:
+        if f.suffix == ".py":
+            stack["languages"].add("python")
+        if f.suffix in {".js", ".ts"}:
+            stack["languages"].add("javascript")
+        if f.name == "package.json":
+            stack["frameworks"].add("node")
+        if f.name == "pyproject.toml":
+            stack["frameworks"].add("python-project")
+    stack = {k: list(v) for k, v in stack.items()}
+
+    # Entrypoints
+    entrypoints = []
+    for f in files:
+        try:
+            text = f.read_text(errors="ignore")
+        except OSError:
+            continue
+        for pattern in ENTRYPOINT_PATTERNS:
+            if re.search(pattern, text):
+                entrypoints.append(str(f))
+                break
+
+    # Dependency graph
+    modules = []
+    deps = []
+    for f in files:
+        if f.suffix not in {".py", ".ts", ".js"}:
+            continue
+        module = f.stem
+        modules.append({"name": module, "path": str(f)})
+        try:
+            text = f.read_text(errors="ignore")
+        except OSError:
+            continue
+        for pattern in IMPORT_PATTERNS:
+            for m in re.findall(pattern, text):
+                deps.append({"from": module, "to": m})
+
+    def write_json(name, data):
+        with open(out / name, "w") as fh:
+            json.dump(data, fh, indent=2)
+
+    write_json("files.json", [str(f) for f in files])
+    write_json("modules.json", modules)
+    write_json("entrypoints.json", entrypoints)
+    write_json("graph.json", {"modules": modules, "dependencies": deps})
+    write_json("stack.json", stack)
+
+    # Graphviz
+    with open(out / "dependency-graph.dot", "w") as fh:
+        fh.write("digraph repo {\n  rankdir=LR;\n  node [shape=box];\n")
+        for m in modules:
+            fh.write(f'  "{m["name"]}";\n')
+        for d in deps:
+            if d["from"] and d["to"]:
+                fh.write(f'  "{d["from"]}" -> "{d["to"]}";\n')
+        fh.write("}\n")
+
+    print("Repo map generated in .repo-map/")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(prog="repo", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("index", help="Index the current repo into DuckDB")
+
+    q = sub.add_parser("query", help="Query the repo index with SQL")
+    q.add_argument("sql", help="SQL query to execute")
+
+    sub.add_parser("map", help="Generate a local repo map (JSON + Graphviz)")
+
+    args = parser.parse_args()
+
+    if args.command == "index":
+        cmd_index(args)
+    elif args.command == "query":
+        cmd_query(args)
+    elif args.command == "map":
+        cmd_map(args)
+    else:
+        parser.print_help()
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

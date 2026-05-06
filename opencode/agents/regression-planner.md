@@ -120,22 +120,26 @@ This is a monorepo. Playwright tests live in `apps/playwright-tests/`. Test conf
 ## Tool Discipline (CRITICAL)
 
 **You MUST use `repo-query` as your primary source for:**
+
 - Finding data-testids
 - Discovering page objects and their methods
 - Finding fixtures and what they provide
 - Understanding imports and module structure
 
 **You MUST use `learnings-store` for:**
+
 - Navigation patterns (how to reach app states)
 - Known gotchas and timing issues
 - Selector reliability information
 
 **You MUST use `playwright-cli` for:**
+
 - Exploring the live application UI
 - Verifying that elements exist on the page
 - Understanding user flows visually
 
 **STOP and ask the user before using grep or glob.** If you find yourself wanting to grep/glob through the codebase, STOP. Instead:
+
 1. Explain to the user what you are looking for
 2. Explain why `repo-query` or `learnings-store` cannot answer this question
 3. Wait for the user to respond

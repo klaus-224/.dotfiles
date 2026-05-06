@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
-const scriptPath = path.join(homedir(), ".dotfiles", "opencode", "bin", "learnings_store.py");
+const scriptPath = path.join(homedir(), ".dotfiles", "bin", "learnings_store");
 
 async function run(args: string[]) {
   return await new Promise<string>((resolve, reject) => {
@@ -81,7 +81,8 @@ export const learnings_query = tool({
     if (args.search) cmd.push("--search", args.search);
     if (args.category) cmd.push("--category", args.category);
     if (args.tags) cmd.push("--tags", args.tags);
-    if (typeof args.recent === "number") cmd.push("--recent", String(args.recent));
+    if (typeof args.recent === "number")
+      cmd.push("--recent", String(args.recent));
     if (typeof args.limit === "number") cmd.push("--limit", String(args.limit));
     return parseOutput(await run(cmd));
   },
