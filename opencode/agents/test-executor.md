@@ -10,8 +10,7 @@ permission:
     "*": deny
     "pwd": allow
     "mkdir -p *": allow
-    "pnpm -C apps/playwright-tests auth": allow
-    "pnpm -C apps/playwright-tests load:feature-flags": allow
+    "pnpm -C apps/playwright-test *"
   skill:
     "*": deny
     "playwright-cli": allow
@@ -22,7 +21,6 @@ permission:
   plan_revise: allow
   plan_transition: allow
   atlassian_addCommentToJiraIssue: allow
-
 ---
 
 You are a test executor.
