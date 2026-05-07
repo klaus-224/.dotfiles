@@ -41,7 +41,7 @@ function parseOutput(raw: string): string {
   }
 }
 
-export const learnings_init = tool({
+export const init = tool({
   description: "Initialize the learnings SQLite database",
   args: {},
   async execute() {
@@ -49,7 +49,7 @@ export const learnings_init = tool({
   },
 });
 
-export const learnings_query = tool({
+export const query = tool({
   description:
     "Query agent learnings about the codebase, navigation, tools, and debugging. Supports full-text search, category filter, tag filter, and recent.",
   args: {
@@ -88,7 +88,7 @@ export const learnings_query = tool({
   },
 });
 
-export const learnings_add = tool({
+export const add = tool({
   description:
     "Record a new learning. Only use after implementation experience (regression-writer agent).",
   args: {

@@ -34,7 +34,7 @@ async function run(args: string[] = [], cwd?: string) {
   });
 }
 
-export const repo_index = tool({
+export const index = tool({
   description:
     "Indexes the current repository's files, modules, dependencies, entrypoints, and data-testids into a DuckDB database. Use when asked to index, scan, or catalog a repo, or before using repo_query for the first time.",
   args: {},
@@ -44,7 +44,7 @@ export const repo_index = tool({
   },
 });
 
-export const repo_query = tool({
+export const query = tool({
   description:
     "Queries the DuckDB repo index with SQL to answer questions about repository structure, modules, dependencies, entrypoints, and data-testids. Run repo_index first if the index does not exist.",
   args: {
