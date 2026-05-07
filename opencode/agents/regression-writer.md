@@ -8,6 +8,7 @@ permission:
   webfetch: deny
   bash:
     "*": deny
+    "pnpm auth"
     "pnpm test:regression *": allow
     "pnpm test:folder *": allow
     "pnpm test *": allow
@@ -79,6 +80,7 @@ for (const input of inputs) {
 ## Running Tests
 
 Run from `apps/playwright-tests/`:
+
 - Single file: `pnpm test:folder tests/regression/my-test.spec.ts`
 - All regression: `pnpm test:regression`
 
@@ -99,6 +101,7 @@ Monorepo. Playwright tests in `apps/playwright-tests/`. Path aliases: `@pom/`, `
 ## Tool Discipline (CRITICAL)
 
 **You MUST use `repo_query` as your primary source for:**
+
 - Finding data-testids
 - Discovering page objects and their methods
 - Finding fixtures and what they provide
@@ -106,17 +109,20 @@ Monorepo. Playwright tests in `apps/playwright-tests/`. Path aliases: `@pom/`, `
 - Looking up existing test patterns
 
 **You MUST use `learnings_query` for:**
+
 - Navigation patterns (how to reach app states)
 - Known gotchas and timing issues
 - Selector reliability information
 - Debugging tips from prior runs
 
 **You MUST use `playwright-cli` for:**
+
 - Verifying elements exist on the page at runtime
 - Debugging test failures by inspecting live state
 - Understanding dynamic UI behavior
 
 **STOP and ask the user before using grep or glob.** If you find yourself wanting to grep/glob through the codebase, STOP. Instead:
+
 1. Explain to the user what you are looking for
 2. Explain why `repo_query` or `learnings_query` cannot answer this question
 3. Wait for the user to respond
