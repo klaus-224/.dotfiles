@@ -51,3 +51,7 @@ alias svmex="smolvm machine exec"
 # misc
 alias awake='caffeinate -dimsu &'
 alias sleep-ok='pkill caffeinate'
+
+# alias for custom scripts
+alias learnings='learnings_store'
+alias plan='plan_store'
