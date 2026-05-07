@@ -21,7 +21,8 @@ import time
 # Shared config
 # ---------------------------------------------------------------------------
 
-DEFAULT_DB_DIR = pathlib.Path.home() / ".local/opencode/"
+DEFAULT_DB_PATH = pathlib.Path.home() / ".local/state/opencode-custom-tools/repos.duckdb"
+SQL_PATH = pathlib.Path(__file__).resolve().parent.parent / "opencode" / "sql" / "repo_index.sql"
 
 IGNORE_DIRS = {
     ".git", "node_modules", ".venv", "dist", "build", "__pycache__",
@@ -46,10 +47,11 @@ TESTID_EXTENSIONS = {".svelte", ".tsx", ".ts", ".jsx", ".js", ".html"}
 TESTID_RE = re.compile(r'data-testid=["\']([^"\']+)["\']')
 
 
-def resolve_db_dir() -> pathlib.Path:
-    d = pathlib.Path(os.environ.get("REPO_DB_DIR", str(DEFAULT_DB_DIR))).expanduser()
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+def resolve_db_path() -> pathlib.Path:
+    raw = os.environ.get("OPENCODE_REPO_DB", str(DEFAULT_DB_PATH))
+    p = pathlib.Path(raw).expanduser()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 
 def is_ignored(p: pathlib.Path) -> bool:
@@ -68,19 +70,10 @@ def collect_files(root: pathlib.Path):
 
 def ensure_schema(con):
     import duckdb  # noqa: F811
-    con.execute("""CREATE TABLE IF NOT EXISTS repositories (
-        repo_id TEXT, path TEXT, indexed_at INTEGER)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS files (
-        repo_id TEXT, path TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS modules (
-        repo_id TEXT, module TEXT, path TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS dependencies (
-        repo_id TEXT, source_module TEXT, dependency TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS entrypoints (
-        repo_id TEXT, path TEXT)""")
-    con.execute("""CREATE TABLE IF NOT EXISTS testids (
-        repo_id TEXT, testid TEXT, component TEXT,
-        filepath TEXT, line INTEGER, context TEXT)""")
+    for stmt in SQL_PATH.read_text().split(";"):
+        stmt = stmt.strip()
+        if stmt and not stmt.startswith("--"):
+            con.execute(stmt)
 
 
 def kebab_to_pascal(name: str) -> str:
@@ -110,7 +103,7 @@ def cmd_index(args):
 
     root = pathlib.Path(".").resolve()
     repo_id = root.name
-    db_path = resolve_db_dir() / "repos.duckdb"
+    db_path = resolve_db_path()
     con = duckdb.connect(str(db_path))
 
     ensure_schema(con)
@@ -158,7 +151,7 @@ def cmd_index(args):
 def cmd_query(args):
     import duckdb
 
-    db_path = resolve_db_dir() / "repos.duckdb"
+    db_path = resolve_db_path()
     if not db_path.exists():
         print(f"Database not found: {db_path}", file=sys.stderr)
         raise SystemExit(1)
