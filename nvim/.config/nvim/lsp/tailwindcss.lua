@@ -10,7 +10,6 @@
 
 -- local util = require('lspconfig.util')
 
----@type vim.lsp.Config
 return {
   cmd = function(dispatchers, config)
     local cmd = 'tailwindcss-language-server'
@@ -86,7 +85,6 @@ return {
       },
     },
   },
-  ---@type lspconfig.settings.tailwindcss
   settings = {
     tailwindCSS = {
       validate = true,
