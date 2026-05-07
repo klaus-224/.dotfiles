@@ -10,15 +10,16 @@ permission:
     "*": deny
     "git diff *": allow
     "playwright-cli *": allow
+    "pnpm *": allow
   skill:
     "*": deny
   task:
     "*": deny
   "plan_*": deny
-  plan_get: allow
+  "plan_get": allow
   "learnings_*": allow
   "repo_*": deny
-  repo_query: allow
+  "repo_query": allow
   "session_*": allow
 ---
 
