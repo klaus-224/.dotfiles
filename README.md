@@ -288,9 +288,10 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
 - [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
 - [just](https://github.com/casey/just)
+- [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
 
 - [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
-- [vmux](https://github.com/yazgoo/vmux) - using nvim as a mulitplexer (NO USE FOR THIS)
+- [vmux](https://github.com/yazgoo/vmux) - using nvim as a mulitplexer (NO USE FOR THIS BUT PRETTY COOL)
 - [miri](https://github.com/maria-rcks/miri) - niri-ish window manager manager
 
 - **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet

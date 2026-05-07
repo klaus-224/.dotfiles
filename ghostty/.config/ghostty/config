@@ -10,7 +10,7 @@ font-size = 16
 
 cursor-opacity = 1
 bold-is-bright = true
-background-opacity = 1
+background-opacity = 0.7
 selection-background = "#0a385c"
 
 window-decoration = none

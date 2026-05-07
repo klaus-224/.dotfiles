@@ -1,5 +1,6 @@
 # macOS-only CLI
 brew "duti"
+brew "worktrunk"
 
 # apps
 cask "raycast"
