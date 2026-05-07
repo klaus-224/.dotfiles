@@ -13,19 +13,23 @@ permission:
     "git status": allow
     "git rev-parse *": allow
     "ls *": allow
-  plan:
+  skill:
     "*": deny
-    "plan_create": allow
-    "plan_revise": allow
-    "plan_transition": allow
-    "plan_claim": allow
-    "plan_release": allow
-  repo:
-    "*": deny
-    "repo_index": allow
-    "repo_query": allow
+    "playwright-cli": allow
   task:
     "*": deny
+  "plan_*": deny
+  plan_create: allow
+  plan_revise: allow
+  plan_transition: allow
+  plan_claim: allow
+  plan_release: allow
+  "repo_*": deny
+  repo_index: allow
+  repo_query: allow
+  atlassian_getJiraIssue: allow
+  atlassian_getJiraIssueRemoteIssueLinks: allow
+  atlassian_searchJiraIssuesUsingJql: allow
 ---
 
 You are a test planner.

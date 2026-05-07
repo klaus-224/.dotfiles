@@ -14,24 +14,21 @@ permission:
     "ls *": allow
     "git status": allow
     "git diff *": allow
-  plan:
-    "*": deny
-    "plan_get": allow
-    "plan_revise": allow
-    "plan_transition": allow
-  learnings:
-    "*": deny
-    "learnings_query": allow
-    "learnings_add": allow
-  repo:
-    "*": deny
-    "repo_index": allow
-    "repo_query": allow
   skill:
     "*": deny
     "playwright-cli": allow
   task:
     "*": deny
+  "plan_*": deny
+  plan_get: allow
+  plan_revise: allow
+  plan_transition: allow
+  "learnings_*": deny
+  learnings_query: allow
+  learnings_add: allow
+  "repo_*": deny
+  repo_index: allow
+  repo_query: allow
 ---
 
 You are a regression test writer.

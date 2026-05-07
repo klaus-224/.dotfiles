@@ -3,7 +3,7 @@ name: pair-programmer
 description: Pair-programming and collaboration agent for chatting through problems, reviewing code, suggesting changes, and helping implement solutions step by step with the user.
 model: github-copilot/claude-sonnet-4.6
 mode: primary
-permissions:
+permission:
   edit: deny
   webfetch: allow
   bash:

@@ -55,3 +55,4 @@ alias sleep-ok='pkill caffeinate'
 # alias for custom scripts
 alias learnings='learnings_store'
 alias plan='plan_store'
+alias session='session_reader'

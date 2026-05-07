@@ -8,22 +8,18 @@ permission:
   webfetch: deny
   bash:
     "*": deny
-    "ls *": allow
     "git diff *": allow
-  session:
-    "*": allow
-  plan:
-    "*": deny
-    "plan_get": allow
-  learnings:
-    "*": allow
-  repo:
-    "*": deny
-    "repo_query": allow
+    "playwright-cli *": allow
   skill:
     "*": deny
   task:
     "*": deny
+  "plan_*": deny
+  plan_get: allow
+  "learnings_*": allow
+  "repo_*": deny
+  repo_query: allow
+  "session_*": allow
 ---
 
 You are a test reviewer. Your job is to review regression test plans, test files, and agent session transcripts with the user, recording their preferences as learnings so future test generation improves.
