@@ -1,3 +1,4 @@
+-- Source of truth for plan_store schema
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
 

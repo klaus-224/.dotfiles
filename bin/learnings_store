@@ -6,12 +6,16 @@
 
 import argparse
 import json
+import os
 import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-DB_PATH = Path.home() / "code/.agents/learnings.db"
+DEFAULT_DB_PATH = Path.home() / ".local/state/opencode-custom-tools/learnings.db"
+DB_PATH = Path(os.environ.get("OPENCODE_LEARNINGS_DB", str(DEFAULT_DB_PATH))).expanduser()
+
+SQL_PATH = Path(__file__).resolve().parent.parent / "opencode" / "sql" / "learnings_store.sql"
 
 VALID_CATEGORIES = [
     "navigation",
@@ -23,48 +27,25 @@ VALID_CATEGORIES = [
     "debugging",
 ]
 
-SCHEMA = """
-PRAGMA journal_mode=WAL;
 
-CREATE TABLE IF NOT EXISTS learnings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
-  category TEXT NOT NULL CHECK (category IN (
-    'navigation', 'tool-usage', 'codebase', 'gotcha',
-    'fixture', 'selector', 'debugging'
-  )),
-  summary TEXT NOT NULL,
-  detail TEXT,
-  tags TEXT,
-  plan_id TEXT,
-  agent TEXT
-);
+def _read_schema() -> str:
+    return SQL_PATH.read_text()
 
-CREATE INDEX IF NOT EXISTS idx_learnings_category ON learnings(category);
-CREATE INDEX IF NOT EXISTS idx_learnings_tags ON learnings(tags);
 
-CREATE VIRTUAL TABLE IF NOT EXISTS learnings_fts USING fts5(
-  summary, detail, content=learnings, content_rowid=id
-);
-
-CREATE TRIGGER IF NOT EXISTS learnings_ai AFTER INSERT ON learnings BEGIN
-  INSERT INTO learnings_fts(rowid, summary, detail) VALUES (new.id, new.summary, new.detail);
-END;
-"""
+def init_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.executescript(_read_schema())
+    conn.close()
 
 
 def cmd_init(args):
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.executescript(SCHEMA)
-    conn.close()
+    init_db()
     print(json.dumps({"ok": True, "path": str(DB_PATH)}))
 
 
 def cmd_query(args):
-    if not DB_PATH.exists():
-        print("Error: learnings database not found. Run init first.", file=sys.stderr)
-        sys.exit(1)
+    init_db()
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
@@ -111,9 +92,7 @@ def cmd_query(args):
 
 
 def cmd_add(args):
-    if not DB_PATH.exists():
-        print("Error: learnings database not found. Run init first.", file=sys.stderr)
-        sys.exit(1)
+    init_db()
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute(
