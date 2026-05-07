@@ -2,7 +2,8 @@ vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
 
 -- buffer operations
-vim.keymap.set('n', 'bn', '<cmd>bnext<cr>')
+
+vim.keymap.set('n', 'bm', '<cmd>bnext<cr>')
 vim.keymap.set('n', 'bp', '<cmd>bprevious<cr>')
 vim.keymap.set('n', 'bd', '<cmd>bdelete<cr>')
 
@@ -29,14 +30,16 @@ vim.keymap.set('n', '<M-Down>', '5<C-w>-')
 
 -- quickfix, loclist nav
 vim.keymap.set('n', ']]', '<cmd>cnext<CR>')
-vim.keymap.set('n', '[[', '<cmd>cprargs<CR>')
+vim.keymap.set('n', '[[', '<cmd>cprev<CR>')
 
 -- lsp
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
 vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
 vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
+
 vim.keymap.set('n', '<leader>ds', vim.lsp.buf.document_symbol)
 vim.keymap.set('n', '<leader>dS', vim.lsp.buf.workspace_symbol)
+
 vim.keymap.set('n', '<leader>dq', function()
   vim.diagnostic.setqflist()
   vim.cmd('copen')
@@ -45,6 +48,7 @@ vim.keymap.set('n', '<leader>dl', function()
   vim.diagnostic.setloclist()
   vim.cmd('lopen')
 end)
+
 vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float)
 vim.keymap.set('n', ']d', function()
   vim.diagnostic.jump({ count = 1, float = true })

@@ -1,5 +1,0 @@
--- require('custom.floating_terminal').setup({
---   width = 80,
---   height = 20,
---   border = 'rounded',
--- })
