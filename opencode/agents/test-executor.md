@@ -10,16 +10,18 @@ permission:
     "*": deny
     "pwd": allow
     "mkdir -p *": allow
-  plan:
-    "*": deny
-    "plan_get": allow
-    "plan_revise": allow
-    "plan_transition": allow
+    "pnpm -C apps/playwright-tests auth": allow
+    "pnpm -C apps/playwright-tests load:feature-flags": allow
   skill:
     "*": deny
     "playwright-cli": allow
   task:
     "*": deny
+  "plan_*": deny
+  plan_get: allow
+  plan_revise: allow
+  plan_transition: allow
+  atlassian_addCommentToJiraIssue: allow
 
 ---
 
@@ -59,10 +61,10 @@ Blocked:
 
 ## Auth
 
-- Run the Playwright setup spec to authenticate: `npx playwright test setup.spec.ts` from `apps/playwright-tests/`.
+- Run auth before executing steps that require login: `pnpm -C apps/playwright-tests auth`
 - This produces auth state at `apps/playwright-tests/.auth/dev.json`.
-- Run setup once before executing steps that require login.
-- If setup fails, transition plan to `blocked`, return `auth-blocked`, and stop.
+- Run auth once before executing steps that require login.
+- If auth fails, transition plan to `blocked`, return `auth-blocked`, and stop.
 
 ## Rules
 

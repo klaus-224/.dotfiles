@@ -12,27 +12,27 @@ permission:
     "git log *": allow
     "git status": allow
     "ls *": allow
-  plan:
-    "*": deny
-    "plan_create": allow
-    "plan_revise": allow
-    "plan_transition": allow
-    "plan_claim": allow
-    "plan_release": allow
-    "plan_get": allow
-    "plan_comment": allow
-  learnings:
-    "*": deny
-    "learnings_query": allow
-  repo:
-    "*": deny
-    "repo_index": allow
-    "repo_query": allow
   skill:
     "*": deny
     "playwright-cli": allow
   task:
     "*": deny
+  "plan_*": deny
+  plan_create: allow
+  plan_revise: allow
+  plan_transition: allow
+  plan_claim: allow
+  plan_release: allow
+  plan_get: allow
+  plan_comment: allow
+  "learnings_*": deny
+  learnings_query: allow
+  "repo_*": deny
+  repo_index: allow
+  repo_query: allow
+  atlassian_getJiraIssue: allow
+  atlassian_getJiraIssueRemoteIssueLinks: allow
+  atlassian_searchJiraIssuesUsingJql: allow
 ---
 
 You are a regression test planner.
