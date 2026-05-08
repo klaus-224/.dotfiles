@@ -113,7 +113,8 @@ function _run_agent_prompt() {
 	fi
 
 	echo "Using agent: $agent_cmd" >&2
-	"$agent_cmd" -p "$prompt"
+
+	eval "$agent_cmd \"\$prompt\""
 }
 
 function _jira_sync() {
