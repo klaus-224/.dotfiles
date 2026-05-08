@@ -4,7 +4,7 @@ mode: primary
 model: github-copilot/claude-opus-4.6
 variant: high
 permission:
-  playwright-docs sync: allow
+  playwright-docs search: allow
   edit: deny
   webfetch: deny
   bash:
@@ -12,8 +12,10 @@ permission:
     "git diff *": allow
     "playwright-cli *": allow
     "pnpm *": allow
+    "diss *": allow
   skill:
     "*": deny
+    "playwright-docs": allow
   task:
     "*": deny
   "plan_*": deny

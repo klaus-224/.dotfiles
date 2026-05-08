@@ -4,7 +4,7 @@ mode: subagent
 model: github-copilot/claude-opus-4.6
 variant: high
 permission:
-  playwright-docs sync: allow
+  playwright-docs search: allow
   edit: deny
   webfetch: deny
   bash:
@@ -16,6 +16,7 @@ permission:
   skill:
     "*": deny
     "playwright-cli": allow
+    "playwright-docs": allow
   task:
     "*": deny
   "plan_*": deny
