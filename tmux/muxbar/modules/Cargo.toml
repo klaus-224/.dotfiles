@@ -1,0 +1,10 @@
+[package]
+name = "modules"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+battery = "0.7.8"
+chrono = "0.4.38"
+sysinfo = "0.30.7"
+ansi_term = "0.12.1"

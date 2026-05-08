@@ -13,5 +13,6 @@ if [[ "$USER" == "klaus224" ]]; then
 else
   export OPENCODE_CONFIG="${DOTFILES_HOME:-$HOME/.dotfiles}/opencode/opencode.work.jsonc"
 fi
+
 export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode"
 export OPENCODE_PLAN_STORE_BIN="$DOTFILES_HOME/opencode/bin/plan_store.py"
