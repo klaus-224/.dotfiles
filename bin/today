@@ -2,45 +2,44 @@
 set -euo pipefail
 
 # --------------------------------------------------
-# today.zsh
-# Purpose:
-#   Daily list workflow for Jira -> markdown -> nvim.
+# today — Manual-first daily todo list with optional
+#          additive Jira sync via any AI agent CLI.
 # --------------------------------------------------
 
-function _today_lists_dir() {
+function _lists_dir() {
 	echo "${TODAY_LISTS_DIR:-$HOME/Documents/lists}"
 }
 
-function _today_date() {
+function _date() {
 	date +%F
 }
 
-function _today_file_for_date() {
+function _file_for_date() {
 	local day="$1"
-	echo "$(_today_lists_dir)/${day}.md"
+	echo "$(_lists_dir)/${day}.md"
 }
 
-function _today_today_file() {
-	_today_file_for_date "$(_today_date)"
+function _today_file() {
+	_file_for_date "$(_date)"
 }
 
-function _today_legacy_file() {
-	echo "$(_today_lists_dir)/today.md"
+function _legacy_file() {
+	echo "$(_lists_dir)/today.md"
 }
 
-function _today_ensure_lists_dir() {
-	mkdir -p "$(_today_lists_dir)"
+function _ensure_lists_dir() {
+	mkdir -p "$(_lists_dir)"
 }
 
-function _today_link_legacy() {
+function _link_legacy() {
 	local today_file="$1"
 	local legacy_file
-	legacy_file="$(_today_legacy_file)"
+	legacy_file="$(_legacy_file)"
 
 	ln -sfn "$(basename "$today_file")" "$legacy_file"
 }
 
-function _today_bootstrap_file() {
+function _bootstrap_file() {
 	local file="$1"
 
 	if [[ -f "$file" ]]; then
@@ -48,22 +47,21 @@ function _today_bootstrap_file() {
 	fi
 
 	cat >"$file" <<EOT
-# $(_today_date) Tasks
-
+# $(_date) Tasks
 
 EOT
 }
 
-function _today_archive_legacy_internal() {
+function _archive_legacy_internal() {
 	local today_file legacy_file archive_target
-	today_file="$(_today_today_file)"
-	legacy_file="$(_today_legacy_file)"
+	today_file="$(_today_file)"
+	legacy_file="$(_legacy_file)"
 	archive_target="$today_file"
 
-	_today_ensure_lists_dir
+	_ensure_lists_dir
 
 	if [[ -L "$legacy_file" ]]; then
-		_today_link_legacy "$today_file"
+		_link_legacy "$today_file"
 		return 0
 	fi
 
@@ -72,91 +70,70 @@ function _today_archive_legacy_internal() {
 	fi
 
 	if [[ -e "$archive_target" ]]; then
-		archive_target="$(_today_lists_dir)/$(_today_date)-$(date +%H%M%S).md"
+		archive_target="$(_lists_dir)/$(_date)-$(date +%H%M%S).md"
 	fi
 
 	mv "$legacy_file" "$archive_target"
 	echo "Archived: $legacy_file -> $archive_target"
 
-	_today_link_legacy "$today_file"
+	_link_legacy "$today_file"
 }
 
-function _today_archive_legacy() {
+function _archive_legacy() {
 	local legacy_file
-	legacy_file="$(_today_legacy_file)"
+	legacy_file="$(_legacy_file)"
 
 	if [[ ! -f "$legacy_file" && ! -L "$legacy_file" ]]; then
-		echo "No today.md found in $(_today_lists_dir)"
+		echo "No today.md found in $(_lists_dir)"
 		return 0
 	fi
 
-	_today_archive_legacy_internal
+	_archive_legacy_internal
 }
 
-function _today_run_copilot_prompt() {
+function _run_agent_prompt() {
 	local prompt="$1"
-	local desired_profile active_profile profiles_dir
+	local agent_cmd=""
 
-	desired_profile="${TODAY_COPILOT_PROFILE:-}"
-	profiles_dir="${COPILOT_PROFILES_DIR:-$HOME/.copilot/profiles}"
-
-	if [[ -f "$profiles_dir/.active" ]]; then
-		active_profile="$(<"$profiles_dir/.active")"
+	if [[ -n "${TODAY_AGENT_CMD:-}" ]]; then
+		agent_cmd="$TODAY_AGENT_CMD"
+	else
+		local candidates=(opencode copilot codex)
+		for cmd in "${candidates[@]}"; do
+			if command -v "$cmd" >/dev/null 2>&1; then
+				agent_cmd="$cmd"
+				break
+			fi
+		done
 	fi
 
-	if [[ -n "$desired_profile" ]]; then
-		if ! typeset -f cpro >/dev/null 2>&1; then
-			echo "TODAY_COPILOT_PROFILE is set, but cpro is unavailable." >&2
-			return 1
-		fi
-		if ! cpro load "$desired_profile" >&2; then
-			echo "Unable to load Copilot profile: $desired_profile" >&2
-			return 1
-		fi
-		active_profile="$desired_profile"
-	elif [[ -z "$active_profile" ]] && typeset -f cpro >/dev/null 2>&1; then
-		if ! cpro load jira-agent >&2; then
-			echo "Unable to load fallback Copilot profile: jira-agent" >&2
-			return 1
-		fi
-		active_profile="jira-agent"
+	if [[ -z "$agent_cmd" ]]; then
+		echo "No agent CLI found. Set TODAY_AGENT_CMD or install one of: opencode, copilot, codex" >&2
+		return 1
 	fi
 
-	if [[ -n "$TODAY_COPILOT_CMD" ]]; then
-		[[ -n "$active_profile" ]] && echo "Using Copilot profile: $active_profile" >&2
-		echo "Running Copilot prompt..." >&2
-		"$TODAY_COPILOT_CMD" -p "$prompt" --add-dir "$(_today_lists_dir)"
-		return $?
-	fi
-
-	if command -v copilot >/dev/null 2>&1; then
-		[[ -n "$active_profile" ]] && echo "Using Copilot profile: $active_profile" >&2
-		echo "Running Copilot prompt..." >&2
-		copilot -p "$prompt" --add-dir "$(_today_lists_dir)"
-		return $?
-	fi
-
-	echo "Copilot CLI not found. Install copilot-cli" >&2
-	return 1
+	echo "Using agent: $agent_cmd" >&2
+	"$agent_cmd" -p "$prompt"
 }
 
-function _today_generate_from_jira() {
+function _jira_sync() {
 	local today_file prompt output tmp_output
-	today_file="$(_today_today_file)"
+	today_file="$(_today_file)"
 
-	_today_ensure_lists_dir
-	_today_archive_legacy_internal
+	_ensure_lists_dir
+	_archive_legacy_internal
+	_bootstrap_file "$today_file"
 
-	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and generate a concise markdown plan for today. For each issue include key, short title and a link to the ticket. The list must be a todo list, and you should not add any of your thinking or steps to the markdown. Return ONLY markdown content.}"
+	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and generate a concise markdown todo list. For each issue include key, short title and a link to the ticket. Return ONLY markdown list items (lines starting with \"- [ ]\"). No headings, no commentary.}"
 
-	tmp_output="$(mktemp -t today-copilot-output.XXXXXX)" || {
+	tmp_output="$(mktemp -t today-agent-output.XXXXXX)" || {
 		echo "Unable to create temporary output file." >&2
 		return 1
 	}
 
-	if ! _today_run_copilot_prompt "$prompt" | tee "$tmp_output"; then
+	if ! _run_agent_prompt "$prompt" >"$tmp_output" 2>&1; then
 		rm -f "$tmp_output"
-		echo "Copilot query failed. You can override with TODAY_COPILOT_CMD or TODAY_JIRA_PROMPT." >&2
+		echo "Agent query failed. Set TODAY_AGENT_CMD or TODAY_JIRA_PROMPT to customize." >&2
 		return 1
 	fi
 
@@ -164,40 +141,106 @@ function _today_generate_from_jira() {
 	rm -f "$tmp_output"
 
 	if [[ -z "$output" ]]; then
-		echo "Copilot returned empty output." >&2
+		echo "Agent returned empty output." >&2
 		return 1
 	fi
 
-	printf "%s\n" "$output" >"$today_file"
-	_today_link_legacy "$today_file"
+	# Extract existing Jira ticket keys from today's file
+	local existing_keys=""
+	if [[ -f "$today_file" ]]; then
+		existing_keys=$(grep -oE '[A-Z][A-Z0-9]+-[0-9]+' "$today_file" 2>/dev/null || true)
+	fi
 
-	echo "Updated: $today_file"
+	# Filter output to only new tasks (lines containing a ticket key not already present)
+	local new_tasks=""
+	while IFS= read -r line; do
+		# Skip empty lines and non-list lines
+		[[ -z "$line" ]] && continue
+		[[ "$line" != *"- ["* ]] && continue
+
+		# Extract ticket key from this line
+		local key
+		key=$(echo "$line" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' 2>/dev/null | head -1 || true)
+
+		# If no key found, or key is not already present, include it
+		if [[ -z "$key" ]] || ! echo "$existing_keys" | grep -qF "$key" 2>/dev/null; then
+			new_tasks+="${line}"$'\n'
+		fi
+	done <<<"$output"
+
+	if [[ -z "$new_tasks" ]]; then
+		echo "No new Jira tasks to add."
+		return 0
+	fi
+
+	# Append to ## Jira section or create it
+	if grep -q '^## Jira' "$today_file" 2>/dev/null; then
+		# Append after existing Jira section content
+		printf "%s" "$new_tasks" >>"$today_file"
+	else
+		# Create the section at the end
+		printf "\n## Jira\n%s" "$new_tasks" >>"$today_file"
+	fi
+
+	_link_legacy "$today_file"
+
+	local count
+	count=$(echo -n "$new_tasks" | grep -c '^- \[' || true)
+	echo "Added $count Jira task(s) to: $today_file"
 }
 
-function _today_open_file() {
+function _add() {
+	local today_file
+	today_file="$(_today_file)"
+
+	_ensure_lists_dir
+	_archive_legacy_internal
+	_bootstrap_file "$today_file"
+	_link_legacy "$today_file"
+
+	_open_file "$today_file" "+normal Go"
+}
+
+function _yesterday() {
+	local i day file
+	for i in {1..14}; do
+		day=$(date -v-${i}d +%F 2>/dev/null || date -d "$i days ago" +%F 2>/dev/null)
+		file="$(_file_for_date "$day")"
+		if [[ -f "$file" ]]; then
+			_open_file "$file"
+			return 0
+		fi
+	done
+
+	echo "No previous day's file found (looked back 14 days)."
+	return 1
+}
+
+function _open_file() {
 	local file="$1"
+	shift
 
 	if ! command -v nvim >/dev/null 2>&1; then
 		echo "nvim is required." >&2
 		return 1
 	fi
 
-	nvim "$file"
+	nvim "$@" "$file"
 }
 
-function _today_open_today() {
+function _open_today() {
 	local today_file
-	today_file="$(_today_today_file)"
+	today_file="$(_today_file)"
 
-	_today_ensure_lists_dir
-	_today_archive_legacy_internal
-	_today_bootstrap_file "$today_file"
-	_today_link_legacy "$today_file"
+	_ensure_lists_dir
+	_archive_legacy_internal
+	_bootstrap_file "$today_file"
+	_link_legacy "$today_file"
 
-	_today_open_file "$today_file"
+	_open_file "$today_file"
 }
 
-function _today_fzf_files() {
+function _fzf_files() {
 	local selected
 
 	if ! command -v fzf >/dev/null 2>&1; then
@@ -205,14 +248,14 @@ function _today_fzf_files() {
 		return 1
 	fi
 
-	_today_ensure_lists_dir
+	_ensure_lists_dir
 
-	selected=$(find "$(_today_lists_dir)" -maxdepth 1 -type f | sort |
+	selected=$(find "$(_lists_dir)" -maxdepth 1 -type f | sort |
 		fzf --height=70% --layout=reverse --prompt='lists> ' \
 			--preview 'bat --color=always -n {} 2>/dev/null || sed -n "1,200p" {}')
 
 	[[ -z "$selected" ]] && return 0
-	_today_open_file "$selected"
+	_open_file "$selected"
 }
 
 function today() {
@@ -220,40 +263,47 @@ function today() {
 
 	case "$cmd" in
 	open)
-		_today_open_today
+		_open_today
 		;;
-	fetch | jira | sync)
-		_today_generate_from_jira
+	add)
+		_add
+		;;
+	sync | jira)
+		_jira_sync
 		;;
 	refresh)
-		_today_generate_from_jira && _today_open_today
+		_jira_sync && _open_today
+		;;
+	yesterday)
+		_yesterday
 		;;
 	archive)
-		_today_archive_legacy
+		_archive_legacy
 		;;
 	path)
-		_today_today_file
+		_today_file
 		;;
 	files | list | fzf)
-		_today_fzf_files
+		_fzf_files
 		;;
 	help | -h | --help)
 		cat <<'EOT'
 Usage: today [command]
 
 Commands:
-  open      Open today's list in nvim (default)
-  fetch     Generate today's file from Jira tasks via Copilot CLI
-  refresh   Fetch from Jira, then open today's file
-  archive   Archive legacy today.md to a date-based filename
-  path      Print today's file path
-  files     Browse all files in lists dir with fzf and open selection
+  open        Open today's list in nvim (default)
+  add         Open today's file at the end for quick task entry
+  sync        Additively import Jira tasks (never overwrites existing content)
+  refresh     Sync Jira tasks, then open today's file
+  yesterday   Open the most recent previous day's file
+  archive     Archive legacy today.md to a date-based filename
+  path        Print today's file path
+  files       Browse all files in lists dir with fzf and open selection
 
 Environment:
-  TODAY_LISTS_DIR    Override lists directory (default: ~/Documents/lists)
-  TODAY_COPILOT_CMD  Override copilot executable name/path (example: 'copilot')
-  TODAY_COPILOT_PROFILE  Force cpro profile before running prompt
-  TODAY_JIRA_PROMPT  Override the prompt sent to Copilot CLI
+  TODAY_LISTS_DIR      Override lists directory (default: ~/Documents/lists)
+  TODAY_AGENT_CMD      Agent CLI to use for Jira sync (default: auto-detect opencode/copilot/codex)
+  TODAY_JIRA_PROMPT    Override the prompt sent to the agent for Jira sync
 EOT
 		;;
 	*)
