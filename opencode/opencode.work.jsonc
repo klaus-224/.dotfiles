@@ -21,7 +21,11 @@
       "disable": true,
     },
     "build": {
-      "disable": true,
+      "model": "github-copilot/claude-sonnet-4.6",
+      "permission": {
+        "edit":"allow",
+        ''
+      }
     },
     "plan-s": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
@@ -64,5 +68,13 @@
       },
     },
   },
-  "plugin": ["@plannotator/opencode@latest"],
+  "plugin": [
+    [
+      "@plannotator/opencode@latest",
+      {
+        "workflow": "plan-agent",
+        "planningAgents": ["plan-c", "plan-s"],
+      },
+    ],
+  ],
 }

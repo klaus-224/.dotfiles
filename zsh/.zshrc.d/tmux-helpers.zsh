@@ -18,11 +18,14 @@ function tlayout() {
 }
 
 function _tlayout_development() {
-	# left(25%) | center(50%) | right(25%)
-	# center split vertically in half
-	tmux split-window -h -p 75
-	tmux split-window -h -p 33
-	tmux select-pane -t 1
-	tmux split-window -v -p 50
-	tmux select-pane -t 0
+  # left(10%) | center(70%) | right(20%)
+  # center split top(70%) / bottom(30%)
+
+  tmux split-window -h -l 20%     # right = 20%
+  tmux select-pane -L             # select remaining 80%
+
+  tmux split-window -h -b -l 20%  # left = 20%
+  tmux select-pane -R             # select center
+
+  tmux split-window -v -l 20%     # bottom = 30%, top = 70%
 }
