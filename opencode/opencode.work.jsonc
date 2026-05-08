@@ -15,5 +15,53 @@
       "enabled": true,
     },
   },
+  "agent": {
+    "plan": {
+      "disable": true,
+    },
+    "build": {
+      "disable": true,
+    },
+    "plan-s": {
+      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
+      "mode": "primary",
+      "model": "github-copilot/claude-opus-4.6",
+      "temperature": 0.1,
+      "steps": 12,
+      "prompt": "Help me plan whatever I ask",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "rg *": "allow",
+          "grep *": "allow",
+        },
+        "external_directory": "deny",
+      },
+    },
+    "plan-c": {
+      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
+      "mode": "primary",
+      "model": "github-copilot/claude-opus-4.6",
+      "temperature": 0.8,
+      "steps": 12,
+      "prompt": "Help me plan whatever I ask for but be creative",
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "rg *": "allow",
+          "grep *": "allow",
+        },
+        "external_directory": "deny",
+      },
+    },
+  },
   "plugin": ["@plannotator/opencode@latest"],
 }
