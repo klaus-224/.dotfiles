@@ -1,0 +1,378 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# --------------------------------------------------
+# awv — AWS Resource Viewer (fzf-powered)
+# Purpose:
+#   Interactive viewer for AWS resources via CloudFormation,
+#   S3, ECS Fargate, Step Functions, and IAM.
+# Dependencies: aws CLI v2, fzf, dasel
+# --------------------------------------------------
+
+# ── Globals ──────────────────────────────────────────
+
+typeset -a AWS_OPTS=()
+
+# ── Dependency checks ────────────────────────────────
+
+function _awv_check_deps() {
+    local missing=()
+    for cmd in aws fzf dasel; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            missing+=("$cmd")
+        fi
+    done
+    if ((${#missing[@]})); then
+        echo "awv: missing dependencies: ${missing[*]}" >&2
+        echo "  brew install ${missing[*]}" >&2
+        return 1
+    fi
+}
+
+# ── Auth ─────────────────────────────────────────────
+
+function _awv_require_session() {
+    if aws sts get-caller-identity "${AWS_OPTS[@]}" >/dev/null 2>&1; then
+        return 0
+    fi
+    echo "AWS session expired or not configured." >&2
+    echo "Running: aws sso login ${AWS_OPTS[*]}" >&2
+    aws sso login "${AWS_OPTS[@]}"
+}
+
+# ── Helpers ──────────────────────────────────────────
+
+function _awv_fzf() {
+    fzf --height=80% --layout=reverse --border --ansi "$@"
+}
+
+# ── CloudFormation Stacks ────────────────────────────
+
+function _awv_stacks() {
+    local stack
+    stack=$(
+        aws cloudformation list-stacks "${AWS_OPTS[@]}" \
+            --stack-status-filter \
+                CREATE_COMPLETE UPDATE_COMPLETE UPDATE_ROLLBACK_COMPLETE \
+                ROLLBACK_COMPLETE DELETE_FAILED IMPORT_COMPLETE \
+            --query 'StackSummaries[].{Name:StackName,Status:StackStatus,Updated:LastUpdatedTime}' \
+            --output text |
+        sort -k1 |
+        _awv_fzf \
+            --header="STACK NAME | STATUS | LAST UPDATED" \
+            --preview="aws cloudformation describe-stacks ${AWS_OPTS[*]} --stack-name {1} --output json | dasel -i json -o yaml 'Stacks[0].Outputs'" \
+            --preview-window=right:50%:wrap \
+            --prompt="stacks> "
+    ) || return 0
+
+    local stack_name="${stack%% *}"
+    [[ -z "$stack_name" ]] && return 0
+
+    # Drill-down: pick what to view
+    local view
+    view=$(printf "resources\noutputs\nevents" |
+        _awv_fzf --header="Stack: $stack_name — pick view" --prompt="view> "
+    ) || return 0
+
+    case "$view" in
+        resources)
+            aws cloudformation describe-stack-resources "${AWS_OPTS[@]}" \
+                --stack-name "$stack_name" \
+                --query 'StackResources[].{Type:ResourceType,LogicalId:LogicalResourceId,Status:ResourceStatus,PhysicalId:PhysicalResourceId}' \
+                --output text |
+            sort -k1 |
+            _awv_fzf \
+                --header="TYPE | LOGICAL ID | STATUS | PHYSICAL ID" \
+                --prompt="resources($stack_name)> " \
+                --preview="echo {}" \
+                --preview-window=down:3:wrap
+            ;;
+        outputs)
+            aws cloudformation describe-stacks "${AWS_OPTS[@]}" \
+                --stack-name "$stack_name" \
+                --query 'Stacks[0].Outputs[].{Key:OutputKey,Value:OutputValue}' \
+                --output text |
+            _awv_fzf \
+                --header="OUTPUT KEY | VALUE" \
+                --prompt="outputs($stack_name)> "
+            ;;
+        events)
+            aws cloudformation describe-stack-events "${AWS_OPTS[@]}" \
+                --stack-name "$stack_name" \
+                --query 'StackEvents[].{Time:Timestamp,Resource:LogicalResourceId,Status:ResourceStatus,Reason:ResourceStatusReason}' \
+                --output text |
+            head -50 |
+            _awv_fzf \
+                --header="TIMESTAMP | RESOURCE | STATUS | REASON" \
+                --prompt="events($stack_name)> " \
+                --preview="echo {}" \
+                --preview-window=down:3:wrap
+            ;;
+    esac
+}
+
+# ── S3 ───────────────────────────────────────────────
+
+function _awv_s3() {
+    local bucket
+    bucket=$(
+        aws s3api list-buckets "${AWS_OPTS[@]}" \
+            --query 'Buckets[].{Name:Name,Created:CreationDate}' \
+            --output text |
+        sort -k1 |
+        _awv_fzf \
+            --header="BUCKET NAME | CREATED" \
+            --prompt="s3> "
+    ) || return 0
+
+    local bucket_name="${bucket%% *}"
+    [[ -z "$bucket_name" ]] && return 0
+
+    # Browse objects in bucket
+    local prefix=""
+    while true; do
+        local selection
+        selection=$(
+            aws s3 ls "${AWS_OPTS[@]}" "s3://${bucket_name}/${prefix}" 2>/dev/null |
+            _awv_fzf \
+                --header="s3://${bucket_name}/${prefix}" \
+                --prompt="s3($bucket_name)> " \
+                --expect=ctrl-h
+        ) || return 0
+
+        # Parse fzf output (first line is key pressed if --expect is used)
+        local key="${selection%%$'\n'*}"
+        local line="${selection#*$'\n'}"
+
+        if [[ "$key" == "ctrl-h" ]]; then
+            # Go up one level
+            prefix="${prefix%/}"
+            prefix="${prefix%/*}/"
+            [[ "$prefix" == "/" ]] && prefix=""
+            continue
+        fi
+
+        # Check if it's a prefix (directory)
+        if [[ "$line" == *"PRE "* ]]; then
+            local dir_name="${line##*PRE }"
+            dir_name="${dir_name%% *}"
+            prefix="${prefix}${dir_name}"
+        else
+            # It's a file — show info
+            local file_name
+            file_name=$(echo "$line" | awk '{print $NF}')
+            echo "s3://${bucket_name}/${prefix}${file_name}"
+            aws s3api head-object "${AWS_OPTS[@]}" \
+                --bucket "$bucket_name" \
+                --key "${prefix}${file_name}" \
+                --output yaml 2>/dev/null || true
+            break
+        fi
+    done
+}
+
+# ── ECS Fargate ──────────────────────────────────────
+
+function _awv_ecs() {
+    # List clusters
+    local cluster
+    cluster=$(
+        aws ecs list-clusters "${AWS_OPTS[@]}" \
+            --query 'clusterArns[]' --output text |
+        tr '\t' '\n' |
+        sed 's|.*/||' |
+        _awv_fzf --header="ECS CLUSTERS" --prompt="ecs> "
+    ) || return 0
+
+    [[ -z "$cluster" ]] && return 0
+
+    # List services in cluster
+    local service
+    service=$(
+        aws ecs list-services "${AWS_OPTS[@]}" \
+            --cluster "$cluster" \
+            --query 'serviceArns[]' --output text |
+        tr '\t' '\n' |
+        sed 's|.*/||' |
+        _awv_fzf \
+            --header="SERVICES in $cluster" \
+            --prompt="ecs($cluster)> " \
+            --preview="aws ecs describe-services ${AWS_OPTS[*]} --cluster $cluster --services {1} --query 'services[0].{Status:status,Desired:desiredCount,Running:runningCount,TaskDef:taskDefinition}' --output yaml"  \
+            --preview-window=right:50%:wrap
+    ) || return 0
+
+    [[ -z "$service" ]] && return 0
+
+    # List tasks in service
+    local tasks
+    tasks=$(aws ecs list-tasks "${AWS_OPTS[@]}" \
+        --cluster "$cluster" \
+        --service-name "$service" \
+        --query 'taskArns[]' --output text |
+        tr '\t' '\n')
+
+    if [[ -z "$tasks" ]]; then
+        echo "No running tasks for $service" >&2
+        return 0
+    fi
+
+    aws ecs describe-tasks "${AWS_OPTS[@]}" \
+        --cluster "$cluster" \
+        --tasks ${(f)tasks} \
+        --query 'tasks[].{TaskId:taskArn,Status:lastStatus,Health:healthStatus,CPU:cpu,Memory:memory,StartedAt:startedAt}' \
+        --output text |
+    _awv_fzf \
+        --header="TASKS in $service | TASK ARN | STATUS | HEALTH | CPU | MEM | STARTED" \
+        --prompt="tasks($service)> " \
+        --preview="echo {}" \
+        --preview-window=down:3:wrap
+}
+
+# ── Step Functions ───────────────────────────────────
+
+function _awv_sfn() {
+    local machine
+    machine=$(
+        aws stepfunctions list-state-machines "${AWS_OPTS[@]}" \
+            --query 'stateMachines[].{Name:name,Arn:stateMachineArn}' \
+            --output text |
+        _awv_fzf \
+            --header="STATE MACHINE NAME | ARN" \
+            --prompt="sfn> "
+    ) || return 0
+
+    # Extract ARN (second column)
+    local arn
+    arn=$(echo "$machine" | awk '{print $2}')
+    local name
+    name=$(echo "$machine" | awk '{print $1}')
+    [[ -z "$arn" ]] && return 0
+
+    # List recent executions
+    aws stepfunctions list-executions "${AWS_OPTS[@]}" \
+        --state-machine-arn "$arn" \
+        --max-results 20 \
+        --query 'executions[].{Name:name,Status:status,Start:startDate,Stop:stopDate}' \
+        --output text |
+    _awv_fzf \
+        --header="EXECUTIONS for $name | NAME | STATUS | START | STOP" \
+        --prompt="sfn($name)> " \
+        --preview="aws stepfunctions describe-execution ${AWS_OPTS[*]} --execution-arn \$(aws stepfunctions list-executions ${AWS_OPTS[*]} --state-machine-arn $arn --query \"executions[?name=='{1}'].executionArn\" --output text) --output yaml 2>/dev/null || echo 'No details'" \
+        --preview-window=right:50%:wrap
+}
+
+# ── IAM ──────────────────────────────────────────────
+
+function _awv_iam() {
+    local category
+    category=$(printf "roles\nusers\npolicies" |
+        _awv_fzf --header="IAM — pick category" --prompt="iam> "
+    ) || return 0
+
+    case "$category" in
+        roles)
+            aws iam list-roles "${AWS_OPTS[@]}" \
+                --query 'Roles[].{RoleName:RoleName,Arn:Arn,Created:CreateDate}' \
+                --output text |
+            sort -k1 |
+            _awv_fzf \
+                --header="ROLE NAME | ARN | CREATED" \
+                --prompt="iam(roles)> " \
+                --preview="aws iam list-attached-role-policies ${AWS_OPTS[*]} --role-name {1} --output yaml" \
+                --preview-window=right:50%:wrap
+            ;;
+        users)
+            aws iam list-users "${AWS_OPTS[@]}" \
+                --query 'Users[].{UserName:UserName,Arn:Arn,Created:CreateDate}' \
+                --output text |
+            sort -k1 |
+            _awv_fzf \
+                --header="USER NAME | ARN | CREATED" \
+                --prompt="iam(users)> " \
+                --preview="aws iam list-attached-user-policies ${AWS_OPTS[*]} --user-name {1} --output yaml" \
+                --preview-window=right:50%:wrap
+            ;;
+        policies)
+            aws iam list-policies "${AWS_OPTS[@]}" \
+                --scope Local \
+                --query 'Policies[].{PolicyName:PolicyName,Arn:Arn,Updated:UpdateDate}' \
+                --output text |
+            sort -k1 |
+            _awv_fzf \
+                --header="POLICY NAME | ARN | UPDATED" \
+                --prompt="iam(policies)> " \
+                --preview="aws iam get-policy ${AWS_OPTS[*]} --policy-arn {2} --output yaml" \
+                --preview-window=right:50%:wrap
+            ;;
+    esac
+}
+
+# ── Dispatch ─────────────────────────────────────────
+
+function _awv_usage() {
+    cat <<'EOF'
+awv — AWS Resource Viewer
+
+Usage: awv [--profile <profile>] <command>
+
+Commands:
+  stacks    CloudFormation stacks (list, resources, outputs, events)
+  s3        S3 buckets and object browser
+  ecs       ECS Fargate clusters, services, and tasks
+  sfn       Step Functions state machines and executions
+  iam       IAM roles, users, and policies
+
+Options:
+  --profile <name>   AWS profile to use (passed to all aws calls)
+
+If no command is given, an interactive picker is shown.
+EOF
+}
+
+function awv() {
+    _awv_check_deps || return 1
+
+    # Parse --profile flag
+    while [[ "${1:-}" == --* ]]; do
+        case "$1" in
+            --profile)
+                shift
+                AWS_OPTS+=(--profile "$1")
+                shift
+                ;;
+            --help|-h)
+                _awv_usage
+                return 0
+                ;;
+            *)
+                echo "awv: unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    _awv_require_session || return 1
+
+    local cmd="${1:-}"
+
+    if [[ -z "$cmd" ]]; then
+        cmd=$(printf "stacks\ns3\necs\nsfn\niam" |
+            _awv_fzf --header="awv — pick a service" --prompt="awv> "
+        ) || return 0
+    fi
+
+    case "$cmd" in
+        stacks) _awv_stacks ;;
+        s3)     _awv_s3 ;;
+        ecs)    _awv_ecs ;;
+        sfn)    _awv_sfn ;;
+        iam)    _awv_iam ;;
+        *)
+            echo "awv: unknown command: $cmd" >&2
+            _awv_usage
+            return 1
+            ;;
+    esac
+}
+
+awv "$@"
