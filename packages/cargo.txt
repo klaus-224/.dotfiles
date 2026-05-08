@@ -1,3 +1,4 @@
 # Cargo packages to keep installed globally.
 # One crate name per line.
 toml-cli
+diss
