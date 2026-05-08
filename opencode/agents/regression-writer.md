@@ -4,6 +4,7 @@ mode: subagent
 model: github-copilot/gpt-5.4
 variant: high
 permission:
+  playwright-docs sync: allow
   edit: allow
   webfetch: deny
   bash:
