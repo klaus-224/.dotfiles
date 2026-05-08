@@ -125,7 +125,7 @@ function _jira_sync() {
 	_archive_legacy_internal
 	_bootstrap_file "$today_file"
 
-	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and generate a concise markdown todo list. For each issue include key, short title and a link to the ticket. Return ONLY markdown list items (lines starting with \"- [ ]\"). No headings, no commentary.}"
+	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and \"qa-filter\". Generate a concise markdown todo list, distinguish between tickets assigned to me and not assigned to me.  For each issue include key, short title and a link to the ticket. Return ONLY markdown list items (lines starting with \"- [ ]\"). No headings, no commentary.}"
 
 	tmp_output="$(mktemp -t today-agent-output.XXXXXX)" || {
 		echo "Unable to create temporary output file." >&2
