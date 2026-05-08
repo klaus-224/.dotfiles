@@ -1,15 +1,11 @@
-use modules::modules::{Battery, Cpu, Memory};
+use modules::modules::{Cpu, Memory};
 use modules::{modules::ToModule, Module};
 
 pub fn get_modules() -> Vec<Module<Box<dyn ToModule>>> {
-    [
-        Some(Cpu::new(2, 2).into()),
-        Some(Memory::new(2, 2).into()),
-        Battery::try_new(2).ok().flatten().map(Into::into),
-    ]
-    .into_iter()
-    .flatten()
-    .collect()
+    [Some(Cpu::new(2, 2).into()), Some(Memory::new(2, 2).into())]
+        .into_iter()
+        .flatten()
+        .collect()
 }
 
 pub const PRE_MODULES: &str = "";
