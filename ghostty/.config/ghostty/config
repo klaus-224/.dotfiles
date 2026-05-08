@@ -10,7 +10,7 @@ font-size = 16
 
 cursor-opacity = 1
 bold-is-bright = true
-background-opacity = 0.7
+background-opacity = 1
 selection-background = "#0a385c"
 
 window-decoration = none
@@ -29,7 +29,6 @@ bell-features = border
 desktop-notifications = false
 
 macos-titlebar-style = hidden
-background-blur-radius = 30
 
 # unbind digit hotkeys
 keybind = ctrl+0=unbind 

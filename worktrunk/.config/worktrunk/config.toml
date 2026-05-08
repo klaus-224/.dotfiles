@@ -7,7 +7,7 @@ pager = "delta --paging=never --width=$COLUMNS"
 copy = "wt step copy-ignored"
 
 [commit.generation]
-command = "opencode run -m openai/gpt-5.3 --variant fast"
+command = "opencode run -m openai/gpt-5.4 --variant medium"
 
 template = """
 Write a commit message for this diff. One line, under 50 chars.

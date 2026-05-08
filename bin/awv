@@ -35,9 +35,13 @@ function _awv_require_session() {
     if aws sts get-caller-identity "${AWS_OPTS[@]}" >/dev/null 2>&1; then
         return 0
     fi
+
     echo "AWS session expired or not configured." >&2
-    echo "Running: aws sso login ${AWS_OPTS[*]}" >&2
-    aws sso login "${AWS_OPTS[@]}"
+    echo "Running: aws login ${AWS_OPTS[*]}" >&2
+
+    aws login "${AWS_OPTS[@]}" || return $?
+
+    aws sts get-caller-identity "${AWS_OPTS[@]}" >/dev/null
 }
 
 # ── Helpers ──────────────────────────────────────────
