@@ -12,8 +12,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-DEFAULT_DB_PATH = Path.home() / ".local/state/opencode-custom-tools/learnings.db"
-DB_PATH = Path(os.environ.get("OPENCODE_LEARNINGS_DB", str(DEFAULT_DB_PATH))).expanduser()
+DEFAULT_DB_PATH = Path.home() / ".local/state/agent-tools/learnings.db"
+DB_PATH = Path(os.environ.get("AGENT_LEARNINGS_DB", str(DEFAULT_DB_PATH))).expanduser()
 
 SQL_PATH = Path(__file__).resolve().parent.parent / "opencode" / "sql" / "learnings_store.sql"
 
