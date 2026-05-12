@@ -4,6 +4,7 @@ mode: subagent
 model: github-copilot/gpt-5.4
 variant: high
 permission:
+  playwright-docs search: allow
   edit: allow
   webfetch: deny
   bash:
@@ -18,6 +19,7 @@ permission:
   skill:
     "*": deny
     "playwright-cli": allow
+    "playwright-docs": allow
   task:
     "*": deny
   "plan_*": deny
@@ -34,7 +36,7 @@ permission:
 
 You are a regression test writer.
 
-Always load `playwright-cli`. You have direct access to plan, learnings, and repo tools.
+Always load `playwright-cli` and `playwright-docs`. You have direct access to plan, learnings, and repo tools.
 
 You receive a `plan_id` for an approved regression test plan. Your job is to implement it as working Playwright test files.
 
@@ -120,6 +122,13 @@ Monorepo. Playwright tests in `apps/playwright-tests/`. Path aliases: `@pom/`, `
 - Verifying elements exist on the page at runtime
 - Debugging test failures by inspecting live state
 - Understanding dynamic UI behavior
+
+**You MUST use `playwright-docs` for:**
+
+- Playwright API reference (locators, assertions, page methods)
+- Test configuration options
+- Fixture patterns and best practices
+- Debugging strategies (tracing, screenshots, slow-mo)
 
 **STOP and ask the user before using grep or glob.** If you find yourself wanting to grep/glob through the codebase, STOP. Instead:
 
