@@ -238,7 +238,11 @@ vim.keymap.set({ 'n', 'v' }, '-', '<cmd>Oil<cr>')
 -- start fzf-lua setup
 require('fzf-lua').setup({
   winopts = {
-    split = 'belowright vnew',
+    split = 'belowright new',
+    width = 0.25,
+    preview = {
+      hidden = true,
+    },
   },
 })
 
