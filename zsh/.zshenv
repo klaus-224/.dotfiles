@@ -7,6 +7,8 @@ export STARSHIP_CONFIG="$DOTFILES_HOME/starship/starship.toml"
 export GH_DASH_CONFIG="$DOTFILES_HOME/git/gh-dash/config.yml"
 export SMOLVM_WORKSPACE="$HOME/code/smolvm/workspace"
 
+export PLAYWRIGHT_DOCS_DIR="$HOME/.dotfiles/opencode/skills/playwright-docs/references/docs-src"
+
 # open code
 if [[ "$USER" == "klaus224" ]]; then
   export OPENCODE_CONFIG="${DOTFILES_HOME:-$HOME/.dotfiles}/opencode/opencode.personal.jsonc"

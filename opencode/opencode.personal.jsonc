@@ -5,9 +5,70 @@
   "skills": {
     "paths": ["./skills"],
   },
+  "agent": {
+    "build": {
+      "model": "openai/gpt-5.3-codex",
+      "permission": {
+        "todowrite": "allow",
+        "*": "ask",
+        "edit": "allow",
+        "read": "allow",
+        "bash": "allow",
+      },
+    },
+    "planner": {
+      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
+      "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "xhigh",
+      "temperature": 0.1,
+      "steps": 12,
+      "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
+      "permission": {
+        "submit_plan": "allow",
+        "edit": {
+          "*": "deny",
+          "*.md": "allow",
+        },
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "rg *": "allow",
+          "grep *": "allow",
+        },
+        "external_directory": "deny",
+      },
+    },
+    "planner-creative": {
+      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
+      "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "xhigh",
+      "temperature": 0.8,
+      "steps": 12,
+      "prompt": "Help me plan whatever I ask for but be creative. Always load the plannotator-compound skill before submitting any plan.",
+      "permission": {
+        "submit_plan": "allow",
+        "edit": {
+          "*": "deny",
+          "*.md": "allow",
+        },
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "rg *": "allow",
+          "grep *": "allow",
+        },
+        "external_directory": "deny",
+      },
+    },
+  },
   "tools": {
     "paths": true,
   },
-  "mcp": {},
   "plugin": ["@plannotator/opencode@latest"],
 }
