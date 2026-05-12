@@ -1,13 +1,11 @@
 import { tool } from "@opencode-ai/plugin";
-import { homedir } from "node:os";
-import path from "node:path";
 import { spawn } from "node:child_process";
 
-const scriptPath = path.join(homedir(), ".dotfiles", "bin", "learnings_store");
+const scriptPath = process.env.LEARNINGS_STORE_BIN || "learnings_store";
 
 async function run(args: string[]) {
   return await new Promise<string>((resolve, reject) => {
-    const child = spawn("python3", [scriptPath, ...args], {
+    const child = spawn(scriptPath, args, {
       env: process.env,
       stdio: ["pipe", "pipe", "pipe"],
     });
