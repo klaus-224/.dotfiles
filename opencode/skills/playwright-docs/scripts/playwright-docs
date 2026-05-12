@@ -1,0 +1,71 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+DOCS_DIR="${PLAYWRIGHT_DOCS_DIR:-}"
+
+usage() {
+  cat >&2 <<'EOF'
+usage: playwright-docs <command> [args]
+
+commands:
+  sync  [dir]     Sync upstream Playwright docs to dir (or $PLAYWRIGHT_DOCS_DIR)
+  search <query>  Search local docs (uses $PLAYWRIGHT_DOCS_DIR)
+
+Set PLAYWRIGHT_DOCS_DIR or pass the docs directory as an argument to sync.
+EOF
+  exit 1
+}
+
+cmd_sync() {
+  local target="${1:-$DOCS_DIR}"
+  if [[ -z "$target" ]]; then
+    echo "error: pass a target directory or set PLAYWRIGHT_DOCS_DIR" >&2
+    exit 1
+  fi
+
+  local cache="$HOME/.cache/playwright-upstream"
+
+  if [[ ! -d "$cache/.git" ]]; then
+    git clone --filter=blob:none --sparse https://github.com/microsoft/playwright.git "$cache"
+    git -C "$cache" sparse-checkout set docs/src packages/playwright/src/skill
+  else
+    git -C "$cache" fetch origin main
+    git -C "$cache" checkout main
+    git -C "$cache" pull --ff-only
+  fi
+
+  rm -rf "$target"
+  mkdir -p "$(dirname "$target")"
+
+  rsync -a \
+    --exclude='images/' \
+    "$cache/docs/src/" \
+    "$target/"
+
+  git -C "$cache" rev-parse HEAD > "$(dirname "$target")/UPSTREAM_COMMIT"
+  echo "Playwright docs synced to $target"
+}
+
+cmd_search() {
+  local query="${*:?usage: playwright-docs search <query>}"
+  if [[ -z "$DOCS_DIR" ]]; then
+    echo "error: set PLAYWRIGHT_DOCS_DIR to the docs directory" >&2
+    exit 1
+  fi
+
+  set +o pipefail
+  rg --ignore-case --line-number --heading \
+    --glob '*.md' \
+    "$query" "$DOCS_DIR" |
+    head -120
+  local status=$?
+  set -o pipefail
+
+  exit "$status"
+}
+
+case "${1:-}" in
+  sync)   shift; cmd_sync "$@" ;;
+  search) shift; cmd_search "$@" ;;
+  *)      usage ;;
+esac
