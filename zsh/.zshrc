@@ -33,3 +33,6 @@ compinit -d ~/.cache/zsh/zcompdump-"$ZSH_VERSION"
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
+
+# learnings-store
+source "/Users/rohineshram/code/skyon.pw-agent/.agents/learnings-store/env.sh"
