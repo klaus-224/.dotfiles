@@ -1,5 +1,6 @@
 import { tool } from "@opencode-ai/plugin";
 import { spawn } from "node:child_process";
+import process from "node:process";
 
 const scriptPath = process.env.LEARNINGS_STORE_BIN || "learnings_store";
 
