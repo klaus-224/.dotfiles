@@ -12,6 +12,7 @@ set -euo pipefail
 # ── Globals ──────────────────────────────────────────
 
 typeset -a AWS_OPTS=()
+typeset AWV_AUTH_MODE="${AWV_AUTH_MODE:-login}"
 
 # ── Dependency checks ────────────────────────────────
 

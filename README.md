@@ -309,3 +309,4 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
+- [awesome-rust](https://github.com/rust-unofficial/awesome-rust#system-tools)
