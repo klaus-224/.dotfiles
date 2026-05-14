@@ -293,11 +293,14 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
 - [vmux](https://github.com/yazgoo/vmux) - using nvim as a mulitplexer (NO USE FOR THIS BUT PRETTY COOL)
 - [miri](https://github.com/maria-rcks/miri) - niri-ish window manager manager
+- [xleak](https://github.com/bgreenwell/xleak) - csv, xlsx viewer
 
 - **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet
   calculator
 - **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
 - **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
+- **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
+- **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
 
 ---
 
@@ -309,4 +312,4 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
-- [awesome-rust](https://github.com/rust-unofficial/awesome-rust#system-tools)
+

@@ -42,6 +42,10 @@ brew "lazygit"
 # gettext: https://formulae.brew.sh/formula/gettext
 brew "gettext"
 
+# misc
+brew "navi" # https://github.com/denisidoro/navi
+brew "flawz" # https://github.com/orhun/flawz
+
 ## END CLI TOOLS ##
 
 # zsh 
@@ -58,3 +62,4 @@ brew "awscli"
 
 # llm cli
 brew "anomalyco/tap/opencode"
+
