@@ -1,1 +1,0 @@
-/Users/rohineshram/.dotfiles/bin/plan_store
