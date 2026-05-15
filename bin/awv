@@ -38,9 +38,22 @@ function _awv_require_session() {
     fi
 
     echo "AWS session expired or not configured." >&2
-    echo "Running: aws login ${AWS_OPTS[*]}" >&2
 
-    aws login "${AWS_OPTS[@]}" || return $?
+    case "$AWV_AUTH_MODE" in
+        login)
+            echo "Running: aws login ${AWS_OPTS[*]}" >&2
+            aws login "${AWS_OPTS[@]}" || return $?
+            ;;
+        sso)
+            echo "Running: aws sso login ${AWS_OPTS[*]}" >&2
+            aws sso login "${AWS_OPTS[@]}" || return $?
+            ;;
+        *)
+            echo "awv: invalid auth mode: $AWV_AUTH_MODE" >&2
+            echo "awv: expected one of: login, sso" >&2
+            return 1
+            ;;
+    esac
 
     aws sts get-caller-identity "${AWS_OPTS[@]}" >/dev/null
 }
@@ -73,7 +86,6 @@ function _awv_stacks() {
     local stack_name="${stack%% *}"
     [[ -z "$stack_name" ]] && return 0
 
-    # Drill-down: pick what to view
     local view
     view=$(printf "resources\noutputs\nevents" |
         _awv_fzf --header="Stack: $stack_name — pick view" --prompt="view> "
@@ -133,7 +145,6 @@ function _awv_s3() {
     local bucket_name="${bucket%% *}"
     [[ -z "$bucket_name" ]] && return 0
 
-    # Browse objects in bucket
     local prefix=""
     while true; do
         local selection
@@ -145,25 +156,21 @@ function _awv_s3() {
                 --expect=ctrl-h
         ) || return 0
 
-        # Parse fzf output (first line is key pressed if --expect is used)
         local key="${selection%%$'\n'*}"
         local line="${selection#*$'\n'}"
 
         if [[ "$key" == "ctrl-h" ]]; then
-            # Go up one level
             prefix="${prefix%/}"
             prefix="${prefix%/*}/"
             [[ "$prefix" == "/" ]] && prefix=""
             continue
         fi
 
-        # Check if it's a prefix (directory)
         if [[ "$line" == *"PRE "* ]]; then
             local dir_name="${line##*PRE }"
             dir_name="${dir_name%% *}"
             prefix="${prefix}${dir_name}"
         else
-            # It's a file — show info
             local file_name
             file_name=$(echo "$line" | awk '{print $NF}')
             echo "s3://${bucket_name}/${prefix}${file_name}"
@@ -179,7 +186,6 @@ function _awv_s3() {
 # ── ECS Fargate ──────────────────────────────────────
 
 function _awv_ecs() {
-    # List clusters
     local cluster
     cluster=$(
         aws ecs list-clusters "${AWS_OPTS[@]}" \
@@ -191,7 +197,6 @@ function _awv_ecs() {
 
     [[ -z "$cluster" ]] && return 0
 
-    # List services in cluster
     local service
     service=$(
         aws ecs list-services "${AWS_OPTS[@]}" \
@@ -208,7 +213,6 @@ function _awv_ecs() {
 
     [[ -z "$service" ]] && return 0
 
-    # List tasks in service
     local tasks
     tasks=$(aws ecs list-tasks "${AWS_OPTS[@]}" \
         --cluster "$cluster" \
@@ -246,14 +250,12 @@ function _awv_sfn() {
             --prompt="sfn> "
     ) || return 0
 
-    # Extract ARN (second column)
     local arn
     arn=$(echo "$machine" | awk '{print $2}')
     local name
     name=$(echo "$machine" | awk '{print $1}')
     [[ -z "$arn" ]] && return 0
 
-    # List recent executions
     aws stepfunctions list-executions "${AWS_OPTS[@]}" \
         --state-machine-arn "$arn" \
         --max-results 20 \
@@ -318,7 +320,7 @@ function _awv_usage() {
     cat <<'EOF'
 awv — AWS Resource Viewer
 
-Usage: awv [--profile <profile>] <command>
+Usage: awv [--profile <profile>] [--auth login|sso] <command>
 
 Commands:
   stacks    CloudFormation stacks (list, resources, outputs, events)
@@ -329,6 +331,8 @@ Commands:
 
 Options:
   --profile <name>   AWS profile to use (passed to all aws calls)
+  --auth <mode>      Auth mode to use: login or sso
+                     Defaults to AWV_AUTH_MODE, or login if unset
 
 If no command is given, an interactive picker is shown.
 EOF
@@ -337,12 +341,35 @@ EOF
 function awv() {
     _awv_check_deps || return 1
 
-    # Parse --profile flag
     while [[ "${1:-}" == --* ]]; do
         case "$1" in
             --profile)
                 shift
+                if [[ -z "${1:-}" ]]; then
+                    echo "awv: --profile requires a value" >&2
+                    return 1
+                fi
                 AWS_OPTS+=(--profile "$1")
+                shift
+                ;;
+            --auth)
+                shift
+                if [[ -z "${1:-}" ]]; then
+                    echo "awv: --auth requires a value: login or sso" >&2
+                    return 1
+                fi
+
+                AWV_AUTH_MODE="$1"
+
+                case "$AWV_AUTH_MODE" in
+                    login|sso) ;;
+                    *)
+                        echo "awv: invalid auth mode: $AWV_AUTH_MODE" >&2
+                        echo "awv: expected one of: login, sso" >&2
+                        return 1
+                        ;;
+                esac
+
                 shift
                 ;;
             --help|-h)
