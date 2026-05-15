@@ -1,9 +1,5 @@
 # --------------------------------------------------
-#	.zshrc
-# Purpose:
-# 	- entry point for zsh configuration
-# 	- loops through zsh fragements in /.zshrc.d and
-# 		sources them
+#  entry point for zsh configuration
 # --------------------------------------------------
 [[ -n "${ZSH_VERSION:-}" ]] || return 0
 emulate -LR zsh
@@ -15,6 +11,9 @@ source "$HOME/.zshenv"
 # add to path
 eval "$(starship init zsh)"
 
+# have to source path first
+source './path.zsh'
+
 # source all config files
 for file in "$HOME"/.zshrc.d/*.zsh; do
 	[[ -f "$file" ]] || continue
@@ -22,12 +21,18 @@ for file in "$HOME"/.zshrc.d/*.zsh; do
 	source "$file"
 done
 
-source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix)"
 
-# move zshcompdump to ~/.cache/zsh/ so that it's not annoying
-autoload -Uz compinit
-compinit -d ~/.cache/zsh/zcompdump-"$ZSH_VERSION"
+  fpath=("$BREW_PREFIX/share/zsh-completions" $fpath)
+
+  mkdir -p ~/.cache/zsh
+  autoload -Uz compinit
+  compinit -d ~/.cache/zsh/zcompdump-"$ZSH_VERSION"
+
+  source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 # options
 setopt AUTO_PUSHD
