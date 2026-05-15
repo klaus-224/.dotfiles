@@ -12,7 +12,7 @@ source "$HOME/.zshenv"
 eval "$(starship init zsh)"
 
 # have to source path first
-source './path.zsh'
+source "$DOTFILES_HOME/zsh/path.zsh"
 
 # source all config files
 for file in "$HOME"/.zshrc.d/*.zsh; do
