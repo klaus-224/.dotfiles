@@ -3,18 +3,18 @@
   "model": "openai/gpt-5.4",
   "enabled_providers": ["openai", "opencode"],
   "skills": {
-    "paths": ["./skills"],
+    "paths": ["./skills"]
   },
   "agent": {
     "build": {
-      "model": "openai/gpt-5.3-codex",
+      "model": "openai/gpt-5.5",
       "permission": {
         "todowrite": "allow",
         "*": "ask",
         "edit": "allow",
         "read": "allow",
-        "bash": "allow",
-      },
+        "bash": "allow"
+      }
     },
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
@@ -28,7 +28,7 @@
         "submit_plan": "allow",
         "edit": {
           "*": "deny",
-          "*.md": "allow",
+          "*.md": "allow"
         },
         "bash": {
           "*": "ask",
@@ -36,10 +36,10 @@
           "git diff*": "allow",
           "git log*": "allow",
           "rg *": "allow",
-          "grep *": "allow",
+          "grep *": "allow"
         },
-        "external_directory": "deny",
-      },
+        "external_directory": "deny"
+      }
     },
     "planner-creative": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
@@ -53,7 +53,7 @@
         "submit_plan": "allow",
         "edit": {
           "*": "deny",
-          "*.md": "allow",
+          "*.md": "allow"
         },
         "bash": {
           "*": "ask",
@@ -61,14 +61,22 @@
           "git diff*": "allow",
           "git log*": "allow",
           "rg *": "allow",
-          "grep *": "allow",
+          "grep *": "allow"
         },
-        "external_directory": "deny",
-      },
-    },
+        "external_directory": "deny"
+      }
+    }
   },
   "tools": {
-    "paths": true,
+    "paths": true
   },
-  "plugin": ["@plannotator/opencode@latest"],
+  "plugin": [
+    [
+      "@plannotator/opencode@latest",
+      {
+        "workflow": "user-managed",
+        "planningAgents": ["planner"]
+      }
+    ]
+  ]
 }
