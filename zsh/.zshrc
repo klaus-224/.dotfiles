@@ -15,7 +15,7 @@ eval "$(starship init zsh)"
 source "$DOTFILES_HOME/zsh/path.zsh"
 
 # source all config files
-for file in "$DOTFILES_HOMES/zsh/.zshrc.d/*.zsh"; do
+for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
 	[[ -f "$file" ]] || continue
 	# shellcheck disable=SC1090
 	source "$file"
