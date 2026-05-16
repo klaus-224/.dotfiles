@@ -1,18 +1,3 @@
-# --------------------------------------------------
-# 40-aliases.zsh
-# Purpose:
-#   Define short, memorable command aliases.
-#
-# Responsibilities:
-#   - Navigation shortcuts
-#   - Command replacements (ls → eza, etc.)
-#
-# Rules:
-#   - Aliases only
-#   - Prefer functions for anything non-trivial
-#   - No environment or PATH changes
-# --------------------------------------------------
-
 # navigation
 alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
