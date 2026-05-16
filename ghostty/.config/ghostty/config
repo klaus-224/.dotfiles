@@ -10,7 +10,7 @@ font-size = 16
 
 cursor-opacity = 1
 bold-is-bright = true
-background-opacity = 0.6
+background-opacity = 1
 selection-background = "#0a385c"
 
 window-decoration = none
@@ -39,4 +39,3 @@ keybind = ctrl+3=unbind
 keybind = ctrl+4=unbind                     
 keybind = ctrl+5=unbind                     
 
-background-blur-radius = 10

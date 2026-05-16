@@ -3,7 +3,7 @@
 # --------------------------------------------------
 [[ -n "${ZSH_VERSION:-}" ]] || return 0
 emulate -LR zsh
-
+export DOTFILES_HOME=""
 # source custom env vars
 # shellcheck source=/dev/null
 source "$HOME/.zshenv"
@@ -15,7 +15,7 @@ eval "$(starship init zsh)"
 source "$DOTFILES_HOME/zsh/path.zsh"
 
 # source all config files
-for file in "$HOME"/.zshrc.d/*.zsh; do
+for file in "$DOTFILES_HOMES"/.zshrc.d/*.zsh; do
 	[[ -f "$file" ]] || continue
 	# shellcheck disable=SC1090
 	source "$file"
