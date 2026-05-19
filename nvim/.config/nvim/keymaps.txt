@@ -1,0 +1,245 @@
+8 lines <ed 1 time
+s  <Tab>       *@<Lua 649: ~/.local/share/nvim/site/pack/core/opt/blink.cmp/lua/blink/cmp/keymap/apply.lua:32>
+                 blink.cmp: Snippet Forward
+n  q            @<Cmd>wincmd c<CR>
+s  <C-K>       *@<Lua 619: ~/.local/share/nvim/site/pack/core/opt/blink.cmp/lua/blink/cmp/keymap/apply.lua:32>
+                 blink.cmp: Show Signature, Hide Signature
+s  <S-Tab>     *@<Lua 691: ~/.local/share/nvim/site/pack/core/opt/blink.cmp/lua/blink/cmp/keymap/apply.lua:32>
+                 blink.cmp: Snippet Backward
+s  <Tab>       * <Lua 27: vim/_core/defaults.lua:0>
+                 vim.snippet.jump if active, otherwise <Tab>
+n  <CR>        * <Lua 95: ~/.config/nvim/lua/core/keymaps.lua:90>
+n  <Space>t[   * <Cmd>tabp<CR>
+n  <Space>t]   * <Cmd>tabn<CR>
+v  <Space><Space> * <Cmd>FzfLua files<CR>
+n  <Space><Space> * <Cmd>FzfLua files<CR>
+n  <Space>lf   * <Lua 31: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:610>
+n  <Space>cd   * <Lua 91: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/diagnostic.lua:2430>
+n  <Space>dl   * <Lua 90: ~/.config/nvim/lua/core/keymaps.lua:47>
+n  <Space>dq   * <Lua 89: ~/.config/nvim/lua/core/keymaps.lua:43>
+n  <Space>dS   * <Lua 88: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:1104>
+n  <Space>ds   * <Lua 87: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:916>
+n  <Space><Space>x * <Lua 82: ~/.config/nvim/lua/core/keymaps.lua:15>
+n  <Space>x    * <Lua 69: ~/.config/nvim/lua/core/keymaps.lua:11>
+x  #           * <Lua 9: vim/_core/defaults.lua:0>
+                 :help v_#-default
+o  %             <Plug>(MatchitOperationForward)
+x  %             <Plug>(MatchitVisualForward)
+n  %             <Plug>(MatchitNormalForward)
+n  &           * :&&<CR>
+                 :help &-default
+x  *           * <Lua 6: vim/_core/defaults.lua:0>
+                 :help v_star-default
+v  -           * <Cmd>Oil<CR>
+n  -           * <Cmd>Oil<CR>
+x  @           * mode() ==# 'V' ? ':normal! @'.getcharstr().'<CR>' : '@'
+                 :help v_@-default
+v  J           * :m '>+1<CR>gv=gv
+n  K           * <Lua 83: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:75>
+v  K           * :m '<-2<CR>gv=gv
+x  Q           * mode() ==# 'V' ? ':normal! @<C-R>=reg_recorded()<CR><CR>' : 'Q'
+                 :help v_Q-default
+x  S           * <Plug>(nvim-surround-visual)
+                 Add a surrounding pair around a visual selection
+n  Y           * y$
+                 :help Y-default
+o  [%            <Plug>(MatchitOperationMultiBackward)
+x  [%            <Plug>(MatchitVisualMultiBackward)
+n  [%            <Plug>(MatchitNormalMultiBackward)
+n  [[          * <Cmd>cprev<CR>
+x  [n          * <Lua 63: vim/_core/defaults.lua:0>
+                 Select previous node
+n  [<Space>    * <Lua 61: vim/_core/defaults.lua:0>
+                 Add empty line above cursor
+n  [B          * <Lua 59: vim/_core/defaults.lua:0>
+                 :brewind
+n  [b          * <Lua 57: vim/_core/defaults.lua:0>
+                 :bprevious
+n  [<C-T>      * <Lua 55: vim/_core/defaults.lua:0>
+                 :ptprevious
+n  [T          * <Lua 53: vim/_core/defaults.lua:0>
+                 :trewind
+n  [t          * <Lua 51: vim/_core/defaults.lua:0>
+                 :tprevious
+n  [A          * <Lua 49: vim/_core/defaults.lua:0>
+                 :rewind
+n  [a          * <Lua 47: vim/_core/defaults.lua:0>
+                 :previous
+n  [<C-L>      * <Lua 45: vim/_core/defaults.lua:0>
+                 :lpfile
+n  [L          * <Lua 43: vim/_core/defaults.lua:0>
+                 :lrewind
+n  [l          * <Lua 41: vim/_core/defaults.lua:0>
+                 :lprevious
+n  [<C-Q>      * <Lua 39: vim/_core/defaults.lua:0>
+                 :cpfile
+n  [Q          * <Lua 37: vim/_core/defaults.lua:0>
+                 :crewind
+n  [q          * <Lua 35: vim/_core/defaults.lua:0>
+                 :cprevious
+n  [D          * <Lua 33: vim/_core/defaults.lua:0>
+                 Jump to the first diagnostic in the current buffer
+n  [d          * <Lua 30: ~/.config/nvim/lua/core/keymaps.lua:56>
+o  ]%            <Plug>(MatchitOperationMultiForward)
+x  ]%            <Plug>(MatchitVisualMultiForward)
+n  ]%            <Plug>(MatchitNormalMultiForward)
+n  ]]          * <Cmd>cnext<CR>
+x  ]n          * <Lua 64: vim/_core/defaults.lua:0>
+                 Select next node
+n  ]<Space>    * <Lua 62: vim/_core/defaults.lua:0>
+                 Add empty line below cursor
+n  ]B          * <Lua 60: vim/_core/defaults.lua:0>
+                 :blast
+n  ]b          * <Lua 58: vim/_core/defaults.lua:0>
+                 :bnext
+n  ]<C-T>      * <Lua 56: vim/_core/defaults.lua:0>
+                 :ptnext
+n  ]T          * <Lua 54: vim/_core/defaults.lua:0>
+                 :tlast
+n  ]t          * <Lua 52: vim/_core/defaults.lua:0>
+                 :tnext
+n  ]A          * <Lua 50: vim/_core/defaults.lua:0>
+                 :last
+n  ]a          * <Lua 48: vim/_core/defaults.lua:0>
+                 :next
+n  ]<C-L>      * <Lua 46: vim/_core/defaults.lua:0>
+                 :lnfile
+n  ]L          * <Lua 44: vim/_core/defaults.lua:0>
+                 :llast
+n  ]l          * <Lua 42: vim/_core/defaults.lua:0>
+                 :lnext
+n  ]<C-Q>      * <Lua 40: vim/_core/defaults.lua:0>
+                 :cnfile
+n  ]Q          * <Lua 38: vim/_core/defaults.lua:0>
+                 :clast
+n  ]q          * <Lua 36: vim/_core/defaults.lua:0>
+                 :cnext
+n  ]D          * <Lua 32: vim/_core/defaults.lua:0>
+                 Jump to the last diagnostic in the current buffer
+n  ]d          * <Lua 93: ~/.config/nvim/lua/core/keymaps.lua:53>
+x  a%            <Plug>(MatchitVisualTextObject)
+o  an          * <Lua 66: vim/_core/defaults.lua:0>
+                 Select parent (outer) node
+x  an          * <Lua 65: vim/_core/defaults.lua:0>
+                 Select parent (outer) node
+n  bd          * <Cmd>bdelete<CR>
+n  bn          * <Cmd>bprevious<CR>
+n  bm          * <Cmd>bnext<CR>
+n  cS          * <Plug>(nvim-surround-change-line)
+                 Change a surrounding pair, putting replacements on new lines
+n  cs          * <Plug>(nvim-surround-change)
+                 Change a surrounding pair
+n  ds          * <Plug>(nvim-surround-delete)
+                 Delete a surrounding pair
+o  g%            <Plug>(MatchitOperationBackward)
+x  g%            <Plug>(MatchitVisualBackward)
+n  g%            <Plug>(MatchitNormalBackward)
+x  gS          * <Plug>(nvim-surround-visual-line)
+                 Add a surrounding pair around a visual selection, on new lines
+n  gK          * <Lua 94: ~/.config/nvim/lua/core/keymaps.lua:65>
+n  gD          * <Lua 86: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:336>
+n  gd          * <Lua 85: /opt/homebrew/Cellar/neovim/0.12.2/share/nvim/runtime/lua/vim/lsp/buf.lua:343>
+n  gO          * <Lua 23: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.document_symbol()
+n  grt         * <Lua 22: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.type_definition()
+n  gri         * <Lua 21: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.implementation()
+n  grr         * <Lua 20: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.references()
+n  grx         * <Lua 19: vim/_core/defaults.lua:0>
+                 vim.lsp.codelens.run()
+x  gra         * <Lua 18: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.code_action()
+n  gra         * <Lua 17: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.code_action()
+n  grn         * <Lua 16: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.rename()
+o  gc          * <Lua 15: vim/_core/defaults.lua:0>
+                 Comment textobject
+n  gcc         * <Lua 14: vim/_core/defaults.lua:0>
+                 Toggle comment line
+x  gc          * <Lua 13: vim/_core/defaults.lua:0>
+                 Toggle comment
+n  gc          * <Lua 12: vim/_core/defaults.lua:0>
+                 Toggle comment
+x  gx          * <Lua 11: vim/_core/defaults.lua:0>
+                 Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
+n  gx          * <Lua 10: vim/_core/defaults.lua:0>
+                 Opens filepath or URI under cursor with the system handler (file explorer, web browser, …)
+o  in          * <Lua 68: vim/_core/defaults.lua:0>
+                 Select child (inner) node
+x  in          * <Lua 67: vim/_core/defaults.lua:0>
+                 Select child (inner) node
+v  q           * <Esc>
+n  ySS         * <Plug>(nvim-surround-normal-cur-line)
+                 Add a surrounding pair around the current line, on new lines (normal mode)
+n  yS          * <Plug>(nvim-surround-normal-line)
+                 Add a surrounding pair around a motion, on new lines (normal mode)
+n  yss         * <Plug>(nvim-surround-normal-cur)
+                 Add a surrounding pair around the current line (normal mode)
+n  ys          * <Plug>(nvim-surround-normal)
+                 Add a surrounding pair around a motion (normal mode)
+v  <Plug>BlinkCmpDotRepeatHack * <Lua 390: ~/.local/share/nvim/site/pack/core/opt/blink.cmp/lua/blink/cmp/lib/text_edits.lua:313>
+n  <Plug>BlinkCmpDotRepeatHack * <Lua 388: ~/.local/share/nvim/site/pack/core/opt/blink.cmp/lua/blink/cmp/lib/text_edits.lua:313>
+x  <Plug>(MatchitVisualTextObject)   <Plug>(MatchitVisualMultiBackward)o<Plug>(MatchitVisualMultiForward)
+o  <Plug>(MatchitOperationMultiForward) * :<C-U>call matchit#MultiMatch("W",  "o")<CR>
+o  <Plug>(MatchitOperationMultiBackward) * :<C-U>call matchit#MultiMatch("bW", "o")<CR>
+x  <Plug>(MatchitVisualMultiForward) * :<C-U>call matchit#MultiMatch("W",  "n")<CR>m'gv``
+x  <Plug>(MatchitVisualMultiBackward) * :<C-U>call matchit#MultiMatch("bW", "n")<CR>m'gv``
+n  <Plug>(MatchitNormalMultiForward) * :<C-U>call matchit#MultiMatch("W",  "n")<CR>
+n  <Plug>(MatchitNormalMultiBackward) * :<C-U>call matchit#MultiMatch("bW", "n")<CR>
+o  <Plug>(MatchitOperationBackward) * :<C-U>call matchit#Match_wrapper('',0,'o')<CR>
+o  <Plug>(MatchitOperationForward) * :<C-U>call matchit#Match_wrapper('',1,'o')<CR>
+x  <Plug>(MatchitVisualBackward) * :<C-U>call matchit#Match_wrapper('',0,'v')<CR>m'gv``
+x  <Plug>(MatchitVisualForward) * :<C-U>call matchit#Match_wrapper('',1,'v')<CR>:if col("''") != col("$") | exe ":normal! m'" | endif<CR>gv``
+n  <Plug>(MatchitNormalBackward) * :<C-U>call matchit#Match_wrapper('',0,'n')<CR>
+n  <Plug>(MatchitNormalForward) * :<C-U>call matchit#Match_wrapper('',1,'n')<CR>
+s  <Plug>luasnip-jump-prev * <Lua 254: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:57>
+                 LuaSnip: Jump to the previous node
+s  <Plug>luasnip-jump-next * <Lua 253: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:54>
+                 LuaSnip: Jump to the next node
+s  <Plug>luasnip-prev-choice * <Lua 252: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:51>
+                 LuaSnip: Change to the previous choice from the choiceNode
+s  <Plug>luasnip-next-choice * <Lua 251: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:48>
+                 LuaSnip: Change to the next choice from the choiceNode
+s  <Plug>luasnip-expand-snippet * <Lua 250: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:45>
+                 LuaSnip: Expand the current snippet
+s  <Plug>luasnip-expand-or-jump * <Lua 249: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:42>
+                 LuaSnip: Expand or jump in the current snippet
+   <Plug>luasnip-expand-repeat * <Lua 247: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:35>
+                 LuaSnip: Repeat last node expansion
+n  <Plug>luasnip-delete-check * <Lua 245: ~/.local/share/nvim/site/pack/core/opt/LuaSnip/plugin/luasnip.lua:28>
+                 LuaSnip: Removes current snippet from jumplist
+n  <Plug>(nvim-surround-change-line) * <Lua 234: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:150>
+                 Change a surrounding pair, putting replacements on new lines
+n  <Plug>(nvim-surround-change) * <Lua 233: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:143>
+                 Change a surrounding pair
+n  <Plug>(nvim-surround-delete) * <Lua 232: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/lua/nvim-surround/init.lua:171>
+                 Delete a surrounding pair
+x  <Plug>(nvim-surround-visual-line) * <Lua 231: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:126>
+                 Add a surrounding pair around a visual selection, on new lines
+x  <Plug>(nvim-surround-visual) * <Lua 230: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:113>
+                 Add a surrounding pair around a visual selection
+n  <Plug>(nvim-surround-normal-cur-line) * <Lua 229: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:106>
+                 Add a surrounding pair around the current line, on new lines (normal mode)
+n  <Plug>(nvim-surround-normal-line) * <Lua 228: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:99>
+                 Add a surrounding pair around a motion, on new lines (normal mode)
+n  <Plug>(nvim-surround-normal-cur) * <Lua 227: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:92>
+                 Add a surrounding pair around the current line (normal mode)
+n  <Plug>(nvim-surround-normal) * <Lua 137: ~/.local/share/nvim/site/pack/core/opt/nvim-surround/plugin/nvim-surround.lua:85>
+                 Add a surrounding pair around a motion (normal mode)
+n  <M-Down>    * 5<C-W>-
+n  <M-Up>      * 5<C-W>+
+n  <C-A>       * ggVG
+n  <C-W><C-D>    <C-W>d
+                 Show diagnostics under the cursor
+n  <C-W>d      * <Lua 34: vim/_core/defaults.lua:0>
+                 Show diagnostics under the cursor
+s  <S-Tab>     * <Lua 29: vim/_core/defaults.lua:0>
+                 vim.snippet.jump if active, otherwise <S-Tab>
+s  <C-S>       * <Lua 25: vim/_core/defaults.lua:0>
+                 vim.lsp.buf.signature_help()
+n  <C-L>       * <Cmd>nohlsearch|diffupdate|normal! <C-L><CR>
+                 :help CTRL-L-default
+

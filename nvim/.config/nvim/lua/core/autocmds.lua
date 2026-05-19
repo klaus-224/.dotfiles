@@ -1,16 +1,17 @@
--- update tree sitter when pack is added
-vim.api.nvim_create_autocmd('PackChanged', {
-  callback = function(args)
-    local name, kind = args.data.spec.name, args.data.kind
-    if name == 'nvim-treesitter' and kind == 'update' then
-      if not args.data.active then
-        vim.cmd.packadd('nvim-treesitter')
-      end
-      vim.cmd('TSUpdate')
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(ev)
+    local ft = vim.bo[ev.buf].filetype
+    local lang = vim.treesitter.language.get_lang(ft)
+
+    if not lang then
+      return
+    end
+
+    if vim.treesitter.language.add(lang) then
+      vim.treesitter.start(ev.buf, lang)
     end
   end,
 })
-
 -- enable lsp stuff
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('MyLSP', {}),
@@ -47,28 +48,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     --        end
   end,
 })
-
--- load dadbod
-vim.api.nvim_create_user_command('DBUIT', function()
-  vim.g.db_ui_use_nerd_fonts = 1
-  vim.g.db_ui_show_database_icon = 1
-  vim.g.db_ui_winwidth = 30
-  vim.g.db_ui_disable_info_notifications = 1
-  vim.g.dbs = {}
-  vim.g.db_ui_execute_on_save = 0
-  vim.g.db_ui_table_helpers = {
-    duckdb = {
-      List = 'SELECT * FROM {table} LIMIT 200',
-      Count = 'SELECT COUNT(*) AS count FROM {table}',
-      Describe = 'DESCRIBE {table}',
-      Summarize = 'SUMMARIZE {table}',
-      Explain = 'EXPLAIN {last_query}',
-      Sample = 'SELECT * FROM {table} USING SAMPLE 25 ROWS',
-    },
-  }
-  vim.cmd('tabnew')
-  vim.cmd('DBUI')
-end, {})
 
 -- TODO: figure out completions for sql
 -- add dadbod completions for sql
@@ -116,53 +95,27 @@ vim.api.nvim_create_autocmd('InsertEnter', {
       fast_wrap = {},
       check_ts = true, -- treesitter
     })
-
-    require('nvim-ts-autotag').setup({
-      opts = {
-        enable_close = true, -- Auto close tags
-        enable_rename = true, -- Auto rename pairs of tags
-        enable_close_on_slash = false, -- Auto close on trailing </
-      },
-      per_filetype = {
-        ['html'] = {
-          enable_close = false,
-        },
-      },
-    })
   end,
 })
 
--- TODO review and make usr-cmds.lua
-vim.api.nvim_create_user_command('Files', function(opts)
-  local query = opts.args
-  local cmd = { 'fd', '--type', 'f', '--hidden', '--exclude', '.git' }
-
-  if query ~= '' then
-    table.insert(cmd, query)
-  end
-
-  vim.system(cmd, { text = true }, function(obj)
-    vim.schedule(function()
-      local items = {}
-
-      for line in obj.stdout:gmatch('[^\r\n]+') do
-        table.insert(items, {
-          filename = line,
-          lnum = 1,
-          col = 1,
-          text = line,
-        })
-      end
-
-      vim.fn.setqflist({}, ' ', {
-        title = 'Files: ' .. query,
-        items = items,
-      })
-
-      vim.cmd.copen()
-    end)
-  end)
-end, {
-  nargs = '*',
-  complete = 'file',
-})
+-- load dadbod and open in new tab
+vim.api.nvim_create_user_command('DBUIT', function()
+  vim.g.db_ui_use_nerd_fonts = 1
+  vim.g.db_ui_show_database_icon = 1
+  vim.g.db_ui_winwidth = 30
+  vim.g.db_ui_disable_info_notifications = 1
+  vim.g.dbs = {}
+  vim.g.db_ui_execute_on_save = 0
+  vim.g.db_ui_table_helpers = {
+    duckdb = {
+      List = 'SELECT * FROM {table} LIMIT 200',
+      Count = 'SELECT COUNT(*) AS count FROM {table}',
+      Describe = 'DESCRIBE {table}',
+      Summarize = 'SUMMARIZE {table}',
+      Explain = 'EXPLAIN {last_query}',
+      Sample = 'SELECT * FROM {table} USING SAMPLE 25 ROWS',
+    },
+  }
+  vim.cmd('tabnew')
+  vim.cmd('DBUI')
+end, {})

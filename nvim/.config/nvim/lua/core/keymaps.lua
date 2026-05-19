@@ -2,9 +2,8 @@ vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
 
 -- buffer operations
-
-vim.keymap.set('n', 'bm', '<cmd>bnext<cr>')
-vim.keymap.set('n', 'bn', '<cmd>bprevious<cr>')
+vim.keymap.set('n', ']]', '<cmd>bnext<cr>')
+vim.keymap.set('n', '[[', '<cmd>bprevious<cr>')
 vim.keymap.set('n', 'bd', '<cmd>bdelete<cr>')
 
 -- execute current line
@@ -27,10 +26,6 @@ vim.keymap.set('v', 'K', ':m \'<-2<CR>gv=gv')
 -- window resizing
 vim.keymap.set('n', '<M-Up>', '5<C-w>+')
 vim.keymap.set('n', '<M-Down>', '5<C-w>-')
-
--- quickfix, loclist nav
-vim.keymap.set('n', ']]', '<cmd>cnext<CR>')
-vim.keymap.set('n', '[[', '<cmd>cprev<CR>')
 
 -- lsp
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
