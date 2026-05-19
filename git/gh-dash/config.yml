@@ -23,3 +23,5 @@ keybindings:
     - key: C
       name: code review
       command: gh pr diff {{.PrNumber}} --repo {{.RepoName}} | nvim -
+repoPaths:
+  orennia/*: ~/code/*

@@ -1,0 +1,13 @@
+style:
+  tag:
+    color: blue
+  comment:
+    color: white
+  snippet:
+    color: red
+finder:
+  command: fzf
+shell:
+  command: zsh
+client:
+  tealdeer: true

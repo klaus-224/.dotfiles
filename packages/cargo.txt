@@ -2,3 +2,4 @@
 # One crate name per line.
 toml-cli
 diss
+tealdeer
