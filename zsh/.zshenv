@@ -21,5 +21,5 @@ else
   export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
 fi
 
-
-
+# navi
+export NAVI_CONFIG="$DOTFILES_HOME/navi/config.yaml"

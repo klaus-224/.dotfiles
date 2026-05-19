@@ -6,6 +6,7 @@ export LOCAL_BIN="/usr/local"
 export NVM_DIR="$HOME/.nvm"
 
 eval "$(starship init zsh)"
+eval "$(navi widget zsh)"
 
 path=(
 	"$HOME/.dotfiles/bin" # custom scripts
