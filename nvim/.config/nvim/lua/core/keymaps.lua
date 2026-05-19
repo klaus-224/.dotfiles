@@ -32,14 +32,7 @@ vim.keymap.set('n', '<M-Down>', '5<C-w>-')
 vim.keymap.set('n', ']]', '<cmd>cnext<CR>')
 vim.keymap.set('n', '[[', '<cmd>cprev<CR>')
 
--- lsp
-vim.keymap.set('n', 'K', vim.lsp.buf.hover)
-vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
-vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
-
-vim.keymap.set('n', '<leader>ds', vim.lsp.buf.document_symbol)
-vim.keymap.set('n', '<leader>dS', vim.lsp.buf.workspace_symbol)
-
+-- diagnostics
 vim.keymap.set('n', '<leader>dq', function()
   vim.diagnostic.setqflist()
   vim.cmd('copen')

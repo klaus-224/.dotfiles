@@ -4,7 +4,7 @@ vim.g.mapleader = ' '
 -- text / wrapping
 vim.opt.textwidth = 80
 vim.opt.wrap = true
-vim.opt.linebreak = true
+-- vim.opt.linebreak = true
 vim.opt.breakindent = true
 
 -- local/project config
@@ -46,9 +46,6 @@ vim.opt.foldlevelstart = 99
 -- clipboard / editing
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.virtualedit = 'block'
-
--- completion
-vim.opt.completeopt = 'menu,popup,noinsert,fuzzy'
 
 -- keyword search
 vim.opt.grepprg = 'rg --vimgrep --smart-case'

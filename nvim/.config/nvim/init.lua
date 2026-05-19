@@ -15,8 +15,6 @@ vim.pack.add({
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
   { src = 'https://github.com/L3MON4D3/LuaSnip' },
   { src = 'https://github.com/rafamadriz/friendly-snippets' },
-  { src = 'https://github.com/saghen/blink.lib' },
-  { src = 'https://github.com/saghen/blink.cmp' },
 
   -- oil/file search and nav
   { src = 'https://github.com/stevearc/oil.nvim' },
@@ -123,90 +121,6 @@ require('conform').setup({
     lsp_format = 'fallback',
   },
 })
-
-require('luasnip.loaders.from_vscode').lazy_load()
-local cmp = require('blink.cmp')
--- cmp.build():wait(60000)
-
--- @type blink.cmp.Config
-cmp.setup({
-  appearance = {
-    nerd_font_variant = 'mono',
-  },
-
-  snippets = {
-    preset = 'luasnip',
-  },
-
-  sources = {
-    default = { 'lsp', 'path', 'snippets', 'buffer' },
-    providers = {
-      lsp = { score_offset = 4 },
-      path = { score_offset = 3 },
-      snippets = { score_offset = 2 },
-      buffer = { score_offset = -1 },
-    },
-  },
-
-  completion = {
-    documentation = {
-      auto_show = true,
-      auto_show_delay_ms = 250,
-    },
-
-    ghost_text = {
-      enabled = true,
-      show_with_selection = true,
-      show_without_selection = false,
-      show_with_menu = true,
-      show_without_menu = true,
-    },
-
-    menu = {
-      auto_show = false,
-      draw = {
-        treesitter = { 'lsp' },
-        columns = {
-          { 'kind_icon', 'label', 'label_description', gap = 1 },
-          { 'kind' },
-          { 'source_name' },
-        },
-      },
-      winhighlight = table.concat({
-        'Normal:BlinkCmpMenu',
-        'FloatBorder:BlinkCmpMenuBorder',
-        'CursorLine:BlinkCmpMenuSelection',
-        'Search:None',
-      }, ','),
-    },
-  },
-  cmdline = {
-    enabled = true,
-    keymap = {
-      preset = 'cmdline',
-    },
-    sources = {
-      default = { 'cmdline', 'path' },
-    },
-    completion = {
-      list = {
-        selection = {
-          preselect = false,
-          auto_insert = false,
-        },
-      },
-      menu = {
-        auto_show = function()
-          return vim.fn.getcmdtype() == ':'
-        end,
-      },
-      ghost_text = {
-        enabled = true,
-      },
-    },
-  },
-})
--- end lsp setup/config
 
 -- start oil setup.config
 require('oil').setup({
