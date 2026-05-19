@@ -3,7 +3,6 @@ alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
 alias cdnc="cd ~/.dotfiles/nvim/.config/nvim"
-alias d="dirs -v"
 
 # editors
 alias vi="nvim"
