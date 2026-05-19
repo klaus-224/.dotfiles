@@ -9,6 +9,7 @@ brew "starship"
 brew "git"
 brew "gh"
 brew "git-delta"
+brew "just" # like make but simpler
 
 # file listing
 brew "broot"
@@ -60,6 +61,6 @@ brew "rustup-init"
 brew "aws-cdk"
 brew "awscli"
 
-# llm cli
-brew "anomalyco/tap/opencode"
+# llm cli TODO: this needs to be brew tap
+# brew "anomalyco/tap/opencode"
 
