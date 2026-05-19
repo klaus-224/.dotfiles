@@ -7,16 +7,16 @@ COMMON="$BREW_DIR/Brewfile.common"
 VERSIONS_DIR="$BREW_DIR/installed-versions"
 
 case "$(uname -s)" in
-  Darwin)
-    OS_BREWFILE="$BREW_DIR/Brewfile.macos"
-    ;;
-  Linux)
-    OS_BREWFILE="$BREW_DIR/Brewfile.linux"
-    ;;
-  *)
-    echo "Error: Unsupported OS for brew bundle: $(uname -s)" >&2
-    exit 1
-    ;;
+Darwin)
+  OS_BREWFILE="$BREW_DIR/Brewfile.macos"
+  ;;
+Linux)
+  OS_BREWFILE="$BREW_DIR/Brewfile.linux"
+  ;;
+*)
+  echo "Error: Unsupported OS for brew bundle: $(uname -s)" >&2
+  exit 1
+  ;;
 esac
 
 if ! command -v brew >/dev/null 2>&1; then
@@ -37,7 +37,7 @@ fi
 TMP_BREWFILE="$(mktemp)"
 trap 'rm -f "$TMP_BREWFILE"' EXIT
 
-awk '!seen[$0]++' "$COMMON" "$OS_BREWFILE" > "$TMP_BREWFILE"
+awk '!seen[$0]++' "$COMMON" "$OS_BREWFILE" >"$TMP_BREWFILE"
 echo "Installing Homebrew packages using unified Brewfile: $OS_BREWFILE"
 brew bundle --file "$TMP_BREWFILE"
 
@@ -59,7 +59,7 @@ LATEST_FILE="$VERSIONS_DIR/brew-versions-latest.txt"
   else
     echo "(not applicable on Linux)"
   fi
-} > "$SNAPSHOT_FILE"
+} >"$SNAPSHOT_FILE"
 
 cp "$SNAPSHOT_FILE" "$LATEST_FILE"
 echo "Saved brew version snapshots:"
