@@ -1,11 +1,13 @@
 -- leader
 vim.g.mapleader = ' '
 
+-- shell
+-- vim.opt.shell = '/bin/zsh'
+-- vim.opt.shellcmdflag = '-ic'
+
 -- text / wrapping
 vim.opt.textwidth = 80
 vim.opt.wrap = true
-vim.opt.linebreak = true
-vim.opt.breakindent = true
 
 -- local/project config
 vim.opt.exrc = true

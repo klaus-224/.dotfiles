@@ -1,6 +1,18 @@
 require('core')
 require('vim._core.ui2').enable()
 
+-- ONLY UNCOMMENT TO DELETE ALL PLUGINS
+-- vim.pack.del(vim
+--   .iter(vim.pack.get())
+--   :filter(function(x)
+--     return not x.active
+--   end)
+--   :map(function(x)
+--     return x.spec.name
+--   end)
+--   :totable())
+
+-- add plugins
 vim.pack.add({
   -- theme and ui
   { src = 'https://github.com/vague-theme/vague.nvim' },
@@ -12,7 +24,6 @@ vim.pack.add({
   { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
   { src = 'https://github.com/b0o/SchemaStore.nvim' },
   { src = 'https://github.com/folke/lazydev.nvim' },
-  { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
   { src = 'https://github.com/L3MON4D3/LuaSnip' },
   { src = 'https://github.com/rafamadriz/friendly-snippets' },
   { src = 'https://github.com/saghen/blink.lib' },
@@ -27,7 +38,6 @@ vim.pack.add({
   -- editing/formatting
   { src = 'https://github.com/kylechui/nvim-surround', version = vim.version.range('4.x') },
   { src = 'https://github.com/windwp/nvim-autopairs' },
-  { src = 'https://github.com/windwp/nvim-ts-autotag' },
   { src = 'https://github.com/stevearc/conform.nvim' },
 
   -- database stuff
