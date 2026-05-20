@@ -106,16 +106,16 @@ require('conform').setup({
     lua = { 'stylua' },
 
     -- web
-    javascript = { 'biome', 'prettier' },
-    javascriptreact = { 'biome', 'prettier' },
-    typescript = { 'biome', 'prettier' },
-    typescriptreact = { 'biome', 'prettier' },
+    javascript = { 'oxfmt', 'biome', 'prettier' },
+    javascriptreact = { 'oxfmt', 'biome', 'prettier' },
+    typescript = { 'oxfmt', 'biome', 'prettier' },
+    typescriptreact = { 'oxfmt', 'biome', 'prettier' },
 
     -- data/config
-    json = { 'biome', 'prettier' },
+    json = { 'oxfmt', 'biome', 'prettier' },
     jsonc = { 'biome', 'prettier' },
     yaml = { 'prettier' },
-    markdown = { 'prettier' },
+    markdown = { 'oxfmt', 'prettier' },
     sql = { 'sleek' },
 
     -- python
@@ -130,7 +130,7 @@ require('conform').setup({
   },
 
   format_on_save = {
-    timeout_ms = 3000,
+    timeout_ms = 500,
     lsp_format = 'fallback',
   },
 })
@@ -174,7 +174,7 @@ cmp.setup({
     },
 
     menu = {
-      auto_show = false,
+      auto_show = true,
       draw = {
         treesitter = { 'lsp' },
         columns = {

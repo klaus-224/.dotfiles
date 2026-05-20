@@ -9,8 +9,10 @@ emulate -LR zsh
 source "$HOME/.zshenv"
 
 # add zsh to path
-# eval "$(starship init zsh)"
 source "$DOTFILES_HOME/zsh/path.zsh"
+
+eval "$(starship init zsh)"
+eval "$(navi widget zsh)"
 
 # source all config files
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
