@@ -250,7 +250,8 @@ vim.keymap.set({ 'n', 'v' }, '-', '<cmd>Oil<cr>')
 require('fzf-lua').setup({
   winopts = {
     split = 'belowright new',
-    width = 0.25,
+    height = 0.10,
+    width = 0.20,
     ---@diagnostic disable-next-line: missing-fields
     preview = {
       hidden = true,
