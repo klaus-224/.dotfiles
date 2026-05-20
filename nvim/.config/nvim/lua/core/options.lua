@@ -3,6 +3,7 @@ vim.g.mapleader = ' '
 
 vim.g.no_python_maps = 1
 
+vim.opt.fillchars = { eob = ' ' }
 -- shell
 -- vim.opt.shell = '/bin/zsh'
 -- vim.opt.shellcmdflag = '-ic'
@@ -20,8 +21,8 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 10
 vim.opt.laststatus = 3
-vim.opt.cmdheight = 3
-vim.opt.cmdwinheight = 10
+vim.opt.cmdheight = 2
+vim.opt.cmdwinheight = 20
 vim.opt.winborder = 'rounded'
 vim.opt.splitbelow = true
 vim.opt.splitright = true

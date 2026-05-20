@@ -30,7 +30,6 @@ local function mode()
 
   local winid = vim.g.statusline_winid or vim.api.nvim_get_current_win()
   local width = vim.wo[winid].numberwidth
-
   local label = item.label:sub(1, width)
   local padding = width - #label
   local left = math.floor(padding / 2)
@@ -46,7 +45,7 @@ local function mode()
 end
 
 local function filename()
-  local name = vim.fn.expand('%:.')
+  local name = vim.fn.expand('%:h')
 
   if name == '' then
     name = ''
