@@ -11,11 +11,6 @@ vim.keymap.set('n', '<leader>x', function()
   vim.cmd('.lua')
 end)
 
-vim.keymap.set('n', '<leader><leader>x', function()
-  vim.cmd('source %')
-  vim.notify('lua file reloaded')
-end)
-
 -- select all
 vim.keymap.set('n', '<C-a>', 'gg<S-v>G')
 
@@ -56,7 +51,7 @@ end)
 vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format)
 
 -- fzf-lua (needs fzf-lua install + require)
-vim.keymap.set({ 'n', 'v' }, '<leader><leader>', '<cmd>FzfLua files<cr>')
+vim.keymap.set({ 'n', 'v' }, '<leader><leader>', '<cmd>FzfLua global<cr>')
 
 -- Toggle virtual text and lines
 vim.keymap.set('n', 'gK', function()
