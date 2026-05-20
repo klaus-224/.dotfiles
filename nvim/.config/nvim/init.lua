@@ -251,6 +251,7 @@ require('fzf-lua').setup({
   winopts = {
     split = 'belowright new',
     width = 0.25,
+    ---@diagnostic disable-next-line: missing-fields
     preview = {
       hidden = true,
     },

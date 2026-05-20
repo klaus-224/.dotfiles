@@ -68,3 +68,15 @@ local function buffers()
 
   return table.concat(parts, '%#StatusLine#')
 end
+
+-- vim.api.nvim_set_hl(0, 'StatusLineBufferActive', {
+--   fg = '#CDCDCD',
+--   bg = bg_color,
+--   bold = true,
+-- })
+--
+-- vim.api.nvim_set_hl(0, 'StatusLineBuffer', {
+--   fg = '#747b89',
+--   bg = bg_color,
+--   bold = true,
+-- })
