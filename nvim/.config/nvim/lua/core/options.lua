@@ -53,14 +53,7 @@ vim.opt.virtualedit = 'block'
 
 -- completion
 vim.opt.completeopt = 'menu,popup,noinsert,fuzzy'
-vim.opt.autocomplete = true
 
-	set autocomplete
-	set complete=.^5,w^5,b^5,u^5
-	set completeopt=popup
-
-	inoremap <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-	inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 -- keyword search
 vim.opt.grepprg = 'rg --vimgrep --smart-case'
 vim.opt.grepformat = '%f:%l:%c:%m'
