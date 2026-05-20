@@ -1,6 +1,8 @@
 -- leader
 vim.g.mapleader = ' '
 
+vim.g.no_python_maps = 1
+
 -- shell
 -- vim.opt.shell = '/bin/zsh'
 -- vim.opt.shellcmdflag = '-ic'
