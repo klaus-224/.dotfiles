@@ -104,7 +104,7 @@ chmod +x setup-macos.sh
 
 - Installs Homebrew if missing
 - Installs all your CLI tools (fzf, bat, fd, eza, etc.)
-- Writes installed Homebrew package versions to `brewfiles/installed-versions/`
+- Writes installed Homebrew package versions to `packages/installed-versions/`
 - Installs `rustup-init`, bootstraps Rust/Cargo, and syncs cargo packages from `packages/cargo.txt`
 - Installs Ghostty terminal via Homebrew
 - Installs and configures zsh/tmux/nvim/ghostty stow-managed dotfiles.
@@ -165,7 +165,7 @@ chmod +x setup-wsl.sh
 **What this does:**
 
 - Install required CLI tools (tmux, zsh, neovim, etc.)
-- Write installed Homebrew package versions to `brewfiles/installed-versions/`
+- Write installed Homebrew package versions to `packages/installed-versions/`
 - Install Alacritty on Windows via winget
 - Symlink stow packages for zsh/tmux/nvim, including any optional shell plugins.
 - Symlink dotfiles using stow
@@ -312,4 +312,3 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
-

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-BREW_DIR="$DOTFILES_DIR/brewfiles"
+BREW_DIR="$DOTFILES_DIR/packages"
 COMMON="$BREW_DIR/Brewfile.common"
 VERSIONS_DIR="$BREW_DIR/installed-versions"
 
