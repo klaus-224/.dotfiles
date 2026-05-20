@@ -2,9 +2,9 @@ vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
 
 -- buffer operations
-vim.keymap.set('n', ']]', '<cmd>bnext<cr>', { noremap = true })
-vim.keymap.set('n', '[[', '<cmd>bprevious<cr>', { noremap = true })
-vim.keymap.set('n', 'bd', '<cmd>bdelete<cr>')
+vim.keymap.set('n', '<M-]>', '<cmd>bnext<cr>', { noremap = true })
+vim.keymap.set('n', '<M-[>', '<cmd>bprevious<cr>', { noremap = true })
+vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>')
 
 -- execute current line
 vim.keymap.set('n', '<leader>x', function()
@@ -24,8 +24,10 @@ vim.keymap.set('v', 'J', ':m \'>+1<CR>gv=gv')
 vim.keymap.set('v', 'K', ':m \'<-2<CR>gv=gv')
 
 -- window resizing
-vim.keymap.set('n', '<M-Up>', '5<C-w>+')
-vim.keymap.set('n', '<M-Down>', '5<C-w>-')
+vim.keymap.set('n', '<M-Down>', '5<c-w>+')
+vim.keymap.set('n', '<M-Up>', '5<c-w>-')
+vim.keymap.set('n', '<M->>', '5<c-w>>')
+vim.keymap.set('n', '<M-<>', '5<c-w><')
 
 -- lsp
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
