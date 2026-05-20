@@ -5,9 +5,6 @@ export CARGO_HOME="$HOME/.cargo"
 export LOCAL_BIN="/usr/local"
 export NVM_DIR="$HOME/.nvm"
 
-eval "$(starship init zsh)"
-eval "$(navi widget zsh)"
-
 path=(
 	"$HOME/.dotfiles/bin" # custom scripts
 	"$HOME/.local/bin"    # binaries from other tools
