@@ -44,140 +44,64 @@ local function mode()
   })
 end
 
-local function filename()
-  local name = vim.fn.expand('%:h')
-
-  if name == '' then
-    name = ''
-  end
-
-  local modified = vim.bo.modified and ' [+]' or ''
-  local readonly = vim.bo.readonly and ' [RO]' or ''
-
-  return ' ' .. name .. modified .. readonly .. ' '
-end
-
--- local function position()
---   local line = vim.fn.line('.')
---   local col = vim.fn.col('.')
---
---   return string.format(' %4d:%-3d ', line, col)
--- end
-
-local function buffers()
-  local current = vim.api.nvim_get_current_buf()
-  local all = {}
-
-  -- all buffers that are loaded
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buflisted then
-      table.insert(all, bufnr)
-    end
-  end
-
-  local limit = 4
-
-  if #all > limit then
-    local current_index = 1
-
-    for i, bufnr in ipairs(all) do
-      if bufnr == current then
-        current_index = i
-        break
-      end
-    end
-
-    local start = math.max(1, current_index - math.floor(limit / 2))
-    local finish = math.min(#all, start + limit - 1)
-
-    if finish - start + 1 < limit then
-      start = math.max(1, finish - limit + 1)
-    end
-
-    local visible = {}
-
-    for i = start, finish do
-      table.insert(visible, all[i])
-    end
-
-    all = visible
-  end
-
-  local parts = {}
-
-  for _, bufnr in ipairs(all) do
-    local name = vim.api.nvim_buf_get_name(bufnr)
-
-    if name == '' then
-      return
-    else
-      name = vim.fn.fnamemodify(name, ':t')
-    end
-
-    local hl = bufnr == current and '%#StatusLineBufferActive#' or '%#StatusLineBuffer#'
-
-    table.insert(parts, hl .. ' ' .. name .. ' ')
-  end
-
-  return table.concat(parts, '%#StatusLine#')
-end
-
 local function set_colors()
+  local bg_color = '#252530'
+
   vim.api.nvim_set_hl(0, 'StatusLine', {
-    fg = '#cdcdcd',
-    bg = '#0f1117',
+    fg = '#CDCDCD',
+    bg = bg_color,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineNC', {
     fg = '#606079',
-    bg = '#0f1117',
+    bg = bg_color,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineAccent', {
     fg = '#0f1117',
-    bg = '#8ba9c1',
+    bg = '#7E98E8',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineInsertAccent', {
     fg = '#0f1117',
-    bg = '#99b782',
+    bg = '#7FA563',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineVisualAccent', {
     fg = '#0f1117',
-    bg = '#c9b1ca',
+    bg = '#BB9DBD',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineReplaceAccent', {
     fg = '#0f1117',
-    bg = '#e08398',
+    bg = '#D8647E',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineCmdLineAccent', {
     fg = '#0f1117',
-    bg = '#f5cb96',
+    bg = '#F3BE7C',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineTerminalAccent', {
     fg = '#0f1117',
-    bg = '#606079',
+    bg = '#6E94B2',
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBufferActive', {
-    fg = '#cdcdcd',
-    bg = '#0f1117',
+    fg = '#CDCDCD',
+    bg = bg_color,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBuffer', {
     fg = '#747b89',
-    bg = '#0f1117',
+    bg = bg_color,
     bold = true,
   })
 end
@@ -185,11 +109,11 @@ end
 function M.render()
   return table.concat({
     mode(),
-    filename(),
+    '%#StatusLine#',
+    ' %f',
+    '%m',
     '%=',
-    buffers(),
-    -- '%#StatusLine#',
-    -- position(),
+    '[%{&filetype}]',
   })
 end
 
