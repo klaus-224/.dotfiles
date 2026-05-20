@@ -276,6 +276,7 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 - [ ] transform zsh tools binaries
 - [ ] consolidate everything into 1 `setup.sh` script
 - [ ] look into dev containers [devpod](https://devpod.sh/)
+- [ ] look into [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
 
 # CLI Tool Reference
 
