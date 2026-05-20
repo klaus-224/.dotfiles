@@ -36,6 +36,7 @@ brew "dasel"
 # monitoring
 brew "hyperfine"
 brew "gping"
+brew "bottom"
 
 # tuis
 brew "lazygit"
