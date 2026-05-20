@@ -48,8 +48,9 @@ local function set_colors()
   local bg_color = '#252530'
 
   vim.api.nvim_set_hl(0, 'StatusLine', {
-    fg = '#CDCDCD',
+    fg = '#F3BE7C',
     bg = bg_color,
+    bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineNC', {
@@ -92,18 +93,6 @@ local function set_colors()
     bg = '#6E94B2',
     bold = true,
   })
-
-  vim.api.nvim_set_hl(0, 'StatusLineBufferActive', {
-    fg = '#CDCDCD',
-    bg = bg_color,
-    bold = true,
-  })
-
-  vim.api.nvim_set_hl(0, 'StatusLineBuffer', {
-    fg = '#747b89',
-    bg = bg_color,
-    bold = true,
-  })
 end
 
 function M.render()
@@ -111,9 +100,9 @@ function M.render()
     mode(),
     '%#StatusLine#',
     ' %f',
-    '%m',
+    ' %m',
     '%=',
-    '[%{&filetype}]',
+    '[%{&filetype}] ',
   })
 end
 
