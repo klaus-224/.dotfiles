@@ -15,7 +15,23 @@ from pathlib import Path
 DEFAULT_DB_PATH = Path.home() / ".local/state/agent-tools/learnings.db"
 DB_PATH = Path(os.environ.get("AGENT_LEARNINGS_DB", str(DEFAULT_DB_PATH))).expanduser()
 
-SQL_PATH = Path(__file__).resolve().parent.parent / "opencode" / "sql" / "learnings_store.sql"
+def _find_sql_path() -> Path:
+    """Resolve schema path with env override and two-layout fallback."""
+    if env := os.environ.get("LEARNINGS_SCHEMA_PATH"):
+        return Path(env).expanduser()
+    base = Path(__file__).resolve().parent.parent
+    # dotfiles layout: <root>/opencode/sql/
+    candidate_a = base / "opencode" / "sql" / "learnings_store.sql"
+    if candidate_a.exists():
+        return candidate_a
+    # project layout: <root>/sql/
+    candidate_b = base / "sql" / "learnings_store.sql"
+    if candidate_b.exists():
+        return candidate_b
+    # local fallback: .data/ in cwd
+    return Path(".data") / "learnings_store.sql"
+
+SQL_PATH = _find_sql_path()
 
 VALID_CATEGORIES = [
     "navigation",
