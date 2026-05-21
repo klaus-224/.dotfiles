@@ -44,7 +44,48 @@ bind m resize-pane -Z
 bind-key -T copy-mode-vi v send -X begin-selection
 bind-key -T copy-mode-vi y send -X copy-selection-and-cancel
 
+# ---- Status bar (vague palette) ----
+set -g @c_bg '#0f1117'
+set -g @c_fg '#cdcdcd'
+set -g @c_accent '#ffd166'
+set -g @c_active '#D8647E'
+set -g @c_active_alt '#D8647E'
+set -g @c_dim '#252530'
+set -g @c_tab '#1a1b26'
+set -g @c_tab_fg '#8b8fa3'
+set -g @c_tab_alt '#252530'
+set -g @c_warn '#f3be7c'
+set -g @c_alert '#d8647e'
+
+set -g pane-border-style "fg=#{@c_dim}"
+set -g pane-active-border-style "fg=#{@c_accent}"
+
+# ---- Status layout ----
+set -g status-position top
+set -g status-style "fg=#{@c_fg},bg=#{@c_bg}"
+set -g status-interval 2
+
+set -g status-left ''
+set -g status-right ''
+set -g status-left-length 0
+set -g status-right-length 0
+set -g status-justify left
+
+set -g @tab_inactive ' #[fg=#{@c_tab_fg},bg=#{@c_tab}] #I #W '
+set -g @tab_active '#[fg=#{@c_bg},bg=#{@c_active_alt},bold] #I#[fg=#{@c_bg},bg=#{@c_active},bold] #W #[fg=#{@c_bg},bg=#{@c_bg},bold]'
+
+set -g @system_stats '#(if command -v muxbar >/dev/null 2>&1; then muxbar; fi)'
+set -g @session_name '#[fg=#{@c_bg},bg=#{@c_accent},bold] #S '
+
+# status bar
+# left  = window tabs
+# center = session name
+# right = system stats + clock
+set -g status-format[0] '#[align=left]#{W:#{E:@tab_inactive},#{E:@tab_active}}#[align=centre]#{E:@session_name}#[align=right]#{E:@system_stats} #[fg=#{@c_fg},bg=#{@c_bg}]%a %b %d %I:%M%p '
+
 set -g monitor-activity on
+set -g window-status-activity-style "fg=#{@c_warn},bg=#{@c_tab},bold"
+set -g window-status-bell-style "fg=#{@c_alert},bg=#{@c_tab},reverse,bold"
 
 # ---- Keymaps / misc ----
 bind r {
@@ -65,7 +106,6 @@ bind-key b switch-client -p
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
-set -g @plugin 'vimpostor/vim-tpipeline'
 
 run '~/.tmux/plugins/tpm/tpm'
 

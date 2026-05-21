@@ -1,5 +1,8 @@
 -- leader
 vim.g.mapleader = ' '
+vim.g.tpipeline_autoembed = 0
+
+vim.gtpipeline_statusline = '%!tpipeline#stl#line()'
 
 vim.g.no_python_maps = 1
 

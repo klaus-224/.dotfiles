@@ -18,6 +18,7 @@ vim.pack.add({
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/goolord/alpha-nvim' },
   { src = 'https://github.com/brenoprata10/nvim-highlight-colors' },
+  { src = 'https://github.com/vimpostor/vim-tpipeline' },
 
   -- lsp/completions
   { src = 'https://github.com/mason-org/mason.nvim' },
