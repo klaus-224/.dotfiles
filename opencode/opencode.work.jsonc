@@ -36,6 +36,7 @@
       "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
       "permission": {
         "submit_plan": "allow",
+        "todowrite": "allow",
         "edit": {
           "*": "deny",
           "*.md": "allow",
@@ -60,6 +61,7 @@
       "prompt": "Help me plan whatever I ask for but be creative. Always load the plannotator-compound skill before submitting any plan.",
       "permission": {
         "submit_plan": "allow",
+        "todowrite": "allow",
         "edit": {
           "*": "deny",
           "*.md": "allow",
