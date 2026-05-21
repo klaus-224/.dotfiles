@@ -1,21 +1,120 @@
 #!/usr/bin/env python3
-"""Extract session transcripts from OpenCode's SQLite DB for review."""
+"""Extract session transcripts from an agent's SQLite session DB for review."""
 
 import argparse
 import json
-import os
 import sqlite3
 import sys
 from pathlib import Path
 
-DB_PATH = Path.home() / ".local" / "share" / "opencode" / "opencode.db"
+CONFIG_PATH = Path.home() / ".config" / "session_reader" / "config.json"
+
+# Platform-aware preset paths
+_darwin = sys.platform == "darwin"
+
+PRESETS = [
+    {
+        "label": "OpenCode",
+        "path": Path.home() / ".local" / "share" / "opencode" / "opencode.db",
+    },
+    {
+        "label": "Cursor",
+        "path": (
+            Path.home()
+            / "Library"
+            / "Application Support"
+            / "Cursor"
+            / "User"
+            / "globalStorage"
+            / "state.vscdb"
+            if _darwin
+            else Path.home()
+            / ".config"
+            / "Cursor"
+            / "User"
+            / "globalStorage"
+            / "state.vscdb"
+        ),
+    },
+    {
+        "label": "Windsurf",
+        "path": (
+            Path.home()
+            / "Library"
+            / "Application Support"
+            / "Windsurf"
+            / "User"
+            / "globalStorage"
+            / "state.vscdb"
+            if _darwin
+            else Path.home()
+            / ".config"
+            / "Windsurf"
+            / "User"
+            / "globalStorage"
+            / "state.vscdb"
+        ),
+    },
+]
+
+
+def run_setup():
+    """Interactively prompt the user to select or enter a DB path and save config."""
+    print("\nNo session database configured. Select your agent:\n")
+    for i, p in enumerate(PRESETS, 1):
+        print(f"  {i}) {p['label']:<12} ({p['path']})")
+    print(f"  {len(PRESETS) + 1}) Custom path  (enter your own)\n")
+
+    default = 1
+    try:
+        raw = input(f"Choice [{default}]: ").strip()
+        choice = int(raw) if raw else default
+    except (ValueError, EOFError):
+        choice = default
+
+    if 1 <= choice <= len(PRESETS):
+        db_path = PRESETS[choice - 1]["path"]
+        agent = PRESETS[choice - 1]["label"].lower()
+    elif choice == len(PRESETS) + 1:
+        try:
+            raw_path = input("Enter full path to database: ").strip()
+        except EOFError:
+            print("Aborted.", file=sys.stderr)
+            sys.exit(1)
+        db_path = Path(raw_path).expanduser()
+        agent = "custom"
+    else:
+        print("Invalid choice. Defaulting to OpenCode.", file=sys.stderr)
+        db_path = PRESETS[0]["path"]
+        agent = "opencode"
+
+    if not db_path.exists():
+        print(f"Warning: file not found at {db_path} — saving anyway.", file=sys.stderr)
+
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CONFIG_PATH.write_text(
+        json.dumps({"db_path": str(db_path), "agent": agent}, indent=2)
+    )
+    print(f"Saved config to {CONFIG_PATH}\n", file=sys.stderr)
+    return db_path
+
+
+def get_db_path():
+    if CONFIG_PATH.exists():
+        try:
+            cfg = json.loads(CONFIG_PATH.read_text())
+            return Path(cfg["db_path"])
+        except (json.JSONDecodeError, KeyError):
+            pass
+    return run_setup()
 
 
 def get_db():
-    if not DB_PATH.exists():
-        print(json.dumps({"error": "opencode.db not found"}))
+    db_path = get_db_path()
+    if not db_path.exists():
+        print(json.dumps({"error": f"Database not found at {db_path}"}))
         sys.exit(1)
-    return sqlite3.connect(str(DB_PATH))
+    return sqlite3.connect(str(db_path))
 
 
 def list_sessions(args):
@@ -28,7 +127,10 @@ def list_sessions(args):
            LIMIT ?""",
         (f"%{args.search}%", f"%{args.search}%", args.limit),
     )
-    rows = [{"id": r[0], "title": r[1], "created": r[2], "updated": r[3]} for r in cur.fetchall()]
+    rows = [
+        {"id": r[0], "title": r[1], "created": r[2], "updated": r[3]}
+        for r in cur.fetchall()
+    ]
     print(json.dumps(rows, indent=2))
 
 
@@ -104,15 +206,19 @@ def get_transcript(args):
                 content_parts.append({"type": "text", "text": p.get("text", "")[:2000]})
             elif ptype == "tool":
                 state = p.get("state", {})
-                content_parts.append({
-                    "type": "tool-call",
-                    "tool": p.get("tool", "?"),
-                    "status": state.get("status", "?"),
-                    "args_preview": str(state.get("input", {}))[:200],
-                    "result_preview": str(state.get("output", ""))[:300],
-                })
+                content_parts.append(
+                    {
+                        "type": "tool-call",
+                        "tool": p.get("tool", "?"),
+                        "status": state.get("status", "?"),
+                        "args_preview": str(state.get("input", {}))[:200],
+                        "result_preview": str(state.get("output", ""))[:300],
+                    }
+                )
             elif ptype == "reasoning":
-                content_parts.append({"type": "reasoning", "text": p.get("text", "")[:2000]})
+                content_parts.append(
+                    {"type": "reasoning", "text": p.get("text", "")[:2000]}
+                )
 
         entry["parts"] = content_parts
         transcript.append(entry)
@@ -130,6 +236,12 @@ def get_transcript(args):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--reconfigure",
+        "--setup",
+        action="store_true",
+        help="Re-run interactive DB setup even if already configured",
+    )
     sub = parser.add_subparsers(dest="cmd")
 
     ls = sub.add_parser("list")
@@ -140,6 +252,9 @@ def main():
     tr.add_argument("session_id")
 
     args = parser.parse_args()
+    if args.reconfigure:
+        run_setup()
+        return
     if args.cmd == "list":
         list_sessions(args)
     elif args.cmd == "transcript":
