@@ -3,7 +3,7 @@
   "model": "openai/gpt-5.4",
   "enabled_providers": ["openai", "opencode"],
   "skills": {
-    "paths": ["./skills"]
+    "paths": ["./skills"],
   },
   "agent": {
     "build": {
@@ -13,8 +13,8 @@
         "*": "ask",
         "edit": "allow",
         "read": "allow",
-        "bash": "allow"
-      }
+        "bash": "allow",
+      },
     },
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
@@ -26,9 +26,10 @@
       "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
       "permission": {
         "submit_plan": "allow",
+        "todowrite": "allow",
         "edit": {
           "*": "deny",
-          "*.md": "allow"
+          "*.md": "allow",
         },
         "bash": {
           "*": "ask",
@@ -36,10 +37,10 @@
           "git diff*": "allow",
           "git log*": "allow",
           "rg *": "allow",
-          "grep *": "allow"
+          "grep *": "allow",
         },
-        "external_directory": "deny"
-      }
+        "external_directory": "deny",
+      },
     },
     "planner-creative": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
@@ -51,9 +52,10 @@
       "prompt": "Help me plan whatever I ask for but be creative. Always load the plannotator-compound skill before submitting any plan.",
       "permission": {
         "submit_plan": "allow",
+        "todowrite": "allow",
         "edit": {
           "*": "deny",
-          "*.md": "allow"
+          "*.md": "allow",
         },
         "bash": {
           "*": "ask",
@@ -61,22 +63,22 @@
           "git diff*": "allow",
           "git log*": "allow",
           "rg *": "allow",
-          "grep *": "allow"
+          "grep *": "allow",
         },
-        "external_directory": "deny"
-      }
-    }
+        "external_directory": "deny",
+      },
+    },
   },
   "tools": {
-    "paths": true
+    "paths": true,
   },
   "plugin": [
     [
       "@plannotator/opencode@latest",
       {
         "workflow": "user-managed",
-        "planningAgents": ["planner"]
-      }
-    ]
-  ]
+        "planningAgents": ["planner"],
+      },
+    ],
+  ],
 }
