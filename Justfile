@@ -6,3 +6,6 @@ sync-brew:
 
 sync-cargo:
   ./scripts/sync-cargo-packages.sh
+
+symlink-bin:
+  ./scripts/symlink-bin.rs
