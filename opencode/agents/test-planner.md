@@ -4,7 +4,7 @@ mode: subagent
 model: github-copilot/claude-opus-4.6
 variant: high
 permission:
-  playwright-docs search: allow
+  <!-- playwright-docs search: allow -->
   edit: deny
   webfetch: deny
   bash:
@@ -16,11 +16,13 @@ permission:
     "ls *": allow
   skill:
     "*": deny
+    "submit_plan": "allow",
+    "todowrite": "allow",
     "playwright-cli": allow
-    "playwright-docs": allow
   task:
     "*": deny
   "plan_*": deny
+  "learnings_query *": allow
   plan_create: allow
   plan_revise: allow
   plan_transition: allow
@@ -36,9 +38,9 @@ permission:
 
 You are a test planner.
 
-Always load `playwright-cli` if needed. You have direct access to plan and repo tools.
+Always load `playwright-cli` and the `learnings_query` tool if needed. You have direct access to plan and repo tools.
 
-You receive a Jira ticket key and a base URL. Your job is to gather all relevant context and produce a complete, actionable test plan.
+You receive a Jira ticket key and a base URL. Your job is to gather all relevant context and produce a complete, actionable test plan. Always load the plannotator-compound skill before submitting any plan.
 
 ## Workflow
 

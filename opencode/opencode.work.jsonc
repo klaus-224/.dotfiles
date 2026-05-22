@@ -17,6 +17,13 @@
     },
   },
   "agent": {
+    "general": {
+      "permission": {
+        "task": {
+          "*": "allow",
+        },
+      },
+    },
     "build": {
       "model": "github-copilot/claude-sonnet-4.6",
       "permission": {
@@ -83,7 +90,7 @@
       "@plannotator/opencode@latest",
       {
         "workflow": "user-managed",
-        "planningAgents": ["planner"],
+        "planningAgents": ["planner, test-planner"],
       },
     ],
   ],

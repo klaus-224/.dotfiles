@@ -13,7 +13,7 @@ Arguments: `<BASE_URL>`
 
 Examples:
 
-- `/manual-test-all https://next.skyon.app`
+- `/manual-test-all https://skyon.orennia.dev`
 
 ## Flow
 

@@ -27,8 +27,7 @@ permission:
   plan_revise: allow
   plan_transition: allow
   "learnings_*": deny
-  learnings_query: allow
-  learnings_add: allow
+  "learnings_query *": allow
   "repo_*": deny
   repo_index: allow
   repo_query: allow
