@@ -1,6 +1,9 @@
 vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
 
+-- terminal
+vim.keymap.set('t', '<Esc><Esc>', [[<C-\><C-n>]], { noremap = true })
+
 -- buffer operations
 vim.keymap.set('n', '<M-]>', '<cmd>bnext<cr>', { noremap = true })
 vim.keymap.set('n', '<M-[>', '<cmd>bprevious<cr>', { noremap = true })
