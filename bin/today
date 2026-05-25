@@ -49,6 +49,12 @@ function _bootstrap_file() {
 	cat >"$file" <<EOT
 # $(_date) Tasks
 
+## Other Todos
+
+## Jira Tickets - assigned to me
+
+## Jira Tickets - others
+
 EOT
 }
 
@@ -125,7 +131,10 @@ function _jira_sync() {
 	_archive_legacy_internal
 	_bootstrap_file "$today_file"
 
-	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and \"qa-filter\". Generate a concise markdown todo list, distinguish between tickets assigned to me and not assigned to me.  For each issue include key, short title and a link to the ticket. Return ONLY markdown list items (lines starting with \"- [ ]\"). No headings, no commentary.}"
+	# Migrate old ## Jira section to new format
+	_migrate_jira_section "$today_file"
+
+	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and \"qa-filter\". Generate a markdown todo list split into exactly two sections with these exact markers:\n\nASSIGNED_TO_ME:\n- [ ] KEY-123 Short title [link](url)\n\nOTHERS:\n- [ ] KEY-456 Short title [link](url)\n\nUse exactly those section markers (ASSIGNED_TO_ME: and OTHERS:). For each issue include the Jira key, a short title, and a link to the ticket. Return ONLY the section markers and list items. No other headings, no commentary.}"
 
 	tmp_output="$(mktemp -t today-agent-output.XXXXXX)" || {
 		echo "Unable to create temporary output file." >&2
@@ -152,42 +161,113 @@ function _jira_sync() {
 		existing_keys=$(grep -oE '[A-Z][A-Z0-9]+-[0-9]+' "$today_file" 2>/dev/null || true)
 	fi
 
-	# Filter output to only new tasks (lines containing a ticket key not already present)
-	local new_tasks=""
+	# Parse agent output into two lists using section markers
+	local mine_tasks="" others_tasks="" current_section=""
 	while IFS= read -r line; do
-		# Skip empty lines and non-list lines
+		if [[ "$line" == "ASSIGNED_TO_ME:"* ]]; then
+			current_section="mine"
+			continue
+		elif [[ "$line" == "OTHERS:"* ]]; then
+			current_section="others"
+			continue
+		fi
+
 		[[ -z "$line" ]] && continue
 		[[ "$line" != *"- ["* ]] && continue
 
-		# Extract ticket key from this line
+		# Deduplicate against existing keys
 		local key
 		key=$(echo "$line" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' 2>/dev/null | head -1 || true)
-
-		# If no key found, or key is not already present, include it
-		if [[ -z "$key" ]] || ! echo "$existing_keys" | grep -qF "$key" 2>/dev/null; then
-			new_tasks+="${line}"$'\n'
+		if [[ -n "$key" ]] && echo "$existing_keys" | grep -qF "$key" 2>/dev/null; then
+			continue
 		fi
+
+		case "$current_section" in
+		mine)   mine_tasks+="${line}"$'\n' ;;
+		others) others_tasks+="${line}"$'\n' ;;
+		esac
 	done <<<"$output"
 
-	if [[ -z "$new_tasks" ]]; then
+	local count=0
+
+	# Append new tasks under each section
+	if [[ -n "$mine_tasks" ]]; then
+		_append_to_section "$today_file" "## Jira Tickets - assigned to me" "$mine_tasks"
+		count=$((count + $(echo -n "$mine_tasks" | grep -c '^- \[' || true)))
+	fi
+
+	if [[ -n "$others_tasks" ]]; then
+		_append_to_section "$today_file" "## Jira Tickets - others" "$others_tasks"
+		count=$((count + $(echo -n "$others_tasks" | grep -c '^- \[' || true)))
+	fi
+
+	if [[ $count -eq 0 ]]; then
 		echo "No new Jira tasks to add."
 		return 0
 	fi
 
-	# Append to ## Jira section or create it
-	if grep -q '^## Jira' "$today_file" 2>/dev/null; then
-		# Append after existing Jira section content
-		printf "%s" "$new_tasks" >>"$today_file"
+	_link_legacy "$today_file"
+	echo "Added $count Jira task(s) to: $today_file"
+}
+
+# Append $items under the given $section_heading in $file.
+# If the heading doesn't exist, create it at the end of the file.
+function _append_to_section() {
+	local file="$1" heading="$2" items="$3"
+
+	if grep -qF "$heading" "$file" 2>/dev/null; then
+		# Find the line number of the heading, then find next ## heading or EOF
+		local heading_line next_section_line total_lines
+		heading_line=$(grep -n "^${heading}$" "$file" | head -1 | cut -d: -f1)
+		total_lines=$(wc -l <"$file")
+
+		# Find first ^## line after the heading
+		next_section_line=$(awk "NR > $heading_line && /^## / { print NR; exit }" "$file" || true)
+
+		if [[ -z "$next_section_line" ]]; then
+			# No next section — append at end of file
+			printf "%s" "$items" >>"$file"
+		else
+			# Insert before the next section heading
+			local insert_at=$(( next_section_line - 1 ))
+			local tmp
+			tmp="$(mktemp -t today-insert.XXXXXX)"
+			awk -v at="$insert_at" -v content="$items" '
+				NR == at { printf "%s", content }
+				{ print }
+			' "$file" >"$tmp"
+			mv "$tmp" "$file"
+		fi
 	else
-		# Create the section at the end
-		printf "\n## Jira\n%s" "$new_tasks" >>"$today_file"
+		# Section doesn't exist — create it at end
+		printf "\n%s\n%s" "$heading" "$items" >>"$file"
+	fi
+}
+
+# One-time migration: rename old ## Jira to ## Jira Tickets - assigned to me
+# and add ## Jira Tickets - others below it.
+function _migrate_jira_section() {
+	local file="$1"
+	[[ -f "$file" ]] || return 0
+	grep -q '^## Jira$' "$file" 2>/dev/null || return 0
+
+	local tmp
+	tmp="$(mktemp -t today-migrate.XXXXXX)"
+	awk '
+		/^## Jira$/ {
+			print "## Jira Tickets - assigned to me"
+			next
+		}
+		{ print }
+	' "$file" >"$tmp"
+
+	# Add ## Jira Tickets - others if not present
+	if ! grep -q '^## Jira Tickets - others$' "$tmp" 2>/dev/null; then
+		printf "\n## Jira Tickets - others\n" >>"$tmp"
 	fi
 
-	_link_legacy "$today_file"
-
-	local count
-	count=$(echo -n "$new_tasks" | grep -c '^- \[' || true)
-	echo "Added $count Jira task(s) to: $today_file"
+	mv "$tmp" "$file"
+	echo "Migrated legacy ## Jira section." >&2
 }
 
 function _add() {
