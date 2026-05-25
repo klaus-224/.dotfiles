@@ -19,6 +19,7 @@
   "agent": {
     "general": {
       "permission": {
+        "todowrite": "allow",
         "task": {
           "*": "allow",
         },

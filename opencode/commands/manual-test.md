@@ -14,8 +14,8 @@ Arguments: `<TICKET> <BASE_URL>`
 
 Examples:
 
-- `/manual-test-single ION-1234 https://next.skyon.app`
-- `/manual-test-single https://orennia.atlassian.net/browse/ION-1234 https://next.skyon.app`
+- `/manual-test ION-1234 https://next.skyon.app`
+- `/manual-test https://orennia.atlassian.net/browse/ION-1234 https://next.skyon.app`
 
 ## Flow
 
