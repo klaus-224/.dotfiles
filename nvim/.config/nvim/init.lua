@@ -112,7 +112,7 @@ require('conform').setup({
     typescriptreact = { 'oxfmt', 'biome', 'prettier' },
 
     -- data/config
-    json = { 'oxfmt', 'biome', 'prettier' },
+    json = { 'biome', 'prettier' },
     jsonc = { 'biome', 'prettier' },
     yaml = { 'prettier' },
     markdown = { 'oxfmt', 'prettier' },
