@@ -19,11 +19,12 @@ Examples:
 
 ## Flow
 
-1. Parse the ticket key and base URL from arguments.
-2. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL>`
-3. Receive `plan_id` from planner.
-4. Dispatch `test-executor` (Task tool) with prompt: `plan_id=<plan_id>`
-5. Return the executor's report to the user.
+1. Parse the ticket key and base URL from arguments. If the ticket argument is a full URL, extract the key (last path segment).
+2. Discover cloudId by calling `atlassian_getAccessibleAtlassianResources` — use the first result's id.
+3. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL> cloudId=<CLOUD_ID>`
+4. Receive `plan_id` from planner.
+5. Dispatch `test-executor` (Task tool) with prompt: `plan_id=<plan_id>`
+6. Return the executor's report to the user.
 
 ## Rules
 

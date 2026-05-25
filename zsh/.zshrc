@@ -8,11 +8,15 @@ emulate -LR zsh
 # shellcheck source=/dev/null
 source "$HOME/.zshenv"
 
-# add zsh to path
-source "$DOTFILES_HOME/zsh/path.zsh"
-
 eval "$(starship init zsh)"
 eval "$(navi widget zsh)"
+
+# source config files
+for file in "$DOTFILES_HOME"/zsh/*.zsh; do
+	[[ -f "$file" ]] || continue
+	# shellcheck disable=SC1090
+	source "$file"
+done
 
 # source all config files
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
@@ -20,6 +24,7 @@ for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
 	# shellcheck disable=SC1090
 	source "$file"
 done
+
 
 if command -v brew >/dev/null 2>&1; then
   BREW_PREFIX="$(brew --prefix)"

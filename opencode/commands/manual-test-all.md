@@ -18,13 +18,14 @@ Examples:
 ## Flow
 
 1. Parse the base URL from arguments.
-2. Query Jira for all tickets assigned to current user (use Atlassian tools, JQL: `assignee = currentUser() AND status != Done ORDER BY priority DESC`).
-3. For each ticket (max 10):
-   a. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL>`
+2. Discover cloudId by calling `atlassian_getAccessibleAtlassianResources` — use the first result's id.
+3. Query Jira for all tickets assigned to current user (use Atlassian tools, JQL: `assignee = currentUser() AND status != Done ORDER BY priority DESC`).
+4. For each ticket (max 10):
+   a. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL> cloudId=<CLOUD_ID>`
    b. Receive `plan_id` from planner.
    c. Dispatch `test-executor` (Task tool) with prompt: `plan_id=<plan_id>`
    d. Collect result.
-4. Return a consolidated summary of all results.
+5. Return a consolidated summary of all results.
 
 ## Rules
 

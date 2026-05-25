@@ -17,6 +17,7 @@ permission:
     "*": deny
     "playwright-cli": allow
     "playwright-docs": allow
+    "plannotator-annotate": allow
   task:
     "*": deny
   "plan_*": deny
@@ -57,7 +58,8 @@ You receive a feature/area description and a perspective (happy path, edge cases
 4. Produce a regression test plan focused on your assigned perspective.
 5. Create the plan in the plan store via `plan_create`.
 6. Write the full plan via `plan_revise` (state: `drafting`).
-7. Return the `plan_id`.
+7. Load the `plannotator-annotate` skill. Render the plan to a temp file (e.g. `/tmp/regression-plan-<plan_id>.md`) and open it in Plannotator. Address any annotations returned.
+8. Return the `plan_id`.
 
 ### Plan Format
 
@@ -105,7 +107,8 @@ You receive a list of plan_ids (including your own) and instructions to critique
    - Concede that another plan is better (transition yours to `abandoned`)
    - Argue that yours is best (if others concede, transition yours to `reviewing`)
    - Propose a synthesis (revise the winning plan with best elements from all, transition to `reviewing`)
-4. Return the winning `plan_id` and a markdown summary of the consensus plan.
+4. Load the `plannotator-annotate` skill. Render the winning plan to a temp file (e.g. `/tmp/regression-consensus-<plan_id>.md`) and open it in Plannotator. Address any annotations returned.
+5. Return the winning `plan_id` and a markdown summary of the consensus plan.
 
 ---
 

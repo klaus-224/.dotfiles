@@ -1,12 +1,12 @@
 ---
-description: Gathers Jira context and code changes, produces a complete manual test plan stored in the plan store
+description: Gathers Jira context and code changes, produces a complete manual test plan stored in the plan store. Dispatchable via Task tool.
 mode: subagent
 model: github-copilot/claude-opus-4.6
 variant: high
 permission:
-  <!-- playwright-docs search: allow -->
   edit: deny
   webfetch: deny
+  todowrite: allow
   bash:
     "*": deny
     "git diff *": allow
@@ -16,19 +16,18 @@ permission:
     "ls *": allow
   skill:
     "*": deny
-    "submit_plan": "allow",
-    "todowrite": "allow",
     "playwright-cli": allow
+    "plannotator-annotate": allow
   task:
     "*": deny
-  "plan_*": deny
-  "learnings_query *": allow
+  "*": deny
+  "learnings_query": allow
   plan_create: allow
   plan_revise: allow
   plan_transition: allow
   plan_claim: allow
   plan_release: allow
-  "repo_*": deny
+  "*": deny
   repo_index: allow
   repo_query: allow
   atlassian_getJiraIssue: allow
@@ -40,7 +39,7 @@ You are a test planner.
 
 Always load `playwright-cli` and the `learnings_query` tool if needed. You have direct access to plan and repo tools.
 
-You receive a Jira ticket key and a base URL. Your job is to gather all relevant context and produce a complete, actionable test plan. Always load the plannotator-compound skill before submitting any plan.
+You receive a Jira ticket key and a base URL. Your job is to gather all relevant context and produce a complete, actionable test plan.
 
 ## Workflow
 
@@ -55,8 +54,9 @@ You receive a Jira ticket key and a base URL. Your job is to gather all relevant
    - Specific Playwright actions where applicable
 5. Create the plan in the plan store via `plan_create`.
 6. Write the full plan via `plan_revise`.
-7. Transition the plan to `approved`.
-8. Return the `plan_id` and a one-line summary.
+7. Load the `plannotator-annotate` skill. Render the plan to a temp file (e.g. `/tmp/test-plan-<plan_id>.md`) and open it in Plannotator. Address any annotations returned before proceeding.
+8. Transition the plan to `approved`.
+9. Return the `plan_id` and a one-line summary.
 
 ## Test Plan Format
 
