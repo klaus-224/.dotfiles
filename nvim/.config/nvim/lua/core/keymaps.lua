@@ -5,9 +5,9 @@ vim.keymap.set('v', 'q', '<Esc>')
 vim.keymap.set('t', '<Esc><Esc>', [[<C-\><C-n>]], { noremap = true })
 
 -- buffer operations
-vim.keymap.set('n', '<M-]>', '<cmd>bnext<cr>', { noremap = true })
-vim.keymap.set('n', '<M-[>', '<cmd>bprevious<cr>', { noremap = true })
 vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>')
+vim.keymap.set('n', '[o', '<cmd>bprevious<cr>')
+vim.keymap.set('n', ']o', '<cmd>bnext<cr>')
 
 -- execute current line
 vim.keymap.set('n', '<leader>x', function()
