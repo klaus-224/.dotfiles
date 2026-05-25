@@ -103,11 +103,11 @@
         },
       },
     },
-    "test-executor": {
-      "description": "Creates a test plan from Jira ticket details, gets user approval via Plannotator, then executes via Playwright. Dispatchable via Task tool.",
+    "manual-testing": {
+      "description": "Plans and executes manual tests for Jira tickets. Dispatches jira-operator for ticket details, queries repo context, reviews PR diff, submits test plan for approval, then executes via Playwright.",
       "mode": "subagent",
       "model": "github-copilot/claude-opus-4.6",
-      "prompt": "{file:./agent-defs/test-executor.md}",
+      "prompt": "{file:./agent-defs/manual-testing.md}",
       "permission": {
         "edit": "deny",
         "webfetch": "deny",
@@ -116,6 +116,8 @@
           "pwd": "allow",
           "mkdir -p *": "allow",
           "pnpm -C apps/playwright-tests *": "allow",
+          "gh pr diff *": "allow",
+          "gh pr view *": "allow",
         },
         "skill": {
           "*": "deny",
@@ -123,11 +125,10 @@
           "plannotator-annotate": "allow",
         },
         "task": {
-          "*": "deny",
+          "*": "allow",
         },
         "submit_plan": "allow",
         "learnings_query": "allow",
-        "atlassian_addCommentToJiraIssue": "allow",
         "repo_index": "allow",
         "repo_query": "allow",
       },
