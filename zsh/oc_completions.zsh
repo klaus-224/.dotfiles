@@ -1,4 +1,3 @@
-#compdef opencode
 ###-begin-opencode-completions-###
 #
 # yargs command completion script

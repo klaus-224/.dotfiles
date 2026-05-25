@@ -21,9 +21,9 @@ Examples:
 
 1. Parse the ticket key and base URL from arguments. If the ticket argument is a full URL, extract the key (last path segment).
 2. Discover cloudId by calling `atlassian_getAccessibleAtlassianResources` — use the first result's id.
-3. Dispatch `test-planner` (Task tool) with prompt: `ticket=<TICKET> base_url=<BASE_URL> cloudId=<CLOUD_ID>`
-4. Receive `plan_id` from planner.
-5. Dispatch `test-executor` (Task tool) with prompt: `plan_id=<plan_id>`
+3. Dispatch `jira-operator` (Task tool) with prompt: `Fetch full details for ticket <TICKET> using cloudId <CLOUD_ID>. Return the ticket summary, description, acceptance criteria, and any linked issues.`
+4. Receive ticket details from jira-operator.
+5. Dispatch `test-executor` (Task tool) with a prompt containing: the full ticket details from step 4, the base_url, and the ticket key. Instruct it to create a test plan, get user review via the plannotator-annotate skill, then execute the approved plan using Playwright.
 6. Return the executor's report to the user.
 
 ## Rules
@@ -31,5 +31,6 @@ Examples:
 - Exactly two sequential Task dispatches. Nothing else.
 - If either agent returns an error, surface it and stop.
 - Do not add logic, retries, or extra steps.
+- Neither agent should use plan_store tools.
 
 Context: $ARGUMENTS
