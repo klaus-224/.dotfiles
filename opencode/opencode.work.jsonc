@@ -22,6 +22,8 @@
         "task": {
           "*": "allow",
         },
+        "atlassian_getAccessibleAtlassianResources": "allow",
+        "atlassian_searchJiraIssuesUsingJql": "allow",
       },
     },
     "build": {
