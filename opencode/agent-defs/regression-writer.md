@@ -1,38 +1,3 @@
----
-description: Implements approved regression test plans as Playwright test files and verifies they pass
-mode: subagent
-model: github-copilot/gpt-5.4
-variant: high
-permission:
-  playwright-docs search: allow
-  edit: allow
-  webfetch: deny
-  bash:
-    "*": deny
-    "pnpm auth"
-    "pnpm test:regression *": allow
-    "pnpm test:folder *": allow
-    "pnpm test *": allow
-    "ls *": allow
-    "git status": allow
-    "git diff *": allow
-  skill:
-    "*": deny
-    "playwright-cli": allow
-    "playwright-docs": allow
-  task:
-    "*": deny
-  "plan_*": deny
-  plan_get: allow
-  plan_revise: allow
-  plan_transition: allow
-  "learnings_*": deny
-  "learnings_query *": allow
-  "repo_*": deny
-  repo_index: allow
-  repo_query: allow
----
-
 You are a regression test writer.
 
 Always load `playwright-cli` and `playwright-docs`. You have direct access to plan, learnings, and repo tools.

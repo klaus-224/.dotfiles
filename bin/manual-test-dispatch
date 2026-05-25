@@ -135,7 +135,7 @@ function manual_test_dispatch() {
 	# First ticket goes in the initial pane
 	local first_pane
 	first_pane=$(tmux list-panes -t "$window_id" -F "#{pane_id}" | head -1)
-	tmux send-keys -t "$first_pane" "opencode -c \"/manual-test ${tickets[1]} ${base_urls[1]}\"" Enter
+	tmux send-keys -t "$first_pane" "opencode run --command manual-test \"${tickets[1]} ${base_urls[1]}\"" Enter
 
 	# Remaining tickets each get a new split pane
 	for (( i=2; i<=${#tickets[@]}; i++ )); do
@@ -143,7 +143,7 @@ function manual_test_dispatch() {
 		tmux select-layout -t "$window_id" tiled
 		local pane
 		pane=$(tmux list-panes -t "$window_id" -F "#{pane_id}" | tail -1)
-		tmux send-keys -t "$pane" "opencode -c \"/manual-test ${tickets[$i]} ${base_urls[$i]}\"" Enter
+		tmux send-keys -t "$pane" "opencode run --command manual-test \"${tickets[$i]} ${base_urls[$i]}\"" Enter
 	done
 
 	tmux select-layout -t "$window_id" tiled

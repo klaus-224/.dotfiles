@@ -55,6 +55,13 @@ function _bootstrap_file() {
 
 ## Jira Tickets - others
 
+## Example manual-test payload
+  ```json
+  [
+    { "ticket": "ION-1234", "base_url": "https://skyon.orennia.dev" },
+    { "ticket": "ION-5678", "base_url": "https://next.skyon.app" }
+  ]
+  ```
 EOT
 }
 
