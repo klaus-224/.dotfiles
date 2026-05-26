@@ -1,3 +1,6 @@
+tap "bgreenwell/tap"
+tap "anomalyco/tap"
+
 # tuis and stuff
 brew "stow"
 brew "tmux"
@@ -61,6 +64,5 @@ brew "rustup-init"
 brew "aws-cdk"
 brew "awscli"
 
-# llm cli TODO: this needs to be brew tap
-# brew "anomalyco/tap/opencode"
-
+brew "bgreenwell/tap/xleak"
+brew "anomalyco/tap/opencoed"
