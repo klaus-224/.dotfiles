@@ -114,7 +114,25 @@ def get_db():
     if not db_path.exists():
         print(json.dumps({"error": f"Database not found at {db_path}"}))
         sys.exit(1)
-    return sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path))
+    _ensure_flagged_table(conn)
+    return conn
+
+
+def _ensure_flagged_table(conn):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS flagged_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            agent_name TEXT NOT NULL,
+            blocker_reason TEXT NOT NULL,
+            flagged_at TEXT NOT NULL,
+            resolved INTEGER DEFAULT 0,
+            resolved_at TEXT,
+            notes TEXT
+        )
+    """)
+    conn.commit()
 
 
 def list_sessions(args):
@@ -123,7 +141,7 @@ def list_sessions(args):
         """SELECT id, title, time_created, time_updated
            FROM session
            WHERE title LIKE ? OR title LIKE ?
-           ORDER BY time_created DESC
+           ORDER BY time_created ASC
            LIMIT ?""",
         (f"%{args.search}%", f"%{args.search}%", args.limit),
     )
@@ -234,6 +252,110 @@ def get_transcript(args):
     print(output)
 
 
+def flag_current(args):
+    db = get_db()
+    cur = db.execute(
+        """SELECT id, title FROM session
+           WHERE title LIKE ?
+           ORDER BY time_created DESC
+           LIMIT 1""",
+        (f"%{args.agent}%",),
+    )
+    row = cur.fetchone()
+    if not row:
+        print(json.dumps({"error": f"No sessions found for agent '{args.agent}'"}))
+        sys.exit(1)
+
+    session_id, title = row
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Upsert: update if already flagged, otherwise insert
+    existing = db.execute(
+        "SELECT id FROM flagged_sessions WHERE session_id = ? AND resolved = 0",
+        (session_id,),
+    ).fetchone()
+
+    if existing:
+        db.execute(
+            "UPDATE flagged_sessions SET blocker_reason = ?, flagged_at = ? WHERE id = ?",
+            (args.reason, now, existing[0]),
+        )
+    else:
+        db.execute(
+            "INSERT INTO flagged_sessions (session_id, agent_name, blocker_reason, flagged_at) VALUES (?, ?, ?, ?)",
+            (session_id, args.agent, args.reason, now),
+        )
+    db.commit()
+    print(
+        json.dumps(
+            {
+                "status": "flagged",
+                "session_id": session_id,
+                "title": title,
+                "agent": args.agent,
+                "reason": args.reason,
+                "flagged_at": now,
+            },
+            indent=2,
+        )
+    )
+
+
+def list_flagged(args):
+    db = get_db()
+    where = ""
+    if args.pending_only:
+        where = "WHERE f.resolved = 0"
+    elif args.resolved_only:
+        where = "WHERE f.resolved = 1"
+
+    cur = db.execute(
+        f"""SELECT f.session_id, f.agent_name, f.blocker_reason, f.flagged_at,
+                   f.resolved, f.resolved_at, f.notes, s.title
+            FROM flagged_sessions f
+            LEFT JOIN session s ON s.id = f.session_id
+            {where}
+            ORDER BY f.flagged_at DESC""",
+    )
+    rows = [
+        {
+            "session_id": r[0],
+            "agent_name": r[1],
+            "blocker_reason": r[2],
+            "flagged_at": r[3],
+            "resolved": bool(r[4]),
+            "resolved_at": r[5],
+            "notes": r[6],
+            "title": r[7],
+        }
+        for r in cur.fetchall()
+    ]
+    print(json.dumps(rows, indent=2))
+
+
+def resolve_flagged(args):
+    db = get_db()
+    from datetime import datetime, timezone
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    cur = db.execute(
+        "UPDATE flagged_sessions SET resolved = 1, resolved_at = ?, notes = ? WHERE session_id = ? AND resolved = 0",
+        (now, args.notes, args.session_id),
+    )
+    db.commit()
+    if cur.rowcount == 0:
+        print(
+            json.dumps(
+                {"error": f"No pending flag found for session '{args.session_id}'"}
+            )
+        )
+        sys.exit(1)
+    print(json.dumps({"status": "resolved", "session_id": args.session_id, "resolved_at": now}, indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -251,6 +373,18 @@ def main():
     tr = sub.add_parser("transcript")
     tr.add_argument("session_id")
 
+    fc = sub.add_parser("flag-current", help="Flag the most recent session for an agent")
+    fc.add_argument("--agent", required=True, help="Agent name (e.g., regression-writer)")
+    fc.add_argument("--reason", required=True, help="Blocker reason")
+
+    lf = sub.add_parser("list-flagged", help="List sessions flagged for review")
+    lf.add_argument("--pending-only", action="store_true")
+    lf.add_argument("--resolved-only", action="store_true")
+
+    rs = sub.add_parser("resolve", help="Mark a flagged session as resolved")
+    rs.add_argument("session_id")
+    rs.add_argument("--notes", default=None, help="Resolution notes")
+
     args = parser.parse_args()
     if args.reconfigure:
         run_setup()
@@ -259,6 +393,12 @@ def main():
         list_sessions(args)
     elif args.cmd == "transcript":
         get_transcript(args)
+    elif args.cmd == "flag-current":
+        flag_current(args)
+    elif args.cmd == "list-flagged":
+        list_flagged(args)
+    elif args.cmd == "resolve":
+        resolve_flagged(args)
     else:
         parser.print_help()
         sys.exit(1)

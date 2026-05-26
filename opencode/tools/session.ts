@@ -72,3 +72,57 @@ export const transcript = tool({
 		return parseOutput(await run(["transcript", args.session_id]));
 	},
 });
+
+export const flag_current = tool({
+	description:
+		"Flag the current session for human review when a blocker is encountered. Finds the most recent session for the given agent and marks it for review.",
+	args: {
+		agent: tool.schema
+			.string()
+			.describe(
+				"Agent name (e.g., 'manual-testing', 'regression-writer')",
+			),
+		reason: tool.schema
+			.string()
+			.describe("Specific blocker reason with details"),
+	},
+	async execute(args) {
+		return parseOutput(
+			await run(["flag-current", "--agent", args.agent, "--reason", args.reason]),
+		);
+	},
+});
+
+export const list_flagged = tool({
+	description:
+		"List all sessions flagged for review, with optional filters for pending or resolved.",
+	args: {
+		pending_only: tool.schema
+			.boolean()
+			.optional()
+			.describe("Only show unresolved flags"),
+		resolved_only: tool.schema
+			.boolean()
+			.optional()
+			.describe("Only show resolved flags"),
+	},
+	async execute(args) {
+		const cmd = ["list-flagged"];
+		if (args.pending_only) cmd.push("--pending-only");
+		if (args.resolved_only) cmd.push("--resolved-only");
+		return parseOutput(await run(cmd));
+	},
+});
+
+export const resolve = tool({
+	description: "Mark a flagged session as resolved with optional notes.",
+	args: {
+		session_id: tool.schema.string().describe("The session ID to resolve"),
+		notes: tool.schema.string().optional().describe("Resolution notes"),
+	},
+	async execute(args) {
+		const cmd = ["resolve", args.session_id];
+		if (args.notes) cmd.push("--notes", args.notes);
+		return parseOutput(await run(cmd));
+	},
+});

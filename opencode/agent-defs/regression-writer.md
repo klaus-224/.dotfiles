@@ -58,7 +58,29 @@ Run from `apps/playwright-tests/`:
 - Keep tests simple — fewest steps to cover the behavior.
 - Assert early so tests fail fast.
 - If a test cannot pass after 3 attempts, mark it as blocked in the plan via `plan_revise` and move on.
+- If blocked, flag your session for review (see Flagging for Review below).
 - Do not delegate to other agents.
+
+## Flagging for Review
+
+If you encounter any of these blockers, flag your session for human review:
+- A test fails after 3 debug attempts (step 4f)
+- Missing data-testid that requires app changes (per the "never modify apps/skyon" rule)
+- Cannot find required page objects or fixtures via repo_query
+- Playwright setup/auth issues that prevent test execution
+- Plan requirements are ambiguous or contradictory
+
+To flag, use the `session_flag_current` tool with:
+- `agent`: "regression-writer"
+- `reason`: "[plan_id] <specific blocker description>"
+
+Always prefix the reason with the plan_id in brackets for traceability.
+
+After flagging, you MUST still complete the workflow:
+- Mark affected tests as blocked via `plan_revise`
+- Record learnings about what was attempted
+- Transition the plan appropriately
+- Return a summary that mentions the session was flagged for review
 
 ## Project Context
 
