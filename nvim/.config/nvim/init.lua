@@ -112,8 +112,6 @@ require('conform').setup({
     typescriptreact = { 'oxfmt', 'biome', 'prettier' },
 
     -- data/config
-    json = { 'biome', 'prettier' },
-    jsonc = { 'biome', 'prettier' },
     yaml = { 'prettier' },
     markdown = { 'oxfmt', 'prettier' },
     sql = { 'sleek' },
@@ -129,10 +127,18 @@ require('conform').setup({
     toml = { 'tombi' },
   },
 
-  format_on_save = {
-    timeout_ms = 500,
-    lsp_format = 'fallback',
-  },
+  format_on_save = function(bufnr)
+    local ft = vim.bo[bufnr].filetype
+
+    if ft == 'json' or ft == 'jsonc' then
+      return nil
+    end
+
+    return {
+      timeout_ms = 500,
+      lsp_format = 'never',
+    }
+  end,
 })
 
 require('luasnip.loaders.from_vscode').lazy_load()

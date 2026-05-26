@@ -1,14 +1,4 @@
 {
-    "diagnostics.globals": [
-        "vim",
-        "ya",
-        "cx",
-        "Url",
-        "Command",
-        "ui",
-        "fs"
-    ],
-    "diagnostics.disable": [
-        "param-type-mismatch"
-    ]
+	"diagnostics.globals": ["vim", "ya", "cx", "Url", "Command", "ui", "fs"],
+	"diagnostics.disable": ["param-type-mismatch"]
 }
