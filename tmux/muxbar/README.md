@@ -9,9 +9,9 @@ Tmux status line configured in Rust.
   - Can be programmed (e.g. dynamically rendered modules)
 - Supports formatting
 - Cached modules
-    - Each module specifies when it needs to recompute and also how to update it self.
-    - Once a module needs to recompute that specific module is updated
-    - All other modules are cached
+  - Each module specifies when it needs to recompute and also how to update it self.
+  - Once a module needs to recompute that specific module is updated
+  - All other modules are cached
 
 ## Installation
 
