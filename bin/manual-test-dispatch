@@ -1,0 +1,155 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# --------------------------------------------------
+# manual-test-dispatch — Dispatch /manual-test for
+# each ticket defined in a config markdown file,
+# but only for tickets assigned to me (per today's
+# list). Opens a new tmux window with one pane per
+# ticket.
+# --------------------------------------------------
+
+function _usage() {
+	cat <<'EOT'
+Usage: manual-test-dispatch <config-file>
+
+Config file: a markdown file containing a JSON array inside a ```json code fence.
+Each entry must have "ticket" and "base_url" keys.
+
+Example config:
+  ```json
+  [
+    { "ticket": "ION-1234", "base_url": "https://skyon.orennia.dev" },
+    { "ticket": "ION-5678", "base_url": "https://next.skyon.app" }
+  ]
+  ```
+
+Only tickets that appear in the "## Jira Tickets - assigned to me" section of
+today's file (from `today path`) will be dispatched. Others are skipped.
+EOT
+}
+
+function _die() {
+	echo "error: $*" >&2
+	exit 1
+}
+
+function _extract_json_block() {
+	local file="$1"
+	# Extract contents between first ```json and closing ```
+	awk '/^```json/{found=1; next} found && /^```/{exit} found{print}' "$file"
+}
+
+function _assigned_to_me_keys() {
+	local today_file="$1"
+	local in_section=0
+	while IFS= read -r line; do
+		if [[ "$line" == "## Jira Tickets - assigned to me"* ]]; then
+			in_section=1
+			continue
+		fi
+		if [[ $in_section -eq 1 && "$line" == "## "* ]]; then
+			break
+		fi
+		if [[ $in_section -eq 1 ]]; then
+			# Extract ticket keys from the line
+			local keys
+			keys=$(echo "$line" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' 2>/dev/null || true)
+			[[ -n "$keys" ]] && echo "$keys"
+		fi
+	done <"$today_file"
+}
+
+function manual_test_dispatch() {
+	local config_file="${1:-}"
+
+	if [[ -z "$config_file" || "$config_file" == "-h" || "$config_file" == "--help" ]]; then
+		_usage
+		exit 0
+	fi
+
+	[[ -f "$config_file" ]] || _die "config file not found: $config_file"
+	[[ -n "${TMUX:-}" ]] || _die "not inside a tmux session — please run from within tmux"
+
+	# Require jq
+	command -v jq >/dev/null 2>&1 || _die "jq is required (brew install jq)"
+	command -v opencode >/dev/null 2>&1 || _die "opencode is required"
+
+	# Extract JSON block from config file
+	local json_block
+	json_block="$(_extract_json_block "$config_file")"
+	[[ -n "$json_block" ]] || _die "no JSON block found in config file (expected a \`\`\`json ... \`\`\` fence)"
+
+	# Validate JSON
+	echo "$json_block" | jq empty 2>/dev/null || _die "invalid JSON in config file"
+
+	# Get today's file
+	local today_file
+	today_file="$(today path 2>/dev/null)" || _die "could not determine today's file (is 'today' in PATH?)"
+	[[ -f "$today_file" ]] || _die "today's file not found: $today_file"
+
+	# Get ticket keys assigned to me
+	local assigned_keys
+	assigned_keys="$(_assigned_to_me_keys "$today_file")"
+
+	if [[ -z "$assigned_keys" ]]; then
+		_die "no tickets found in '## Jira Tickets - assigned to me' section of $today_file"
+	fi
+
+	# Build list of matching entries from config (ticket + base_url pairs)
+	local -a tickets=()
+	local -a base_urls=()
+
+	local count
+	count=$(echo "$json_block" | jq 'length')
+
+	for (( i=0; i<count; i++ )); do
+		local ticket base_url
+		ticket=$(echo "$json_block" | jq -r ".[$i].ticket")
+		base_url=$(echo "$json_block" | jq -r ".[$i].base_url")
+
+		if echo "$assigned_keys" | grep -qF "$ticket" 2>/dev/null; then
+			tickets+=("$ticket")
+			base_urls+=("$base_url")
+		else
+			echo "skipping $ticket (not assigned to me)" >&2
+		fi
+	done
+
+	if [[ ${#tickets[@]} -eq 0 ]]; then
+		_die "no tickets in config match tickets assigned to you in $today_file"
+	fi
+
+	if [[ ${#tickets[@]} -gt 10 ]]; then
+		echo "warning: capping at 10 tickets (found ${#tickets[@]})" >&2
+		tickets=("${tickets[@]:0:10}")
+		base_urls=("${base_urls[@]:0:10}")
+	fi
+
+	echo "dispatching ${#tickets[@]} ticket(s)..." >&2
+
+	# Create a new tmux window
+	local window_id
+	window_id=$(tmux new-window -dP -n "manual-test" -F "#{window_id}")
+
+	# First ticket goes in the initial pane
+	local first_pane
+	first_pane=$(tmux list-panes -t "$window_id" -F "#{pane_id}" | head -1)
+	tmux send-keys -t "$first_pane" "opencode run --command manual-test \"${tickets[1]} ${base_urls[1]}\"" Enter
+
+	# Remaining tickets each get a new split pane
+	for (( i=2; i<=${#tickets[@]}; i++ )); do
+		tmux split-window -t "$window_id"
+		tmux select-layout -t "$window_id" tiled
+		local pane
+		pane=$(tmux list-panes -t "$window_id" -F "#{pane_id}" | tail -1)
+		tmux send-keys -t "$pane" "opencode run --command manual-test \"${tickets[$i]} ${base_urls[$i]}\"" Enter
+	done
+
+	tmux select-layout -t "$window_id" tiled
+	tmux select-window -t "$window_id"
+
+	echo "opened tmux window 'manual-test' with ${#tickets[@]} pane(s)" >&2
+}
+
+manual_test_dispatch "$@"

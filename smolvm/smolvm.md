@@ -42,16 +42,16 @@ smolvm machine exec --name my-vm -- pip install requests
 
 ## When to Use What
 
-| Goal | Command |
-|------|---------|
-| Run a one-off command in isolation | `smolvm machine run --net --image IMAGE -- CMD` |
-| Interactive shell | `smolvm machine run --net -it --image IMAGE -- /bin/sh` |
-| Persistent dev environment | `machine create` → `machine start` → `machine exec` |
-| Ship software as a binary | `smolvm pack create --image IMAGE -o OUTPUT` |
-| Fast persistent machine from packed artifact | `machine create NAME --from FILE.smolmachine` |
-| Use git/ssh with private keys safely | Add `--ssh-agent` to run or create |
-| Minimal VM without image | `smolvm machine run -s Smolfile` (bare VM) |
-| Declarative VM config | Create a Smolfile, use `--smolfile`/`-s` flag |
+| Goal                                         | Command                                                 |
+| -------------------------------------------- | ------------------------------------------------------- |
+| Run a one-off command in isolation           | `smolvm machine run --net --image IMAGE -- CMD`         |
+| Interactive shell                            | `smolvm machine run --net -it --image IMAGE -- /bin/sh` |
+| Persistent dev environment                   | `machine create` → `machine start` → `machine exec`     |
+| Ship software as a binary                    | `smolvm pack create --image IMAGE -o OUTPUT`            |
+| Fast persistent machine from packed artifact | `machine create NAME --from FILE.smolmachine`           |
+| Use git/ssh with private keys safely         | Add `--ssh-agent` to run or create                      |
+| Minimal VM without image                     | `smolvm machine run -s Smolfile` (bare VM)              |
+| Declarative VM config                        | Create a Smolfile, use `--smolfile`/`-s` flag           |
 
 ### Persistence Model
 
@@ -105,19 +105,19 @@ Default registry: `registry.smolmachines.com`. Digest references require `sha256
 
 ## Key Flags
 
-| Flag | Short | Used on | Description |
-|------|-------|---------|-------------|
-| `--image` | `-I` | run, create, pack create | OCI image |
-| `--name` | `-n` | start, stop, status, exec, resize | Machine name (default: "default") |
-| `--net` | | run, create | Enable outbound networking (off by default) |
-| `--volume` | `-v` | run, create | Mount host dir: `HOST:GUEST[:ro]` |
-| `--port` | `-p` | run, create | Port mapping: `HOST:GUEST` |
-| `--smolfile` | `-s` | run, create, pack create | Load config from Smolfile |
-| `--interactive` | `-i` | run, exec | Keep stdin open |
-| `--tty` | `-t` | run, exec | Allocate pseudo-TTY |
-| `--allow-cidr` | | run, create | CIDR egress filter (implies --net) |
-| `--allow-host` | | run, create | Hostname egress filter, resolved at VM start (implies --net) |
-| `--ssh-agent` | | run, create | Forward host SSH agent (git/ssh without exposing keys) |
+| Flag            | Short | Used on                           | Description                                                  |
+| --------------- | ----- | --------------------------------- | ------------------------------------------------------------ |
+| `--image`       | `-I`  | run, create, pack create          | OCI image                                                    |
+| `--name`        | `-n`  | start, stop, status, exec, resize | Machine name (default: "default")                            |
+| `--net`         |       | run, create                       | Enable outbound networking (off by default)                  |
+| `--volume`      | `-v`  | run, create                       | Mount host dir: `HOST:GUEST[:ro]`                            |
+| `--port`        | `-p`  | run, create                       | Port mapping: `HOST:GUEST`                                   |
+| `--smolfile`    | `-s`  | run, create, pack create          | Load config from Smolfile                                    |
+| `--interactive` | `-i`  | run, exec                         | Keep stdin open                                              |
+| `--tty`         | `-t`  | run, exec                         | Allocate pseudo-TTY                                          |
+| `--allow-cidr`  |       | run, create                       | CIDR egress filter (implies --net)                           |
+| `--allow-host`  |       | run, create                       | Hostname egress filter, resolved at VM start (implies --net) |
+| `--ssh-agent`   |       | run, create                       | Forward host SSH agent (git/ssh without exposing keys)       |
 
 ## Smolfile Reference
 
@@ -300,6 +300,7 @@ Content-Type: application/json
 # event: exit
 # data: {"exitCode":0}
 ```
+
 ## Bare VM Mode
 
 `machine run` works without `--image` when a Smolfile provides the workload config, or for direct Alpine shell access:
@@ -320,10 +321,12 @@ Bare VMs run commands directly in the Alpine rootfs — no OCI image pull needed
 ## Packed Binaries (.smolmachine)
 
 `smolvm pack create` produces two files:
+
 - `my-app` — stub binary with embedded VM runtime (platform-specific)
 - `my-app.smolmachine` — VM payload: rootfs, OCI layers, storage (cross-platform)
 
 The packed binary runs as a normal executable:
+
 ```bash
 ./my-app run -- python3 -c "print('hello')"  # ephemeral, cleaned up after exit
 ./my-app start                               # persistent daemon mode
@@ -332,6 +335,7 @@ The packed binary runs as a normal executable:
 ```
 
 Alternatively, create a named machine from the `.smolmachine` for full lifecycle management:
+
 ```bash
 smolvm machine create my-vm --from my-app.smolmachine
 smolvm machine start --name my-vm            # ~250ms boot, no image pull
@@ -341,6 +345,7 @@ smolvm machine ls                            # shows my-vm
 ```
 
 The `.smolmachine` manifest includes registry-oriented metadata:
+
 - `host_platform` — host OS+arch this machine runs on (e.g., `darwin/arm64`), distinct from `platform` which is the guest
 - `created` — RFC 3339 timestamp of when the machine was packed
 - `smolvm_version` — version of smolvm that built it
@@ -381,21 +386,20 @@ OpenAPI spec: `smolvm serve openapi`
 - **`machine exec` persists filesystem changes.** Package installs, config edits, and file writes inside `exec` survive across sessions. This works for both bare VMs and image-based VMs (created with `--image`).
 - **`machine run` is always ephemeral.** The VM is created, the command runs, and everything is cleaned up. No state carries over.
 
-
 Usage: smolvm-bin <COMMAND>
 
 Commands:
-  machine  Manage machines (create, start, stop, exec) [aliases: vm]
-  serve    Start the HTTP API server for programmatic control
-  pack     Package and run self-contained VM executables
-  config   Manage smolvm configuration (registries, defaults)
-  help     Print this message or the help of the given subcommand(s)
+machine Manage machines (create, start, stop, exec) [aliases: vm]
+serve Start the HTTP API server for programmatic control
+pack Package and run self-contained VM executables
+config Manage smolvm configuration (registries, defaults)
+help Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help
-          Print help (see a summary with '-h')
+-h, --help
+Print help (see a summary with '-h')
 
-  -V, --version
-          Print version
+-V, --version
+Print version
 
 Agents: run `smolvm --help` for full documentation including CLI reference and Smolfile schema
