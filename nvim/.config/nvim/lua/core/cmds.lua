@@ -32,3 +32,15 @@ end, {
   nargs = '*',
   complete = 'file',
 })
+
+vim.api.nvim_create_user_command('DeletePacks', function()
+  vim.pack.del(vim
+    .iter(vim.pack.get())
+    :filter(function(x)
+      return not x.active
+    end)
+    :map(function(x)
+      return x.spec.name
+    end)
+    :totable())
+end, {})

@@ -1,17 +1,6 @@
 require('core')
 require('vim._core.ui2').enable()
 
--- ONLY UNCOMMENT TO DELETE ALL PLUGINS
--- vim.pack.del(vim
---   .iter(vim.pack.get())
---   :filter(function(x)
---     return not x.active
---   end)
---   :map(function(x)
---     return x.spec.name
---   end)
---   :totable())
-
 -- add plugins
 vim.pack.add({
   -- theme and ui
@@ -73,6 +62,8 @@ require('mason-tool-installer').setup({
     'typescript-language-server',
     'yaml-language-server',
     'stylua',
+
+    'biome',
   },
 })
 
@@ -106,15 +97,20 @@ require('conform').setup({
     lua = { 'stylua' },
 
     -- web
-    javascript = { 'oxfmt', 'biome', 'prettier' },
-    javascriptreact = { 'oxfmt', 'biome', 'prettier' },
-    typescript = { 'oxfmt', 'biome', 'prettier' },
-    typescriptreact = { 'oxfmt', 'biome', 'prettier' },
+    javascript = { 'biome' },
+    javascriptreact = { 'biome' },
+    typescript = { 'biome' },
+    typescriptreact = { 'biome' },
 
     -- data/config
-    yaml = { 'prettier' },
-    markdown = { 'oxfmt', 'prettier' },
+    yaml = { 'biome' },
+    markdown = { 'biome' },
     sql = { 'sleek' },
+    jsonc = { 'biome' },
+    json = { 'biome' },
+
+    -- toml
+    toml = { 'tombi' },
 
     -- python
     python = { 'ruff_format' },
@@ -122,23 +118,12 @@ require('conform').setup({
     -- infra
     terraform = { 'terraform_fmt' },
     hcl = { 'terraform_fmt' },
-
-    -- toml
-    toml = { 'tombi' },
   },
 
-  format_on_save = function(bufnr)
-    local ft = vim.bo[bufnr].filetype
-
-    if ft == 'json' or ft == 'jsonc' then
-      return nil
-    end
-
-    return {
-      timeout_ms = 500,
-      lsp_format = 'never',
-    }
-  end,
+  format_on_save = {
+    timeout_ms = 500,
+    lsp_format = 'never',
+  },
 })
 
 require('luasnip.loaders.from_vscode').lazy_load()
@@ -240,12 +225,6 @@ require('oil').setup({
     ['gq'] = { 'actions.send_to_qflist', opts = { action = 'a', target = 'qflist' } },
   },
 })
-
--- require('oil-git-status').setup({
---   show_file_highlights = true,
---   show_directory_highlights = false,
---   show_ignored_files = true,
--- })
 
 require('oil-lsp-diagnostics').setup()
 
