@@ -4,6 +4,15 @@ vim.keymap.set('v', 'q', '<Esc>')
 -- terminal
 vim.keymap.set('t', '<Esc><Esc>', [[<C-\><C-n>]], { noremap = true })
 
+vim.keymap.set({ 't', 'i' }, '<M-h>', [[<C-\><C-N><C-w>h]], { noremap = true })
+vim.keymap.set({ 't', 'i' }, '<M-j>', [[<C-\><C-N><C-w>j]], { noremap = true })
+vim.keymap.set({ 't', 'i' }, '<M-k>', [[<C-\><C-N><C-w>k]], { noremap = true })
+vim.keymap.set({ 't', 'i' }, '<M-l>', [[<C-\><C-N><C-w>l]], { noremap = true })
+vim.keymap.set('n', '<A-h>', '<C-w>h')
+vim.keymap.set('n', '<A-j>', '<C-w>j')
+vim.keymap.set('n', '<A-k>', '<C-w>k')
+vim.keymap.set('n', '<A-l>', '<C-w>l')
+
 -- buffer operations
 vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>')
 vim.keymap.set('n', '[o', '<cmd>bprevious<cr>')
