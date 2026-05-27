@@ -107,11 +107,11 @@
         }
       }
     },
-    "manual-testing": {
-      "description": "Plans and executes manual tests for Jira tickets. Dispatches jira-operator for ticket details, queries repo context, reviews PR diff, submits test plan for approval, then executes via Playwright.",
+    "manual-tester": {
+      "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "subagent",
       "model": "github-copilot/claude-opus-4.6",
-      "prompt": "{file:./agent-defs/manual-testing.md}",
+      "prompt": "{file:./agent-defs/manual-tester.md}",
       "permission": {
         "edit": "deny",
         "webfetch": "deny",
@@ -218,11 +218,11 @@
         "repo_query": "allow"
       }
     },
-    "test-review": {
+    "test-reviewer": {
       "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as learnings",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
-      "prompt": "{file:./agent-defs/test-review.md}",
+      "prompt": "{file:./agent-defs/test-reviewer.md}",
       "permission": {
         "playwright-docs search": "allow",
         "edit": "deny",
