@@ -38,6 +38,7 @@ alias awake='caffeinate -dimsu &'
 alias sleep-ok='pkill caffeinate'
 
 # alias for custom scripts
+alias oc='opencode'
 alias learnings='learnings_store'
 alias plans='plan_store'
 alias sessions='session_reader'

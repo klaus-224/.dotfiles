@@ -21,50 +21,79 @@
       "model": "github-copilot/claude-opus-4.6",
       "mode": "primary",
       "permission": {
-        "todowrite": "allow",
-        "*": "ask",
-        "edit": "allow",
+        "*": "deny",
         "read": "allow",
-        "bash": "allow"
+        "todowrite": "allow",
+        "edit": "allow",
+        "write": "allow",
+        "repo_query": "allow",
+        "repo_index": "allow",
+        "learnings_query": "allow",
+        "task": "allow",
+        "skill": { "*": "deny", "customize-opencode": "allow" },
+        "bash": {
+          "*": "deny",
+          "git *": "allow",
+          "pnpm *": "allow",
+          "npm *": "allow",
+          "node *": "allow",
+          "npx *": "allow",
+          "tsc *": "allow",
+          "eslint *": "allow",
+          "prettier *": "allow",
+          "docker *": "allow",
+          "make *": "allow",
+          "ls *": "allow",
+          "mkdir *": "allow",
+          "cp *": "allow",
+          "mv *": "allow",
+          "rm *": "ask"
+        }
       }
     },
+
     "general": {
       "model": "github-copilot/gpt-5.4",
       "variant": "xhigh",
       "permission": {
+        "*": "deny",
+        "read": "allow",
         "todowrite": "allow",
-        "task": {
-          "*": "allow"
-        },
+        "webfetch": "allow",
+        "task": "allow",
+        "repo_query": "allow",
+        "repo_index": "allow",
+        "learnings_query": "allow",
         "atlassian_getAccessibleAtlassianResources": "allow",
         "atlassian_searchJiraIssuesUsingJql": "allow"
       }
     },
+
+    "plan": {
+      "hidden": true
+    },
+
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "temperature": 0.1,
       "steps": 12,
-      "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
+      "prompt": "{file:./prompts/planner.txt}",
       "permission": {
-        "submit_plan": "allow",
+        "*": "deny",
+        "read": "allow",
         "todowrite": "allow",
-        "edit": {
-          "*": "deny",
-          "*.md": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "rg *": "allow",
-          "grep *": "allow"
-        },
+        "submit_plan": "allow",
+        "repo_query": "allow",
+        "repo_index": "allow",
+        "learnings_query": "allow",
+        "skill": { "*": "deny", "plannotator-compound": "allow" },
+        "edit": { "*": "deny", "*.md": "allow" },
         "external_directory": "deny"
       }
     },
+
     "planner-creative": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
@@ -73,96 +102,85 @@
       "steps": 12,
       "prompt": "Help me plan whatever I ask for but be creative. Always load the plannotator-compound skill before submitting any plan.",
       "permission": {
-        "submit_plan": "allow",
+        "*": "deny",
+        "read": "allow",
         "todowrite": "allow",
-        "edit": {
-          "*": "deny",
-          "*.md": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "rg *": "allow",
-          "grep *": "allow"
-        },
+        "submit_plan": "allow",
+        "repo_query": "allow",
+        "repo_index": "allow",
+        "learnings_query": "allow",
+        "skill": { "*": "deny", "plannotator-compound": "allow" },
+        "edit": { "*": "deny", "*.md": "allow" },
         "external_directory": "deny"
       }
     },
+
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-4.6",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
-        "edit": "deny",
-        "webfetch": "deny",
-        "bash": {
-          "*": "deny",
-          "git *": "allow",
-          "gh pr list *": "allow",
-          "gh pr view *": "allow",
-          "gh pr diff *": "allow"
-        }
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
+        "atlassian_getAccessibleAtlassianResources": "allow",
+        "atlassian_getJiraIssue": "allow",
+        "atlassian_searchJiraIssuesUsingJql": "allow",
+        "atlassian_search": "allow",
+        "atlassian_createJiraIssue": "allow",
+        "atlassian_editJiraIssue": "allow",
+        "atlassian_transitionJiraIssue": "allow",
+        "atlassian_addCommentToJiraIssue": "allow",
+        "atlassian_addWorklogToJiraIssue": "allow",
+        "atlassian_createIssueLink": "allow",
+        "atlassian_lookupJiraAccountId": "allow",
+        "atlassian_getVisibleJiraProjects": "allow",
+        "atlassian_getJiraProjectIssueTypesMetadata": "allow",
+        "atlassian_getJiraIssueTypeMetaWithFields": "allow",
+        "atlassian_getTransitionsForJiraIssue": "allow",
+        "atlassian_getIssueLinkTypes": "allow",
+        "atlassian_getJiraIssueRemoteIssueLinks": "allow",
+        "atlassian_fetch": "allow"
       }
     },
+
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "subagent",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "permission": {
-        "edit": "deny",
-        "webfetch": "deny",
-        "bash": {
-          "*": "deny",
-          "pwd": "allow",
-          "mkdir -p *": "allow",
-          "pnpm -C apps/playwright-tests *": "allow",
-          "gh pr diff *": "allow",
-          "gh pr view *": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "playwright-cli": "allow",
-          "plannotator-annotate": "allow"
-        },
-        "task": {
-          "*": "allow"
-        },
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
         "submit_plan": "allow",
         "learnings_query": "allow",
         "repo_index": "allow",
-        "repo_query": "allow"
+        "repo_query": "allow",
+        "session_flag_current": "allow",
+        "skill": { "*": "deny", "playwright-cli": "allow", "plannotator-annotate": "allow" },
+        "task": { "*": "allow" },
+        "bash": {
+          "*": "deny",
+          "pnpm -C apps/playwright-tests auth": "allow",
+          "gh pr diff *": "allow",
+          "gh pr view *": "allow"
+        }
       }
     },
+
     "regression-planner": {
       "description": "Plans regression tests from multiple perspectives, then debates and converges on the best plan with other planner instances",
       "mode": "subagent",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/regression-planner.md}",
       "permission": {
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
         "playwright-docs search": "allow",
-        "edit": "deny",
-        "webfetch": "deny",
-        "bash": {
-          "*": "deny",
-          "git diff *": "allow",
-          "git log *": "allow",
-          "git status": "allow",
-          "ls *": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "playwright-cli": "allow",
-          "playwright-docs": "allow",
-          "plannotator-annotate": "allow"
-        },
-        "task": {
-          "*": "deny"
-        },
-        "plan_*": "deny",
+        "skill": { "*": "deny", "playwright-cli": "allow", "playwright-docs": "allow", "plannotator-annotate": "allow" },
         "plan_create": "allow",
         "plan_revise": "allow",
         "plan_transition": "allow",
@@ -170,9 +188,7 @@
         "plan_release": "allow",
         "plan_get": "allow",
         "plan_comment": "allow",
-        "learnings_*": "deny",
         "learnings_query": "allow",
-        "repo_*": "deny",
         "repo_index": "allow",
         "repo_query": "allow",
         "atlassian_getJiraIssue": "allow",
@@ -180,93 +196,76 @@
         "atlassian_searchJiraIssuesUsingJql": "allow"
       }
     },
+
     "regression-writer": {
       "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
       "mode": "subagent",
       "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/regression-writer.md}",
       "permission": {
-        "playwright-docs search": "allow",
+        "*": "deny",
+        "read": "allow",
+        "write": "allow",
         "edit": "allow",
-        "webfetch": "deny",
+        "todowrite": "allow",
+        "playwright-docs search": "allow",
+        "session_flag_current": "allow",
+        "skill": { "*": "deny", "playwright-cli": "allow", "playwright-docs": "allow" },
+        "plan_get": "allow",
+        "plan_revise": "allow",
+        "plan_transition": "allow",
+        "learnings_query": "allow",
+        "learnings_add": "allow",
+        "repo_index": "allow",
+        "repo_query": "allow",
         "bash": {
           "*": "deny",
           "pnpm auth": "allow",
           "pnpm test:regression *": "allow",
           "pnpm test:folder *": "allow",
           "pnpm test *": "allow",
-          "ls *": "allow",
           "git status": "allow",
           "git diff *": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "playwright-cli": "allow",
-          "playwright-docs": "allow"
-        },
-        "task": {
-          "*": "deny"
-        },
-        "plan_*": "deny",
-        "plan_get": "allow",
-        "plan_revise": "allow",
-        "plan_transition": "allow",
-        "learnings_*": "deny",
-        "learnings_query": "allow",
-        "repo_*": "deny",
-        "repo_index": "allow",
-        "repo_query": "allow"
+        }
       }
     },
+
     "test-reviewer": {
       "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as learnings",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/test-reviewer.md}",
       "permission": {
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
         "playwright-docs search": "allow",
-        "edit": "deny",
-        "webfetch": "deny",
-        "bash": {
-          "*": "deny",
-          "git diff *": "allow",
-          "playwright-cli *": "allow",
-          "pnpm *": "allow",
-          "diss *": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "playwright-docs": "allow"
-        },
-        "task": {
-          "*": "deny"
-        },
-        "plan_*": "deny",
+        "skill": { "*": "deny", "playwright-docs": "allow" },
         "plan_get": "allow",
-        "learnings_*": "allow",
-        "repo_*": "deny",
+        "learnings_query": "allow",
+        "learnings_add": "allow",
         "repo_query": "allow",
-        "session_*": "allow"
+        "session_list": "allow",
+        "session_transcript": "allow",
+        "session_list_flagged": "allow",
+        "session_resolve": "allow"
       }
     },
+
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
       "model": "github-copilot/claude-sonnet-4.6",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "permission": {
-        "edit": "deny",
-        "webfetch": "allow",
-        "bash": {
-          "*": "deny",
-          "pwd": "allow",
-          "ls": "allow",
-          "find": "allow",
-          "rg": "allow"
-        }
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
+        "webfetch": "allow"
       }
     }
   },
+
   "plugin": [
     [
       "@plannotator/opencode@latest",
