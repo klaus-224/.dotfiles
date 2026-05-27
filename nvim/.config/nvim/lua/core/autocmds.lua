@@ -39,20 +39,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- TODO: figure out completions for sql
--- add dadbod completions for sql
--- vim.api.nvim_create_autocmd('FileType', {
---   pattern = {
---     'sql',
---     'mysql',
---     'plsql',
---   },
---   callback = function()
---     require('vim-dadbod-completion')
---     vim.bo.omnifunc = 'vim_dadbod_completion#omni'
---   end,
--- })
-
 vim.api.nvim_create_autocmd('RecordingEnter', {
   group = vim.api.nvim_create_augroup('macro-notify', { clear = true }),
   callback = function()

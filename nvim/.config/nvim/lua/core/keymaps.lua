@@ -53,7 +53,6 @@ vim.keymap.set('n', '<leader>dl', function()
   vim.cmd('lopen')
 end)
 
-vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float)
 vim.keymap.set('n', ']d', function()
   vim.diagnostic.jump({ count = 1, float = true })
 end)
@@ -66,27 +65,6 @@ end)
 
 -- fzf-lua (needs fzf-lua install + require)
 vim.keymap.set({ 'n', 'v' }, '<leader><leader>', '<cmd>FzfLua global<cr>')
-
--- Toggle virtual text and lines
-vim.keymap.set('n', 'gK', function()
-  local cfg = vim.diagnostic.config()
-
-  ---@diagnostic disable-next-line: need-check-nil
-  local text_enabled = cfg.virtual_text
-
-  ---@diagnostic disable-next-line: need-check-nil
-  local lines_enabled = cfg.virtual_lines
-
-  if type(text_enabled) == 'table' and type(lines_enabled) == 'table' then
-    text_enabled = true
-    lines_enabled = true
-  end
-
-  vim.diagnostic.config({
-    virtual_text = not text_enabled,
-    virtual_lines = not lines_enabled,
-  })
-end)
 
 -- tabs
 vim.keymap.set('n', '<leader>t]', '<cmd>tabn<cr>')
