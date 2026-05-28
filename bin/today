@@ -5,7 +5,6 @@ set -euo pipefail
 # today — Manual-first daily todo list with optional
 #          additive Jira sync via any AI agent CLI.
 # --------------------------------------------------
-
 function _lists_dir() {
 	echo "${TODAY_LISTS_DIR:-$HOME/Documents/lists}"
 }
@@ -221,7 +220,7 @@ function _append_to_section() {
 		heading_line=$(grep -n "^${heading}$" "$file" | head -1 | cut -d: -f1)
 		total_lines=$(wc -l <"$file")
 
-    if [[-z $heading_line]]; then 
+    if [[ -z $heading_line ]]; then 
       return 1
     fi
 
