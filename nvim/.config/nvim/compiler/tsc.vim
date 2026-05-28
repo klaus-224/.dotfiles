@@ -1,11 +1,24 @@
-if exists('current_compiler')
+" Vim compiler file
+" Compiler:	TypeScript Compiler
+" Maintainer:	Doug Kearns <dougkearns@gmail.com>
+" Last Change:	2024 Apr 03
+"		2025 Mar 11 by The Vim Project (add comment for Dispatch, add tsc_makeprg variable)
+
+if exists("current_compiler")
   finish
 endif
-let current_compiler = 'tsc'
+let current_compiler = "tsc"
 
-if exists(':CompilerSet') != 2  " older Vim always used :setlocal
-  command -nargs=* CompilerSet setlocal <args>
-endif
+let s:cpo_save = &cpo
+set cpo&vim
 
-CompilerSet makeprg=npx\ tsc\ -p\ .
-CompilerSet errorformat=%A%f(%l\\,%c):\ %trror\ TS%n:\ %m,%C%m,%-G
+" CompilerSet makeprg=tsc
+" CompilerSet makeprg=npx\ tsc
+execute $'CompilerSet makeprg={escape(get(b:, 'tsc_makeprg', get(g:, 'tsc_makeprg', 'tsc --noEmit')), ' \|"')}'
+CompilerSet errorformat=%f\ %#(%l\\,%c):\ %trror\ TS%n:\ %m,
+		       \%trror\ TS%n:\ %m,
+		       \%-G%.%#
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
+
