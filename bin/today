@@ -221,8 +221,12 @@ function _append_to_section() {
 		heading_line=$(grep -n "^${heading}$" "$file" | head -1 | cut -d: -f1)
 		total_lines=$(wc -l <"$file")
 
+    if [[-z $heading_line]]; then 
+      return 1
+    fi
+
 		# Find first ^## line after the heading
-		next_section_line=$(awk "NR > $heading_line && /^## / { print NR; exit }" "$file" || true)
+    next_section_line=$(awk "NR > $heading_line && /^## / { print NR; exit }" "$file" || true)
 
 		if [[ -z "$next_section_line" ]]; then
 			# No next section — append at end of file
@@ -232,10 +236,11 @@ function _append_to_section() {
 			local insert_at=$(( next_section_line - 1 ))
 			local tmp
 			tmp="$(mktemp -t today-insert.XXXXXX)"
-			awk -v at="$insert_at" -v content="$items" '
-				NR == at { printf "%s", content }
-				{ print }
-			' "$file" >"$tmp"
+
+      head -n "$insert_at" "$file" > "$tmp"
+      printf "%s" "$items" >> "$tmp"
+      tail -n +"$(( insert_at + 1 ))" "$file" >> "$tmp"
+
 			mv "$tmp" "$file"
 		fi
 	else
