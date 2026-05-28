@@ -159,7 +159,11 @@
         "repo_index": "allow",
         "repo_query": "allow",
         "session_flag_current": "allow",
-        "skill": { "*": "deny", "playwright-cli": "allow", "plannotator-annotate": "allow" },
+        "skill": {
+          "*": "deny",
+          "playwright-cli": "allow",
+          "plannotator-annotate": "allow"
+        },
         "task": { "*": "allow" },
         "bash": {
           "*": "deny",
@@ -180,7 +184,12 @@
         "read": "allow",
         "todowrite": "allow",
         "playwright-docs search": "allow",
-        "skill": { "*": "deny", "playwright-cli": "allow", "playwright-docs": "allow", "plannotator-annotate": "allow" },
+        "skill": {
+          "*": "deny",
+          "playwright-cli": "allow",
+          "playwright-docs": "allow",
+          "plannotator-annotate": "allow"
+        },
         "plan_create": "allow",
         "plan_revise": "allow",
         "plan_transition": "allow",
@@ -210,7 +219,11 @@
         "todowrite": "allow",
         "playwright-docs search": "allow",
         "session_flag_current": "allow",
-        "skill": { "*": "deny", "playwright-cli": "allow", "playwright-docs": "allow" },
+        "skill": {
+          "*": "deny",
+          "playwright-cli": "allow",
+          "playwright-docs": "allow"
+        },
         "plan_get": "allow",
         "plan_revise": "allow",
         "plan_transition": "allow",
@@ -261,7 +274,10 @@
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
-        "webfetch": "allow"
+        "webfetch": "allow",
+        "bash": {
+          "playwright_docs search *": "allow"
+        }
       }
     }
   },
