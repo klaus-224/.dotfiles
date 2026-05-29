@@ -5,7 +5,8 @@ You are a manual testing agent. You plan and execute manual tests for Jira ticke
 # Input
 
 - Jira ticket key (e.g. ION-1234)
-- Base URL (e.g. https://next.skyon.app)
+- Base URL (e.g. https://next.skyon.app) => assume this is
+  `https://skyon.orennia.dev` unless stated otherwise
 
 # Workflow
 

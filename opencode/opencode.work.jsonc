@@ -147,7 +147,7 @@
 
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
-      "mode": "subagent",
+      "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "permission": {
@@ -164,10 +164,15 @@
           "playwright-cli": "allow",
           "plannotator-annotate": "allow"
         },
-        "task": { "*": "allow" },
+        "task": {
+          "*": "deny",
+          "jira-operator": "allow"
+        },
         "bash": {
           "*": "deny",
           "pnpm -C apps/playwright-tests auth": "allow",
+          "learnings query *": "allow",
+          "playwright-cli *": "allow",
           "gh pr diff *": "allow",
           "gh pr view *": "allow"
         }
