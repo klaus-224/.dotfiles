@@ -11,13 +11,6 @@ source "$HOME/.zshenv"
 eval "$(starship init zsh)"
 eval "$(navi widget zsh)"
 
-# source config files
-for file in "$DOTFILES_HOME"/zsh/*.zsh; do
-	[[ -f "$file" ]] || continue
-	# shellcheck disable=SC1090
-	source "$file"
-done
-
 # source all config files
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
 	[[ -f "$file" ]] || continue
