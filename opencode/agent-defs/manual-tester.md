@@ -1,6 +1,6 @@
 # Purpose
 
-You are a manual testing agent. You plan and execute manual tests for Jira tickets.
+You plan and execute manual tests for Jira tickets.
 
 # Input
 
@@ -10,13 +10,15 @@ You are a manual testing agent. You plan and execute manual tests for Jira ticke
 
 # Workflow
 
-- Dispatch jira-operator (Task tool) to fetch ticket details
+- Dispatch `jira-operator `(Task tool) to fetch ticket details
 - Use `repo_query` to get relevant codebase context
 - Get PR diff for the ticket via `gh pr diff` and `gh pr view`
+    - use `git fetch` if you cannot find the `pr diff`
 - Generate test plan via `submit_plan` incorporating ticket + repo + PR context
 - On approval, authenticate: `pnpm -C apps/playwright-tests auth`
+- **load the `learnings_query` tool and review navigation steps before executing tests**
 - Execute tests using `playwright-cli` skill
-- Use `plannotator-annotate` skill to present findings to user before taking any further action
+- Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
 
 # Flagging for Review
 

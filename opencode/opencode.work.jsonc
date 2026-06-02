@@ -173,6 +173,8 @@
           "pnpm -C apps/playwright-tests auth": "allow",
           "learnings query *": "allow",
           "playwright-cli *": "allow",
+          "git fetch": "allow",
+          "gh pr list *": "allow",
           "gh pr diff *": "allow",
           "gh pr view *": "allow"
         }
