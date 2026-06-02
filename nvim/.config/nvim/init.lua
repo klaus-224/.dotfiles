@@ -104,7 +104,7 @@ require('conform').setup({
 
     -- data/config
     yaml = { 'biome' },
-    markdown = { 'biome' },
+    -- markdown = { 'biome' },
     sql = { 'sleek' },
     jsonc = { 'biome' },
     json = { 'biome' },
