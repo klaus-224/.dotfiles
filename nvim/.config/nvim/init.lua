@@ -44,13 +44,6 @@ vim.pack.add({
 require('custom.ui').setup()
 require('custom.statusline').setup()
 
-require('tree-sitter-manager').setup({
-  dependencies = {}, -- tree-sitter CLI must be installed system-wide
-  ensure_installed = { 'svelte' },
-  auto_install = true, -- install missing parsers when editing a new file
-  highlight = false, -- treesitter highlighting is enabled by default
-})
-
 -- start lsp setup/config
 require('mason').setup()
 require('mason-tool-installer').setup({
@@ -217,6 +210,13 @@ cmp.setup({
       },
     },
   },
+})
+
+require('tree-sitter-manager').setup({
+  dependencies = {}, -- tree-sitter CLI must be installed system-wide
+  ensure_installed = { 'svelte' },
+  auto_install = true, -- install missing parsers when editing a new file
+  highlight = false, -- treesitter highlighting is enabled by default
 })
 -- end lsp setup/config
 
