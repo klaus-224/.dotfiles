@@ -3,11 +3,11 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
-const repoScript = path.join(homedir(), ".dotfiles", "bin", "repo");
+const repoScript = path.join(homedir(), ".dotfiles", "bin", "repo-rs");
 
 async function run(args: string[] = [], cwd?: string) {
 	return await new Promise<string>((resolve, reject) => {
-		const child = spawn("uv", ["run", "--script", repoScript, ...args], {
+		const child = spawn("rust-script", [repoScript, ...args], {
 			env: process.env,
 			cwd: cwd || process.cwd(),
 			stdio: ["pipe", "pipe", "pipe"],
@@ -53,5 +53,18 @@ export const query = tool({
 	async execute(args) {
 		const result = await run(["query", args.sql]);
 		return result || "(no rows)";
+	},
+});
+
+export const search = tool({
+	description:
+		"Full-text search across indexed repository chunks. Use keywords, function names, config names, or short phrases — not full sentences. Returns file paths, line ranges, descriptions, and snippets ranked by relevance. Run repo_index first if the index does not exist.",
+	args: {
+		query: tool.schema.string().describe("Search query (use keywords, not full sentences)"),
+		limit: tool.schema.number().optional().describe("Maximum number of results (default 20)"),
+	},
+	async execute(args) {
+		const result = await run(["search", args.query, "--limit", String(args.limit ?? 20)]);
+		return result || "No results found.";
 	},
 });

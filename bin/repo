@@ -1,273 +1,810 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# dependencies = ["duckdb"]
-# ///
-"""Unified repo tool — index, query, and map repositories.
+#!/usr/bin/env rust-script
+//! ```cargo
+//! [dependencies]
+//! duckdb = { version = "1", features = ["bundled"] }
+//! clap = { version = "4", features = ["derive"] }
+//! walkdir = "2"
+//! regex = "1"
+//! serde_json = "1"
+//! ```
 
-Usage:
-    repo index          Index the current repo into DuckDB
-    repo query "<SQL>"  Query the indexed repo with SQL
-    repo map            Generate a local repo map as JSON + Graphviz
-"""
-import argparse
-import json
-import os
-import pathlib
-import re
-import sys
-import time
+use clap::{Parser, Subcommand};
+use duckdb::{params, Connection};
+use regex::Regex;
+use std::collections::HashSet;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
+use walkdir::WalkDir;
 
-# ---------------------------------------------------------------------------
-# Shared config
-# ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
 
-DEFAULT_DB_PATH = pathlib.Path.home() / ".local/state/opencode-custom-tools/repos.duckdb"
-SQL_PATH = pathlib.Path(__file__).resolve().parent.parent / "opencode" / "sql" / "repo_index.sql"
-
-IGNORE_DIRS = {
-    ".git", "node_modules", ".venv", "dist", "build", "__pycache__",
+const IGNORE_DIRS: &[&str] = &[
+    ".git",
+    "node_modules",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "dist",
+    "build",
+    "target",
+    ".next",
+    ".nuxt",
+    "vendor",
+    "coverage",
+    ".tox",
     "playwright-tests",
+];
+
+const BINARY_EXTS: &[&str] = &[
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".otf", ".wasm",
+    ".zip", ".tar", ".gz", ".tgz", ".pdf", ".mov", ".mp4", ".mp3", ".bin", ".exe", ".dll", ".so",
+    ".dylib",
+];
+
+const MAX_FILE_SIZE: u64 = 1_000_000; // 1MB
+
+fn stop_words() -> HashSet<&'static str> {
+    [
+        "the", "a", "an", "that", "which", "how", "does", "do", "is", "are", "for", "to", "in",
+        "of", "where", "what", "find", "show", "me", "function", "file", "code", "this", "it",
+        "and", "or", "but", "not", "with", "from", "by", "on", "at", "be", "has", "have", "was",
+        "were", "been", "will", "would", "could", "should", "can",
+    ]
+    .into_iter()
+    .collect()
 }
 
-IMPORT_PATTERNS = [
-    r"import ([a-zA-Z0-9_\.]+)",
-    r"from ([a-zA-Z0-9_\.]+) import",
-    r"require\(['\"](.*?)['\"]\)",
-    r"import .* from ['\"](.*?)['\"]",
-]
+// ---------------------------------------------------------------------------
+// CLI
+// ---------------------------------------------------------------------------
 
-ENTRYPOINT_PATTERNS = [
-    r"if __name__ == ['\"]__main__['\"]",
-    r"app\.listen",
-    r"FastAPI\(",
-    r"main\(",
-]
+#[derive(Parser)]
+#[command(name = "repo", about = "Unified repo tool — index, query, map, and search repositories.")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
 
-TESTID_EXTENSIONS = {".svelte", ".tsx", ".ts", ".jsx", ".js", ".html"}
-TESTID_RE = re.compile(r'data-testid=["\']([^"\']+)["\']')
+#[derive(Subcommand)]
+enum Commands {
+    /// Index the current repo into DuckDB
+    Index,
+    /// Query the repo index with SQL
+    Query {
+        /// SQL query to execute
+        sql: String,
+    },
+    /// Generate a local repo map (JSON + Graphviz)
+    Map,
+    /// Full-text search across indexed repository chunks
+    Search {
+        /// Search query (use keywords, not full sentences)
+        query: String,
+        /// Maximum number of results
+        #[arg(long, default_value = "20")]
+        limit: usize,
+        /// Repository ID (defaults to current directory name)
+        #[arg(long)]
+        repo: Option<String>,
+    },
+}
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-def resolve_db_path() -> pathlib.Path:
-    raw = os.environ.get("OPENCODE_REPO_DB", str(DEFAULT_DB_PATH))
-    p = pathlib.Path(raw).expanduser()
-    p.parent.mkdir(parents=True, exist_ok=True)
-    return p
+fn db_path() -> PathBuf {
+    if let Ok(p) = std::env::var("OPENCODE_REPO_DB") {
+        PathBuf::from(p)
+    } else {
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(home)
+            .join(".local/state/opencode-custom-tools/repos.duckdb")
+    }
+}
 
+fn ensure_db_dir(p: &Path) {
+    if let Some(parent) = p.parent() {
+        fs::create_dir_all(parent).ok();
+    }
+}
 
-def is_ignored(p: pathlib.Path) -> bool:
-    return any(part in IGNORE_DIRS for part in p.parts)
+fn sql_path() -> PathBuf {
+    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+    PathBuf::from(home).join(".dotfiles/opencode/sql/repo_index.sql")
+}
 
+fn is_ignored(path: &Path) -> bool {
+    path.components().any(|c| {
+        if let std::path::Component::Normal(s) = c {
+            IGNORE_DIRS.contains(&s.to_str().unwrap_or(""))
+        } else {
+            false
+        }
+    })
+}
 
-def collect_files(root: pathlib.Path):
-    for p in root.rglob("*"):
-        if p.is_file() and not is_ignored(p):
-            yield p
+fn is_binary_ext(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|e| {
+            let ext = format!(".{}", e.to_lowercase());
+            BINARY_EXTS.contains(&ext.as_str())
+        })
+        .unwrap_or(false)
+}
 
+fn has_null_bytes(path: &Path) -> bool {
+    fs::read(path)
+        .map(|bytes| bytes.iter().take(512).any(|&b| b == 0))
+        .unwrap_or(true)
+}
 
-# ---------------------------------------------------------------------------
-# index subcommand
-# ---------------------------------------------------------------------------
+fn detect_language(path: &Path) -> &'static str {
+    match path.extension().and_then(|e| e.to_str()) {
+        Some("py") => "python",
+        Some("lua") => "lua",
+        Some("ts" | "tsx") => "typescript",
+        Some("js" | "jsx") => "javascript",
+        Some("rs") => "rust",
+        Some("zsh" | "sh" | "bash") => "shell",
+        Some("md") => "markdown",
+        Some("json") => "json",
+        Some("yml" | "yaml") => "yaml",
+        Some("toml") => "toml",
+        Some("sql") => "sql",
+        Some("html" | "htm") => "html",
+        Some("css" | "scss") => "css",
+        Some("svelte") => "svelte",
+        _ => "text",
+    }
+}
 
-def ensure_schema(con):
-    import duckdb  # noqa: F811
-    for stmt in SQL_PATH.read_text().split(";"):
-        stmt = stmt.strip()
-        if stmt and not stmt.startswith("--"):
-            con.execute(stmt)
+fn chunk_kind(lang: &str) -> &'static str {
+    match lang {
+        "markdown" => "markdown",
+        "json" | "yaml" | "toml" => "config",
+        "sql" => "sql",
+        "text" => "text",
+        _ => "code",
+    }
+}
 
+fn path_to_text(path: &str) -> String {
+    path.replace('/', " ")
+        .replace('.', " ")
+        .replace('-', " ")
+        .replace('_', " ")
+}
 
-def kebab_to_pascal(name: str) -> str:
-    return "".join(word.capitalize() for word in name.replace("_", "-").split("-"))
+fn extract_keywords(query: &str) -> String {
+    let stops = stop_words();
+    let re = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*").unwrap();
+    let cleaned: Vec<&str> = re
+        .find_iter(query)
+        .map(|m| m.as_str())
+        .filter(|w| !stops.contains(&w.to_lowercase().as_str()))
+        .collect();
+    if cleaned.is_empty() {
+        query.to_string()
+    } else {
+        cleaned.join(" ")
+    }
+}
 
+// ---------------------------------------------------------------------------
+// Chunking
+// ---------------------------------------------------------------------------
 
-def scan_testids(con, root, repo_id):
-    for f in collect_files(root):
-        if f.suffix not in TESTID_EXTENSIONS:
-            continue
-        try:
-            lines = f.read_text(errors="ignore").splitlines()
-        except OSError:
-            continue
-        component = kebab_to_pascal(f.stem)
-        rel_path = str(f.relative_to(root))
-        for i, line in enumerate(lines, 1):
-            for m in TESTID_RE.finditer(line):
+struct Chunk {
+    start: usize, // 1-indexed line number
+    end: usize,
+    title: String,
+    content: String,
+}
+
+fn chunk_markdown(text: &str) -> Vec<Chunk> {
+    let lines: Vec<&str> = text.lines().collect();
+    let mut chunks = Vec::new();
+    let mut current_start = 0usize;
+    let mut current_title = String::new();
+    let mut current_lines: Vec<&str> = Vec::new();
+
+    for (i, line) in lines.iter().enumerate() {
+        if line.starts_with('#') && !current_lines.is_empty() {
+            chunks.push(Chunk {
+                start: current_start + 1,
+                end: i,
+                title: current_title.clone(),
+                content: current_lines.join("\n"),
+            });
+            current_lines.clear();
+            current_start = i;
+            current_title = line.trim_start_matches('#').trim().to_string();
+        } else if line.starts_with('#') && current_lines.is_empty() {
+            current_start = i;
+            current_title = line.trim_start_matches('#').trim().to_string();
+        }
+        current_lines.push(line);
+    }
+    if !current_lines.is_empty() {
+        chunks.push(Chunk {
+            start: current_start + 1,
+            end: lines.len(),
+            title: current_title,
+            content: current_lines.join("\n"),
+        });
+    }
+    chunks
+}
+
+fn chunk_code(text: &str, path: &str) -> Vec<Chunk> {
+    let lines: Vec<&str> = text.lines().collect();
+    if lines.is_empty() {
+        return Vec::new();
+    }
+
+    let target = 80;
+    let overlap = 10;
+    let mut chunks = Vec::new();
+    let mut i = 0;
+
+    while i < lines.len() {
+        let mut end = (i + target).min(lines.len());
+
+        // Try to split at a blank line near the target
+        if end < lines.len() {
+            let search_start = if end > 10 { end - 10 } else { i };
+            for j in (search_start..end).rev() {
+                if lines[j].trim().is_empty() {
+                    end = j + 1;
+                    break;
+                }
+            }
+        }
+
+        let chunk_lines = &lines[i..end];
+        let content = chunk_lines.join("\n");
+
+        // Try to extract a title (function/class name) from the chunk
+        let title = extract_title_from_code(chunk_lines).unwrap_or_else(|| {
+            Path::new(path)
+                .file_name()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or("")
+                .to_string()
+        });
+
+        chunks.push(Chunk {
+            start: i + 1,
+            end,
+            title,
+            content,
+        });
+
+        if end >= lines.len() {
+            break;
+        }
+        i = if end > overlap { end - overlap } else { end };
+    }
+    chunks
+}
+
+fn extract_title_from_code(lines: &[&str]) -> Option<String> {
+    let fn_re = Regex::new(
+        r"(?:def|fn|func|function|async function|export function|export default function|export const|const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)"
+    ).ok()?;
+    let class_re = Regex::new(r"(?:class|struct|enum|trait|impl)\s+([a-zA-Z_][a-zA-Z0-9_]*)").ok()?;
+
+    for line in lines.iter().take(20) {
+        if let Some(cap) = class_re.captures(line) {
+            return Some(cap[1].to_string());
+        }
+        if let Some(cap) = fn_re.captures(line) {
+            return Some(cap[1].to_string());
+        }
+    }
+    None
+}
+
+fn chunk_config(text: &str, path: &str) -> Vec<Chunk> {
+    let lines: Vec<&str> = text.lines().collect();
+    if lines.is_empty() {
+        return Vec::new();
+    }
+
+    let target = 60;
+    let mut chunks = Vec::new();
+    let mut i = 0;
+    let filename = Path::new(path)
+        .file_name()
+        .unwrap_or_default()
+        .to_str()
+        .unwrap_or("")
+        .to_string();
+
+    while i < lines.len() {
+        let end = (i + target).min(lines.len());
+        let chunk_lines = &lines[i..end];
+        chunks.push(Chunk {
+            start: i + 1,
+            end,
+            title: filename.clone(),
+            content: chunk_lines.join("\n"),
+        });
+        i = end;
+    }
+    chunks
+}
+
+fn generate_description(lang: &str, path: &str, title: &str, start: usize, end: usize) -> String {
+    match lang {
+        "markdown" => {
+            if title.is_empty() {
+                format!("Markdown chunk in {} around lines {}-{}", path, start, end)
+            } else {
+                format!("Markdown section \"{}\" in {}", title, path)
+            }
+        }
+        "json" | "yaml" | "toml" => {
+            format!("{} config chunk in {} around lines {}-{}", lang, path, start, end)
+        }
+        _ => {
+            if title.is_empty()
+                || title
+                    == Path::new(path)
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_str()
+                        .unwrap_or("")
+            {
+                format!("{} code chunk in {} around lines {}-{}", lang, path, start, end)
+            } else {
+                format!("{} function {} in {} around lines {}-{}", lang, title, path, start, end)
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+fn ensure_schema(con: &Connection) {
+    // Read SQL file or use hardcoded schema
+    let sql_file = sql_path();
+    let schema = if sql_file.exists() {
+        fs::read_to_string(&sql_file).unwrap_or_default()
+    } else {
+        // Fallback hardcoded schema
+        r#"
+CREATE TABLE IF NOT EXISTS repositories (repo_id TEXT, path TEXT, indexed_at INTEGER);
+CREATE TABLE IF NOT EXISTS files (repo_id TEXT, path TEXT);
+CREATE TABLE IF NOT EXISTS modules (repo_id TEXT, module TEXT, path TEXT);
+CREATE TABLE IF NOT EXISTS dependencies (repo_id TEXT, source_module TEXT, dependency TEXT);
+CREATE TABLE IF NOT EXISTS entrypoints (repo_id TEXT, path TEXT);
+CREATE TABLE IF NOT EXISTS testids (repo_id TEXT, testid TEXT, component TEXT, filepath TEXT, line INTEGER, context TEXT);
+CREATE TABLE IF NOT EXISTS file_chunks (chunk_id TEXT, repo_id TEXT, path TEXT, path_text TEXT, language TEXT, chunk_kind TEXT, chunk_start INTEGER, chunk_end INTEGER, title TEXT, description TEXT, content TEXT, search_text TEXT);
+"#
+        .to_string()
+    };
+
+    for stmt in schema.split(';') {
+        let stmt = stmt.trim();
+        if !stmt.is_empty() && !stmt.starts_with("--") {
+            con.execute(stmt, []).ok();
+        }
+    }
+}
+
+fn cmd_index() {
+    let root = std::env::current_dir().expect("cannot determine cwd");
+    let repo_id = root.file_name().unwrap().to_str().unwrap().to_string();
+    let dbp = db_path();
+    ensure_db_dir(&dbp);
+
+    let con = Connection::open(&dbp).expect("cannot open duckdb");
+    ensure_schema(&con);
+
+    // Install FTS
+    con.execute("INSTALL fts", []).ok();
+    con.execute("LOAD fts", []).ok();
+
+    // Clear previous index
+    for table in &["files", "modules", "dependencies", "entrypoints", "testids", "file_chunks"] {
+        con.execute(&format!("DELETE FROM {} WHERE repo_id=?", table), params![&repo_id])
+            .ok();
+    }
+
+    // Upsert repository
+    con.execute("DELETE FROM repositories WHERE repo_id=?", params![&repo_id]).ok();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64;
+    con.execute(
+        "INSERT INTO repositories VALUES (?, ?, ?)",
+        params![&repo_id, root.to_str().unwrap(), now],
+    )
+    .ok();
+
+    let import_re = Regex::new(
+        r#"(?:import ([a-zA-Z0-9_.]+)|from ([a-zA-Z0-9_.]+) import|require\(['"](.+?)['"]\)|import .* from ['"](.*?)['"])"#
+    ).unwrap();
+
+    let entrypoint_re = Regex::new(
+        r#"(?:if __name__ == ['"]__main__['"]|app\.listen|FastAPI\(|main\()"#
+    ).unwrap();
+
+    let testid_re = Regex::new(r#"data-testid=['"]([^'"]+)['"]"#).unwrap();
+    let testid_exts: HashSet<&str> = [".svelte", ".tsx", ".ts", ".jsx", ".js", ".html"]
+        .into_iter()
+        .collect();
+
+    let mut chunk_count = 0u64;
+
+    for entry in WalkDir::new(&root).into_iter().filter_map(|e| e.ok()) {
+        let path = entry.path();
+        if !path.is_file() || is_ignored(path) || is_binary_ext(path) {
+            continue;
+        }
+
+        let metadata = fs::metadata(path).ok();
+        if metadata.as_ref().map(|m| m.len()).unwrap_or(0) > MAX_FILE_SIZE {
+            continue;
+        }
+
+        let rel_path = path.strip_prefix(&root).unwrap_or(path);
+        let rel_str = rel_path.to_str().unwrap_or("");
+
+        // Insert into files table
+        con.execute("INSERT INTO files VALUES (?, ?)", params![&repo_id, rel_str]).ok();
+
+        // Check for null bytes
+        if has_null_bytes(path) {
+            continue;
+        }
+
+        let text = match fs::read_to_string(path) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
+
+        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        let lang = detect_language(path);
+
+        // Legacy: modules, dependencies, entrypoints
+        if matches!(ext, "py" | "ts" | "js") {
+            let module = path.file_stem().unwrap().to_str().unwrap().to_string();
+            con.execute(
+                "INSERT INTO modules VALUES (?, ?, ?)",
+                params![&repo_id, &module, rel_str],
+            )
+            .ok();
+
+            for cap in import_re.captures_iter(&text) {
+                let dep = cap
+                    .get(1)
+                    .or_else(|| cap.get(2))
+                    .or_else(|| cap.get(3))
+                    .or_else(|| cap.get(4))
+                    .map(|m| m.as_str())
+                    .unwrap_or("");
+                if !dep.is_empty() {
+                    con.execute(
+                        "INSERT INTO dependencies VALUES (?, ?, ?)",
+                        params![&repo_id, &module, dep],
+                    )
+                    .ok();
+                }
+            }
+
+            if entrypoint_re.is_match(&text) {
                 con.execute(
-                    "INSERT INTO testids VALUES (?, ?, ?, ?, ?, ?)",
-                    [repo_id, m.group(1), component, rel_path, i, line.strip()],
+                    "INSERT INTO entrypoints VALUES (?, ?)",
+                    params![&repo_id, rel_str],
                 )
+                .ok();
+            }
+        }
 
+        // Testids
+        let ext_dot = format!(".{}", ext);
+        if testid_exts.contains(ext_dot.as_str()) {
+            let component = path
+                .file_stem()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or("")
+                .to_string();
+            for (i, line) in text.lines().enumerate() {
+                for cap in testid_re.captures_iter(line) {
+                    con.execute(
+                        "INSERT INTO testids VALUES (?, ?, ?, ?, ?, ?)",
+                        params![
+                            &repo_id,
+                            &cap[1],
+                            &component,
+                            rel_str,
+                            (i + 1) as i64,
+                            line.trim()
+                        ],
+                    )
+                    .ok();
+                }
+            }
+        }
 
-def cmd_index(args):
-    import duckdb
+        // Chunking for FTS
+        let chunks = match lang {
+            "markdown" => chunk_markdown(&text),
+            "json" | "yaml" | "toml" | "text" => chunk_config(&text, rel_str),
+            _ => chunk_code(&text, rel_str),
+        };
 
-    root = pathlib.Path(".").resolve()
-    repo_id = root.name
-    db_path = resolve_db_path()
-    con = duckdb.connect(str(db_path))
+        let kind = chunk_kind(lang);
+        let pt = path_to_text(rel_str);
 
-    ensure_schema(con)
+        for chunk in &chunks {
+            let chunk_id = format!("{}::{}::{}-{}", repo_id, rel_str, chunk.start, chunk.end);
+            let desc = generate_description(lang, rel_str, &chunk.title, chunk.start, chunk.end);
+            let search_text = format!("{}\n{}\n{}\n{}", pt, chunk.title, desc, chunk.content);
 
-    # Clear previous index
-    for table in ("files", "modules", "dependencies", "entrypoints", "testids"):
-        con.execute(f"DELETE FROM {table} WHERE repo_id=?", [repo_id])
+            con.execute(
+                "INSERT INTO file_chunks VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                params![
+                    &chunk_id,
+                    &repo_id,
+                    rel_str,
+                    &pt,
+                    lang,
+                    kind,
+                    chunk.start as i64,
+                    chunk.end as i64,
+                    &chunk.title,
+                    &desc,
+                    &chunk.content,
+                    &search_text
+                ],
+            )
+            .ok();
+            chunk_count += 1;
+        }
+    }
 
-    con.execute("INSERT INTO repositories VALUES (?, ?, ?)",
-                [repo_id, str(root), int(time.time())])
+    // Build FTS index
+    con.execute(
+        "PRAGMA create_fts_index('file_chunks', 'chunk_id', 'search_text', stemmer='english', overwrite=1)",
+        [],
+    )
+    .ok();
 
-    for f in collect_files(root):
-        con.execute("INSERT INTO files VALUES (?, ?)", [repo_id, str(f)])
+    con.close().ok();
+    eprintln!(
+        "Indexed repo '{}' into {} ({} chunks)",
+        repo_id,
+        dbp.display(),
+        chunk_count
+    );
+}
 
-        if f.suffix not in {".py", ".ts", ".js"}:
-            continue
+fn cmd_query(sql: &str) {
+    let dbp = db_path();
+    if !dbp.exists() {
+        eprintln!("Database not found: {}", dbp.display());
+        std::process::exit(1);
+    }
+    let con = Connection::open(&dbp).expect("cannot open duckdb");
+    let mut stmt = con.prepare(sql).expect("invalid SQL");
+    let col_count = stmt.column_count();
+    let rows = stmt
+        .query_map([], |row| {
+            let mut vals = Vec::new();
+            for i in 0..col_count {
+                let v: String = row.get::<_, String>(i).unwrap_or_default();
+                vals.push(v);
+            }
+            Ok(vals)
+        })
+        .expect("query failed");
 
-        module = f.stem
-        con.execute("INSERT INTO modules VALUES (?, ?, ?)", [repo_id, module, str(f)])
+    for row in rows {
+        if let Ok(vals) = row {
+            println!("{}", vals.join("\t"));
+        }
+    }
+}
 
-        try:
-            text = f.read_text(errors="ignore")
-        except OSError:
-            continue
+fn cmd_search(query: &str, limit: usize, repo: Option<&str>) {
+    let dbp = db_path();
+    if !dbp.exists() {
+        eprintln!("Database not found: {}. Run `repo index` first.", dbp.display());
+        std::process::exit(1);
+    }
+    let con = Connection::open(&dbp).expect("cannot open duckdb");
+    con.execute("LOAD fts", []).ok();
 
-        for pattern in IMPORT_PATTERNS:
-            for m in re.findall(pattern, text):
-                con.execute("INSERT INTO dependencies VALUES (?, ?, ?)",
-                            [repo_id, module, m])
+    let repo_id = match repo {
+        Some(r) => r.to_string(),
+        None => std::env::current_dir()
+            .ok()
+            .and_then(|p| p.file_name().map(|n| n.to_str().unwrap_or("").to_string()))
+            .unwrap_or_default(),
+    };
 
-        for pattern in ENTRYPOINT_PATTERNS:
-            if re.search(pattern, text):
-                con.execute("INSERT INTO entrypoints VALUES (?, ?)", [repo_id, str(f)])
-                break
+    // Preprocess query
+    let cleaned = extract_keywords(query);
+    let search_query = format!("{} {}", query, cleaned);
 
-    scan_testids(con, root, repo_id)
-    con.close()
-    print(f"Indexed repo '{repo_id}' into {db_path}")
+    let sql = r#"
+        SELECT path, chunk_start, chunk_end, title, description, substr(content, 1, 500) AS snippet, score
+        FROM (
+            SELECT *, fts_main_file_chunks.match_bm25(chunk_id, ?) AS score
+            FROM file_chunks WHERE repo_id = ?
+        ) sq
+        WHERE score IS NOT NULL
+        ORDER BY score DESC
+        LIMIT ?
+    "#;
 
+    let mut stmt = match con.prepare(sql) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("FTS query failed: {}. Try running `repo index` first.", e);
+            std::process::exit(1);
+        }
+    };
 
-# ---------------------------------------------------------------------------
-# query subcommand
-# ---------------------------------------------------------------------------
+    let rows = stmt
+        .query_map(params![&search_query, &repo_id, limit as i64], |row| {
+            let path: String = row.get(0)?;
+            let start: i64 = row.get(1)?;
+            let end: i64 = row.get(2)?;
+            let title: String = row.get(3)?;
+            let desc: String = row.get(4)?;
+            let snippet: String = row.get(5)?;
+            let score: f64 = row.get(6)?;
+            Ok((path, start, end, title, desc, snippet, score))
+        });
 
-def cmd_query(args):
-    import duckdb
+    match rows {
+        Ok(rows) => {
+            let mut found = false;
+            for row in rows {
+                if let Ok((path, start, end, _title, desc, snippet, score)) = row {
+                    found = true;
+                    println!("{}:{}-{}", path, start, end);
+                    println!("score: {:.2}", score);
+                    println!("{}", desc);
+                    println!();
+                    // Print first few lines of snippet
+                    let preview: String = snippet.lines().take(5).collect::<Vec<_>>().join("\n");
+                    println!("{}", preview);
+                    println!("---");
+                }
+            }
+            if !found {
+                println!("No results found for: {}", query);
+            }
+        }
+        Err(e) => {
+            eprintln!("Search failed: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
 
-    db_path = resolve_db_path()
-    if not db_path.exists():
-        print(f"Database not found: {db_path}", file=sys.stderr)
-        raise SystemExit(1)
+fn cmd_map() {
+    let root = std::env::current_dir().expect("cannot determine cwd");
+    let out = root.join(".repo-map");
+    fs::create_dir_all(&out).ok();
 
-    con = duckdb.connect(str(db_path), read_only=True)
-    try:
-        rows = con.execute(args.sql).fetchall()
-        for row in rows:
-            print("\t".join("" if v is None else str(v) for v in row))
-    finally:
-        con.close()
+    let import_re = Regex::new(
+        r#"(?:import ([a-zA-Z0-9_.]+)|from ([a-zA-Z0-9_.]+) import|require\(['"](.+?)['"]\)|import .* from ['"](.*?)['"])"#
+    ).unwrap();
 
+    let entrypoint_re = Regex::new(
+        r#"(?:if __name__ == ['"]__main__['"]|app\.listen|FastAPI\(|main\()"#
+    ).unwrap();
 
-# ---------------------------------------------------------------------------
-# map subcommand
-# ---------------------------------------------------------------------------
+    let mut all_files = Vec::new();
+    let mut modules = Vec::new();
+    let mut deps = Vec::new();
+    let mut entrypoints = Vec::new();
+    let mut languages = HashSet::new();
+    let mut frameworks = HashSet::new();
 
-def cmd_map(args):
-    root = pathlib.Path(".")
-    out = root / ".repo-map"
-    out.mkdir(exist_ok=True)
+    for entry in WalkDir::new(&root).into_iter().filter_map(|e| e.ok()) {
+        let path = entry.path();
+        if !path.is_file() || is_ignored(path) {
+            continue;
+        }
 
-    files = [p for p in collect_files(root)]
+        let rel = path.strip_prefix(&root).unwrap_or(path);
+        let rel_str = rel.to_str().unwrap_or("").to_string();
+        all_files.push(rel_str.clone());
 
-    # Stack detection
-    stack = {"languages": set(), "frameworks": set()}
-    for f in files:
-        if f.suffix == ".py":
-            stack["languages"].add("python")
-        if f.suffix in {".js", ".ts"}:
-            stack["languages"].add("javascript")
-        if f.name == "package.json":
-            stack["frameworks"].add("node")
-        if f.name == "pyproject.toml":
-            stack["frameworks"].add("python-project")
-    stack = {k: list(v) for k, v in stack.items()}
+        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        match ext {
+            "py" => { languages.insert("python"); }
+            "js" | "ts" => { languages.insert("javascript"); }
+            _ => {}
+        }
+        if path.file_name().map(|n| n == "package.json").unwrap_or(false) {
+            frameworks.insert("node");
+        }
+        if path.file_name().map(|n| n == "pyproject.toml").unwrap_or(false) {
+            frameworks.insert("python-project");
+        }
 
-    # Entrypoints
-    entrypoints = []
-    for f in files:
-        try:
-            text = f.read_text(errors="ignore")
-        except OSError:
-            continue
-        for pattern in ENTRYPOINT_PATTERNS:
-            if re.search(pattern, text):
-                entrypoints.append(str(f))
-                break
+        if !matches!(ext, "py" | "ts" | "js") {
+            continue;
+        }
 
-    # Dependency graph
-    modules = []
-    deps = []
-    for f in files:
-        if f.suffix not in {".py", ".ts", ".js"}:
-            continue
-        module = f.stem
-        modules.append({"name": module, "path": str(f)})
-        try:
-            text = f.read_text(errors="ignore")
-        except OSError:
-            continue
-        for pattern in IMPORT_PATTERNS:
-            for m in re.findall(pattern, text):
-                deps.append({"from": module, "to": m})
+        let module = path.file_stem().unwrap().to_str().unwrap().to_string();
+        modules.push(serde_json::json!({"name": module, "path": rel_str}));
 
-    def write_json(name, data):
-        with open(out / name, "w") as fh:
-            json.dump(data, fh, indent=2)
+        let text = match fs::read_to_string(path) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
 
-    write_json("files.json", [str(f) for f in files])
-    write_json("modules.json", modules)
-    write_json("entrypoints.json", entrypoints)
-    write_json("graph.json", {"modules": modules, "dependencies": deps})
-    write_json("stack.json", stack)
+        for cap in import_re.captures_iter(&text) {
+            let dep = cap.get(1).or(cap.get(2)).or(cap.get(3)).or(cap.get(4))
+                .map(|m| m.as_str()).unwrap_or("");
+            if !dep.is_empty() {
+                deps.push(serde_json::json!({"from": module, "to": dep}));
+            }
+        }
 
-    # Graphviz
-    with open(out / "dependency-graph.dot", "w") as fh:
-        fh.write("digraph repo {\n  rankdir=LR;\n  node [shape=box];\n")
-        for m in modules:
-            fh.write(f'  "{m["name"]}";\n')
-        for d in deps:
-            if d["from"] and d["to"]:
-                fh.write(f'  "{d["from"]}" -> "{d["to"]}";\n')
-        fh.write("}\n")
+        if entrypoint_re.is_match(&text) {
+            entrypoints.push(rel_str);
+        }
+    }
 
-    print("Repo map generated in .repo-map/")
+    let stack = serde_json::json!({
+        "languages": languages.into_iter().collect::<Vec<_>>(),
+        "frameworks": frameworks.into_iter().collect::<Vec<_>>(),
+    });
 
+    fs::write(out.join("files.json"), serde_json::to_string_pretty(&all_files).unwrap()).ok();
+    fs::write(out.join("modules.json"), serde_json::to_string_pretty(&modules).unwrap()).ok();
+    fs::write(out.join("entrypoints.json"), serde_json::to_string_pretty(&entrypoints).unwrap()).ok();
+    fs::write(out.join("graph.json"), serde_json::to_string_pretty(&serde_json::json!({"modules": modules, "dependencies": deps})).unwrap()).ok();
+    fs::write(out.join("stack.json"), serde_json::to_string_pretty(&stack).unwrap()).ok();
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+    // Graphviz
+    let mut dot = String::from("digraph repo {\n  rankdir=LR;\n  node [shape=box];\n");
+    for m in &modules {
+        dot.push_str(&format!("  \"{}\";\n", m["name"].as_str().unwrap_or("")));
+    }
+    for d in &deps {
+        let from = d["from"].as_str().unwrap_or("");
+        let to = d["to"].as_str().unwrap_or("");
+        if !from.is_empty() && !to.is_empty() {
+            dot.push_str(&format!("  \"{}\" -> \"{}\";\n", from, to));
+        }
+    }
+    dot.push_str("}\n");
+    fs::write(out.join("dependency-graph.dot"), dot).ok();
 
-def main():
-    parser = argparse.ArgumentParser(prog="repo", description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    sub = parser.add_subparsers(dest="command")
+    eprintln!("Repo map generated in .repo-map/");
+}
 
-    sub.add_parser("index", help="Index the current repo into DuckDB")
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
 
-    q = sub.add_parser("query", help="Query the repo index with SQL")
-    q.add_argument("sql", help="SQL query to execute")
-
-    sub.add_parser("map", help="Generate a local repo map (JSON + Graphviz)")
-
-    args = parser.parse_args()
-
-    if args.command == "index":
-        cmd_index(args)
-    elif args.command == "query":
-        cmd_query(args)
-    elif args.command == "map":
-        cmd_map(args)
-    else:
-        parser.print_help()
-        raise SystemExit(1)
-
-
-if __name__ == "__main__":
-    main()
+fn main() {
+    let cli = Cli::parse();
+    match cli.command {
+        Commands::Index => cmd_index(),
+        Commands::Query { sql } => cmd_query(&sql),
+        Commands::Map => cmd_map(),
+        Commands::Search { query, limit, repo } => cmd_search(&query, limit, repo.as_deref()),
+    }
+}
