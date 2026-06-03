@@ -118,7 +118,7 @@
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
       "mode": "primary",
-      "model": "github-copilot/claude-sonnet-4.6",
+      "model": "github-copilot/gpt-5.5",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
         "*": "deny",
@@ -148,7 +148,7 @@
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "primary",
-      "model": "github-copilot/claude-opus-4.6",
+      "model": "github-copilot/gpt-5.5",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "permission": {
         "*": "deny",
@@ -277,10 +277,12 @@
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "permission": {
         "*": "deny",
-        "read": "allow",
+        // "read": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
+        "repo query *": "allow",
         "bash": {
+          "repo_query *": "allow",
           "playwright_docs search *": "allow"
         }
       }
