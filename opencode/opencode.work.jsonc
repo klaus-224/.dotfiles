@@ -6,9 +6,6 @@
   "skills": {
     "paths": ["./skills"]
   },
-  "tools": {
-    "paths": true
-  },
   "mcp": {
     "atlassian": {
       "type": "remote",
@@ -20,17 +17,19 @@
     "build": {
       "model": "github-copilot/claude-opus-4.6",
       "mode": "primary",
+      "tools": {
+        "repo_query": true,
+        "repo_search": true,
+        "paths": true
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "edit": "allow",
         "write": "allow",
-        "repo_query": "allow",
-        "repo_index": "allow",
-        "learnings_query": "allow",
-        "task": "allow",
-        "skill": { "*": "deny", "customize-opencode": "allow" },
+        "task": "deny",
+        "skill": { "*": "deny" },
         "bash": {
           "*": "deny",
           "git *": "allow",
@@ -52,27 +51,6 @@
       }
     },
 
-    "general": {
-      "model": "github-copilot/gpt-5.4",
-      "variant": "xhigh",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "task": "allow",
-        "repo_query": "allow",
-        "repo_index": "allow",
-        "learnings_query": "allow",
-        "atlassian_getAccessibleAtlassianResources": "allow",
-        "atlassian_searchJiraIssuesUsingJql": "allow"
-      }
-    },
-
-    "plan": {
-      "hidden": true
-    },
-
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
@@ -80,27 +58,6 @@
       "temperature": 0.1,
       "steps": 12,
       "prompt": "{file:./prompts/planner.txt}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "submit_plan": "allow",
-        "repo_query": "allow",
-        "repo_index": "allow",
-        "learnings_query": "allow",
-        "skill": { "*": "deny", "plannotator-compound": "allow" },
-        "edit": { "*": "deny", "*.md": "allow" },
-        "external_directory": "deny"
-      }
-    },
-
-    "planner-creative": {
-      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
-      "mode": "primary",
-      "model": "github-copilot/claude-opus-4.6",
-      "temperature": 0.8,
-      "steps": 12,
-      "prompt": "Help me plan whatever I ask for but be creative. Always load the plannotator-compound skill before submitting any plan.",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -296,19 +253,28 @@
       "mode": "primary",
       "model": "github-copilot/gpt-5.5",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
+      "tools": {
+        "repo_query": true,
+        "repo_search *": true
+      },
       "permission": {
         "*": "deny",
         // "read": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
-        "repo_query *": "allow",
-        "repo_search *": "allow",
         "bash": {
-          "repo query *": "allow",
-          "repo search *": "allow",
           "playwright_docs search *": "allow"
         }
       }
+    },
+
+    // hidden base agents
+    "general": {
+      "hidden": true
+    },
+
+    "plan": {
+      "hidden": true
     }
   },
 
