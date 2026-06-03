@@ -1,93 +1,97 @@
 {
-	"plugins": {
-		"LuaSnip": {
-			"rev": "0abc8f390b278c3b4aabc4c004ac8a088b65cf24",
-			"src": "https://github.com/L3MON4D3/LuaSnip"
-		},
-		"SchemaStore.nvim": {
-			"rev": "59b4296a733a5b93ce2aee23ee406b6d279183cc",
-			"src": "https://github.com/b0o/SchemaStore.nvim"
-		},
-		"alpha-nvim": {
-			"rev": "6c6a89d5b068b5251c8bdf0dd57bb921bcfeeb09",
-			"src": "https://github.com/goolord/alpha-nvim"
-		},
-		"blink.cmp": {
-			"rev": "35e3923a09ff3db150ceff80004befcbbfa071a0",
-			"src": "https://github.com/saghen/blink.cmp"
-		},
-		"blink.lib": {
-			"rev": "f29d8bac6549bc1e7d699c83f680823d7def98bd",
-			"src": "https://github.com/saghen/blink.lib"
-		},
-		"conform.nvim": {
-			"rev": "18aeab3d63d350dcf44d64c462cc489a3412af40",
-			"src": "https://github.com/stevearc/conform.nvim"
-		},
-		"friendly-snippets": {
-			"rev": "6cd7280adead7f586db6fccbd15d2cac7e2188b9",
-			"src": "https://github.com/rafamadriz/friendly-snippets"
-		},
-		"fzf-lua": {
-			"rev": "3ff77862f6c62f7b850668435ae43aa026de8758",
-			"src": "https://github.com/ibhagwan/fzf-lua"
-		},
-		"git-blame.nvim": {
-			"rev": "5c536e2d4134d064aa3f41575280bc8a2a0e03d7",
-			"src": "https://github.com/f-person/git-blame.nvim"
-		},
-		"lazydev.nvim": {
-			"rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
-			"src": "https://github.com/folke/lazydev.nvim"
-		},
-		"mason-tool-installer.nvim": {
-			"rev": "443f1ef8b5e6bf47045cb2217b6f748a223cf7dc",
-			"src": "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim"
-		},
-		"mason.nvim": {
-			"rev": "cbf8d285e1462dd24acf3507817be2bbcb035919",
-			"src": "https://github.com/mason-org/mason.nvim"
-		},
-		"nvim-autopairs": {
-			"rev": "7b9923abad60b903ece7c52940e1321d39eccc79",
-			"src": "https://github.com/windwp/nvim-autopairs"
-		},
-		"nvim-highlight-colors": {
-			"rev": "e4c7af0211866162d999ce0bdd6a029302e19139",
-			"src": "https://github.com/brenoprata10/nvim-highlight-colors"
-		},
-		"nvim-surround": {
-			"rev": "2e93e154de9ff326def6480a4358bfc149d5da2c",
-			"src": "https://github.com/kylechui/nvim-surround",
-			"version": "4.0.0 - 5.0.0"
-		},
-		"oil-git-status.nvim": {
-			"rev": "a3e2ccb00cb8822115e28a9a1791eda051d940c9",
-			"src": "https://github.com/refractalize/oil-git-status.nvim"
-		},
-		"oil-lsp-diagnostics.nvim": {
-			"rev": "282308383d8d8485937aaf3c28b44fa1cb26007a",
-			"src": "https://github.com/JezerM/oil-lsp-diagnostics.nvim"
-		},
-		"oil.nvim": {
-			"rev": "0fcc83805ad11cf714a949c98c605ed717e0b83e",
-			"src": "https://github.com/stevearc/oil.nvim"
-		},
-		"vague.nvim": {
-			"rev": "fd58046b9d64259d9785e4aeb6d6f494c6943cad",
-			"src": "https://github.com/vague-theme/vague.nvim"
-		},
-		"vim-dadbod": {
-			"rev": "6d1d41da4873a445c5605f2005ad2c68c99d8770",
-			"src": "https://github.com/tpope/vim-dadbod"
-		},
-		"vim-dadbod-completion": {
-			"rev": "a8dac0b3cf6132c80dc9b18bef36d4cf7a9e1fe6",
-			"src": "https://github.com/kristijanhusak/vim-dadbod-completion"
-		},
-		"vim-dadbod-ui": {
-			"rev": "07e92e22114cc5b1ba4938d99897d85b58e20475",
-			"src": "https://github.com/kristijanhusak/vim-dadbod-ui"
-		}
-	}
+  "plugins": {
+    "LuaSnip": {
+      "rev": "0abc8f390b278c3b4aabc4c004ac8a088b65cf24",
+      "src": "https://github.com/L3MON4D3/LuaSnip"
+    },
+    "SchemaStore.nvim": {
+      "rev": "59b4296a733a5b93ce2aee23ee406b6d279183cc",
+      "src": "https://github.com/b0o/SchemaStore.nvim"
+    },
+    "alpha-nvim": {
+      "rev": "6c6a89d5b068b5251c8bdf0dd57bb921bcfeeb09",
+      "src": "https://github.com/goolord/alpha-nvim"
+    },
+    "blink.cmp": {
+      "rev": "35e3923a09ff3db150ceff80004befcbbfa071a0",
+      "src": "https://github.com/saghen/blink.cmp"
+    },
+    "blink.lib": {
+      "rev": "f29d8bac6549bc1e7d699c83f680823d7def98bd",
+      "src": "https://github.com/saghen/blink.lib"
+    },
+    "conform.nvim": {
+      "rev": "18aeab3d63d350dcf44d64c462cc489a3412af40",
+      "src": "https://github.com/stevearc/conform.nvim"
+    },
+    "friendly-snippets": {
+      "rev": "6cd7280adead7f586db6fccbd15d2cac7e2188b9",
+      "src": "https://github.com/rafamadriz/friendly-snippets"
+    },
+    "fzf-lua": {
+      "rev": "3ff77862f6c62f7b850668435ae43aa026de8758",
+      "src": "https://github.com/ibhagwan/fzf-lua"
+    },
+    "git-blame.nvim": {
+      "rev": "5c536e2d4134d064aa3f41575280bc8a2a0e03d7",
+      "src": "https://github.com/f-person/git-blame.nvim"
+    },
+    "lazydev.nvim": {
+      "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
+      "src": "https://github.com/folke/lazydev.nvim"
+    },
+    "mason-tool-installer.nvim": {
+      "rev": "443f1ef8b5e6bf47045cb2217b6f748a223cf7dc",
+      "src": "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim"
+    },
+    "mason.nvim": {
+      "rev": "cbf8d285e1462dd24acf3507817be2bbcb035919",
+      "src": "https://github.com/mason-org/mason.nvim"
+    },
+    "nvim-autopairs": {
+      "rev": "7b9923abad60b903ece7c52940e1321d39eccc79",
+      "src": "https://github.com/windwp/nvim-autopairs"
+    },
+    "nvim-highlight-colors": {
+      "rev": "e4c7af0211866162d999ce0bdd6a029302e19139",
+      "src": "https://github.com/brenoprata10/nvim-highlight-colors"
+    },
+    "nvim-surround": {
+      "rev": "2e93e154de9ff326def6480a4358bfc149d5da2c",
+      "src": "https://github.com/kylechui/nvim-surround",
+      "version": "4.0.0 - 5.0.0"
+    },
+    "oil-git-status.nvim": {
+      "rev": "a3e2ccb00cb8822115e28a9a1791eda051d940c9",
+      "src": "https://github.com/refractalize/oil-git-status.nvim"
+    },
+    "oil-lsp-diagnostics.nvim": {
+      "rev": "282308383d8d8485937aaf3c28b44fa1cb26007a",
+      "src": "https://github.com/JezerM/oil-lsp-diagnostics.nvim"
+    },
+    "oil.nvim": {
+      "rev": "0fcc83805ad11cf714a949c98c605ed717e0b83e",
+      "src": "https://github.com/stevearc/oil.nvim"
+    },
+    "tree-sitter-manager.nvim": {
+      "rev": "bb66b815aff01e87b2e26be995116be8d2f91474",
+      "src": "https://github.com/romus204/tree-sitter-manager.nvim"
+    },
+    "vague.nvim": {
+      "rev": "fd58046b9d64259d9785e4aeb6d6f494c6943cad",
+      "src": "https://github.com/vague-theme/vague.nvim"
+    },
+    "vim-dadbod": {
+      "rev": "6d1d41da4873a445c5605f2005ad2c68c99d8770",
+      "src": "https://github.com/tpope/vim-dadbod"
+    },
+    "vim-dadbod-completion": {
+      "rev": "a8dac0b3cf6132c80dc9b18bef36d4cf7a9e1fe6",
+      "src": "https://github.com/kristijanhusak/vim-dadbod-completion"
+    },
+    "vim-dadbod-ui": {
+      "rev": "07e92e22114cc5b1ba4938d99897d85b58e20475",
+      "src": "https://github.com/kristijanhusak/vim-dadbod-ui"
+    }
+  }
 }
