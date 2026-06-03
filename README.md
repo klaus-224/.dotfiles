@@ -6,7 +6,7 @@
   - [Generate a new SSH key](#generate-a-new-ssh-key)
     - [Start the SSH agent and add the key](#start-the-ssh-agent-and-add-the-key)
     - [Copy the public key to the clipboard](#copy-the-public-key-to-the-clipboard)
-    - [Add the public key to Github](#add-the-public-key-to-github)
+    - [Add the public key to GitHub](#add-the-public-key-to-github)
     - [Test the connection](#test-the-connection)
 - [Installation](#installation)
   - [Macos](#macos)
@@ -34,6 +34,54 @@
 - [References](#references)
 
 <!-- mtoc-end -->
+---
+# TODO
+
+- [ ] transform zsh tools binaries
+- [ ] consolidate everything into 1 `setup.sh` script
+- [ ] look into dev containers [devpod](https://devpod.sh/)
+- [ ] look into [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
+---
+
+# CLI Tool Reference
+
+- [ gh-dash ](https://www.gh-dash.dev/getting-started) - TUI dashboard for GH PRs and issues
+
+  ```zsh
+    gh extension install dlvhdr/gh-dash
+  ```
+
+- [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
+- [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
+- [just](https://github.com/casey/just)
+- [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
+- [superpower](https://github.com/obra/superpowers) - plugins and stuff for ai
+- [m-cli](https://github.com/rgcr/m-cli) - macos commands 
+- [RustScan](https://github.com/bee-san/RustScan) - port scanner
+- [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
+- [useful scripts adamchainz](https://github.com/adamchainz/scripts) 
+- [zshkit](https://github.com/bkerley/zshkit) - example zsh config
+- [thread deck](https://github.com/gripebomb/ThreatDeck)
+- [gh cheat sheet](https://github.com/tiimgreen/github-cheat-sheet)
+- [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
+- [xleak](https://github.com/bgreenwell/xleak) - xlsx viewer
+- [csvlens](https://github.com/YS-L/csvlens) - csv viewer
+
+
+- **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet calculator
+- **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
+- **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
+- **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
+
+---
+# References
+- [mintlify-wiki](https://mintlify.wiki/explore)
+- [awesome-modern-cli](https://github.com/thegdsks/awesome-modern-cli)
+- [getdesign.md](https://getdesign.md/)
+- [stich](https://stitch.withgoogle.com/)
+- [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
+- [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
+---
 
 # Generating git SSH Keys
 
@@ -56,7 +104,7 @@ ssh-add ~/.ssh/id_ed25519
 cat ~/.ssh/id_ed25519.pub
 ```
 
-### Add the public key to Github
+### Add the public key to GitHub
 
 Go to [GitHub SSH Settings](https://github.com/settings/ssh/new) and add the public key
 
@@ -271,45 +319,3 @@ stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .c
 
 ---
 
-# TODO
-
-- [ ] transform zsh tools binaries
-- [ ] consolidate everything into 1 `setup.sh` script
-- [ ] look into dev containers [devpod](https://devpod.sh/)
-- [ ] look into [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
-
-# CLI Tool Reference
-
-- [ gh-dash ](https://www.gh-dash.dev/getting-started) - TUI dashboard for GH PRs and issues
-
-  ```zsh
-    gh extension install dlvhdr/gh-dash
-  ```
-
-- [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
-- [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
-- [just](https://github.com/casey/just)
-- [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
-
-- [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
-- [vmux](https://github.com/yazgoo/vmux) - using nvim as a mulitplexer (NO USE FOR THIS BUT PRETTY COOL)
-- [miri](https://github.com/maria-rcks/miri) - niri-ish window manager manager
-- [xleak](https://github.com/bgreenwell/xleak) - csv, xlsx viewer
-
-- **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet
-  calculator
-- **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
-- **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
-- **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
-- **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
-
----
-
-# References
-
-- [mintlify-wiki](https://mintlify.wiki/explore)
-- [awesome-modern-cli](https://github.com/thegdsks/awesome-modern-cli)
-- [getdesign.md](https://getdesign.md/)
-- [stich](https://stitch.withgoogle.com/)
-- [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
-- [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
