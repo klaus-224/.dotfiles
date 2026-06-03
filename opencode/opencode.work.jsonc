@@ -164,7 +164,11 @@
           "playwright-cli": "allow",
           "plannotator-annotate": "allow"
         },
-        "skill": { "*": "deny", "playwright-cli": "allow", "plannotator-annotate": "allow" },
+        "skill": {
+          "*": "deny",
+          "playwright-cli": "allow",
+          "plannotator-annotate": "allow"
+        },
         "task": { "*": "allow" },
         "bash": {
           "*": "deny",
@@ -273,7 +277,7 @@
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
-      "model": "github-copilot/claude-sonnet-4.6",
+      "model": "github-copilot/gpt-5.5",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "permission": {
         "*": "deny",
