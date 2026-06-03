@@ -164,10 +164,8 @@
           "playwright-cli": "allow",
           "plannotator-annotate": "allow"
         },
-        "task": {
-          "*": "deny",
-          "jira-operator": "allow"
-        },
+        "skill": { "*": "deny", "playwright-cli": "allow", "plannotator-annotate": "allow" },
+        "task": { "*": "allow" },
         "bash": {
           "*": "deny",
           "pnpm -C apps/playwright-tests auth": "allow",
