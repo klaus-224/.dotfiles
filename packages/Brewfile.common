@@ -6,12 +6,14 @@ brew "stow"
 brew "tmux"
 brew "neovim"
 brew "starship"
+brew "glow" # render markdown
 
-## CLI TOOLS ## 
+## CLI TOOLS ##
 # vsc
 brew "git"
 brew "gh"
 brew "git-delta"
+
 brew "just" # like make but simpler
 
 # file listing
@@ -32,7 +34,7 @@ brew "bat"
 brew "fzf"
 
 # json/yaml/csv
-brew "jsongrep"
+brew "jsongrep" # like jq but easier to use
 brew "csvlens"
 brew "dasel"
 
@@ -48,7 +50,8 @@ brew "lazygit"
 brew "gettext"
 
 # misc
-brew "navi" # https://github.com/denisidoro/navi brew "flawz" # https://github.com/orhun/flawz
+brew "navi" # https://github.com/denisidoro/navi
+brew "flawz" # https://github.com/orhun/flawz
 
 ## END CLI TOOLS ##
 
@@ -65,4 +68,4 @@ brew "aws-cdk"
 brew "awscli"
 
 brew "bgreenwell/tap/xleak"
-brew "anomalyco/tap/opencoed"
+brew "anomalyco/tap/opencode"
