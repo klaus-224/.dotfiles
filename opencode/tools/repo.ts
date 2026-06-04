@@ -1,13 +1,9 @@
 import { tool } from "@opencode-ai/plugin";
-import { homedir } from "node:os";
-import path from "node:path";
 import { spawn } from "node:child_process";
-
-const repoScript = path.join(homedir(), ".dotfiles", "bin", "repo-rs");
 
 async function run(args: string[] = [], cwd?: string) {
   return await new Promise<string>((resolve, reject) => {
-    const child = spawn("rust-script", [repoScript, ...args], {
+    const child = spawn("rust-script", ["repo", ...args], {
       env: process.env,
       cwd: cwd || process.cwd(),
       stdio: ["pipe", "pipe", "pipe"],

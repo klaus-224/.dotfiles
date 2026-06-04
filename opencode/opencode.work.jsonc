@@ -37,7 +37,7 @@
 
     // Review Agent
     "reviewer": {
-      "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as learnings",
+      "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as memory",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/reviewer.md}",
@@ -48,8 +48,8 @@
         "playwright-docs search": "allow",
         "skill": { "*": "deny", "playwright-docs": "allow" },
         "plan_get": "allow",
-        "learnings_query": "allow",
-        "learnings_add": "allow",
+        "memory_query": "allow",
+        "memory_add": "allow",
         "repo_query": "allow",
         "session_list": "allow",
         "session_transcript": "allow",
@@ -108,7 +108,7 @@
         "submit_plan": "allow",
         "repo_query": "allow",
         "repo_index": "allow",
-        "learnings_query": "allow",
+        "memory_query": "allow",
         "skill": { "*": "deny", "plannotator-compound": "allow" },
         "edit": { "*": "deny", "*.md": "allow" },
         "external_directory": "deny"
@@ -155,7 +155,8 @@
         "*": false,
         "repo_query": true,
         "repo_search": true,
-        "learnings_query": true
+        "memory_query": true,
+        "memory_search": true
       },
       "permission": {
         "*": "deny",
@@ -186,9 +187,6 @@
         "bash": {
           "*": "deny",
           "pnpm -C apps/playwright-tests auth": "allow",
-          "learnings query *": "allow",
-          "repo query *": "allow",
-          "repo search *": "allow",
           // "playwright_docs search *": "allow",
           "playwright-cli *": "allow",
           "git fetch": "allow",
@@ -207,8 +205,8 @@
       "tools": {
         "repo_index": true,
         "repo_query": true,
-        "learnings_query": true,
-        "learnings_add": true,
+        "memory_query": true,
+        "memory_add": true,
         "playwright-docs_search": true,
         "session_flag_current": true,
         "plan_get": true,
@@ -245,8 +243,8 @@
       "tools": {
         "repo_index": true,
         "repo_query": true,
-        "learnings_query": true,
-        "learnings_add": true,
+        "memory_query": true,
+        "memory_add": true,
         "playwright-docs search": true,
         "session_flag_current": true,
         "plan_get": true,

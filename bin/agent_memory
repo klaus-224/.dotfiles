@@ -2,7 +2,7 @@
 # /// script
 # requires-python = ">=3.10"
 # ///
-"""Learnings store CLI — init, query, add subcommands."""
+"""Memory store CLI — init, query, add subcommands."""
 
 import argparse
 import json
@@ -12,24 +12,24 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-DEFAULT_DB_PATH = Path.home() / ".local/state/agent-tools/learnings.db"
-DB_PATH = Path(os.environ.get("AGENT_LEARNINGS_DB", str(DEFAULT_DB_PATH))).expanduser()
+DEFAULT_DB_PATH = Path.home() / ".local/state/agent-tools/memory.db"
+DB_PATH = Path(os.environ.get("AGENT_MEMORY_DB_PATH", str(DEFAULT_DB_PATH))).expanduser()
 
 def _find_sql_path() -> Path:
     """Resolve schema path with env override and two-layout fallback."""
-    if env := os.environ.get("LEARNINGS_SCHEMA_PATH"):
+    if env := os.environ.get("AGENT_MEMORY_SCHEMA_PATH"):
         return Path(env).expanduser()
     base = Path(__file__).resolve().parent.parent
     # dotfiles layout: <root>/opencode/sql/
-    candidate_a = base / "opencode" / "sql" / "learnings_store.sql"
+    candidate_a = base / "opencode" / "sql" / "agent_memory.sql"
     if candidate_a.exists():
         return candidate_a
     # project layout: <root>/sql/
-    candidate_b = base / "sql" / "learnings_store.sql"
+    candidate_b = base / "sql" / "agent_memory.sql"
     if candidate_b.exists():
         return candidate_b
     # local fallback: .data/ in cwd
-    return Path(".data") / "learnings_store.sql"
+    return Path(".data") / "agent_memory.sql"
 
 SQL_PATH = _find_sql_path()
 
@@ -68,7 +68,7 @@ def cmd_query(args):
 
     if args.recent:
         rows = conn.execute(
-            "SELECT * FROM learnings ORDER BY created_at DESC LIMIT ?",
+            "SELECT * FROM agent_memory ORDER BY created_at DESC LIMIT ?",
             (args.recent,),
         ).fetchall()
     else:
@@ -86,7 +86,7 @@ def cmd_query(args):
 
         if args.search:
             fts_ids = conn.execute(
-                "SELECT rowid FROM learnings_fts WHERE learnings_fts MATCH ?",
+                "SELECT rowid FROM agent_memory_fts WHERE agent_memory_fts MATCH ?",
                 (args.search,),
             ).fetchall()
             if not fts_ids:
@@ -99,7 +99,7 @@ def cmd_query(args):
         where = "WHERE " + " AND ".join(conditions) if conditions else ""
         limit = args.limit or 20
         rows = conn.execute(
-            f"SELECT * FROM learnings l {where} ORDER BY l.created_at DESC LIMIT ?",
+            f"SELECT * FROM agent_memory l {where} ORDER BY l.created_at DESC LIMIT ?",
             params + [limit],
         ).fetchall()
 
@@ -112,7 +112,7 @@ def cmd_add(args):
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute(
-        "INSERT INTO learnings (created_at, category, summary, detail, tags, plan_id, agent) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO agent_memory (created_at, category, summary, detail, tags, plan_id, agent) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
             datetime.now(timezone.utc).isoformat(),
             args.category,
@@ -130,12 +130,12 @@ def cmd_add(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Learnings store")
+    parser = argparse.ArgumentParser(description="Memory store")
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("init", help="Initialize the database")
 
-    q = sub.add_parser("query", help="Query learnings")
+    q = sub.add_parser("query", help="Query memory")
     q.add_argument("--category", choices=VALID_CATEGORIES)
     q.add_argument("--tags", help="Comma-separated tags (AND)")
     q.add_argument("--search", help="Full-text search")
