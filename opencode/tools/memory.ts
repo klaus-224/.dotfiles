@@ -51,13 +51,13 @@ export const init = tool({
 
 export const query = tool({
   description:
-    "Query agent learnings about the codebase, navigation, tools, and debugging. Use structured named arguments, not positional text. For full-text lookup, pass `search`, for example `memory.query({ search: \"ION-9664 export table chart xlsx shapefile\", limit: 20 })`. This maps to the `agent_memory query --search \"...\" --limit 20` CLI call. Supports full-text search, category filter, tag filter, and recent.",
+    'Query agent learnings about the codebase, navigation, tools, and debugging. Use structured named arguments, not positional text. For full-text lookup, pass `search`, for example `memory.query({ search: "ION-9664 export table chart xlsx shapefile", limit: 20 })`. This maps to the `agent_memory query --search "..." --limit 20` CLI call. Supports full-text search, category filter, tag filter, and recent.',
   args: {
     search: tool.schema
       .string()
       .optional()
       .describe(
-        "Full-text search query. Pass query text here instead of using positional input, for example `search: \"ION-9664 export table\"`",
+        'Full-text search query. Pass query text here instead of using positional input, for example `search: "ION-9664 export table"`',
       ),
     category: tool.schema
       .enum([
