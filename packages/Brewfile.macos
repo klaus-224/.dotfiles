@@ -1,6 +1,7 @@
 # macOS-only CLI
 brew "duti"
 brew "worktrunk"
+brew "subversion"
 
 # apps
 cask "raycast"

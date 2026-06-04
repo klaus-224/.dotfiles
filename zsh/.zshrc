@@ -11,6 +11,11 @@ source "$HOME/.zshenv"
 eval "$(starship init zsh)"
 eval "$(navi widget zsh)"
 
+# wrapper to run opencode fom .dotfiles
+opencode() {
+  XDG_CONFIG_HOME="$HOME/.dotfiles/.config" command opencode "$@"
+}
+
 # source all config files
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
 	[[ -f "$file" ]] || continue
