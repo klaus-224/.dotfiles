@@ -1,4 +1,0 @@
-allowBuilds:
-  bun: set this to true or false
-  msgpackr-extract: set this to true or false
-  node: set this to true or false

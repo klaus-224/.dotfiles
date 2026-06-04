@@ -1,0 +1,91 @@
+#!/usr/bin/env zsh
+set -e
+set -u
+setopt pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  sparse-get [--ref branch-or-tag] [--force] <repo-url> <repo-path> <dest>
+
+Examples:
+  sparse-get https://github.com/backnotprop/plannotator.git apps/skills ~/.dotfiles/plannotator/skills
+
+  sparse-get --ref main \
+    https://github.com/backnotprop/plannotator.git \
+    apps/skills \
+    ~/.dotfiles/plannotator/skills
+EOF
+}
+
+ref="main"
+force=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -r|--ref)
+      ref="${2:?missing ref}"
+      shift 2
+      ;;
+    -f|--force)
+      force=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      print -u2 "Unknown option: $1"
+      usage
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+repo_url="${1:?missing repo-url}"
+repo_path="${2:?missing repo-path}"
+dest="${3:?missing dest}"
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT INT TERM
+
+if [[ -e "$dest" && "$force" -ne 1 ]]; then
+  print -u2 "Destination already exists: $dest"
+  print -u2 "Use --force to replace it."
+  exit 1
+fi
+
+git clone \
+  --depth 1 \
+  --single-branch \
+  --filter=blob:none \
+  --sparse \
+  --branch "$ref" \
+  "$repo_url" \
+  "$tmp/repo"
+
+git -C "$tmp/repo" sparse-checkout set -- "$repo_path"
+
+src="$tmp/repo/$repo_path"
+
+if [[ ! -e "$src" ]]; then
+  print -u2 "Path not found in repo: $repo_path"
+  exit 1
+fi
+
+rm -rf "$dest"
+mkdir -p "$(dirname "$dest")"
+cp -R "$src" "$dest"
+
+print "Downloaded:"
+print "  $repo_url:$repo_path"
+print "To:"
+print "  $dest"
