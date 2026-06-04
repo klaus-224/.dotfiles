@@ -14,8 +14,53 @@
     }
   },
   "agent": {
-    "build": {
+    // Pair Programming Agent
+    "pair-programmer": {
+      "description": "Pair-programming and collaboration agent for chatting through problems.",
+      "mode": "primary",
+      "model": "github-copilot/gpt-5.5",
+      "prompt": "{file:./agent-defs/pair-programmer.md}",
+      "tools": {
+        "repo_query": true,
+        "repo_search": true
+      },
+      "permission": {
+        "*": "deny",
+        // "read": "allow",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "bash": {
+          "playwright_docs search *": "allow"
+        }
+      }
+    },
+
+    // Review Agent
+    "reviewer": {
+      "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as learnings",
+      "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
+      "prompt": "{file:./agent-defs/reviewer.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "todowrite": "allow",
+        "playwright-docs search": "allow",
+        "skill": { "*": "deny", "playwright-docs": "allow" },
+        "plan_get": "allow",
+        "learnings_query": "allow",
+        "learnings_add": "allow",
+        "repo_query": "allow",
+        "session_list": "allow",
+        "session_transcript": "allow",
+        "session_list_flagged": "allow",
+        "session_resolve": "allow"
+      }
+    },
+
+    // Building Agent
+    "build": {
+      "model": "github-copilot/gpt-5.4",
       "mode": "primary",
       "tools": {
         "repo_query": true,
@@ -55,8 +100,6 @@
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
-      "temperature": 0.1,
-      "steps": 12,
       "prompt": "{file:./prompts/planner.txt}",
       "permission": {
         "*": "deny",
@@ -72,10 +115,11 @@
       }
     },
 
+    // Jira Operator
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
         "*": "deny",
@@ -101,21 +145,24 @@
         "atlassian_fetch": "allow"
       }
     },
-
+    // Manual PW tester
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/manual-tester.md}",
+      "tools": {
+        "*": false,
+        "repo_query": true,
+        "repo_search": true,
+        "learnings_query": true
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "submit_plan": "allow",
-        "learnings_query": "allow",
         "session_flag_current": "allow",
-        "repo_query *": "allow",
-        "repo_search *": "allow",
         "atlassian_getAccessibleAtlassianResources": "allow",
         "atlassian_getJiraIssue": "allow",
         "atlassian_searchJiraIssuesUsingJql": "allow",
@@ -142,7 +189,7 @@
           "learnings query *": "allow",
           "repo query *": "allow",
           "repo search *": "allow",
-          "playwright_docs search *": "allow",
+          // "playwright_docs search *": "allow",
           "playwright-cli *": "allow",
           "git fetch": "allow",
           "gh pr list *": "allow",
@@ -151,37 +198,38 @@
         }
       }
     },
-
+    // Regression Test Planner
     "regression-planner": {
       "description": "Plans regression tests from multiple perspectives, then debates and converges on the best plan with other planner instances",
       "mode": "subagent",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/regression-planner.md}",
+      "tools": {
+        "repo_index": true,
+        "repo_query": true,
+        "learnings_query": true,
+        "learnings_add": true,
+        "playwright-docs_search": true,
+        "session_flag_current": true,
+        "plan_get": true,
+        "plan_revise": true,
+        "plan_transition": true,
+        "plan_claim": true,
+        "plan_release": true,
+        "plan_comment": true
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
-        "playwright-docs search": "allow",
         "skill": {
           "*": "deny",
           "playwright-cli": "allow",
           "playwright-docs": "allow",
           "plannotator-annotate": "allow"
         },
-        "plan_create": "allow",
-        "plan_revise": "allow",
-        "plan_transition": "allow",
-        "plan_claim": "allow",
-        "plan_release": "allow",
-        "plan_get": "allow",
-        "plan_comment": "allow",
-        "learnings_query": "allow",
-        "repo_query *": "allow",
-        "repo_search *": "allow",
         "bash": {
-          "repo query *": "allow",
-          "repo search *": "allow",
-          "playwright_docs search *": "allow"
+          "*": "deny"
         },
         "atlassian_getJiraIssue": "allow",
         "atlassian_getJiraIssueRemoteIssueLinks": "allow",
@@ -194,76 +242,35 @@
       "mode": "subagent",
       "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/regression-writer.md}",
+      "tools": {
+        "repo_index": true,
+        "repo_query": true,
+        "learnings_query": true,
+        "learnings_add": true,
+        "playwright-docs search": true,
+        "session_flag_current": true,
+        "plan_get": true,
+        "plan_revise": true,
+        "plan_transition": true
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "write": "allow",
         "edit": "allow",
         "todowrite": "allow",
-        "playwright-docs search": "allow",
-        "session_flag_current": "allow",
         "skill": {
           "*": "deny",
-          "playwright-cli": "allow",
-          "playwright-docs": "allow"
+          "playwright-cli": "allow"
         },
-        "plan_get": "allow",
-        "plan_revise": "allow",
-        "plan_transition": "allow",
-        "learnings_query": "allow",
-        "learnings_add": "allow",
-        "repo_index": "allow",
-        "repo_query": "allow",
         "bash": {
           "*": "deny",
+          "git status": "allow",
+          "git diff *": "allow",
           "pnpm auth": "allow",
           "pnpm test:regression *": "allow",
           "pnpm test:folder *": "allow",
-          "pnpm test *": "allow",
-          "git status": "allow",
-          "git diff *": "allow"
-        }
-      }
-    },
-
-    "test-reviewer": {
-      "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as learnings",
-      "mode": "primary",
-      "model": "github-copilot/claude-opus-4.6",
-      "prompt": "{file:./agent-defs/test-reviewer.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "playwright-docs search": "allow",
-        "skill": { "*": "deny", "playwright-docs": "allow" },
-        "plan_get": "allow",
-        "learnings_query": "allow",
-        "learnings_add": "allow",
-        "repo_query": "allow",
-        "session_list": "allow",
-        "session_transcript": "allow",
-        "session_list_flagged": "allow",
-        "session_resolve": "allow"
-      }
-    },
-
-    "pair-programmer": {
-      "description": "Pair-programming and collaboration agent for chatting through problems.",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.5",
-      "prompt": "{file:./agent-defs/pair-programmer.md}",
-      "tools": {
-        "repo_query": true,
-        "repo_search": true
-      },
-      "permission": {
-        "*": "deny",
-        // "read": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "bash": {
-          "playwright_docs search *": "allow"
+          "pnpm test *": "allow"
         }
       }
     },
