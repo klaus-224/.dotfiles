@@ -1,4 +1,6 @@
-# Repo Tool
+# Tools
+
+## Repo Tool
 
 Unified repo tool for indexing, querying, mapping, and searching repositories using DuckDB.
 
@@ -69,3 +71,42 @@ CREATE TABLE IF NOT EXISTS symbols (
 - Caller/callee graph queries
 - LLM-generated descriptions
 - Vector embeddings / hybrid search
+
+## Memory Tool
+
+Learnings store for navigation, tool usage, codebase notes, gotchas, fixtures, selectors, and debugging.
+
+### Architecture
+
+- **`bin/agent_memory`** — Python CLI for `init`, `query`, and `add`
+- **`opencode/sql/agent_memory.sql`** — SQLite schema definition
+- **`opencode/tools/memory.ts`** — OpenCode plugin exposing the memory tools
+
+### Env Vars
+`AGENT_MEMORY_DB_PATH` - defaults to `~/.local/state/agent-tools/memory.db`
+`AGENT_MEMORY_SCHEMA_PATH` - defaults to `$TOOL_DIR/opencode/sql/agent_memory.sql`
+
+### Exposed Tools
+
+- **`memory_init`** — initialize the SQLite database
+- **`memory_query`** — query stored learnings
+- **`memory_add`** — add a new learning
+
+### Migration Command
+``` zsh
+sqlite3 <PATH_TO_CURRENT_DB_FILE> < <PATH_TO_MIGRATION_FILE>
+```
+
+### Usage
+
+Use structured arguments for tool calls:
+
+```ts
+memory.query({ search: "ION-9664 export table", limit: 20 })
+memory.query({ category: "navigation", recent: 5 })
+memory.add({ category: "codebase", summary: "Export uses agent_memory FTS", tags: "ion,export" })
+```
+
+Do not pass search terms positionally. Always use the named `search` argument.
+
+Use `MEMORY_SCHEMA_PATH` to override the schema file path for `bin/agent_memory`.
