@@ -24,3 +24,4 @@ fi
 
 # navi
 export NAVI_CONFIG="$DOTFILES_HOME/navi/config.yaml"
+. "$HOME/.cargo/env"

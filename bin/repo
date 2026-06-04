@@ -29,6 +29,7 @@ const IGNORE_DIRS: &[&str] = &[
     "venv",
     "dist",
     "build",
+    ".ruff-cache",
     "target",
     ".next",
     ".nuxt",
@@ -36,12 +37,13 @@ const IGNORE_DIRS: &[&str] = &[
     "coverage",
     ".tox",
     "playwright-tests",
+    "*.egg-info"
 ];
 
 const BINARY_EXTS: &[&str] = &[
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".otf", ".wasm",
     ".zip", ".tar", ".gz", ".tgz", ".pdf", ".mov", ".mp4", ".mp3", ".bin", ".exe", ".dll", ".so",
-    ".dylib",
+    ".dylib", ".lock"
 ];
 
 const MAX_FILE_SIZE: u64 = 1_000_000; // 1MB

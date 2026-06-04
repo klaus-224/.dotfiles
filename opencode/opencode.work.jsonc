@@ -255,7 +255,7 @@
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
         "repo_query": true,
-        "repo_search *": true
+        "repo_search": true
       },
       "permission": {
         "*": "deny",
