@@ -132,14 +132,17 @@ function _jira_sync() {
 
 	# Migrate old ## Jira section to new format
 	_migrate_jira_section "$today_file"
+  
+  default_prompt="Run this JQL only:/n \'assignee = currentUser() AND status = \"In QC\" ORDER BY priority DESC, updated DESC\'\nReturn a markdown todo list split into exactly two sections with these exact markers:\nASSIGNED_TO_ME:\n- [ ] KEY-123 Short title [link](url)\n\nOTHERS:\nUse only Jira key, short title, and ticket link. Do not fetch comments, descriptions, changelog, PRs, worklogs, or full issue fields. Return ONLY the section markers and list items. No commentary."
 
-	prompt="${TODAY_JIRA_PROMPT:-Query my Jira filter named \"My QC Tasks\" and \"qa-filter\". Generate a markdown todo list split into exactly two sections with these exact markers:\n\nASSIGNED_TO_ME:\n- [ ] KEY-123 Short title [link](url)\n\nOTHERS:\n- [ ] KEY-456 Short title [link](url)\n\nUse exactly those section markers (ASSIGNED_TO_ME: and OTHERS:). For each issue include the Jira key, a short title, and a link to the ticket. Return ONLY the section markers and list items. No other headings, no commentary.}"
+  prompt="${TODAY_JIRA_PROMPT:-$default_prompt}"
 
 	tmp_output="$(mktemp -t today-agent-output.XXXXXX)" || {
 		echo "Unable to create temporary output file." >&2
 		return 1
 	}
 
+  echo "Running agent prompt"
 	if ! _run_agent_prompt "$prompt" >"$tmp_output" 2>&1; then
 		rm -f "$tmp_output"
 		echo "Agent query failed. Set TODAY_AGENT_CMD or TODAY_JIRA_PROMPT to customize." >&2

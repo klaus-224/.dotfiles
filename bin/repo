@@ -40,10 +40,10 @@ const IGNORE_DIRS: &[&str] = &[
     "*.egg-info"
 ];
 
-const BINARY_EXTS: &[&str] = &[
+const IGNORED_FILE_TYPES: &[&str] = &[
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".otf", ".wasm",
     ".zip", ".tar", ".gz", ".tgz", ".pdf", ".mov", ".mp4", ".mp3", ".bin", ".exe", ".dll", ".so",
-    ".dylib", ".lock"
+    ".dylib", ".lock", ".md", ".txt"
 ];
 
 const MAX_FILE_SIZE: u64 = 1_000_000; // 1MB
@@ -129,12 +129,12 @@ fn is_ignored(path: &Path) -> bool {
     })
 }
 
-fn is_binary_ext(path: &Path) -> bool {
+fn is_ext_ignored(path: &Path) -> bool {
     path.extension()
         .and_then(|e| e.to_str())
         .map(|e| {
             let ext = format!(".{}", e.to_lowercase());
-            BINARY_EXTS.contains(&ext.as_str())
+            IGNORED_FILE_TYPES.contains(&ext.as_str())
         })
         .unwrap_or(false)
 }
@@ -451,7 +451,7 @@ fn cmd_index() {
 
     for entry in WalkDir::new(&root).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        if !path.is_file() || is_ignored(path) || is_binary_ext(path) {
+        if !path.is_file() || is_ignored(path) || is_ext_ignored(path) {
             continue;
         }
 
