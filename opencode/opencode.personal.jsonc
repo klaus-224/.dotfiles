@@ -7,6 +7,29 @@
     "paths": ["./skills"]
   },
   "agent": {
+    // Pair Programming Agent
+    "pair-programmer": {
+      "description": "Pair-programming and collaboration agent for chatting through problems.",
+      "mode": "primary",
+      "model": "github-copilot/gpt-5.5",
+      "variant": "high",
+      "prompt": "{file:./agent-defs/pair-programmer.md}",
+      "tools": {
+        "repo_query": true,
+        "repo_search": true,
+        "memory_query": true,
+        "memory_add": true
+      },
+      "permission": {
+        "*": "deny",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "bash": {
+          "*": "ask"
+        }
+      }
+    },
+
     "build": {
       "model": "openai/gpt-5.3-codex",
       "mode": "primary",
@@ -44,27 +67,6 @@
       }
     },
 
-    "pair-programmer": {
-      "description": "Pair-programming and collaboration agent for chatting through problems.",
-      "mode": "primary",
-      "model": "openai/gpt-5.5",
-      "prompt": "{file:./agent-defs/pair-programmer.md}",
-      "tools": {
-        "repo_query": true,
-        "repo_search": true
-      },
-      "permission": {
-        "*": "deny",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "bash": {
-          "*": "deny",
-          "repo *": "allow"
-        },
-        "external_directory": "allow"
-      }
-    },
-
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
@@ -78,6 +80,7 @@
           "*": "deny",
           "*.md": "allow"
         },
+        "skill": {},
         "bash": {
           "*": "ask",
           "git status*": "allow",
@@ -89,9 +92,6 @@
         "external_directory": "deny"
       }
     }
-  },
-  "tools": {
-    "paths": true
   },
   "plugin": [
     [

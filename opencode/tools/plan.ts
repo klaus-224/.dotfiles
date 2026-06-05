@@ -6,7 +6,7 @@ const pythonBin = process.env.OPENCODE_PLAN_STORE_PYTHON ?? "python3";
 
 async function runPlanStore(args: string[], stdin?: string) {
   return await new Promise<string>((resolve, reject) => {
-    const child = spawn(pythonBin, [scriptPath, ...args], {
+    const child = spawn(pythonBin, ["plan_store", ...args], {
       env: process.env,
       stdio: ["pipe", "pipe", "pipe"],
     });
