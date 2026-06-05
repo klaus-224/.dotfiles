@@ -10,8 +10,14 @@ export SMOLVM_WORKSPACE="$HOME/code/smolvm/workspace"
 
 export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode"
 export OPENCODE_PLAN_STORE_BIN="$DOTFILES_HOME/bin/plan_store"
-export PLAYWRIGHT_DOCS_DIR="$DOTFILES_HOME/opencode/skills/playwright-docs/references/docs-src"
 export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
+export PLAYWRIGHT_DOCS_DIR="$DOTFILES_HOME/opencode/skills/playwright-docs/references/docs-src"
+
+# repo_idx db
+export AGENT_REPO_IDX_DB="$HOME/.local/state/opencode-custom-tools/repos.duckdb"
+
+# agent_memory env vars
+export AGENT_MEMORY_DB="$HOME/.local/state/opencode-custom-tools/memory.db"
 
 export TODAY_AGENT_CMD="opencode run --agent jira-operator"
 
@@ -24,4 +30,3 @@ fi
 
 # navi
 export NAVI_CONFIG="$DOTFILES_HOME/navi/config.yaml"
-. "$HOME/.cargo/env"

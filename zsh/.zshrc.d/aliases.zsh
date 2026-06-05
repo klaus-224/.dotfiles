@@ -34,12 +34,12 @@ alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
 
 # misc
-alias awake='caffeinate -dimsu &'
-alias sleep-ok='pkill caffeinate'
+alias awake="caffeinate -dimsu &"
+alias sleep-ok="pkill caffeinate"
 
 # alias for custom scripts
-alias oc='opencode'
-alias learnings='learnings_store'
-alias plans='plan_store'
-alias sessions='session_reader'
-alias pwdocs='playwright_docs'
+alias oc="opencode"
+alias memory="agent_memory"
+alias plans="agent_plans"
+alias sessions="session_reader"
+alias pwdocs="playwright_docs"

@@ -41,6 +41,3 @@ fi
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
-
-# Learnings Tool
-export AGENT_LEARNINGS_DB="/Users/rohineshram/code/skyon/apps/playwright-tests/data/learnings.db"

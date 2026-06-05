@@ -99,7 +99,7 @@ enum Commands {
 // ---------------------------------------------------------------------------
 
 fn db_path() -> PathBuf {
-    if let Ok(p) = std::env::var("OPENCODE_REPO_DB") {
+    if let Ok(p) = std::env::var("AGENT_REPO_IDX_DB") {
         PathBuf::from(p)
     } else {
         let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());

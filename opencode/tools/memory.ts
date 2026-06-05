@@ -51,7 +51,7 @@ export const init = tool({
 
 export const query = tool({
   description:
-    'Query agent learnings about the codebase, navigation, tools, and debugging. Use structured named arguments, not positional text. For full-text lookup, pass `search`, for example `memory.query({ search: "ION-9664 export table chart xlsx shapefile", limit: 20 })`. This maps to the `agent_memory query --search "..." --limit 20` CLI call. Supports full-text search, category filter, tag filter, and recent.',
+    'Query agent memory about the codebase, navigation, tools, and user-coding styles. Use structured named arguments, not positional text. For full-text lookup, pass `search`, for example `memory.query({ search: "export table chart xlsx shapefile", limit: 20 })`. This maps to the `agent_memory query --search "..." --limit 20` CLI call. Supports full-text search, category filter, tag filter, and recent.',
   args: {
     search: tool.schema
       .string()
@@ -81,6 +81,7 @@ export const query = tool({
       .describe("Show N most recent learnings"),
     limit: tool.schema.number().optional().describe("Max results (default 20)"),
   },
+
   async execute(args) {
     const cmd = ["query"];
     if (args.search) cmd.push("--search", args.search);
@@ -117,6 +118,7 @@ export const add = tool({
       .optional()
       .describe("Agent name (default: regression-writer)"),
   },
+
   async execute(args) {
     const cmd = ["add", "--category", args.category, "--summary", args.summary];
     if (args.detail) cmd.push("--detail", args.detail);
