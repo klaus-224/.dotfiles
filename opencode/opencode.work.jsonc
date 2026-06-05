@@ -26,10 +26,12 @@
       },
       "permission": {
         "*": "deny",
-        // "read": "allow",
+        "read": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
         "bash": {
+          "repo query *": "allow",
+          "repo search *": "allow",
           "playwright_docs search *": "allow"
         }
       }
@@ -122,29 +124,38 @@
       "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
+        // "atlassian_search": "allow",
+        // "atlassian_createJiraIssue": "allow",
+        // "atlassian_editJiraIssue": "allow",
+        // "atlassian_transitionJiraIssue": "allow",
+        // "atlassian_addWorklogToJiraIssue": "allow",
+        // "atlassian_createIssueLink": "allow",
+        // "atlassian_lookupJiraAccountId": "allow",
+        // "atlassian_getVisibleJiraProjects": "allow",
+        // "atlassian_getJiraProjectIssueTypesMetadata": "allow",
+        // "atlassian_getJiraIssueTypeMetaWithFields": "allow",
+        // "atlassian_getIssueLinkTypes": "allow",
+        // "atlassian_getJiraIssueRemoteIssueLinks": "allow",
+        // "atlassian_fetch": "allow"
+
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
-        "atlassian_getAccessibleAtlassianResources": "allow",
+
+        // title, description, comments, status, assignee
         "atlassian_getJiraIssue": "allow",
-        "atlassian_searchJiraIssuesUsingJql": "allow",
-        "atlassian_search": "allow",
-        "atlassian_createJiraIssue": "allow",
-        "atlassian_editJiraIssue": "allow",
-        "atlassian_transitionJiraIssue": "allow",
+        // add comment to ticket
         "atlassian_addCommentToJiraIssue": "allow",
-        "atlassian_addWorklogToJiraIssue": "allow",
-        "atlassian_createIssueLink": "allow",
-        "atlassian_lookupJiraAccountId": "allow",
-        "atlassian_getVisibleJiraProjects": "allow",
-        "atlassian_getJiraProjectIssueTypesMetadata": "allow",
-        "atlassian_getJiraIssueTypeMetaWithFields": "allow",
-        "atlassian_getTransitionsForJiraIssue": "allow",
-        "atlassian_getIssueLinkTypes": "allow",
-        "atlassian_getJiraIssueRemoteIssueLinks": "allow",
-        "atlassian_fetch": "allow"
+        "atlassian_getAccessibleAtlassianResources": "allow", //
+        // jira key, short title, ticket link
+        "atlassian_searchJiraIssuesUsingJql": "allow",
+        // get GH pr number and link
+        "atlassian_getJiraIssueDevelopmentInfo": "allow",
+        //
+        "atlassian_lookupJiraAccountId": "allow"
       }
     },
+
     // Manual PW tester
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
@@ -164,20 +175,6 @@
         "todowrite": "allow",
         "submit_plan": "allow",
         "session_flag_current": "allow",
-        "atlassian_getAccessibleAtlassianResources": "allow",
-        "atlassian_getJiraIssue": "allow",
-        "atlassian_searchJiraIssuesUsingJql": "allow",
-        "atlassian_search": "allow",
-        "atlassian_transitionJiraIssue": "allow",
-        "atlassian_addCommentToJiraIssue": "allow",
-        "atlassian_addWorklogToJiraIssue": "allow",
-        "atlassian_createIssueLink": "allow",
-        "atlassian_lookupJiraAccountId": "allow",
-        "atlassian_getVisibleJiraProjects": "allow",
-        "atlassian_getJiraProjectIssueTypesMetadata": "allow",
-        "atlassian_getJiraIssueTypeMetaWithFields": "allow",
-        "atlassian_getJiraIssueRemoteIssueLinks": "allow",
-        "atlassian_fetch": "allow",
         "skill": {
           "*": "deny",
           "playwright-cli": "allow",
@@ -196,6 +193,7 @@
         }
       }
     },
+
     // Regression Test Planner
     "regression-planner": {
       "description": "Plans regression tests from multiple perspectives, then debates and converges on the best plan with other planner instances",
