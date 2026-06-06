@@ -11,7 +11,7 @@
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.5",
+      "model": "openai/gpt-5.5",
       "variant": "high",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
@@ -25,7 +25,10 @@
         "todowrite": "allow",
         "webfetch": "allow",
         "bash": {
-          "*": "ask"
+          "*": "deny",
+          "read": "allow",
+          "repo query *": "allow",
+          "repo search *": "allow"
         }
       }
     },

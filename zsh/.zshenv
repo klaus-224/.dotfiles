@@ -30,3 +30,6 @@ fi
 
 # navi
 export NAVI_CONFIG="$DOTFILES_HOME/navi/config.yaml"
+
+# global .gitignore
+export GLOBAL_GITIGNORE="$HOME/.gitignore_global"
