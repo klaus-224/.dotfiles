@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-5.5",
+  "model": "github-copilot/gpt-5.4-mini",
   "default_agent": "pair-programmer",
+  "enabled_providers": ["github-copilot"],
   "disabled_providers": ["opencode", "openai"],
   "skills": {
     "paths": ["./skills"]
@@ -18,7 +19,7 @@
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.5",
+      "model": "github-copilot/gpt-5.4-mini",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
         "repo_query": true,
@@ -39,7 +40,7 @@
 
     // Review Agent
     "reviewer": {
-      "description": "Reviews regression test plans and implementations collaboratively with the user, recording preferences as memory",
+      "description": "Reviews test plans and implementations collaboratively with the user, recording preferences as memory",
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/reviewer.md}",
@@ -62,7 +63,7 @@
 
     // Building Agent
     "build": {
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.4-mini",
       "mode": "primary",
       "tools": {
         "repo_query": true,
@@ -121,7 +122,7 @@
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.4-mini",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
         // "atlassian_search": "allow",
@@ -156,18 +157,23 @@
       }
     },
 
-    // Manual PW tester
+    // Manual PW tester:
+    //  default:  github-copilot/gpt-5-mini - not supported?
+    //  try:      github-copilot/raptor-mini - not supported?
+    //  fallback: github-copilot/claude-haiku-4.5
+    //  escalate: github-copilot/claude-sonnet-4.6
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.3-codex",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "tools": {
         "*": false,
         "repo_query": true,
         "repo_search": true,
         "memory_query": true,
-        "memory_search": true
+        "memory_search": true,
+        "session_flag_current": true
       },
       "permission": {
         "*": "deny",
@@ -183,6 +189,9 @@
         "task": { "*": "deny", "jira-operator": "allow" },
         "bash": {
           "*": "deny",
+          "session": "allow",
+          "repo": "allow",
+          "memory": "allow",
           "pnpm -C apps/playwright-tests auth": "allow",
           // "playwright_docs search *": "allow",
           "playwright-cli *": "allow",
@@ -236,7 +245,7 @@
     "regression-writer": {
       "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
       "mode": "subagent",
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.4-mini",
       "prompt": "{file:./agent-defs/regression-writer.md}",
       "tools": {
         "repo_index": true,
