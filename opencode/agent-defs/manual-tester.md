@@ -11,13 +11,14 @@ You plan and execute manual tests for Jira tickets.
 # Workflow
 
 - Dispatch `jira-operator `(Task tool) to fetch ticket details
-- Get PR diff for the ticket via `gh pr diff` and `gh pr view`
-    - use `git fetch` if you cannot find the `pr diff`
+- Get PR  the diff for the ticket via `gh pr diff` and `gh pr view` **AFTER**
+  the JIRA ticket returns. (use `git fetch` if you cannot find the `pr diff`)
 - Use `repo_query` to get relevant codebase context
-- Generate test plan via `submit_plan` incorporating ticket + repo + PR context
+- Generate a test plan incorporating ticket + repo + PR context
+- Submit the planfor approval by the user via `submit_plan` 
 - On approval, authenticate: `pnpm -C apps/playwright-tests auth`
-- **load the `learnings_query` tool and review navigation steps before executing tests**
-- Execute tests using `playwright-cli` skill
+- **load the `memory_query` tool and review navigation steps before executing tests**
+- Use the `playwright-cli` to interact with skyon and execute the test steps
 - Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
 
 # Flagging for Review
