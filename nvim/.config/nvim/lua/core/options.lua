@@ -1,6 +1,8 @@
 -- leader
 vim.g.mapleader = ' '
 
+vim.opt.swapfile = false
+
 -- add cfilter package
 vim.cmd('packadd! cfilter')
 

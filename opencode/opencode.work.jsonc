@@ -44,20 +44,30 @@
       "mode": "primary",
       "model": "github-copilot/claude-opus-4.6",
       "prompt": "{file:./agent-defs/reviewer.md}",
+      "tools": {
+        "*": false,
+        "repo_query": true,
+        "repo_search": true,
+        "memory_query": true,
+        "memory_search": true
+      },
+      "skill": {
+        "*": "deny",
+        "playwright-cli": "allow",
+        "plannotator-annotate": "allow"
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "playwright-docs search": "allow",
-        "skill": { "*": "deny", "playwright-docs": "allow" },
-        "plan_get": "allow",
-        "memory_query": "allow",
-        "memory_add": "allow",
-        "repo_query": "allow",
-        "session_list": "allow",
-        "session_transcript": "allow",
-        "session_list_flagged": "allow",
-        "session_resolve": "allow"
+        "bash": {
+          "repo *": "allow",
+          "memory *": "allow",
+          "session *": "allow",
+          "playwright-cli *": "allow",
+          "playwright_docs search *": "allow"
+        }
       }
     },
 
@@ -78,8 +88,10 @@
         "write": "allow",
         "task": "deny",
         "skill": { "*": "deny" },
+        "session_reader *": "allow",
         "bash": {
           "*": "deny",
+          "session_reader *": "allow",
           "git *": "allow",
           "pnpm *": "allow",
           "npm *": "allow",
