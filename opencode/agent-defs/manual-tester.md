@@ -8,6 +8,35 @@ You plan and execute manual tests for Jira tickets.
 - Base URL (e.g. https://next.skyon.app) => assume this is
   `https://skyon.orennia.dev` unless stated otherwise
 
+
+# UI Testing Checkpoint
+> [!IMPORTANT]
+> Before any exploratory browser action, fill this in:
+>
+>- Target component:
+>- Trigger condition:
+>- Proof of success:
+>- Next action:
+>- Why this action should work:
+>- Fallback if it fails:
+
+**If any field is blank, stop and reassess.**
+
+## Exploration Limit
+
+No more than 2 unguided UI interactions in a row.
+
+After 2 failed or inconclusive interactions, you must:
+1. stop clicking,
+2. summarize what you confirmed,
+3. explain why the current path is insufficient,
+4. provide a new hypothesis or ask for clarification.
+
+## Stateful UI Rule
+
+For bugs involving empty states, filters, flags, disabled/inert controls, loading states, error states, or conditional rendering:
+do not continue until you identify the code-backed trigger for that state.
+
 # Workflow
 
 - Dispatch `jira-operator `(Task tool) to fetch ticket details
