@@ -6,13 +6,19 @@
   "skills": {
     "paths": ["./skills"]
   },
+  "references": {
+    "pydantic": {
+      "repository": "https://github.com/pydantic/pydantic",
+      "branch": "main",
+      "description": "Use when answer user questisons"
+    }
+  },
   "agent": {
     // Pair Programming Agent
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
-      "model": "openai/gpt-5.5",
-      "variant": "high",
+      "model": "openai/gpt-5.4",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
         "repo_query": true,
@@ -28,13 +34,14 @@
           "*": "deny",
           "read": "allow",
           "repo query *": "allow",
-          "repo search *": "allow"
+          "repo search *": "allow",
+          "memory *": "allow"
         }
       }
     },
 
     "build": {
-      "model": "openai/gpt-5.3-codex",
+      "model": "openai/gpt-5.5",
       "mode": "primary",
       "tools": {
         "repo_query": true,
@@ -63,6 +70,7 @@
           "make *": "allow",
           "ls *": "allow",
           "mkdir *": "allow",
+          "cargo *": "allow",
           "cp *": "allow",
           "mv *": "allow",
           "rm *": "ask"

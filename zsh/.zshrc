@@ -42,3 +42,6 @@ fi
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
+
+# opencode
+export PATH=/Users/klaus224/.opencode/bin:$PATH
