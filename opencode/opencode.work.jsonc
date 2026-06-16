@@ -23,7 +23,9 @@
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
         "repo_query": true,
-        "repo_search": true
+        "repo_search": true,
+        "memory_query": true,
+        "memory_add": true
       },
       "permission": {
         "*": "deny",
