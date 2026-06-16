@@ -179,7 +179,7 @@
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.3-codex",
+      "model": "github-copilot/gpt-5.4",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "tools": {
         "*": false,
@@ -194,7 +194,6 @@
         "read": "allow",
         "todowrite": "allow",
         "submit_plan": "allow",
-        "session_flag_current": "allow",
         "skill": {
           "*": "deny",
           "playwright-cli": "allow",
@@ -203,16 +202,15 @@
         "task": { "*": "deny", "jira-operator": "allow" },
         "bash": {
           "*": "deny",
-          "session": "allow",
-          "repo": "allow",
-          "memory": "allow",
-          "pnpm -C apps/playwright-tests auth": "allow",
-          // "playwright_docs search *": "allow",
+          "session *": "allow",
+          "repo *": "allow",
+          "memory *": "allow",
+          "git *": "allow",
           "playwright-cli *": "allow",
-          "git fetch": "allow",
           "gh pr list *": "allow",
           "gh pr diff *": "allow",
-          "gh pr view *": "allow"
+          "gh pr view *": "allow",
+          "pnpm -C apps/playwright-tests auth": "allow"
         }
       }
     },
