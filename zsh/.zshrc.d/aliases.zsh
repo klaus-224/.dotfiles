@@ -39,7 +39,4 @@ alias sleep-ok="pkill caffeinate"
 
 # alias for custom scripts
 alias oc="opencode"
-alias memory="agent_memory"
-alias plans="agent_plans"
-alias sessions="session_reader"
 alias pwdocs="playwright_docs"
