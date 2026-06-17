@@ -7,7 +7,7 @@ emulate -LR zsh
 # source custom env vars
 # shellcheck source=/dev/null
 source "$HOME/.zshenv"
-source "$HOME/path.zsh"
+source "$HOME/.dotfiles/zsh/path.zsh"
 
 eval "$(starship init zsh)"
 eval "$(navi widget zsh)"
