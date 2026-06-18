@@ -10,6 +10,35 @@ vim.api.nvim_create_user_command('Restart', function()
   vim.cmd('restart source ' .. vim.fn.fnameescape(session_file))
 end, {})
 
+-- load changed files into qf list
+vim.api.nvim_create_user_command('GitDiff', function()
+  local files = vim.fn.systemlist([[
+    git diff --name-only main...HEAD
+]])
+
+  local seen = {}
+  local items = {}
+
+  for _, file in ipairs(files) do
+    if file ~= '' and not seen[file] then
+      seen[file] = true
+      table.insert(items, {
+        filename = file,
+        lnum = 1,
+        col = 1,
+        text = 'changed file',
+      })
+    end
+  end
+
+  vim.fn.setqflist({}, 'r', {
+    title = 'Git changed files',
+    items = items,
+  })
+
+  vim.cmd('copen')
+end, {})
+
 -- search Files
 vim.api.nvim_create_user_command('Files', function(opts)
   local query = opts.args
