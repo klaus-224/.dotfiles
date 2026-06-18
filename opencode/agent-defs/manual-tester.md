@@ -47,6 +47,8 @@ do not continue until you identify the code-backed trigger for that state.
 - Submit the planfor approval by the user via `submit_plan` 
 - On approval, authenticate: `pnpm -C apps/playwright-tests auth`
 - **load the `memory_query` tool and review navigation steps before executing tests**
+- attach the auth context to the browser before launching it. the context is in
+  `./apps/playwright-test/data/.auth/`
 - Use the `playwright-cli` to interact with skyon and execute the test steps
 - Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
 
