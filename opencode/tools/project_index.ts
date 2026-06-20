@@ -1,9 +1,9 @@
-import { tool, ToolContext, ToolResult } from "@opencode-ai/plugin";
+import { tool, ToolResult } from "@opencode-ai/plugin";
 import { spawn } from "node:child_process";
 
 async function run(args: string[] = [], cwd?: string) {
   return await new Promise<string>((resolve, reject) => {
-    const child = spawn("repo", [...args], {
+    const child = spawn("project_index", [...args], {
       env: process.env,
       cwd: cwd || process.cwd(),
       stdio: ["pipe", "pipe", "pipe"],
@@ -32,9 +32,13 @@ async function run(args: string[] = [], cwd?: string) {
 
 export const help = tool({
   description:
-    "Prints help docs to stdout for repo_query, repo_index, and repo_search",
+    "Prints help docs to stdout for project_index_query, repo_index, and repo_search",
   args: {
-    category: tool.schema.enum(["repo_search", "repo_query", "repo_index"]),
+    category: tool.schema.enum([
+      "project_index_search",
+      "repo_query",
+      "repo_index",
+    ]),
   },
   execute: function (args): Promise<ToolResult> {
     const result = run([args.category, "--help"]);
@@ -44,7 +48,7 @@ export const help = tool({
 
 export const index = tool({
   description:
-    "Indexes the current repository's files, modules, dependencies, entrypoints, and data-testids into a DuckDB database. Use when asked to index, scan, or catalog a repo, or before using repo_query for the first time.",
+    "Indexes the current project_indexsitory's files, modules, dependencies, entrypoints, and data-testids into a DuckDB database. Use when asked to index, scan, or catalog a repo, or before using repo_query for the first time.",
   args: {},
   async execute() {
     const result = await run(["index"]);
@@ -54,9 +58,11 @@ export const index = tool({
 
 export const query = tool({
   description:
-    "Queries the DuckDB repo index with SQL to answer questions about repository structure, modules, dependencies, entrypoints, and data-testids. Best used as a first pass before narrowing down using repo_search. Run repo_index first if the index does not exist.",
+    "Queries the DuckDB project_index index with SQL to answer questions about repository structure, modules, dependencies, entrypoints, and data-testids. Best used as a first pass before narrowing down using repo_search. Run repo_index first if the index does not exist.",
   args: {
-    sql: tool.schema.string().describe("SQL query to run against repos.duckdb"),
+    sql: tool.schema
+      .string()
+      .describe("SQL query to run against project_indexs.duckdb"),
   },
   async execute(args) {
     const result = await run(["query", args.sql]);
@@ -66,7 +72,7 @@ export const query = tool({
 
 export const search = tool({
   description:
-    "Full-text search across indexed repository chunks. Use keywords, function names, config names, or short phrases — not full sentences. Returns file paths, line ranges, descriptions, and snippets ranked by relevance. Run repo_index first if the index does not exist.",
+    "Full-text search across indexed project_indexsitory chunks. Use keywords, function names, config names, or short phrases — not full sentences. Returns file paths, line ranges, descriptions, and snippets ranked by relevance. Run repo_index first if the index does not exist.",
   args: {
     query: tool.schema
       .string()
@@ -85,16 +91,5 @@ export const search = tool({
       String(args.limit ?? 20),
     ]);
     return result || "No results found.";
-  },
-});
-
-export const list_repos = tool({
-  description: "List repos",
-  args: undefined,
-  execute: function (
-    args: Record<string, unknown>,
-    context: ToolContext,
-  ): Promise<ToolResult> {
-    throw new Error("Function not implemented.");
   },
 });

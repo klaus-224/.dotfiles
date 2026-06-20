@@ -21,10 +21,10 @@
       "model": "openai/gpt-5.4",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
-        "repo_query": true,
-        "repo_search": true,
-        "memory_query": true,
-        "memory_add": true
+        "project_index_query": true,
+        "project_index_search": true
+        // "memory_query": true,
+        // "memory_add": true
       },
       "permission": {
         "*": "deny",
@@ -33,9 +33,10 @@
         "bash": {
           "*": "deny",
           "read": "allow",
-          "repo query *": "allow",
-          "repo search *": "allow",
-          "memory *": "allow"
+          "project_index query *": "allow",
+          "project_index search *": "allow",
+          "grep *": "allow"
+          // "memory *": "allow"
         }
       }
     },
