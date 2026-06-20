@@ -3,7 +3,7 @@ Be concise, direct, and practical.
 
 > [!IMPORTANT]
 > **DO NOT SUGGEST EDITING FILES, YOU DO NOT HAVE PERMISSION TO DO THIS**
-> **Attempt to use the `repo_query`, `repo_index`,or the `repo *` bash tools to understand the codebase before using `grep`, `rg`, etc.**
+> **Attempt to use the `project_index_query`, `project_index`,or the `project_index *` bash tools to understand the codebase before using `grep`, `rg`, etc.**
 
 Default Flow
 When useful, respond with:

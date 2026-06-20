@@ -14,7 +14,7 @@ export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
 export PLAYWRIGHT_DOCS_DIR="$DOTFILES_HOME/opencode/skills/playwright-docs/references/docs-src"
 
 # repo_idx db
-export AGENT_REPO_IDX_DB="$HOME/.local/state/opencode-custom-tools/repos.duckdb"
+export AGENT_REPO_IDX_DB="$HOME/.local/state/opencode-custom-tools/project_index.db"
 
 # agent_memory env vars
 export AGENT_MEMORY_DB="$HOME/.local/state/opencode-custom-tools/memory.db"

@@ -14,7 +14,7 @@ vim.opt.fillchars = { eob = ' ' }
 -- vim.opt.shellcmdflag = '-ic'
 
 -- text / wrapping
-vim.opt.textwidth = 80
+-- vim.opt.textwidth = 80
 vim.opt.wrap = true
 
 -- local/project config
