@@ -1,44 +1,3 @@
--- restart and restore session
-vim.api.nvim_create_user_command('Restart', function()
-  vim.cmd('mksession! Session.vim ')
-  vim.cmd([[restart +source\ Session.vim]])
-end, {})
-
-vim.api.nvim_create_user_command('Restart', function()
-  local session_file = vim.fn.stdpath('state') .. '/restart_session.vim'
-  vim.cmd('mksession! ' .. vim.fn.fnameescape(session_file))
-  vim.cmd('restart source ' .. vim.fn.fnameescape(session_file))
-end, {})
-
--- load changed files into qf list
-vim.api.nvim_create_user_command('GitDiff', function()
-  local files = vim.fn.systemlist([[
-    git diff --name-only main...HEAD
-]])
-
-  local seen = {}
-  local items = {}
-
-  for _, file in ipairs(files) do
-    if file ~= '' and not seen[file] then
-      seen[file] = true
-      table.insert(items, {
-        filename = file,
-        lnum = 1,
-        col = 1,
-        text = 'changed file',
-      })
-    end
-  end
-
-  vim.fn.setqflist({}, 'r', {
-    title = 'Git changed files',
-    items = items,
-  })
-
-  vim.cmd('copen')
-end, {})
-
 -- search Files
 vim.api.nvim_create_user_command('Files', function(opts)
   local query = opts.args
@@ -74,14 +33,35 @@ end, {
   complete = 'file',
 })
 
-vim.api.nvim_create_user_command('DeletePacks', function()
-  vim.pack.del(vim
-    .iter(vim.pack.get())
-    :filter(function(x)
-      return not x.active
+-- Run shell command and show output in a scratch buffer
+vim.keymap.set('n', '<leader>!', function()
+  vim.ui.input({ prompt = 'shell> ' }, function(cmd)
+    if not cmd or cmd == '' then
+      return
+    end
+
+    vim.system({ 'zsh', '-lc', cmd }, { text = true }, function(result)
+      vim.schedule(function()
+        vim.cmd('botright new')
+        vim.bo.buftype = 'nofile'
+        vim.bo.bufhidden = 'wipe'
+        vim.bo.swapfile = false
+        vim.api.nvim_buf_set_name(0, 'shell: ' .. cmd)
+
+        local output = vim.split(result.stdout .. result.stderr, '\n')
+        vim.api.nvim_buf_set_lines(0, 0, -1, false, output)
+      end)
     end)
-    :map(function(x)
-      return x.spec.name
-    end)
-    :totable())
+  end)
+end, {})
+
+-- Open terminal in a split
+vim.keymap.set('n', '<leader>tt', function()
+  vim.cmd('botright split | resize 15 | terminal')
+end, {})
+
+-- Rerun make/test/lint command through quickfix
+vim.keymap.set('n', '<leader>m', function()
+  vim.cmd('silent make')
+  vim.cmd('copen')
 end, {})
