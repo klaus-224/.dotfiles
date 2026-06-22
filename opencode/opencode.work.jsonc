@@ -93,6 +93,7 @@
         "session_reader *": "allow",
         "bash": {
           "*": "deny",
+          "cargo *": "allow",
           "session_reader *": "allow",
           "git *": "allow",
           "pnpm *": "allow",
@@ -128,7 +129,10 @@
         "memory_query": "allow",
         "skill": { "*": "deny", "plannotator-compound": "allow" },
         "edit": { "*": "deny", "*.md": "allow" },
-        "external_directory": "deny"
+        "external_directory": "deny",
+        "bash": {
+          "cargo": "allow"
+        }
       }
     },
 
@@ -207,9 +211,6 @@
           "memory *": "allow",
           "git *": "allow",
           "playwright-cli *": "allow",
-          "gh pr list *": "allow",
-          "gh pr diff *": "allow",
-          "gh pr view *": "allow",
           "pnpm -C apps/playwright-tests auth": "allow"
         }
       }

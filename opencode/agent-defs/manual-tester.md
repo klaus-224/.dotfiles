@@ -52,6 +52,11 @@ do not continue until you identify the code-backed trigger for that state.
 - Use the `playwright-cli` to interact with skyon and execute the test steps
 - Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
 
+# Auth help
+If attaching the context to the browser fails, you may read the
+`apps/playright-tests/.env` and manually enter the credentials into the browser.
+use `SKYON_USERNAME` and `SKYON_PASSWORD`
+
 # Flagging for Review
 
 If you encounter any of these blockers, flag your session for human review before exiting:
