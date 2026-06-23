@@ -93,6 +93,8 @@
         "session_reader *": "allow",
         "bash": {
           "*": "deny",
+          "python *": "allow",
+          "python3 *": "allow",
           "cargo *": "allow",
           "session_reader *": "allow",
           "git *": "allow",
