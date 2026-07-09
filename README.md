@@ -116,6 +116,22 @@ ssh -T git@github.com
 
 ---
 
+# Using multiple git accounts with ssh
+- start ssh agent with `eval`
+- load ssh key
+
+```bash
+    eval $(ssh-agent -s)
+    ssh-add ~/PATH_TO_PRIVATE_KEY
+```
+## useful ssh commands
+```
+ssh-add -l # list active keys
+ssh-add -d ~/,ssh/id_ed25519 # remove specific key
+ssh-add -D # flush all keys
+```
+--- 
+
 # Installation
 
 ### Macos
