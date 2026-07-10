@@ -189,6 +189,7 @@ TODAYS_TASKS:
 
 Rules:
 - The ACCOMPLISHED section must be 1-2 lines.
+- ACCOMPLISHED items are those that have been marked complete "- [x]"
 - Every TODAYS_TASKS line must start exactly with "- [ ] ".
 - Do not include markdown headings, commentary, or code fences.
 EOT
