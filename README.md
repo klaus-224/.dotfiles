@@ -50,7 +50,9 @@
   ```zsh
     gh extension install dlvhdr/gh-dash
   ```
-
+- [age](https://github.com/FiloSottile/age) - file encryption/decryption 
+- [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
+- [intelli-shell](https://github.com/lasantosr/intelli-shell) - intelli-sense for the shell
 - [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
 - [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
 - [just](https://github.com/casey/just)
