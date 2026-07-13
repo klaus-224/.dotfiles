@@ -37,10 +37,16 @@
 ---
 # TODO
 
-- [ ] transform zsh tools binaries
-- [ ] consolidate everything into 1 `setup.sh` script
 - [ ] look into dev containers [devpod](https://devpod.sh/)
-- [ ] look into [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
+- [ ] consolidate everything into 1 `setup.sh` script
+- [ ] tools to look at
+    - [thread deck](https://github.com/gripebomb/ThreatDeck)
+    - [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
+    - [RustScan](https://github.com/bee-san/RustScan) - port scanner
+    - [age](https://github.com/FiloSottile/age) - file encryption/decryption 
+    - [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
+    - [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
+    - [zshkit](https://github.com/bkerley/zshkit) - example zsh config
 ---
 
 # CLI Tool Reference
@@ -52,19 +58,13 @@
   ```
 - [age](https://github.com/FiloSottile/age) - file encryption/decryption 
 - [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
-- [intelli-shell](https://github.com/lasantosr/intelli-shell) - intelli-sense for the shell
 - [jsongrep](https://github.com/micahkepe/jsongrep) - search tool for JSON, YAML, and TOML with path query syntax
 - [dasel](https://github.com/tomwright/dasel) - Query and modify JSON, YAML, TOML, and XML from the command line.
 - [just](https://github.com/casey/just)
-- [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
-- [superpower](https://github.com/obra/superpowers) - plugins and stuff for ai
 - [m-cli](https://github.com/rgcr/m-cli) - macos commands 
 - [RustScan](https://github.com/bee-san/RustScan) - port scanner
 - [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
-- [useful scripts adamchainz](https://github.com/adamchainz/scripts) 
 - [zshkit](https://github.com/bkerley/zshkit) - example zsh config
-- [thread deck](https://github.com/gripebomb/ThreatDeck)
-- [gh cheat sheet](https://github.com/tiimgreen/github-cheat-sheet)
 - [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
 - [xleak](https://github.com/bgreenwell/xleak) - xlsx viewer
 - [csvlens](https://github.com/YS-L/csvlens) - csv viewer
@@ -74,6 +74,8 @@
 - **NOT ADDED** [tomb](https://dyne.org/tomb/) - encryption
 - **NOT ADDED** [pass](https://www.passwordstore.org/) - password manager
 - **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
+- ** NOT ADDED** [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
+- ** NOT ADDED** [superpower](https://github.com/obra/superpowers) - plugins and stuff for ai
 
 ---
 # References
@@ -83,6 +85,8 @@
 - [stich](https://stitch.withgoogle.com/)
 - [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
+- [useful-scripts-adamchainz](https://github.com/adamchainz/scripts) 
+- [gh cheat sheet](https://github.com/tiimgreen/github-cheat-sheet)
 ---
 
 # Generating git SSH Keys
