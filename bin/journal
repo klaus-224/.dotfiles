@@ -1,13 +1,16 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+typeset -r JIRA_SYNC_AGENT_CMD="opencode run --agent=jira-operator"
+typeset -r JOURNAL_SYNC_AGENT_CMD="opencode run --agent=build"
+
 # --------------------------------------------------
 # journal - Daily development journal with AI-assisted
-#           carry-forward planning from yesterday.
+#           Jira sync and carry-forward planning.
 # --------------------------------------------------
 
 function _journal_dir() {
-	echo "${JOURNAL_LISTS_DIR:-$HOME/code/dev-journal}"
+	echo "$HOME/code/dev-journal"
 }
 
 function _date() {
@@ -59,15 +62,18 @@ Date: $(_date)
 ### Yesterday
 **Accomplished**
 
-**Today's Goal:**
+**Incomplete / Carried Forward**
+
+### Today's Goal
+
+#### Jira Tickets - assigned to me
+
+#### Other Todos
 
 ### Worked On
 - [ ]
 
-### Next Tasks
-- [ ]
-
-### Notes:
+### Notes
 - 
 EOT
 }
@@ -126,29 +132,7 @@ function _previous_journal_file() {
 }
 
 function _run_agent_prompt() {
-	local prompt="$1"
-	local agent_cmd=""
-
-	if [[ -n "${JOURNAL_AGENT_CMD:-}" ]]; then
-		agent_cmd="$JOURNAL_AGENT_CMD"
-	else
-		local candidates=(opencode copilot codex)
-		local cmd
-		for cmd in "${candidates[@]}"; do
-			if command -v "$cmd" >/dev/null 2>&1; then
-				agent_cmd="$cmd"
-				if [[ "$cmd" == "opencode" ]]; then
-					agent_cmd="opencode run"
-				fi
-				break
-			fi
-		done
-	fi
-
-	if [[ -z "$agent_cmd" ]]; then
-		echo "No agent CLI found. Set JOURNAL_AGENT_CMD or install one of: opencode, copilot, codex" >&2
-		return 1
-	fi
+	local agent_cmd="$1" prompt="$2"
 
 	echo "Using agent: $agent_cmd" >&2
 
@@ -158,18 +142,13 @@ function _run_agent_prompt() {
 	"${agent_parts[@]}" "$prompt"
 }
 
-function _build_sync_prompt() {
+function _build_journal_prompt() {
 	local previous_file="$1"
 	local previous_content
 	previous_content="$(<"$previous_file")"
 
-	if [[ -n "${JOURNAL_SYNC_PROMPT:-}" ]]; then
-		printf "%s\n\nYesterday's journal:\n%s\n" "$JOURNAL_SYNC_PROMPT" "$previous_content"
-		return 0
-	fi
-
-	cat <<EOT
-You are creating today's development journal from yesterday's journal.
+cat <<EOT
+You are summarizing yesterday's development journal.
 
 Yesterday's journal path: $previous_file
 
@@ -181,18 +160,120 @@ $previous_content
 Return ONLY this format:
 
 ACCOMPLISHED:
-<1-2 short lines summarizing what was completed yesterday>
-
-TODAYS_TASKS:
-- [ ] <short task for today>
-- [ ] <short task for today>
+<1-2 short lines summarizing completed work>
 
 Rules:
-- The ACCOMPLISHED section must be 1-2 lines.
-- ACCOMPLISHED items are those that have been marked complete "- [x]"
-- Every TODAYS_TASKS line must start exactly with "- [ ] ".
+- ACCOMPLISHED must summarize only work marked complete with "- [x]" in yesterday's journal.
 - Do not include markdown headings, commentary, or code fences.
 EOT
+}
+
+function _build_jira_prompt() {
+	cat <<'EOT'
+Fetch Jira tickets assigned to the current user using this JQL only:
+assignee = currentUser() AND status IN ("In Progress", "In QC") ORDER BY priority DESC, updated DESC
+
+Return ONLY this format:
+
+JIRA_TICKETS:
+- [ ] KEY-123 Short title [link](url)
+
+Rules:
+- Jira output must contain only the Jira key, short title, and ticket link.
+- Do not fetch comments, descriptions, changelogs, worklogs, pull requests, or unrelated fields.
+- Every JIRA_TICKETS line must start exactly with "- [ ] " and contain a Jira key.
+- Do not include duplicate Jira keys.
+- Do not include markdown headings, commentary, or code fences.
+EOT
+}
+
+function _skip_agent() {
+	local name="$1" value
+	value="${(P)1:-1}"
+	if [[ "$value" != 0 && "$value" != 1 ]]; then
+		echo "$name must be 0 or 1 (got: $value)" >&2
+		return 2
+	fi
+	[[ "$value" == 1 ]]
+}
+
+function _todo_identity() {
+	local line="$1" text key
+	key="$(printf '%s\n' "$line" | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | head -1 || true)"
+	if [[ -n "$key" ]]; then
+		printf 'jira:%s' "${key:u}"
+		return
+	fi
+
+	text="${line#- [ ] }"
+	text="${text#- [x] }"
+	text="${text#- [X] }"
+	printf 'text:%s' "$(printf '%s' "$text" | tr '[:upper:]' '[:lower:]' | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//')"
+}
+
+function _todo_is_checked() {
+	[[ "$1" == '- [x] '* || "$1" == '- [X] '* ]]
+}
+
+function _section_todos() {
+	local file="$1" heading="$2"
+	awk -v heading="$heading" '
+		$0 == heading { in_section = 1; next }
+		in_section && /^### / { exit }
+		in_section && /^#### / { exit }
+		in_section && /^- \[[ xX]\] / { print }
+	' "$file"
+}
+
+function _merge_todos() {
+	local existing="$1" additions="$2" line identity index
+	local -a lines=()
+	local -A positions=() checked=()
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		[[ -n "${positions[$identity]:-}" ]] && continue
+		lines+=("$line")
+		positions[$identity]=${#lines[@]}
+		if _todo_is_checked "$line"; then checked[$identity]=1; fi
+	done <<< "$existing"
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		if [[ -n "${positions[$identity]:-}" ]]; then
+			index=${positions[$identity]}
+			if _todo_is_checked "$line" && [[ -z "${checked[$identity]:-}" ]]; then
+				lines[$index]="$line"
+				checked[$identity]=1
+			fi
+			continue
+		fi
+		lines+=("$line")
+		positions[$identity]=${#lines[@]}
+		if _todo_is_checked "$line"; then checked[$identity]=1; fi
+	done <<< "$additions"
+
+	printf '%s\n' "${lines[@]}"
+}
+
+function _remove_duplicate_jira_todos() {
+	local todos="$1" jira_todos="$2" line identity
+	local -A jira_keys=()
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		[[ "$identity" == jira:* ]] && jira_keys[$identity]=1
+	done <<< "$jira_todos"
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		[[ -n "${jira_keys[$identity]:-}" ]] && continue
+		printf '%s\n' "$line"
+	done <<< "$todos"
 }
 
 function _set_marker_block() {
@@ -243,7 +324,7 @@ function _set_marker_block() {
 }
 
 function _sync() {
-	local journal_file previous_file prompt output tmp_output
+	local journal_file previous_file output="" agent_output
 	journal_file="$(_journal_file)"
 
 	_ensure_journal_dir
@@ -256,27 +337,29 @@ function _sync() {
 		return 1
 	fi
 
-	prompt="$(_build_sync_prompt "$previous_file")"
-	tmp_output="$(mktemp -t journal-agent-output.XXXXXX)" || {
-		echo "Unable to create temporary output file." >&2
-		return 1
-	}
-
-	if ! _run_agent_prompt "$prompt" >"$tmp_output"; then
-		rm -f "$tmp_output"
-		echo "Agent query failed. Set JOURNAL_AGENT_CMD or JOURNAL_SYNC_PROMPT to customize." >&2
-		return 1
+	if _skip_agent SKIP_SYNC_AGENT; then
+		:
+	else
+		[[ $? -eq 1 ]] || return 1
+		agent_output="$(_run_agent_prompt "$JOURNAL_SYNC_AGENT_CMD" "$(_build_journal_prompt "$previous_file")")" || {
+			echo "Journal agent query failed." >&2
+			return 1
+		}
+		output+="$agent_output"$'\n'
 	fi
 
-	output="$(<"$tmp_output")"
-	rm -f "$tmp_output"
-
-	if [[ -z "$output" ]]; then
-		echo "Agent returned empty output." >&2
-		return 1
+	if _skip_agent SKIP_JIRA_AGENT; then
+		:
+	else
+		[[ $? -eq 1 ]] || return 1
+		agent_output="$(_run_agent_prompt "$JIRA_SYNC_AGENT_CMD" "$(_build_jira_prompt)")" || {
+			echo "Jira agent query failed." >&2
+			return 1
+		}
+		output+="$agent_output"$'\n'
 	fi
 
-	local line section="" accomplished="" tasks=""
+	local line section="" accomplished="" jira_tasks=""
 	while IFS= read -r line; do
 		line="${line%$'\r'}"
 		case "$line" in
@@ -284,8 +367,8 @@ function _sync() {
 			section="accomplished"
 			continue
 			;;
-		TODAYS_TASKS:* | TODAY_TASKS:*)
-			section="tasks"
+		JIRA_TICKETS:* | ASSIGNED_TO_ME:*)
+			section="jira"
 			continue
 			;;
 		esac
@@ -297,31 +380,38 @@ function _sync() {
 		accomplished)
 			accomplished+="${line}"$'\n'
 			;;
-		tasks)
+		jira)
 			if [[ "$line" == "- [ ] "* ]]; then
-				tasks+="${line}"$'\n'
+				jira_tasks+="${line}"$'\n'
 			elif [[ "$line" == "- "* ]]; then
-				tasks+="- [ ] ${line#- }"$'\n'
+				jira_tasks+="- [ ] ${line#- }"$'\n'
 			fi
 			;;
 		esac
 	done <<<"$output"
 
-	if [[ -z "$accomplished" && -z "$tasks" ]]; then
-		echo "Agent output did not include ACCOMPLISHED or TODAYS_TASKS content." >&2
-		return 1
-	fi
+	local previous_jira previous_other existing_jira existing_other
+	previous_jira="$(_section_todos "$previous_file" "#### Jira Tickets - assigned to me" | awk '/^- \[ \] / { print }')"
+	previous_other="$(_section_todos "$previous_file" "### Worked On")"
+	previous_other+=$'\n'"$(_section_todos "$previous_file" "#### Other Todos")"
+	previous_other="$(printf '%s\n' "$previous_other" | awk '/^- \[ \] / { print }')"
+	existing_jira="$(_section_todos "$journal_file" "#### Jira Tickets - assigned to me")"
+	existing_other="$(_section_todos "$journal_file" "#### Other Todos")"
 
-	if [[ -n "$accomplished" ]]; then
-		_set_marker_block "$journal_file" "**Accomplished**" "^[*][*]Today's Goal:[*][*]$|^### " "${accomplished}"$'\n'
-	fi
+	local merged_jira merged_other
+	merged_jira="$(_merge_todos "$existing_jira" "$previous_jira"$'\n'"$jira_tasks")"
+	merged_other="$(_merge_todos "$existing_other" "$previous_other")"
+	merged_other="$(_remove_duplicate_jira_todos "$merged_other" "$merged_jira")"
 
-	if [[ -n "$tasks" ]]; then
-		_set_marker_block "$journal_file" "**Today's Goal:**" "^### " "${tasks}"$'\n'
-	fi
+	_set_marker_block "$journal_file" "**Accomplished**" "^[*][*]Incomplete / Carried Forward[*][*]$|^### " "${accomplished:-No completed work recorded.}"$'\n'
+	_set_marker_block "$journal_file" "**Incomplete / Carried Forward**" "^### " "Carried-forward items are listed under Today's Goal."$'\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - assigned to me" "^#### |^### " "$merged_jira"$'\n'
+	_set_marker_block "$journal_file" "#### Other Todos" "^#### |^### " "$merged_other"$'\n'
 
 	echo "Synced: $journal_file"
 	echo "Source: $previous_file"
+	echo "Jira tickets: $(printf '%s\n' "$merged_jira" | awk '/^- \[ / { count++ } END { print count + 0 }')"
+	echo "Carried-forward todos: $(printf '%s\n' "$merged_other" | awk '/^- \[ / { count++ } END { print count + 0 }')"
 }
 
 function _section_last_content_line() {
@@ -456,16 +546,15 @@ Usage: journal [command]
 Commands:
   open        Open today's journal in nvim (default)
   add         Open today's journal at the bottom of Worked On
-  sync        Summarize yesterday and create today's goals with an AI agent
+  sync        Sync Jira tickets, summarize yesterday, and carry forward todos
   yesterday   Open the most recent previous journal file
   archive     Archive legacy journal.md to a date-based filename
   path        Print today's journal file path
   files       Browse all files in the journal dir with fzf and open selection
 
 Environment:
-  JOURNAL_LISTS_DIR    Override journal directory (default: ~/code/dev-journal)
-  JOURNAL_AGENT_CMD    Agent CLI for sync (default: auto-detect opencode/copilot/codex)
-  JOURNAL_SYNC_PROMPT  Override the prompt sent to the agent for sync
+  SKIP_JIRA_AGENT       Skip Jira sync agent (0 or 1, default: 1)
+  SKIP_SYNC_AGENT       Skip journal sync agent (0 or 1, default: 1)
 EOT
 		;;
 	*)

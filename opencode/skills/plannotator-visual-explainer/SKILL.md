@@ -1,6 +1,5 @@
 ---
 name: plannotator-visual-explainer
-disable-model-invocation: true
 description: >
   Generate self-contained HTML visualizations with Plannotator theming. Use for implementation
   plans, PR explainers, architecture diagrams, data tables, slide decks, and any visual
@@ -26,12 +25,12 @@ Always deliver via Plannotator's annotation UI. Do NOT use `open` or `xdg-open`.
 
 **Plans/proposals** (user should approve/deny):
 ```bash
-plannotator annotate <file> --render-html --gate
+plannotator annotate <file> --gate
 ```
 
 **Everything else** (informational):
 ```bash
-plannotator annotate <file> --render-html
+plannotator annotate <file>
 ```
 
 ---

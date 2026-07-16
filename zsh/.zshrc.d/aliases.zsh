@@ -23,7 +23,6 @@ alias pip="pip3"
 # git
 alias lg="lazygit"
 
-
 # smolvm
 alias svmrust="smolfile_render \${DOTFILES_HOME}/smolvm/rust-dev.smolfile.tmpl \${CODE_DIR}/smolvm/rust-dev.smolfile"
 alias svmc="smolvm machine create"
@@ -39,4 +38,3 @@ alias sleep-ok="pkill caffeinate"
 
 # alias for custom scripts
 alias oc="opencode"
-alias pwdocs="playwright_docs"

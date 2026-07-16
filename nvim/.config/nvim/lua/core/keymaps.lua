@@ -15,8 +15,8 @@ vim.keymap.set('n', '<A-l>', '<C-w>l')
 
 -- buffer operations
 vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>')
-vim.keymap.set('n', '[o', '<cmd>bprevious<cr>')
-vim.keymap.set('n', ']o', '<cmd>bnext<cr>')
+vim.keymap.set('n', '<leader>1', '<cmd>bnext<cr>')
+vim.keymap.set('n', '<leader>2', '<cmd>bprevious<cr>')
 
 -- execute current line
 vim.keymap.set('n', '<leader>x', function()
