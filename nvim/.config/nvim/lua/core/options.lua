@@ -9,12 +9,6 @@ vim.cmd('packadd! cfilter')
 vim.g.no_python_maps = 1
 
 vim.opt.fillchars = { eob = ' ' }
--- shell
--- vim.opt.shell = '/bin/zsh'
--- vim.opt.shellcmdflag = '-ic'
-
--- text / wrapping
--- vim.opt.textwidth = 80
 vim.opt.wrap = true
 
 -- local/project config

@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-5.4-mini",
+  "model": "github-copilot/gpt-5.6-luna",
   "default_agent": "pair-programmer",
   "enabled_providers": ["github-copilot"],
   "disabled_providers": ["opencode", "openai"],
@@ -19,7 +19,7 @@
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.4-mini",
+      "model": "github-copilot/gpt-5.6-luna",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
         "repo_query": true,
@@ -44,7 +44,7 @@
     "reviewer": {
       "description": "Reviews test plans and implementations collaboratively with the user, recording preferences as memory",
       "mode": "primary",
-      "model": "github-copilot/claude-opus-4.6",
+      "model": "github-copilot/gpt-5.6-luna",
       "prompt": "{file:./agent-defs/reviewer.md}",
       "tools": {
         "*": false,
@@ -75,7 +75,7 @@
 
     // Building Agent
     "build": {
-      "model": "github-copilot/gpt-5.4-mini",
+      "model": "github-copilot/gpt-5.6-luna",
       "mode": "primary",
       "tools": {
         "repo_query": true,
@@ -119,7 +119,7 @@
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
-      "model": "github-copilot/claude-opus-4.6",
+      "model": "github-copilot/gpt-5.6-luna",
       "prompt": "{file:./prompts/planner.txt}",
       "permission": {
         "*": "deny",
