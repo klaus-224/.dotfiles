@@ -38,4 +38,4 @@ _G.QuickfixText = function(info)
   return lines
 end
 
-vim.o.quickfixtextfunc = 'v:lua.QuickfixText'
+-- vim.o.quickfixtextfunc = 'v:lua.QuickfixText'

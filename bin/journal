@@ -66,7 +66,11 @@ Date: $(_date)
 
 ### Today's Goal
 
-#### Jira Tickets - assigned to me
+#### Jira Tickets - Assigned to me
+
+#### Jira Tickets - Assigned to Other
+
+#### Jira Tickets - Unassigned
 
 #### Other Todos
 
@@ -170,18 +174,27 @@ EOT
 
 function _build_jira_prompt() {
 	cat <<'EOT'
-Fetch Jira tickets assigned to the current user using this JQL only:
-assignee = currentUser() AND status IN ("In Progress", "In QC") ORDER BY priority DESC, updated DESC
+Fetch all Jira tickets in QC using this JQL Query:
+project = ION AND status = "In QC" ORDER BY workItem ASC, updated DESC, status DESC, summary ASC, created DESC
 
 Return ONLY this format:
 
-JIRA_TICKETS:
+JIRA_TICKETS_ASSIGNED_TO_ME:
+- [ ] KEY-123 Short title [link](url)
+
+JIRA_TICKETS_ASSIGNED_TO_OTHER:
+- [ ] KEY-456 Short title [link](url)
+
+JIRA_TICKETS_UNASSIGNED:
 - [ ] KEY-123 Short title [link](url)
 
 Rules:
-- Jira output must contain only the Jira key, short title, and ticket link.
+- Include every ticket returned by the QC query exactly once.
+- Classify tickets by assignee: current user, another user, or no assignee.
+- Preserve the query result order within each assignee section.
+- Jira output must contain only the Jira key, short title, and ticket link under the appropriate section.
 - Do not fetch comments, descriptions, changelogs, worklogs, pull requests, or unrelated fields.
-- Every JIRA_TICKETS line must start exactly with "- [ ] " and contain a Jira key.
+- Every ticket line must start exactly with "- [ ] " and contain a Jira key.
 - Do not include duplicate Jira keys.
 - Do not include markdown headings, commentary, or code fences.
 EOT
@@ -258,6 +271,35 @@ function _merge_todos() {
 	printf '%s\n' "${lines[@]}"
 }
 
+function _merge_jira_todos() {
+	local existing="$1" previous="$2" additions="$3" line identity
+	local -a lines=()
+	local -A positions=() checked=()
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		[[ "$identity" == jira:* ]] || continue
+		if _todo_is_checked "$line"; then checked[$identity]=1; fi
+	done <<< "$existing"$'\n'"$previous"
+
+	while IFS= read -r line; do
+		[[ "$line" == '- ['* ]] || continue
+		identity="$(_todo_identity "$line")"
+		[[ "$identity" == jira:* ]] || continue
+		[[ -n "${positions[$identity]:-}" ]] && continue
+		if [[ -n "${checked[$identity]:-}" ]]; then
+			line="- [x] ${line#- [ ] }"
+			line="- [x] ${line#- [x] }"
+			line="- [x] ${line#- [X] }"
+		fi
+		lines+=("$line")
+		positions[$identity]=${#lines[@]}
+	done <<< "$additions"
+
+	printf '%s\n' "${lines[@]}"
+}
+
 function _remove_duplicate_jira_todos() {
 	local todos="$1" jira_todos="$2" line identity
 	local -A jira_keys=()
@@ -274,6 +316,19 @@ function _remove_duplicate_jira_todos() {
 		[[ -n "${jira_keys[$identity]:-}" ]] && continue
 		printf '%s\n' "$line"
 	done <<< "$todos"
+}
+
+function _migrate_jira_heading() {
+	local file="$1" old_heading="$2" new_heading="$3" tmp
+
+	if ! grep -Fqx "$old_heading" "$file" || grep -Fqx "$new_heading" "$file"; then
+		return 0
+	fi
+
+	tmp="$(mktemp -t journal-heading.XXXXXX)"
+	awk -v old_heading="$old_heading" -v new_heading="$new_heading" \
+		'$0 == old_heading { print new_heading; next } { print }' "$file" >"$tmp"
+	mv "$tmp" "$file"
 }
 
 function _set_marker_block() {
@@ -359,7 +414,7 @@ function _sync() {
 		output+="$agent_output"$'\n'
 	fi
 
-	local line section="" accomplished="" jira_tasks=""
+	local line section="" accomplished="" jira_assigned_to_me="" jira_assigned_to_other="" jira_unassigned=""
 	while IFS= read -r line; do
 		line="${line%$'\r'}"
 		case "$line" in
@@ -367,8 +422,16 @@ function _sync() {
 			section="accomplished"
 			continue
 			;;
-		JIRA_TICKETS:* | ASSIGNED_TO_ME:*)
-			section="jira"
+		JIRA_TICKETS_ASSIGNED_TO_ME: | ASSIGNED_TO_ME:)
+			section="jira_assigned_to_me"
+			continue
+			;;
+		JIRA_TICKETS_ASSIGNED_TO_OTHER:)
+			section="jira_assigned_to_other"
+			continue
+			;;
+		JIRA_TICKETS_UNASSIGNED:)
+			section="jira_unassigned"
 			continue
 			;;
 		esac
@@ -380,37 +443,64 @@ function _sync() {
 		accomplished)
 			accomplished+="${line}"$'\n'
 			;;
-		jira)
+		jira_assigned_to_me | jira_assigned_to_other | jira_unassigned)
+			local jira_line=""
 			if [[ "$line" == "- [ ] "* ]]; then
-				jira_tasks+="${line}"$'\n'
+				jira_line="$line"
 			elif [[ "$line" == "- "* ]]; then
-				jira_tasks+="- [ ] ${line#- }"$'\n'
+				jira_line="- [ ] ${line#- }"
+			fi
+			if [[ -n "$jira_line" ]]; then
+				case "$section" in
+				jira_assigned_to_me) jira_assigned_to_me+="${jira_line}"$'\n' ;;
+				jira_assigned_to_other) jira_assigned_to_other+="${jira_line}"$'\n' ;;
+				jira_unassigned) jira_unassigned+="${jira_line}"$'\n' ;;
+				esac
 			fi
 			;;
 		esac
 	done <<<"$output"
 
-	local previous_jira previous_other existing_jira existing_other
-	previous_jira="$(_section_todos "$previous_file" "#### Jira Tickets - assigned to me" | awk '/^- \[ \] / { print }')"
+	local previous_assigned_to_me previous_assigned_to_other previous_unassigned previous_other
+	previous_assigned_to_me="$(_section_todos "$previous_file" "#### Jira Tickets - Assigned to me")"
+	if [[ -z "$previous_assigned_to_me" ]]; then
+		previous_assigned_to_me="$(_section_todos "$previous_file" "#### Jira Tickets - assigned to me")"
+	fi
+	previous_assigned_to_me="$(printf '%s\n' "$previous_assigned_to_me" | awk '/^- \[ \] / { print }')"
+	previous_assigned_to_other="$(_section_todos "$previous_file" "#### Jira Tickets - Assigned to Other" | awk '/^- \[ \] / { print }')"
+	previous_unassigned="$(_section_todos "$previous_file" "#### Jira Tickets - Unassigned" | awk '/^- \[ \] / { print }')"
 	previous_other="$(_section_todos "$previous_file" "### Worked On")"
 	previous_other+=$'\n'"$(_section_todos "$previous_file" "#### Other Todos")"
 	previous_other="$(printf '%s\n' "$previous_other" | awk '/^- \[ \] / { print }')"
-	existing_jira="$(_section_todos "$journal_file" "#### Jira Tickets - assigned to me")"
+	local existing_assigned_to_me existing_assigned_to_other existing_unassigned existing_other
+	existing_assigned_to_me="$(_section_todos "$journal_file" "#### Jira Tickets - Assigned to me")"
+	if [[ -z "$existing_assigned_to_me" ]]; then
+		existing_assigned_to_me="$(_section_todos "$journal_file" "#### Jira Tickets - assigned to me")"
+	fi
+	existing_assigned_to_other="$(_section_todos "$journal_file" "#### Jira Tickets - Assigned to Other")"
+	existing_unassigned="$(_section_todos "$journal_file" "#### Jira Tickets - Unassigned")"
 	existing_other="$(_section_todos "$journal_file" "#### Other Todos")"
 
-	local merged_jira merged_other
-	merged_jira="$(_merge_todos "$existing_jira" "$previous_jira"$'\n'"$jira_tasks")"
+	local merged_assigned_to_me merged_assigned_to_other merged_unassigned merged_other
+	merged_assigned_to_me="$(_merge_jira_todos "$existing_assigned_to_me" "$previous_assigned_to_me" "$jira_assigned_to_me")"
+	merged_assigned_to_other="$(_merge_jira_todos "$existing_assigned_to_other" "$previous_assigned_to_other" "$jira_assigned_to_other")"
+	merged_unassigned="$(_merge_jira_todos "$existing_unassigned" "$previous_unassigned" "$jira_unassigned")"
+	merged_assigned_to_other="$(_remove_duplicate_jira_todos "$merged_assigned_to_other" "$merged_assigned_to_me")"
+	merged_unassigned="$(_remove_duplicate_jira_todos "$merged_unassigned" "$merged_assigned_to_me"$'\n'"$merged_assigned_to_other")"
 	merged_other="$(_merge_todos "$existing_other" "$previous_other")"
-	merged_other="$(_remove_duplicate_jira_todos "$merged_other" "$merged_jira")"
+	merged_other="$(_remove_duplicate_jira_todos "$merged_other" "$merged_assigned_to_me"$'\n'"$merged_assigned_to_other"$'\n'"$merged_unassigned")"
 
+	_migrate_jira_heading "$journal_file" "#### Jira Tickets - assigned to me" "#### Jira Tickets - Assigned to me"
 	_set_marker_block "$journal_file" "**Accomplished**" "^[*][*]Incomplete / Carried Forward[*][*]$|^### " "${accomplished:-No completed work recorded.}"$'\n'
 	_set_marker_block "$journal_file" "**Incomplete / Carried Forward**" "^### " "Carried-forward items are listed under Today's Goal."$'\n'
-	_set_marker_block "$journal_file" "#### Jira Tickets - assigned to me" "^#### |^### " "$merged_jira"$'\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to me" "^#### |^### " "$merged_assigned_to_me"$'\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to Other" "^#### |^### " "$merged_assigned_to_other"$'\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Unassigned" "^#### |^### " "$merged_unassigned"$'\n'
 	_set_marker_block "$journal_file" "#### Other Todos" "^#### |^### " "$merged_other"$'\n'
 
 	echo "Synced: $journal_file"
 	echo "Source: $previous_file"
-	echo "Jira tickets: $(printf '%s\n' "$merged_jira" | awk '/^- \[ / { count++ } END { print count + 0 }')"
+	echo "Jira tickets: $(printf '%s\n' "$merged_assigned_to_me" "$merged_assigned_to_other" "$merged_unassigned" | awk '/^- \[ / { count++ } END { print count + 0 }')"
 	echo "Carried-forward todos: $(printf '%s\n' "$merged_other" | awk '/^- \[ / { count++ } END { print count + 0 }')"
 }
 
