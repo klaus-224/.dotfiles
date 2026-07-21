@@ -1,14 +1,11 @@
 require('core')
 require('vim._core.ui2').enable()
 
--- add plugins
 vim.pack.add({
   -- theme and ui
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/goolord/alpha-nvim' },
   { src = 'https://github.com/brenoprata10/nvim-highlight-colors' },
-
-  -- lsp/completions
   { src = 'https://github.com/mason-org/mason.nvim' },
   { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
   { src = 'https://github.com/b0o/SchemaStore.nvim' },
@@ -17,34 +14,21 @@ vim.pack.add({
   { src = 'https://github.com/rafamadriz/friendly-snippets' },
   { src = 'https://github.com/saghen/blink.lib' },
   { src = 'https://github.com/saghen/blink.cmp' },
-
-  -- tree sitter
   { src = 'https://github.com/romus204/tree-sitter-manager.nvim' },
-
-  -- oil/file search and nav
   { src = 'https://github.com/stevearc/oil.nvim' },
-  { src = 'https://github.com/JezerM/oil-lsp-diagnostics.nvim' },
-  { src = 'https://github.com/refractalize/oil-git-status.nvim' },
-  { src = 'https://github.com/ibhagwan/fzf-lua' },
-
-  -- editing/formatting
+  { src = 'https://github.com/nvim-mini/mini.pick' },
   { src = 'https://github.com/kylechui/nvim-surround', version = vim.version.range('4.x') },
   { src = 'https://github.com/windwp/nvim-autopairs' },
   { src = 'https://github.com/stevearc/conform.nvim' },
-
-  -- database stuff
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
-
-  -- git
   { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
 require('custom.ui').setup()
 require('custom.statusline').setup()
 
--- start lsp setup/config
 require('mason').setup()
 require('mason-tool-installer').setup({
   ensure_installed = {
@@ -65,7 +49,6 @@ require('mason-tool-installer').setup({
     'typescript-language-server',
     'yaml-language-server',
     'stylua',
-
     'biome',
   },
 })
@@ -76,25 +59,26 @@ require('lazydev').setup({
   },
 })
 
-vim.lsp.enable({ 'lua_ls' })
-vim.lsp.enable({ 'basedpyright' })
-vim.lsp.enable({ 'bashls' })
-vim.lsp.enable({ 'cssls' })
-vim.lsp.enable({ 'dockerls' })
-vim.lsp.enable({ 'html_ls' })
-vim.lsp.enable({ 'jsonls' })
-vim.lsp.enable({ 'prismals' })
-vim.lsp.enable({ 'ruff' })
-vim.lsp.enable({ 'rust_analyzer' })
-vim.lsp.enable({ 'zshcs' })
-vim.lsp.enable({ 'svelte' })
-vim.lsp.enable({ 'tailwindcss' })
-vim.lsp.enable({ 'terraformls' })
-vim.lsp.enable({ 'ts_ls' })
-vim.lsp.enable({ 'yamlls' })
-vim.lsp.enable({ 'tombi' })
+vim.lsp.enable({
+  'lua_ls',
+  'basedpyright',
+  'bashls',
+  'cssls',
+  'dockerls',
+  'html_ls',
+  'jsonls',
+  'prismals',
+  'ruff',
+  'rust_analyzer',
+  'zshcs',
+  'svelte',
+  'tailwindcss',
+  'terraformls',
+  'ts_ls',
+  'yamlls',
+  'tombi',
+})
 
--- formatting
 require('conform').setup({
   formatters_by_ft = {
     lua = { 'stylua' },
@@ -218,9 +202,7 @@ require('tree-sitter-manager').setup({
   auto_install = true, -- install missing parsers when editing a new file
   highlight = false, -- treesitter highlighting is enabled by default
 })
--- end lsp setup/config
 
--- start oil setup.config
 require('oil').setup({
   delete_to_trash = true,
   view_options = {
@@ -235,24 +217,19 @@ require('oil').setup({
     ['gq'] = { 'actions.send_to_qflist', opts = { action = 'a', target = 'qflist' } },
   },
 })
-
-require('oil-lsp-diagnostics').setup()
-
-vim.keymap.set({ 'n', 'v' }, '-', '<cmd>Oil<cr>')
--- end oil setup.config
-
--- start fzf-lua setup
-require('fzf-lua').setup({
-  winopts = {
-    split = 'belowright new',
-    height = 0.10,
-    width = 0.20,
-    ---@diagnostic disable-next-line: missing-fields
-    preview = {
-      hidden = true,
-    },
-  },
+require('mini.pick').setup({
+  nil,
 })
+
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>h', '<cmd>Pick help<cr>')
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>b', '<cmd>Pick buffers<cr>')
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>g', '<cmd>Pick grep_live<cr>')
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>sr', '<cmd>Pick resume<cr>')
+vim.keymap.set({ 'n', 'v', 'x' }, '<leader>e', '<cmd>Oil<cr>')
+
+-- vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
+-- vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
 
 -- highlights
 require('nvim-highlight-colors').setup({})

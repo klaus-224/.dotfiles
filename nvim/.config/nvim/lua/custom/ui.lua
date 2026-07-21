@@ -6,7 +6,7 @@ local function setup_alpha()
     '         you can do nothing for me but work on yourself"',
   }
 
-  local author = { '                              — Ram Dass' }
+  local author = { '                              — Ram Dass - Fern' }
 
   local function center_padding()
     local height = vim.fn.winheight(0)

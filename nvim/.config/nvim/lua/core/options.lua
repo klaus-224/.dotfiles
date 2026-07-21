@@ -1,11 +1,9 @@
 -- leader
 vim.g.mapleader = ' '
-
 vim.opt.swapfile = false
 
 -- add cfilter package
 vim.cmd('packadd! cfilter')
-
 vim.g.no_python_maps = 1
 
 vim.opt.fillchars = { eob = ' ' }
@@ -20,14 +18,13 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 10
 vim.opt.laststatus = 3
-vim.opt.cmdheight = 2
+vim.opt.cmdheight = 4
 vim.opt.cmdwinheight = 20
 vim.opt.winborder = 'rounded'
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 
 -- indentation / tabs
-vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.smarttab = true
 vim.opt.expandtab = true
