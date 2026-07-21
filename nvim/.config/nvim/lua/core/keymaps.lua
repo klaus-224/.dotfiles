@@ -1,6 +1,10 @@
 vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
-
+vim.keymap.set({ 'n', 'v' }, 'd', '"_d', { noremap = true, silent = true })
+vim.keymap.set({ 'n', 'v' }, 'D', '"_D', { noremap = true, silent = true })
+vim.keymap.set({ 'n' }, '<leader>a', ':edit #<CR>', { desc = 'Switch to the alternate buffer' })
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
 -- terminal
 vim.keymap.set('t', '<Esc><Esc>', [[<C-\><C-n>]], { noremap = true })
 
@@ -12,16 +16,6 @@ vim.keymap.set('n', '<A-h>', '<C-w>h')
 vim.keymap.set('n', '<A-j>', '<C-w>j')
 vim.keymap.set('n', '<A-k>', '<C-w>k')
 vim.keymap.set('n', '<A-l>', '<C-w>l')
-
--- buffer operations
-vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>')
-vim.keymap.set('n', '<leader>1', '<cmd>bnext<cr>')
-vim.keymap.set('n', '<leader>2', '<cmd>bprevious<cr>')
-
--- execute current line
-vim.keymap.set('n', '<leader>x', function()
-  vim.cmd('.lua')
-end)
 
 -- select all
 vim.keymap.set('n', '<C-a>', 'gg<S-v>G')
@@ -42,7 +36,7 @@ vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
 vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
 
 vim.keymap.set('n', '<leader>ds', vim.lsp.buf.document_symbol)
-vim.keymap.set('n', '<leader>dS', vim.lsp.buf.workspace_symbol)
+vim.keymap.set('n', '<leader>ws', vim.lsp.buf.workspace_symbol)
 
 vim.keymap.set('n', '<leader>dq', function()
   vim.diagnostic.setqflist()
@@ -62,9 +56,6 @@ end)
 vim.keymap.set('n', '<leader>lf', function()
   require('conform').format()
 end)
-
--- fzf-lua (needs fzf-lua install + require)
-vim.keymap.set({ 'n', 'v' }, '<leader><leader>', '<cmd>FzfLua global<cr>')
 
 -- tabs
 vim.keymap.set('n', '<leader>t]', '<cmd>tabn<cr>')
