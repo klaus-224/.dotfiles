@@ -57,7 +57,7 @@ end, {})
 
 -- Open terminal in a split
 vim.keymap.set('n', '<leader>tt', function()
-  vim.cmd('botright split | resize 15 | terminal')
+  vim.cmd('botright split | resize 5 | terminal')
 end, {})
 
 -- Rerun make/test/lint command through quickfix

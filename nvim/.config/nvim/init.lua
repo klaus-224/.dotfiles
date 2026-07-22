@@ -2,7 +2,6 @@ require('core')
 require('vim._core.ui2').enable()
 
 vim.pack.add({
-  -- theme and ui
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/goolord/alpha-nvim' },
   { src = 'https://github.com/brenoprata10/nvim-highlight-colors' },
@@ -218,7 +217,9 @@ require('oil').setup({
   },
 })
 require('mini.pick').setup({
-  nil,
+  options = {
+    content_from_bottom = true,
+  },
 })
 
 vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
