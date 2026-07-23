@@ -36,7 +36,9 @@
 <!-- mtoc-end -->
 ---
 # TODO
-
+- [ ] change tmux to vimothee
+- [ ] move custom lua functions
+- [ ] aerospace
 - [ ] look into dev containers [devpod](https://devpod.sh/)
 - [ ] consolidate everything into 1 `setup.sh` script
 - [ ] tools to look at
