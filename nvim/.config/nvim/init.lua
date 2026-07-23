@@ -207,18 +207,20 @@ require('oil').setup({
   view_options = {
     show_hidden = true,
   },
-  win_options = {
-    -- signcolumn = 'yes:2', -- apparently needed by git-status
-  },
   use_default_keymaps = false,
   keymaps = {
     ['<CR>'] = { 'actions.select' },
-    ['gq'] = { 'actions.send_to_qflist', opts = { action = 'a', target = 'qflist' } },
   },
 })
+
 require('mini.pick').setup({
   options = {
     content_from_bottom = true,
+  },
+  window = {
+    config = {
+      width = 35,
+    },
   },
 })
 
@@ -229,13 +231,7 @@ vim.keymap.set({ 'n', 'v', 'x' }, '<leader>g', '<cmd>Pick grep_live<cr>')
 vim.keymap.set({ 'n', 'v', 'x' }, '<leader>sr', '<cmd>Pick resume<cr>')
 vim.keymap.set({ 'n', 'v', 'x' }, '<leader>e', '<cmd>Oil<cr>')
 
--- vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
--- vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
-
--- highlights
 require('nvim-highlight-colors').setup({})
-
--- gitblame
 require('gitblame').setup({
   enabled = false,
   message_template = ' <summary> • <date> • <author> • <<sha>>',

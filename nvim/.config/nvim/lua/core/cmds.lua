@@ -1,3 +1,25 @@
+-- cd to project root
+local function cd_project_root()
+  local root = vim.fs.root(0, {
+    '.git',
+    'package.json',
+    'pyproject.toml',
+    'Cargo.toml',
+    'Makefile',
+  })
+
+  if root then
+    vim.cmd.cd(root)
+    print('Changed directory to ' .. root)
+  else
+    vim.notify('Project root not found', vim.log.levels.WARN)
+  end
+end
+
+vim.keymap.set('n', '<leader>cd', cd_project_root, {
+  desc = 'Change directory to project root',
+})
+
 -- search Files
 vim.api.nvim_create_user_command('Files', function(opts)
   local query = opts.args
@@ -65,6 +87,8 @@ vim.keymap.set('n', '<leader>m', function()
   vim.cmd('silent make')
   vim.cmd('copen')
 end, {})
+
+-- change to git root
 
 -- remove unused packs
 vim.api.nvim_create_user_command('PackClean', function()

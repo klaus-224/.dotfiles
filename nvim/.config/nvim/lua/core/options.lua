@@ -64,6 +64,3 @@ vim.opt.wildignore:append({
   '*/build/*',
   '*/target/*',
 })
-
--- winbar
--- vim.opt.winbar = '%=%m %f %h'
