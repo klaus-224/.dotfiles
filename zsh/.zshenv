@@ -33,3 +33,6 @@ export NAVI_CONFIG="$DOTFILES_HOME/navi/config.yaml"
 
 # global .gitignore
 export GLOBAL_GITIGNORE="$HOME/.gitignore_global"
+
+# ripgrep config
+export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
