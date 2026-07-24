@@ -213,16 +213,7 @@ require('oil').setup({
   },
 })
 
-require('mini.pick').setup({
-  options = {
-    content_from_bottom = true,
-  },
-  window = {
-    config = {
-      width = 35,
-    },
-  },
-})
+require('mini.pick').setup({})
 
 vim.keymap.set({ 'n', 'v', 'x' }, '<leader>f', '<cmd>Pick files<cr>')
 vim.keymap.set({ 'n', 'v', 'x' }, '<leader>h', '<cmd>Pick help<cr>')
