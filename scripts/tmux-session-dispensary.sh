@@ -3,6 +3,7 @@
 DIRS=(
     "$HOME"
     "$HOME/code"
+    "$HOME/code/sandbox/"
     "$HOME/documents"
 )
 
