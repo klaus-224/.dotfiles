@@ -33,13 +33,15 @@ desktop-notifications = false
 macos-titlebar-style = hidden
 
 # unbind digit hotkeys
-keybind = ctrl+0=unbind 
-keybind = ctrl+1=unbind                     
-keybind = ctrl+2=unbind                     
-keybind = ctrl+3=unbind                     
-keybind = ctrl+4=unbind                     
-keybind = ctrl+5=unbind                     
-keybind = ctrl+6=unbind                     
+# keybind = ctrl+0=unbind 
+# keybind = ctrl+1=unbind                     
+# keybind = ctrl+2=unbind                     
+# keybind = ctrl+3=unbind                     
+# keybind = ctrl+4=unbind                     
+# keybind = ctrl+5=unbind                     
+# keybind = ctrl+6=unbind                     
+keybind = super+t=unbind
+keybind = super+,=unbind
 
 keybind = super+7=text:\x01\x37
 keybind = super+8=text:\x01\x38
@@ -56,3 +58,6 @@ keybind = super+g=text:\x01\x47
 keybind = super+h=text:\x01\x48
 keybind = super+x=text:\x01\x78
 keybind = super+w=text:\x01\x77
+keybind = super+o=text:\x01\x4f
+keybind = super+bracket_left=text:\x01\x5B
+keybind = super+bracket_right=text:\x01\x5D
