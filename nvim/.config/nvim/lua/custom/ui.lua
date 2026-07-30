@@ -63,14 +63,15 @@ M.setup = function()
 
   vim.cmd.colorscheme('vague')
 
+  local border_bg = '#0f1117'
   -- transarent background
   vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE', ctermbg = 'NONE' })
-  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#606079', bg = '#0f1117' })
-  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#606079', bg = '#0f1117' })
-  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = '#0f1117', bold = true })
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#606079', bg = border_bg })
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#606079', bg = border_bg })
+  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = border_bg, bold = true })
   vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
-  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = '#0f1117' })
+  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = border_bg })
 
   local colors = {
     bg = '#000000',
