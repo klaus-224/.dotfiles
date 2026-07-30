@@ -49,6 +49,10 @@ keybind = super+digit_8=text:\x01\x38
 keybind = super+digit_9=text:\x01\x39
 
 keybind = super+j=text:\x01\x4a
+keybind = super+n=text:\x01\x4e
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
+keybind = super+g=text:\x01\x47
 keybind = super+h=text:\x01\x48
+keybind = super+x=text:\x01\x78
+keybind = super+w=text:\x01\x77
