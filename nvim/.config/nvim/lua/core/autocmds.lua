@@ -25,10 +25,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
       lsp.completion.enable(true, client.id, args.buf)
     end
 
-    if client:supports_method('inlayHint/resolve') then
-      lsp.inlay_hint.enable(true, { bufnr = args.buf })
-    end
-
     if client:supports_method('callHierarchy/incomingCalls') then
       vim.keymap.set('n', '<leader>li', lsp.buf.incoming_calls)
     end

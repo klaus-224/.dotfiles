@@ -45,7 +45,7 @@ local function mode()
 end
 
 local function set_colors()
-  local bg_color = '#0f1117'
+  local bg_color = '#252530'
 
   vim.api.nvim_set_hl(0, 'StatusLine', {
     fg = '#F3BE7C',
