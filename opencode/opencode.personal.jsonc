@@ -22,13 +22,13 @@
       "variant": "medium",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
-        "project_index_query": true,
-        "project_index_search": true
-        // "memory_query": true,
-        // "memory_add": true
+        // "project_index_query": true,
+        // "project_index_search": true
+        // // "memory_query": true,
+        // // "memory_add": true
       },
       "permission": {
-        "*": "deny",
+        "*": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
         "bash": {
