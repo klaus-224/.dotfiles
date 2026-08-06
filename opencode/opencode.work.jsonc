@@ -1,6 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "github-copilot/gpt-5.6-luna",
+  "snapshot": false,
+  "autoupdate": true,
   "default_agent": "pair-programmer",
   "enabled_providers": ["github-copilot"],
   "disabled_providers": ["opencode", "openai"],
@@ -15,15 +16,16 @@
     }
   },
   "agent": {
-    // Pair Programming Agent
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
       "model": "github-copilot/gpt-5.6-luna",
+      "variant": "medium",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "tools": {
-        "repo_query": true,
-        "repo_search": true,
+        "project_index_search": true,
+        "project_index_index": true,
+        "project_index_query": true,
         "memory_query": true,
         "memory_add": true
       },
@@ -33,25 +35,24 @@
         "todowrite": "allow",
         "webfetch": "allow",
         "bash": {
-          "repo query *": "allow",
-          "repo search *": "allow",
-          "playwright_docs search *": "allow"
+          "project_index *": "allow"
         }
       }
     },
-
     // Review Agent
     "reviewer": {
       "description": "Reviews test plans and implementations collaboratively with the user, recording preferences as memory",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
+      "model": "github-copilot/gpt-5.6-sol",
+      "variant": "high",
       "prompt": "{file:./agent-defs/reviewer.md}",
       "tools": {
         "*": false,
-        "repo_query": true,
-        "repo_search": true,
+        "project_index_search": true,
+        "project_index_index": true,
+        "project_index_query": true,
         "memory_query": true,
-        "memory_search": true
+        "memory_add": true
       },
       "skill": {
         "*": "deny",
@@ -64,22 +65,24 @@
         "todowrite": "allow",
         "playwright-docs search": "allow",
         "bash": {
-          "repo *": "allow",
           "memory *": "allow",
           "session *": "allow",
+          "project_index *": "allow",
           "playwright-cli *": "allow",
           "playwright_docs search *": "allow"
         }
       }
     },
-
     // Building Agent
     "build": {
-      "model": "github-copilot/gpt-5.6-luna",
+      "model": "github-copilot/gpt-5.6-sol",
+      "variant": "high",
       "mode": "primary",
       "tools": {
-        "repo_query": true,
-        "repo_search": true,
+        "project_index_search": true,
+        "project_index_index": true,
+        "project_index_query": true,
+        "memory_query": true,
         "paths": true
       },
       "permission": {
@@ -89,7 +92,9 @@
         "edit": "allow",
         "write": "allow",
         "task": "deny",
-        "skill": { "*": "deny" },
+        "skill": {
+          "*": "deny"
+        },
         "session_reader *": "allow",
         "bash": {
           "*": "deny",
@@ -97,6 +102,7 @@
           "python3 *": "allow",
           "cargo *": "allow",
           "session_reader *": "allow",
+          "project_index *": "allow",
           "git *": "allow",
           "pnpm *": "allow",
           "npm *": "allow",
@@ -115,82 +121,58 @@
         }
       }
     },
-
     "planner": {
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
       "model": "github-copilot/gpt-5.6-luna",
+      "variant": "high",
       "prompt": "{file:./prompts/planner.txt}",
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "submit_plan": "allow",
-        "repo_query": "allow",
-        "repo_index": "allow",
         "memory_query": "allow",
-        "skill": { "*": "deny", "plannotator-compound": "allow" },
-        "edit": { "*": "deny", "*.md": "allow" },
+        "skill": {
+          "*": "deny",
+          "plannotator-compound": "allow"
+        },
+        "edit": {
+          "*": "deny",
+          "*.md": "allow"
+        },
         "external_directory": "deny",
         "bash": {
           "cargo": "allow"
         }
       }
     },
-
     // Jira Operator
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.4-mini",
+      "model": "github-copilot/gpt-5.6-luna",
+      "variant": "low",
       "prompt": "{file:./agent-defs/jira-operator.md}",
       "permission": {
-        // "atlassian_search": "allow",
-        // "atlassian_createJiraIssue": "allow",
-        // "atlassian_editJiraIssue": "allow",
-        // "atlassian_transitionJiraIssue": "allow",
-        // "atlassian_addWorklogToJiraIssue": "allow",
-        // "atlassian_createIssueLink": "allow",
-        // "atlassian_lookupJiraAccountId": "allow",
-        // "atlassian_getVisibleJiraProjects": "allow",
-        // "atlassian_getJiraProjectIssueTypesMetadata": "allow",
-        // "atlassian_getJiraIssueTypeMetaWithFields": "allow",
-        // "atlassian_getIssueLinkTypes": "allow",
-        // "atlassian_getJiraIssueRemoteIssueLinks": "allow",
-        // "atlassian_fetch": "allow"
-
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
-
-        // title, description, comments, status, assignee
         "atlassian_getJiraIssue": "allow",
-        // add comment to ticket
         "atlassian_addCommentToJiraIssue": "allow",
         "atlassian_getAccessibleAtlassianResources": "allow", //
-        // jira key, short title, ticket link
         "atlassian_searchJiraIssuesUsingJql": "allow",
-        // get GH pr number and link
         "atlassian_getJiraIssueDevelopmentInfo": "allow",
-        //
         "atlassian_lookupJiraAccountId": "allow"
       }
     },
-
-    // Manual PW tester:
-    //  default:  github-copilot/gpt-5-mini - not supported?
-    //  try:      github-copilot/raptor-mini - not supported?
-    //  fallback: github-copilot/claude-haiku-4.5
-    //  escalate: github-copilot/claude-sonnet-4.6
     "manual-tester": {
       "description": "Plans and executes manual tests for Jira tickets.",
       "mode": "primary",
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.6-luna",
       "prompt": "{file:./agent-defs/manual-tester.md}",
       "tools": {
         "*": false,
-        "repo_query": true,
-        "repo_search": true,
         "memory_query": true,
         "memory_search": true,
         "session_flag_current": true
@@ -205,11 +187,13 @@
           "playwright-cli": "allow",
           "plannotator-annotate": "allow"
         },
-        "task": { "*": "deny", "jira-operator": "allow" },
+        "task": {
+          "*": "deny",
+          "jira-operator": "allow"
+        },
         "bash": {
           "*": "deny",
           "session *": "allow",
-          "repo *": "allow",
           "memory *": "allow",
           "git *": "allow",
           "playwright-cli *": "allow",
@@ -217,26 +201,19 @@
         }
       }
     },
-
     // Regression Test Planner
     "regression-planner": {
       "description": "Plans regression tests from multiple perspectives, then debates and converges on the best plan with other planner instances",
       "mode": "subagent",
-      "model": "github-copilot/claude-opus-4.6",
+      "model": "github-copilot/gpt-5.6-sol",
+      "variant": "high",
       "prompt": "{file:./agent-defs/regression-planner.md}",
       "tools": {
-        "repo_index": true,
-        "repo_query": true,
+        "project_index": true,
         "memory_query": true,
         "memory_add": true,
         "playwright-docs_search": true,
-        "session_flag_current": true,
-        "plan_get": true,
-        "plan_revise": true,
-        "plan_transition": true,
-        "plan_claim": true,
-        "plan_release": true,
-        "plan_comment": true
+        "session_flag_current": true
       },
       "permission": {
         "*": "deny",
@@ -244,34 +221,21 @@
         "todowrite": "allow",
         "skill": {
           "*": "deny",
-          "playwright-cli": "allow",
-          "playwright-docs": "allow",
-          "plannotator-annotate": "allow"
-        },
-        "bash": {
-          "*": "deny"
+          "plannotator": "allow"
         },
         "atlassian_getJiraIssue": "allow",
         "atlassian_getJiraIssueRemoteIssueLinks": "allow",
         "atlassian_searchJiraIssuesUsingJql": "allow"
       }
     },
-
     "regression-writer": {
       "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
       "mode": "subagent",
-      "model": "github-copilot/gpt-5.4-mini",
+      "model": "github-copilot/gpt-5.6-terra",
+      "variant": "medium",
       "prompt": "{file:./agent-defs/regression-writer.md}",
       "tools": {
-        "repo_index": true,
-        "repo_query": true,
-        "memory_query": true,
-        "memory_add": true,
-        "playwright-docs search": true,
-        "session_flag_current": true,
-        "plan_get": true,
-        "plan_revise": true,
-        "plan_transition": true
+        "project_index": true
       },
       "permission": {
         "*": "deny",
@@ -285,26 +249,18 @@
         },
         "bash": {
           "*": "deny",
-          "git status": "allow",
-          "git diff *": "allow",
-          "pnpm auth": "allow",
-          "pnpm test:regression *": "allow",
-          "pnpm test:folder *": "allow",
-          "pnpm test *": "allow"
+          "git": "allow",
+          "pnpm auth": "allow"
         }
       }
     },
-
-    // hidden base agents
     "general": {
       "hidden": true
     },
-
     "plan": {
       "hidden": true
     }
   },
-
   "plugin": [
     [
       "@plannotator/opencode@latest",
