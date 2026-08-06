@@ -2,7 +2,7 @@
 custom-shader = shaders/cursor_tail.glsl
 
 theme = Vague
- # background = black
+ background = black
 font-family = Iosevka Term
 font-thicken = true
 font-size = 16
