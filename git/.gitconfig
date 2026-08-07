@@ -1,7 +1,10 @@
 [core]
 	editor = nvim
-	pager = delta
+	; pager = delta
 	excludesfile = /Users/klaus224/.gitignore_global
+
+[diff]
+  tool = nvimdiff
 
 [interactive]
     diffFilter = delta --color-only
@@ -13,6 +16,7 @@
 		line-numbers = true
 
 [merge]
+    tool = nvimdiff
     conflictStyle = zdiff3
 
 [init]

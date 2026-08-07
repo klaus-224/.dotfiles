@@ -491,11 +491,11 @@ function _sync() {
 	merged_other="$(_remove_duplicate_jira_todos "$merged_other" "$merged_assigned_to_me"$'\n'"$merged_assigned_to_other"$'\n'"$merged_unassigned")"
 
 	_migrate_jira_heading "$journal_file" "#### Jira Tickets - assigned to me" "#### Jira Tickets - Assigned to me"
-	_set_marker_block "$journal_file" "**Accomplished**" "^[*][*]Incomplete / Carried Forward[*][*]$|^### " "${accomplished:-No completed work recorded.}"$'\n'
-	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to me" "^#### |^### " "\n$merged_assigned_to_me"$'\n'
-	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to Other" "^#### |^### " "\n$merged_assigned_to_other"$'\n'
-	_set_marker_block "$journal_file" "#### Jira Tickets - Unassigned" "^#### |^### " "\n$merged_unassigned"$'\n'
-	_set_marker_block "$journal_file" "#### Other Todos" "^#### |^### " "\n$merged_other"$'\n'
+	_set_marker_block "$journal_file" "**Accomplished**" "^[*][*]Incomplete / Carried Forward[*][*]$|^### " "${accomplished:-No completed work recorded.}"$'\n\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to me" "^#### |^### " "$merged_assigned_to_me"$'\n\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Assigned to Other" "^#### |^### " "$merged_assigned_to_other"$'\n\n'
+	_set_marker_block "$journal_file" "#### Jira Tickets - Unassigned" "^#### |^### " "$merged_unassigned"$'\n\n'
+	_set_marker_block "$journal_file" "#### Other Todos" "^#### |^### " "$merged_other"$'\n\n'
 
 	echo "Synced: $journal_file"
 	echo "Source: $previous_file"
