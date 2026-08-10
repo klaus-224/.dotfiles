@@ -38,3 +38,5 @@ alias sleep-ok="pkill caffeinate"
 
 # alias for custom scripts
 alias oc="opencode"
+
+alias ctx="ctx7"
