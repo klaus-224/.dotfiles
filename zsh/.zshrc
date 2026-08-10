@@ -10,7 +10,6 @@ source "$HOME/.zshenv"
 source "$HOME/.dotfiles/zsh/path.zsh"
 
 eval "$(starship init zsh)"
-eval "$(navi widget zsh)"
 
 # wrapper to run opencode fom .dotfiles
 opencode() {

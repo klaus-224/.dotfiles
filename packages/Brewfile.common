@@ -50,7 +50,6 @@ brew "lazygit"
 brew "gettext"
 
 # misc
-brew "navi" # https://github.com/denisidoro/navi
 brew "flawz" # https://github.com/orhun/flawz
 
 ## END CLI TOOLS ##
