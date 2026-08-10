@@ -11,7 +11,7 @@ cursor-opacity = 1
 cursor-color= "#f8ce9d"
 bold-is-bright = true
 background-opacity = 0.75
-background-blur-radius = 20
+background-blur-radius = 10
 selection-background = "#0a385c"
 
 window-decoration = none
