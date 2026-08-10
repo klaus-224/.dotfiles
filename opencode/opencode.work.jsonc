@@ -22,6 +22,10 @@
       "model": "github-copilot/gpt-5.6-luna",
       "variant": "medium",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
+      "skill": {
+        "*": "deny",
+        "find-docs": "allow"
+      },
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -49,7 +53,7 @@
       },
       "skill": {
         "*": "deny",
-        "playwright-cli": "allow",
+        // "playwright-cli": "allow",
         "plannotator-annotate": "allow"
       },
       "permission": {
@@ -61,7 +65,7 @@
           "memory *": "allow",
           "session *": "allow",
           "project_index *": "allow",
-          "playwright-cli *": "allow",
+          // "playwright-cli *": "allow",
           "playwright_docs search *": "allow"
         }
       }
@@ -177,7 +181,7 @@
         "submit_plan": "allow",
         "skill": {
           "*": "deny",
-          "playwright-cli": "allow",
+          // "playwright-cli": "allow",
           "plannotator-annotate": "allow"
         },
         "task": {
@@ -189,7 +193,7 @@
           "session *": "allow",
           "memory *": "allow",
           "git *": "allow",
-          "playwright-cli *": "allow",
+          // "playwright-cli *": "allow",
           "pnpm -C apps/playwright-tests auth": "allow"
         }
       }
@@ -237,8 +241,8 @@
         "edit": "allow",
         "todowrite": "allow",
         "skill": {
-          "*": "deny",
-          "playwright-cli": "allow"
+          "*": "deny"
+          // "playwright-cli": "allow"
         },
         "bash": {
           "*": "deny",
