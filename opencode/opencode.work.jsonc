@@ -22,20 +22,13 @@
       "model": "github-copilot/gpt-5.6-luna",
       "variant": "medium",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
-      "tools": {
-        "project_index_search": true,
-        "project_index_index": true,
-        "project_index_query": true,
-        "memory_query": true,
-        "memory_add": true
-      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
         "bash": {
-          "project_index *": "allow"
+          "*": "allow"
         }
       }
     },
