@@ -1,6 +1,10 @@
 require('core')
 require('vim._core.ui2').enable()
 
+-- add cfilter package
+vim.cmd.packadd('cfilter')
+vim.cmd.packadd('nvim.difftool')
+
 vim.pack.add({
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/goolord/alpha-nvim' },

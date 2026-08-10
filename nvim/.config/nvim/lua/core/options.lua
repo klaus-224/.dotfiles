@@ -2,8 +2,6 @@
 vim.g.mapleader = ' '
 vim.opt.swapfile = false
 
--- add cfilter package
-vim.cmd('packadd! cfilter')
 vim.g.no_python_maps = 1
 
 vim.opt.fillchars = { eob = ' ' }
