@@ -115,3 +115,15 @@ vim.api.nvim_create_user_command('PackClean', function()
     vim.pack.del(unused_plugins)
   end
 end, {})
+
+vim.api.nvim_create_user_command('CopyPath', function()
+  local path = vim.fn.expand('%:p')
+
+  if path == '' then
+    vim.notify('Current buffer has no file path', vim.log.levels.WARN)
+    return
+  end
+
+  vim.fn.setreg('+', path)
+  vim.notify('Copied path: ' .. path)
+end, {})
