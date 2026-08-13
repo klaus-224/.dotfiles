@@ -1,7 +1,7 @@
 local M = {}
 
 local config = {
-  height = 0.15,
+  height = 0.33,
   focus = true,
 }
 
@@ -48,12 +48,6 @@ local function create_buffer()
   vim.bo[state.bufnr].bufhidden = 'hide'
   vim.bo[state.bufnr].swapfile = false
   vim.bo[state.bufnr].filetype = 'command-output'
-
-  vim.keymap.set('n', 'q', M.close, {
-    buffer = state.bufnr,
-    silent = true,
-    desc = 'Close command output',
-  })
 
   vim.keymap.set('n', '<C-c>', M.stop, {
     buffer = state.bufnr,
