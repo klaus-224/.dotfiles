@@ -27,6 +27,7 @@ vim.pack.add({
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
   { src = 'https://github.com/f-person/git-blame.nvim' },
+  { src = 'https://github.com/delphinus/md-render.nvim' },
 })
 
 require('custom.ui').setup()
@@ -83,6 +84,9 @@ vim.lsp.enable({
 })
 
 require('conform').setup({
+  default_format_opts = {
+    lsp_format = 'prefer',
+  },
   formatters_by_ft = {
     lua = { 'stylua' },
 

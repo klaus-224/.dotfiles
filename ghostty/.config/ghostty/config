@@ -11,7 +11,7 @@ cursor-opacity = 1
 cursor-color= "#f8ce9d"
 bold-is-bright = true
 background-opacity = 1
-background-blur-radius = 10
+background-blur-radius = 20
 selection-background = "#0a385c"
 
 window-decoration = none
@@ -61,5 +61,7 @@ keybind = super+m=text:\x01\x6d
 keybind = super+o=text:\x01\x4f
 keybind = super+\=text:\x01\x7C
 keybind = super+.=text:\x01\x3E
+keybind = super+bracket_left=unbind
 keybind = super+bracket_left=text:\x01\x5B
+keybind = super+bracket_right=unbind
 keybind = super+bracket_right=text:\x01\x5D

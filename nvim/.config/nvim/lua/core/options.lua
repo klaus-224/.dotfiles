@@ -1,6 +1,11 @@
 -- leader
 vim.g.mapleader = ' '
 vim.opt.swapfile = false
+vim.diagnostic.config({
+  signs = false,
+  virtual_text = true,
+  severity_sort = true,
+})
 
 vim.g.no_python_maps = 1
 
