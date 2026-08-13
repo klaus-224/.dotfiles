@@ -32,6 +32,7 @@ vim.pack.add({
 
 require('custom.ui').setup()
 require('custom.statusline').setup()
+require('custom.execution-buffer').setup()
 
 require('mason').setup()
 require('mason-tool-installer').setup({
