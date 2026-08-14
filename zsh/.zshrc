@@ -46,7 +46,7 @@ setopt PUSHD_SILENT
 export PATH=/Users/klaus224/.opencode/bin:$PATH
 
 # pnpm
-export PNPM_HOME="/Users/klaus224/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME/bin:"*) ;;
   *) export PATH="$PNPM_HOME/bin:$PATH" ;;
