@@ -1,24 +1,4 @@
--- cd to project root
-local function cd_project_root()
-  local root = vim.fs.root(0, {
-    '.git',
-    'package.json',
-    'pyproject.toml',
-    'Cargo.toml',
-    'Makefile',
-  })
-
-  if root then
-    vim.cmd.cd(root)
-    print('Changed directory to ' .. root)
-  else
-    vim.notify('Project root not found', vim.log.levels.WARN)
-  end
-end
-
-vim.keymap.set('n', '<leader>cd', cd_project_root, {
-  desc = 'Change directory to project root',
-})
+-- vim.api.nvim_create_user_command('Home', vim.cmd('alpha'), {})
 
 -- search Files
 vim.api.nvim_create_user_command('Files', function(opts)
@@ -55,28 +35,6 @@ end, {
   complete = 'file',
 })
 
--- Run shell command and show output in a scratch buffer
-vim.keymap.set('n', '<leader>!', function()
-  vim.ui.input({ prompt = 'shell> ' }, function(cmd)
-    if not cmd or cmd == '' then
-      return
-    end
-
-    vim.system({ 'zsh', '-lc', cmd }, { text = true }, function(result)
-      vim.schedule(function()
-        vim.cmd('botright new')
-        vim.bo.buftype = 'nofile'
-        vim.bo.bufhidden = 'wipe'
-        vim.bo.swapfile = false
-        vim.api.nvim_buf_set_name(0, 'shell: ' .. cmd)
-
-        local output = vim.split(result.stdout .. result.stderr, '\n')
-        vim.api.nvim_buf_set_lines(0, 0, -1, false, output)
-      end)
-    end)
-  end)
-end, {})
-
 -- Open terminal in a split
 vim.keymap.set('n', '<leader>tt', function()
   vim.cmd('botright split | resize 5 | terminal')
@@ -87,8 +45,6 @@ vim.keymap.set('n', '<leader>m', function()
   vim.cmd('silent make')
   vim.cmd('copen')
 end, {})
-
--- change to git root
 
 -- remove unused packs
 vim.api.nvim_create_user_command('PackClean', function()
@@ -116,6 +72,7 @@ vim.api.nvim_create_user_command('PackClean', function()
   end
 end, {})
 
+-- copy path of current buffer
 vim.api.nvim_create_user_command('CopyPath', function()
   local path = vim.fn.expand('%:p')
 
