@@ -53,7 +53,7 @@
       },
       "skill": {
         "*": "deny",
-        // "playwright-cli": "allow",
+        "playwright-cli": "allow",
         "plannotator-annotate": "allow"
       },
       "permission": {
