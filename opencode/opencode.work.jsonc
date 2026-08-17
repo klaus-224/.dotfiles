@@ -163,38 +163,44 @@
         "atlassian_lookupJiraAccountId": "allow"
       }
     },
-    "manual-tester": {
-      "description": "Plans and executes manual tests for Jira tickets.",
+    "playwright-user": {
+      "description": "executes manual tests",
       "mode": "primary",
       "model": "github-copilot/gpt-5.6-luna",
-      "prompt": "{file:./agent-defs/manual-tester.md}",
+      "prompt": "{file:./agent-defs/playwright-user.md}",
       "tools": {
-        "*": false,
-        "memory_query": true,
-        "memory_search": true,
+        "*": true,
+        // "memory_query": true,
+        // "memory_search": true,
         "session_flag_current": true
       },
       "permission": {
         "*": "deny",
         "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "webfetch": "allow",
+        "lsp": "allow",
         "todowrite": "allow",
         "submit_plan": "allow",
         "skill": {
           "*": "deny",
-          // "playwright-cli": "allow",
           "plannotator-annotate": "allow"
+          // "playwright-cli": "allow",
         },
         "task": {
           "*": "deny",
           "jira-operator": "allow"
         },
         "bash": {
-          "*": "deny",
-          "session *": "allow",
-          "memory *": "allow",
+          "*": "ask",
+          "gh pr *": "allow",
           "git *": "allow",
-          // "playwright-cli *": "allow",
+          "rg *": "allow",
           "pnpm -C apps/playwright-tests auth": "allow"
+          // "playwright-cli *": "allow",
+          // "session *": "allow",
+          // "memory *": "allow",
         }
       }
     },

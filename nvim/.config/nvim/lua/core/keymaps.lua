@@ -1,3 +1,5 @@
+local custom_functions = require('custom.functions')
+
 vim.keymap.set('i', 'jk', '<Esc>')
 vim.keymap.set('v', 'q', '<Esc>')
 vim.keymap.set({ 'n', 'v' }, 'd', '"_d', { noremap = true, silent = true })
@@ -27,6 +29,9 @@ vim.keymap.set('n', '<leader>t]', '<cmd>tabn<cr>')
 vim.keymap.set('n', '<leader>t[', '<cmd>tabp<cr>')
 vim.keymap.set('n', '<leader>w', '<cmd>update<cr>')
 vim.keymap.set('n', '<leader>Q', '<cmd>qa!<cr>')
+vim.keymap.set('n', '<leader>cd', custom_functions.cd_project_root, {
+  desc = 'Change directory to project root',
+})
 vim.keymap.set('n', '<CR>', function()
   ---@diagnostic disable-next-line: undefined-field
   if vim.v.hlsearch == 1 then
