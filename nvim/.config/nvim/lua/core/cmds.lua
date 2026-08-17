@@ -1,4 +1,4 @@
--- vim.api.nvim_create_user_command('Home', vim.cmd('alpha'), {})
+vim.api.nvim_create_user_command('Home', 'Alpha', {})
 
 -- search Files
 vim.api.nvim_create_user_command('Files', function(opts)
