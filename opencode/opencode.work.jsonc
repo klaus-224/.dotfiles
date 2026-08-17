@@ -185,8 +185,8 @@
         "submit_plan": "allow",
         "skill": {
           "*": "deny",
-          "plannotator-annotate": "allow"
-          // "playwright-cli": "allow",
+          "plannotator-annotate": "allow",
+          "playwright-cli": "allow"
         },
         "task": {
           "*": "deny",
@@ -194,11 +194,12 @@
         },
         "bash": {
           "*": "ask",
+          "ls *": "allow",
           "gh pr *": "allow",
           "git *": "allow",
           "rg *": "allow",
-          "pnpm -C apps/playwright-tests auth": "allow"
-          // "playwright-cli *": "allow",
+          "pnpm -C apps/playwright-tests auth": "allow",
+          "playwright-cli *": "allow"
           // "session *": "allow",
           // "memory *": "allow",
         }
