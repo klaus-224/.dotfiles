@@ -28,6 +28,7 @@ if command -v brew >/dev/null 2>&1; then
   BREW_PREFIX="$(brew --prefix)"
 
   fpath=("$BREW_PREFIX/share/zsh-completions" $fpath)
+  fpath=("$HOME/.zsh/completions" $fpath)
 
   mkdir -p ~/.cache/zsh
   autoload -Uz compinit
