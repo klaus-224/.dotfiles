@@ -22,6 +22,21 @@ vim.keymap.set('n', '<M-<>', '5<c-w><')
 vim.keymap.set('n', 'K', vim.lsp.buf.hover)
 vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
 vim.keymap.set('n', 'gD', vim.lsp.buf.declaration)
+vim.keymap.set('n', '<leader>ca', function()
+  local line = vim.api.nvim_win_get_cursor(0)[1]
+
+  vim.lsp.buf.code_action({
+    -- Include every diagnostic on the current line, not only the one exactly
+    -- under the cursor. TypeScript quick fixes are keyed by diagnostic code.
+    range = {
+      start = { line, 0 },
+      ['end'] = { line, #vim.api.nvim_get_current_line() },
+    },
+    filter = function(action)
+      return action.disabled == nil
+    end,
+  })
+end)
 vim.keymap.set('n', '<leader>ds', vim.lsp.buf.document_symbol)
 vim.keymap.set('n', '<leader>ws', vim.lsp.buf.workspace_symbol)
 vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format)
