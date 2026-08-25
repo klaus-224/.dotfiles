@@ -83,7 +83,7 @@
     },
     "planner": {
       "model": "openai/gpt-5.6-terra",
-      "variant": "medium",
+      "variant": "high",
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
       "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
