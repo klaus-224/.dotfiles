@@ -4,6 +4,7 @@ require('vim._core.ui2').enable()
 -- add cfilter package
 vim.cmd.packadd('cfilter')
 vim.cmd.packadd('nvim.difftool')
+-- Add the plugin using Neovim's native pack manager
 
 vim.pack.add({
   { src = 'https://github.com/vague-theme/vague.nvim' },
@@ -28,6 +29,7 @@ vim.pack.add({
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
   { src = 'https://github.com/f-person/git-blame.nvim' },
   { src = 'https://github.com/delphinus/md-render.nvim' },
+  { src = 'https://github.com/folke/ts-comments.nvim' },
 })
 
 require('custom.ui').setup()
@@ -118,6 +120,19 @@ require('conform').setup({
   format_on_save = {
     timeout_ms = 500,
     lsp_format = 'never',
+  },
+})
+
+require('ts-comments').setup({
+  tsx = {
+    '// %s', -- default commentstring when no treesitter node matches
+    '/* %s */',
+    call_expression = '// %s', -- specific commentstring for call_expression
+    jsx_attribute = '// %s',
+    jsx_element = '{/* %s */}',
+    jsx_fragment = '{/* %s */}',
+    spread_element = '// %s',
+    statement_block = '// %s',
   },
 })
 
