@@ -6,38 +6,25 @@
   "skills": {
     "paths": ["./skills"]
   },
-  "references": {
-    "pydantic": {
-      "repository": "https://github.com/pydantic/pydantic",
-      "branch": "main",
-      "description": "Use when answer user questisons"
-    }
-  },
   "agent": {
-    // Pair Programming Agent
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
       "mode": "primary",
       "model": "openai/gpt-5.6-sol",
       "variant": "high",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
-      "tools": {
-        // "project_index_query": true,
-        // "project_index_search": true
-        // // "memory_query": true,
-        // // "memory_add": true
-      },
       "permission": {
-        "*": "allow",
+        "*": "deny",
         "todowrite": "allow",
         "webfetch": "allow",
+        "skill": {
+          "find-docs": "allow",
+          "simple-coding": "allow"
+        },
         "bash": {
           "*": "deny",
           "read": "allow",
-          "project_index query *": "allow",
-          "project_index search *": "allow",
           "grep *": "allow"
-          // "memory *": "allow"
         }
       }
     },
@@ -45,11 +32,6 @@
       "model": "openai/gpt-5.6-luna",
       "variant": "xhigh",
       "mode": "primary",
-      "tools": {
-        "repo_query": true,
-        "repo_search": true,
-        "paths": true
-      },
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -58,7 +40,9 @@
         "write": "allow",
         "task": "deny",
         "skill": {
-          "*": "deny"
+          "*": "deny",
+          "find-docs": "allow",
+          "simple-coding": "allow"
         },
         "bash": {
           "*": "deny",
@@ -88,13 +72,15 @@
       "mode": "primary",
       "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
       "permission": {
-        "submit_plan": "allow",
         "todowrite": "allow",
         "edit": {
           "*": "deny",
           "*.md": "allow"
         },
-        "skill": {},
+        "skill": {
+          "plannotator-compound": "allow",
+          "simple-coding": "allow"
+        },
         "bash": {
           "*": "ask",
           "git status*": "allow",
@@ -105,6 +91,12 @@
         },
         "external_directory": "deny"
       }
+    },
+    "general": {
+      "hidden": true
+    },
+    "plan": {
+      "hidden": true
     }
   },
   "plugin": [
