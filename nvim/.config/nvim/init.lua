@@ -1,10 +1,8 @@
 require('core')
 require('vim._core.ui2').enable()
 
--- add cfilter package
 vim.cmd.packadd('cfilter')
 vim.cmd.packadd('nvim.difftool')
--- Add the plugin using Neovim's native pack manager
 
 vim.pack.add({
   { src = 'https://github.com/vague-theme/vague.nvim' },
