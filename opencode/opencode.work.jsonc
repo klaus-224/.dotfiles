@@ -24,7 +24,8 @@
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "skill": {
         "*": "deny",
-        "find-docs": "allow"
+        "find-docs": "allow",
+        "simple-coding": "allow"
       },
       "permission": {
         "*": "deny",
@@ -54,7 +55,8 @@
       "skill": {
         "*": "deny",
         "playwright-cli": "allow",
-        "plannotator-annotate": "allow"
+        "plannotator-annotate": "allow",
+        "simple-coding": "allow"
       },
       "permission": {
         "*": "deny",
@@ -90,7 +92,8 @@
         "write": "allow",
         "task": "deny",
         "skill": {
-          "*": "deny"
+          "*": "deny",
+          "simple-coding": "allow"
         },
         "session_reader *": "allow",
         "bash": {
@@ -205,42 +208,13 @@
         }
       }
     },
-    // Regression Test Planner
-    "regression-planner": {
-      "description": "Plans regression tests from multiple perspectives, then debates and converges on the best plan with other planner instances",
-      "mode": "subagent",
-      "model": "github-copilot/gpt-5.6-sol",
-      "variant": "high",
-      "prompt": "{file:./agent-defs/regression-planner.md}",
-      "tools": {
-        "project_index": true,
-        "memory_query": true,
-        "memory_add": true,
-        "playwright-docs_search": true,
-        "session_flag_current": true
-      },
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "skill": {
-          "*": "deny",
-          "plannotator": "allow"
-        },
-        "atlassian_getJiraIssue": "allow",
-        "atlassian_getJiraIssueRemoteIssueLinks": "allow",
-        "atlassian_searchJiraIssuesUsingJql": "allow"
-      }
-    },
-    "regression-writer": {
+    "test-writer": {
       "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
       "mode": "subagent",
       "model": "github-copilot/gpt-5.6-terra",
-      "variant": "medium",
-      "prompt": "{file:./agent-defs/regression-writer.md}",
-      "tools": {
-        "project_index": true
-      },
+      "variant": "high",
+      "prompt": "{file:./agent-defs/pw-test-writer.md}",
+      "tools": {},
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -248,13 +222,15 @@
         "edit": "allow",
         "todowrite": "allow",
         "skill": {
-          "*": "deny"
-          // "playwright-cli": "allow"
+          "*": "deny",
+          "simple-coding": "allow",
+          "find-docs": "allow",
+          "playwright-cli": "allow"
         },
         "bash": {
           "*": "deny",
           "git": "allow",
-          "pnpm auth": "allow"
+          "pnpm *": "allow"
         }
       }
     },
