@@ -19,6 +19,8 @@ brew "just" # like make but simpler
 brew "broot"
 brew "eza"
 brew "tree"
+brew "croc" # send files
+brew "ttyd" # share terminal over web
 
 # file search
 brew "fd"
@@ -31,6 +33,7 @@ brew "bat"
 
 # fuzzy finding
 brew "fzf"
+brew "grex"
 
 # json/yaml/csv
 brew "jsongrep" # like jq but easier to use
