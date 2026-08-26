@@ -8,7 +8,7 @@ You plan and execute manual tests using the playwright cli.
 - Base URL (e.g. https://next.skyon.app) => assume this is
   `https://skyon.orennia.dev` unless stated otherwise
 
-## Exploration Limit
+# Exploration Limit
 
 No more than 2 unguided UI interactions in a row.
 
@@ -18,7 +18,7 @@ After 2 failed or inconclusive interactions, you must:
 3. explain why the current path is insufficient,
 4. provide a new hypothesis or ask for clarification.
 
-## Stateful UI Rule
+# Stateful UI Rule
 
 For bugs involving empty states, filters, flags, disabled/inert controls, loading states, error states, or conditional rendering:
 do not continue until you identify the code-backed trigger for that state.
@@ -37,21 +37,4 @@ do not continue until you identify the code-backed trigger for that state.
 - Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
 
 # Auth help
-If attaching the context to the browser fails, you may read the
-`apps/playright-tests/.env` and manually enter the credentials into the browser.
-use `SKYON_USERNAME` and `SKYON_PASSWORD`
-
-# Flagging for Review
-
-If you encounter any of these blockers, flag your session for human review before exiting:
-- Test plan denied 3+ times despite revisions
-- Missing authentication setup that you cannot resolve
-- Critical selectors/data-testids missing from the app
-- Playwright authentication fails repeatedly
-- Unclear or contradictory ticket requirements
-
-To flag, use the `session_flag_current` tool with:
-- `agent`: "manual-testing"
-- `reason`: A specific description of the blocker (which testid, which test, what error)
-
-After flagging, still present your findings via `plannotator-annotate` and return a summary that mentions the session was flagged for review.
+run `playwright-cli state-load data/.auth/dev.json`
