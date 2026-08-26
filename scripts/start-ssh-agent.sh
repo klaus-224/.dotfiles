@@ -1,2 +1,2 @@
 eval "$(ssh-agent -s)"
-ssh-add $HOME/.ssh/KEY_NAME
+ssh-add "$HOME/.ssh/"
