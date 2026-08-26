@@ -33,3 +33,6 @@ export GLOBAL_GITIGNORE="$HOME/.gitignore_global"
 
 # ripgrep config
 export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
+
+# harlequin config
+export HARLEQUIN_CONFIG_PATH="$DOTFILES_HOME/harlequin.toml"
