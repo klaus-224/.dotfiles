@@ -51,17 +51,16 @@ keybind = super+digit_8=text:\x01\x38
 keybind = super+digit_9=text:\x01\x39
 
 keybind = super+p=text:\x01\x50
-keybind = super+n=text:\x01\x4e
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
 keybind = super+g=text:\x01\x47
 keybind = super+x=text:\x01\x78
+keybind = super+e=text:\x01\x65
 keybind = super+w=text:\x01\x77
 keybind = super+m=text:\x01\x6d
 keybind = super+o=text:\x01\x4f
+keybind = super+r=text:\x01\x52
 keybind = super+\=text:\x01\x7C
 keybind = super+.=text:\x01\x3E
-keybind = super+bracket_left=unbind
-keybind = super+bracket_left=text:\x01\x5B
-keybind = super+bracket_right=unbind
-keybind = super+bracket_right=text:\x01\x5D
+keybind = super+[=text:\x01\x5B
+keybind = super+]=text:\x01\x5D
