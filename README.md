@@ -36,10 +36,11 @@
 <!-- mtoc-end -->
 ---
 # TODO
-- [ ] change tmux to vimothee
+- [x] change tmux to vimothee
 - [ ] move custom lua functions
 - [ ] aerospace
 - [ ] look into dev containers [devpod](https://devpod.sh/)
+- [ ] devenv.zsh and mise
 - [ ] consolidate everything into 1 `setup.sh` script
 - [ ] tools to look at
     - [thread deck](https://github.com/gripebomb/ThreatDeck)
@@ -49,6 +50,10 @@
     - [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
     - [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
     - [zshkit](https://github.com/bkerley/zshkit) - example zsh config
+    - [grex]
+    - [croc]
+    - [ttyd]
+    - zsh suffix alias
 ---
 
 # CLI Tool Reference
