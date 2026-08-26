@@ -1,4 +1,3 @@
-tap "bgreenwell/tap"
 tap "anomalyco/tap"
 
 # tuis and stuff
@@ -35,16 +34,14 @@ brew "fzf"
 
 # json/yaml/csv
 brew "jsongrep" # like jq but easier to use
-brew "csvlens"
 brew "dasel"
 
 # monitoring
-brew "hyperfine"
-brew "gping"
 brew "bottom"
 
 # tuis
 brew "lazygit"
+brew "harlequin"
 
 # gettext: https://formulae.brew.sh/formula/gettext
 brew "gettext"
@@ -61,10 +58,11 @@ brew "zsh-syntax-highlighting"
 # package managers
 brew "pnpm"
 brew "rustup-init"
+brew "bbrew"
 
 # aws
 brew "aws-cdk"
 brew "awscli"
 
-brew "bgreenwell/tap/xleak"
 brew "anomalyco/tap/opencode"
+
