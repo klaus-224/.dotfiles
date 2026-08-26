@@ -1,6 +1,6 @@
 "$schema" = "https://starship.rs/config-schema.json"
 format = """
-$os$directory$git_branch$git_status$fill$nodejs$rust$python$aws
+$username$hostname$os$directory$git_branch$git_status$fill$nodejs$rust$python$aws
 $character
 """
 add_newline = false
@@ -16,6 +16,14 @@ lavender = "#c9b1ca"
 
 [fill]
 symbol = " "
+
+[username]
+show_always = true
+format = "[$user]($style)@ "
+
+[hostname]
+ssh_only = true
+format = "[$hostname]($style) "
 
 [os]
 disabled = false
