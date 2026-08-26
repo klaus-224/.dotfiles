@@ -3,3 +3,4 @@
 toml-cli
 diss
 tealdeer
+crates-tui
