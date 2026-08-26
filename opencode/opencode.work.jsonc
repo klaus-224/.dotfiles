@@ -56,19 +56,15 @@
         "*": "deny",
         "playwright-cli": "allow",
         "plannotator-annotate": "allow",
-        "simple-coding": "allow"
+        "simple-coding": "allow",
+        "find-docs": "allow"
       },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
-        "playwright-docs search": "allow",
         "bash": {
-          "memory *": "allow",
-          "session *": "allow",
-          "project_index *": "allow",
-          // "playwright-cli *": "allow",
-          "playwright_docs search *": "allow"
+          "playwright-cli *": "allow"
         }
       }
     },
@@ -166,7 +162,7 @@
         "atlassian_lookupJiraAccountId": "allow"
       }
     },
-    "test-orhcestrator": {
+    "test-orchestrator": {
       "description": "orchestrates playwright users",
       "mode": "primary",
       "model": "github-copilot/gpt-5.6-luna",
@@ -210,8 +206,6 @@
       "prompt": "{file:./agent-defs/playwright-user.md}",
       "tools": {
         "*": true,
-        // "memory_query": true,
-        // "memory_search": true,
         "session_flag_current": true
       },
       "permission": {
@@ -240,8 +234,6 @@
           "rg *": "allow",
           "pnpm -C apps/playwright-tests auth": "allow",
           "playwright-cli *": "allow"
-          // "session *": "allow",
-          // "memory *": "allow",
         }
       }
     },
