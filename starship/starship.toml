@@ -1,17 +1,17 @@
-"$schema" = "https://starship.rs/config-schema.json"
 format = """
-$username$hostname$os$directory$git_branch$git_status$fill$nodejs$rust$python$aws
+$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python$aws
 $character
 """
 add_newline = false
+palette = "clean"
 
 [palettes.clean]
 fg = "#cdcdcd"
 muted = "#606079"
-blue = "#8ba9c1"
+blue = "#6e94b2"
 green = "#99b782"
-yellow = "#f5cb96"
-red = "#e08398"
+yellow = "#e8b589"
+red = "#c48282"
 lavender = "#c9b1ca"
 
 [fill]
@@ -19,11 +19,15 @@ symbol = " "
 
 [username]
 show_always = true
-format = "[$user]($style)@ "
+format = "[$user]($style) "
+style_user = "bold yellow"
 
 [hostname]
-ssh_only = true
-format = "[$hostname]($style) "
+ssh_only = false
+disabled = false
+detect_env_vars = ["!TMUX", "SSH_CONNECTION"]
+format = "@[$hostname]($style) "
+style = "bold blue"
 
 [os]
 disabled = false
@@ -51,11 +55,11 @@ home_symbol = "~"
 
 [git_branch]
 symbol = ""
-style = "bold #a6e3a1"
+style = "bold green"
 format = " [$branch]($style)"
 
 [git_status]
-style = "bold #f9e2af"
+style = "bold yellow"
 format = " ([$all_status$ahead_behind]($style) )"
 ahead = "⇡${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
@@ -63,7 +67,7 @@ behind = "⇣${count}"
 
 [nodejs]
 symbol = ""
-style = "#89b4fa"
+style = "bold green"
 format = "[node:$version]($style) "
 
 [rust]
@@ -89,5 +93,5 @@ format = "[$indicator]($style)"
 style = "muted"
 
 [character]
-success_symbol = "[❯](#a6e3a1)"
-error_symbol = "[❯](#f38ba8)"
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
