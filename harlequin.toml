@@ -5,3 +5,9 @@ adapter = "duckdb"
 theme = "dracula"
 viewer_max_rows = 100000
 keymap_name = ["vscode"]
+
+[profiles.sqlite]
+adapter = "sqlite"
+theme = "dracula"
+viewer_max_rows = 100000
+keymap_name = ["vscode"]
