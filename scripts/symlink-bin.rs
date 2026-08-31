@@ -1,4 +1,4 @@
-#!/usr/bin/env -S rust-script --cargo-output
+#!/usr/bin/env rust
 use std::env;
 use std::fs;
 use std::io;

@@ -1,0 +1,8 @@
+# mouse wheel support (TUI-mode only)
+mouse: true
+# at which column should we word wrap?
+width: 80
+# show all files, including hidden and ignored.
+all: true
+# show line numbers (TUI-mode only)
+showLineNumbers: true
