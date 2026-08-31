@@ -30,3 +30,6 @@ export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
 
 # harlequin config
 export HARLEQUIN_CONFIG_PATH="$DOTFILES_HOME/harlequin.toml"
+
+# glow tui style
+export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"

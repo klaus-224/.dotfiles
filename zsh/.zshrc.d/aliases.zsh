@@ -16,8 +16,7 @@ alias vi="nvim"
 alias sz="source ~/.zshrc"
 
 # eza
-alias ls="eza --long --no-time --no-user --no-permissions --all --group-directories-first --icons --grid"
-alias lss="eza --long -all --group-directories-first  --icons=always --color=always | fzf --ansi"
+alias ls="eza --long --no-time --no-user --no-permissions --all --group-directories-first --icons"
 alias lst="eza --tree --long --all --group-directories-first --no-user --no-time --icons"
 
 # smolvm
@@ -28,3 +27,8 @@ alias svmls="smolvm machine ls"
 alias svmstart="smolvm machine start"
 alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
+
+# suffix alias
+alias -s {js,json,env,html,css,toml,ts,tsx,rs}="bat"
+alias -s md="glow -t"
+alias -s {mov,png,mp4,pdf}="open"
