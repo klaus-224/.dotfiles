@@ -41,7 +41,6 @@
 - [ ] look into dev containers [devpod](https://devpod.sh/)
 - [ ] consolidate everything into 1 `setup.sh` script
 - [ ] tools to look at
-    - [ tpipeline ](https://github.com/vimpostor/vim-tpipeline)
     - [age](https://github.com/FiloSottile/age) - file encryption/decryption 
     - [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
     - [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
@@ -53,6 +52,7 @@
 
 # CLI Tool Reference
 
+- [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
 - [ gh-dash ](https://www.gh-dash.dev/getting-started) - TUI dashboard for GH PRs and issues
 
   ```zsh
@@ -65,11 +65,8 @@
 - [just](https://github.com/casey/just)
 - [m-cli](https://github.com/rgcr/m-cli) - macos commands 
 - [RustScan](https://github.com/bee-san/RustScan) - port scanner
-- [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge) 
 - [zshkit](https://github.com/bkerley/zshkit) - example zsh config
 - [diss](https://github.com/yazgoo/diss) - dissociates a program from the current terminal, like `dtach`
-- [xleak](https://github.com/bgreenwell/xleak) - xlsx viewer
-- [csvlens](https://github.com/YS-L/csvlens) - csv viewer
 
 
 - **NOT ADDED** [qsv](https://github.com/andmarti1424/sc-im) - terminal spreadsheet calculator
@@ -78,6 +75,8 @@
 - **NOT ADDED** [rage](https://github.com/str4d/rage) - file encryption
 - ** NOT ADDED** [worktrunk](https://worktrunk.dev/worktrunk/#context-git-worktrees) - makes working with git worktrees easier
 - ** NOT ADDED** [superpower](https://github.com/obra/superpowers) - plugins and stuff for ai
+- [xleak](https://github.com/bgreenwell/xleak) - xlsx viewer
+- [csvlens](https://github.com/YS-L/csvlens) - csv viewer
 
 ---
 # References
