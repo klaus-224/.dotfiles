@@ -86,7 +86,7 @@ vim.lsp.enable({
 
 require('conform').setup({
   default_format_opts = {
-    lsp_format = 'prefer',
+    lsp_format = 'fallback',
   },
   formatters_by_ft = {
     lua = { 'stylua' },
@@ -94,15 +94,15 @@ require('conform').setup({
     -- web
     javascript = { 'biome' },
     javascriptreact = { 'biome' },
-    typescript = { 'biome' },
-    typescriptreact = { 'biome' },
+    typescript = { 'oxfmt', 'biome' },
+    typescriptreact = { 'oxfmt', 'biome' },
 
     -- data/config
     yaml = { 'biome' },
     -- markdown = { 'biome' },
     sql = { 'sleek' },
-    jsonc = { 'biome' },
-    json = { 'biome' },
+    jsonc = { 'oxfmt', 'biome' },
+    json = { 'oxfmt', 'biome' },
 
     -- toml
     toml = { 'tombi' },
@@ -122,15 +122,17 @@ require('conform').setup({
 })
 
 require('ts-comments').setup({
-  tsx = {
-    '// %s', -- default commentstring when no treesitter node matches
-    '/* %s */',
-    call_expression = '// %s', -- specific commentstring for call_expression
-    jsx_attribute = '// %s',
-    jsx_element = '{/* %s */}',
-    jsx_fragment = '{/* %s */}',
-    spread_element = '// %s',
-    statement_block = '// %s',
+  lang = {
+    tsx = {
+      '// %s', -- default commentstring when no treesitter node matches
+      '/* %s */',
+      call_expression = '// %s', -- specific commentstring for call_expression
+      jsx_attribute = '// %s',
+      jsx_element = '{/* %s */}',
+      jsx_fragment = '{/* %s */}',
+      spread_element = '// %s',
+      statement_block = '// %s',
+    },
   },
 })
 
