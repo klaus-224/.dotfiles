@@ -4,24 +4,21 @@ alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
 alias cdnc="cd ~/.dotfiles/nvim/.config/nvim"
 
+alias ctx="ctx7"
+alias oc="opencode"
+alias lg="lazygit"
+alias tkw="tmux killw"
+alias tkp="tmux killp"
+alias hq="harlequin"
+
 # editors
 alias vi="nvim"
 alias sz="source ~/.zshrc"
 
 # eza
-alias ls="eza --long --all --group-directories-first --no-user --no-time --icons"
+alias ls="eza --long --no-time --no-user --no-permissions --all --group-directories-first --icons --grid"
+alias lss="eza --long -all --group-directories-first  --icons=always --color=always | fzf --ansi"
 alias lst="eza --tree --long --all --group-directories-first --no-user --no-time --icons"
-
-# tmux
-alias tkw="tmux killw"
-alias tkp="tmux killp"
-
-# python
-alias python="python3"
-alias pip="pip3"
-
-# git
-alias lg="lazygit"
 
 # smolvm
 alias svmrust="smolfile_render \${DOTFILES_HOME}/smolvm/rust-dev.smolfile.tmpl \${CODE_DIR}/smolvm/rust-dev.smolfile"
@@ -31,12 +28,3 @@ alias svmls="smolvm machine ls"
 alias svmstart="smolvm machine start"
 alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
-
-# misc
-alias awake="caffeinate -dimsu &"
-alias sleep-ok="pkill caffeinate"
-
-# alias for custom scripts
-alias oc="opencode"
-
-alias ctx="ctx7"
