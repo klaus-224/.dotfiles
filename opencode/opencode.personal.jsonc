@@ -46,22 +46,10 @@
         },
         "bash": {
           "*": "deny",
-          "git *": "allow",
-          "pnpm *": "allow",
-          "npm *": "allow",
-          "node *": "allow",
-          "npx *": "allow",
-          "tsc *": "allow",
-          "eslint *": "allow",
-          "prettier *": "allow",
-          "docker *": "allow",
-          "make *": "allow",
+          "rg *": "allow",
           "ls *": "allow",
-          "mkdir *": "allow",
-          "cargo *": "allow",
-          "cp *": "allow",
-          "mv *": "allow",
-          "rm *": "ask"
+          "git *": "allow",
+          "pnpm *": "allow"
         }
       }
     },
@@ -79,15 +67,19 @@
         },
         "skill": {
           "plannotator-compound": "allow",
-          "simple-coding": "allow"
+          "simple-coding": "allow",
+          "find-docs": "allow"
         },
         "bash": {
           "*": "ask",
           "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
+          "git diff *": "allow",
+          "git log *": "allow",
           "rg *": "allow",
-          "grep *": "allow"
+          "grep *": "allow",
+          "pnpx *": "allow",
+          "pnpm *": "allow",
+          "ctx *": "allow"
         },
         "external_directory": "deny"
       }
