@@ -21,7 +21,7 @@ description: >-
 
 Retrieve current documentation and code examples for any library using the Context7 CLI.
 
-Run commands with `p ctx` so setup always uses the latest CLI without a global install:
+Run commands with `ctx` so setup always uses the latest CLI without a global install:
 
 ```bash
  ctx library <name> "<query>"
