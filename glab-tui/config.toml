@@ -3,30 +3,7 @@ theme_preset = "vague"
 # theme_preset = "clean"
 # theme_preset = "github-dark-hc"
 
-# Items per API request (1-100) — lower this if your GitLab instance truncates
-# large JSON response bodies. GitLab-only; GitHub paginates with --limit.
-# api_per_page = 100
-
-# Label colors: use the real colors from `label list` (GitLab/GitHub) when
-# available, falling back to the theme palette. Set to false to always use the
-# theme palette.
-# fetch_label_colors = true
-
-# Override individual colors (takes precedence over theme_preset)
-# [theme]
-# bg = "#121214"
-# border_focused = "#31bf67"
-# ...color tokens (see bundled themes for the full list)
-
-# Remap any keybinding
-[keybindings.global]
-next_tab = "l"
-# ...
-
-[keybindings.issues]
-create_issue = "n"
-edit_entity = "e"
-# ...
+backend = "github"
 
 # Persist default column visibility / grouping / filters per pane
 # [issues]
