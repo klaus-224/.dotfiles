@@ -33,3 +33,7 @@ export HARLEQUIN_CONFIG_PATH="$DOTFILES_HOME/harlequin.toml"
 
 # glow tui style
 export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"
+
+# gitlab-tui style
+export GLAB_TUI_CONFIG="$DOTFILES_HOME/glab-tui/config.toml"                         
+

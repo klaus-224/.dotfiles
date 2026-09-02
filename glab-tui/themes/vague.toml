@@ -1,0 +1,40 @@
+bg = "#000000"
+
+border = "#606079"
+border_focused = "#6e94b2"
+
+header_fg = "#b4d4cf"
+
+highlight_bg = "#333738"
+inactive_bg = "#1c1c24"
+
+text_normal = "#cdcdcd"
+text_muted = "#606079"
+
+checked_bg = "#405065"
+
+green = "#7fa563"
+green_bg = "#252b21"
+
+red = "#d8647e"
+red_bg = "#332126"
+
+blue = "#6e94b2"
+blue_bg = "#22282e"
+
+yellow = "#f3be7c"
+yellow_bg = "#382f25"
+
+purple = "#bb9dbd"
+purple_bg = "#2f2a30"
+
+label_palette_0 = "#c48282"
+label_palette_1 = "#6e94b2"
+label_palette_2 = "#7fa563"
+label_palette_3 = "#e8b589"
+label_palette_4 = "#d8647e"
+label_palette_5 = "#bb9dbd"
+label_palette_6 = "#e0a363"
+label_palette_7 = "#b4d4cf"
+label_palette_8 = "#aeaed1"
+label_palette_9 = "#9bb4bc"
