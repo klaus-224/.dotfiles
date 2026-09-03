@@ -2,13 +2,13 @@
 vim.g.mapleader = ' '
 vim.opt.swapfile = false
 vim.diagnostic.config({
+  underline = true,
   signs = false,
-  virtual_text = true,
+  virtual_text = false,
   severity_sort = true,
 })
 
 vim.g.no_python_maps = 1
-
 vim.opt.fillchars = { eob = ' ' }
 vim.opt.wrap = false
 
@@ -39,17 +39,20 @@ vim.opt.backspace = { 'start', 'eol', 'indent' }
 vim.opt.hlsearch = true
 vim.opt.inccommand = 'split'
 vim.opt.smartcase = true
+vim.opt.showmatch = true
 vim.opt.ignorecase = true
+vim.opt.showmatch = true
+vim.opt.showmatch = true
 vim.opt.showmatch = true
 
 -- folding
 vim.opt.foldmethod = 'expr'
 vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-vim.opt.foldlevelstart = 99
+vim.opt.foldlevelstart = 999
 
 -- clipboard / editing
 vim.opt.clipboard = 'unnamedplus'
-vim.opt.virtualedit = 'block'
+-- vim.opt.virtualedit = 'block'
 
 -- completion
 vim.opt.completeopt = 'menu,popup,noinsert,fuzzy'

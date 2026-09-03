@@ -4,6 +4,32 @@ tap "anomalyco/tap"
 brew "stow"
 brew "tmux"
 brew "neovim"
+
+# language servers and formatters
+# brew "basedpyright"
+# brew "ruff"
+# brew "bash-language-server"
+# brew "biome"
+# brew "docker-language-server"
+# brew "lua-language-server"
+# brew "rust-analyzer"
+# brew "shellcheck"
+# brew "stylua"
+# brew "tailwindcss-language-server"
+# brew "terraform-ls"
+brew "tombi"
+brew "typescript-language-server"
+brew "vscode-langservers-extracted"
+brew "yaml-language-server"
+brew  "postgres-language-server"
+
+tap "hashicorp/tap"
+brew "hashicorp/tap/terraform"
+
+npm "@prisma/language-server"
+npm "svelte-language-server"
+npm "sql-language-server"
+
 brew "starship"
 brew "glow" # render markdown
 

@@ -46,7 +46,7 @@ vim.keymap.set('n', '<leader>m', function()
   vim.cmd('copen')
 end, {})
 
--- remove unused packs
+-- remove unused `vim.pack.del( { 'plugin' })`packs
 vim.api.nvim_create_user_command('PackClean', function()
   local active_plugins = {}
   local unused_plugins = {}
