@@ -1,13 +1,13 @@
 {
-	"$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
 
-	"runtime.version": "LuaJIT",
-	"runtime.path": ["lua/?.lua", "lua/?/init.lua"],
+  "runtime.version": "LuaJIT",
+  "runtime.path": ["lua/?.lua", "lua/?/init.lua"],
 
-	"workspace.checkThirdParty": false,
-	"workspace.library": ["${3rd}/luv/library", "$VIMRUNTIME"],
+  "workspace.checkThirdParty": false,
+  "workspace.library": ["${3rd}/luv/library", "$VIMRUNTIME"],
 
-	"diagnostics.globals": ["vim"],
+  "diagnostics.globals": ["vim"],
 
-	"completion.callSnippet": "Replace"
+  "completion.callSnippet": "Replace"
 }

@@ -1,6 +1,7 @@
 # Cargo packages to keep installed globally.
 # Format: crate [git-source]
 toml-cli
+sleek
 diss
 tealdeer
 crates-tui
