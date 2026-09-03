@@ -48,14 +48,14 @@ case "$ACTION" in
 esac
 
 echo "Syncing cargo packages from $CARGO_PKG_FILE"
-while IFS= read -r crate; do
+while read -r crate source; do
   [[ -z "$crate" ]] && continue
+  args=(install --locked)
+  [[ "$ACTION" == "reinstall" ]] && args+=(--force)
+  [[ -n "${source:-}" ]] && args+=(--git "$source")
+
   echo "-> $crate"
-  if [[ "$ACTION" == "reinstall" ]]; then
-    cargo install --locked --force "$crate"
-  else
-    cargo install --locked "$crate"
-  fi
+  cargo "${args[@]}" "$crate"
 done < <(read_packages)
 
 echo "Cargo package sync complete."

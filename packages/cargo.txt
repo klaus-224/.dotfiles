@@ -1,6 +1,7 @@
 # Cargo packages to keep installed globally.
-# One crate name per line.
+# Format: crate [git-source]
 toml-cli
 diss
 tealdeer
 crates-tui
+zshcs https://github.com/yuys13/zshcs.git

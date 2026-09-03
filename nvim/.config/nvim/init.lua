@@ -8,8 +8,6 @@ vim.pack.add({
   { src = 'https://github.com/vague-theme/vague.nvim' },
   { src = 'https://github.com/goolord/alpha-nvim' },
   { src = 'https://github.com/brenoprata10/nvim-highlight-colors' },
-  { src = 'https://github.com/mason-org/mason.nvim' },
-  { src = 'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim' },
   { src = 'https://github.com/b0o/SchemaStore.nvim' },
   { src = 'https://github.com/folke/lazydev.nvim' },
   { src = 'https://github.com/L3MON4D3/LuaSnip' },
@@ -19,44 +17,18 @@ vim.pack.add({
   { src = 'https://github.com/romus204/tree-sitter-manager.nvim' },
   { src = 'https://github.com/stevearc/oil.nvim' },
   { src = 'https://github.com/nvim-mini/mini.pick' },
-  { src = 'https://github.com/kylechui/nvim-surround', version = vim.version.range('4.x') },
+  { src = 'https://github.com/kylechui/nvim-surround',              version = vim.version.range('4.x') },
   { src = 'https://github.com/windwp/nvim-autopairs' },
   { src = 'https://github.com/stevearc/conform.nvim' },
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
   { src = 'https://github.com/f-person/git-blame.nvim' },
-  { src = 'https://github.com/delphinus/md-render.nvim' },
-  { src = 'https://github.com/folke/ts-comments.nvim' },
 })
 
 require('custom.ui').setup()
 require('custom.statusline').setup()
 require('custom.execution-buffer').setup()
-
-require('mason').setup()
-require('mason-tool-installer').setup({
-  ensure_installed = {
-    'basedpyright',
-    'bash-language-server',
-    'css-lsp',
-    'docker-language-server',
-    'html-lsp',
-    'json-lsp',
-    'lua-language-server',
-    'prisma-language-server',
-    'ruff',
-    'shellcheck',
-    'svelte-language-server',
-    'tailwindcss-language-server',
-    'terraform',
-    'tombi',
-    'typescript-language-server',
-    'yaml-language-server',
-    'stylua',
-    'biome',
-  },
-})
 
 require('lazydev').setup({
   library = {
@@ -66,19 +38,21 @@ require('lazydev').setup({
 
 vim.lsp.enable({
   'lua_ls',
-  'basedpyright',
-  'bashls',
-  'cssls',
-  'dockerls',
-  'html_ls',
-  'jsonls',
-  'prismals',
-  'ruff',
-  'rust_analyzer',
-  'zshcs',
-  'svelte',
+  -- 'basedpyright',
+  -- 'bashls',
+  -- 'cssls',
+  -- 'dockerls',
+  -- 'html_ls',
+  -- 'jsonls',
+  -- 'prismals',
+  -- 'ruff',
+  -- 'rust_analyzer',
+  'sqlls',
+  'postgres_lsp',
+  -- 'zshcs',
+  -- 'svelte',
   'tailwindcss',
-  'terraformls',
+  -- 'terraformls',
   'ts_ls',
   'yamlls',
   'tombi',
@@ -121,21 +95,6 @@ require('conform').setup({
   },
 })
 
-require('ts-comments').setup({
-  lang = {
-    tsx = {
-      '// %s', -- default commentstring when no treesitter node matches
-      '/* %s */',
-      call_expression = '// %s', -- specific commentstring for call_expression
-      jsx_attribute = '// %s',
-      jsx_element = '{/* %s */}',
-      jsx_fragment = '{/* %s */}',
-      spread_element = '// %s',
-      statement_block = '// %s',
-    },
-  },
-})
-
 require('luasnip.loaders.from_vscode').lazy_load()
 local cmp = require('blink.cmp')
 -- cmp.build():wait(60000)
@@ -159,10 +118,10 @@ cmp.setup({
 })
 
 require('tree-sitter-manager').setup({
-  dependencies = {}, -- tree-sitter CLI must be installed system-wide
+  dependencies = {},   -- tree-sitter CLI must be installed system-wide
   ensure_installed = { 'svelte' },
   auto_install = true, -- install missing parsers when editing a new file
-  highlight = false, -- treesitter highlighting is enabled by default
+  highlight = false,   -- treesitter highlighting is enabled by default
 })
 
 require('oil').setup({
