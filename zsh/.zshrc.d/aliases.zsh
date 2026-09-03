@@ -10,6 +10,8 @@ alias lg="lazygit"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
 alias hq="harlequin"
+alias gwta="git worktree add"
+alias gwtr="git worktree remove"
 
 # editors
 alias vi="nvim"

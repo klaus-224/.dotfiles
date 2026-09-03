@@ -53,7 +53,7 @@ vim.lsp.enable({
   -- 'svelte',
   'tailwindcss',
   -- 'terraformls',
-  'ts_ls',
+  'ts_go',
   'yamlls',
   'tombi',
 })
