@@ -47,7 +47,7 @@ vim.lsp.enable({
   -- 'prismals',
   -- 'ruff',
   -- 'rust_analyzer',
-  'sqlls',
+  -- 'sqlls',
   'postgres_lsp',
   -- 'zshcs',
   -- 'svelte',
