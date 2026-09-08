@@ -38,21 +38,8 @@ require('lazydev').setup({
 
 vim.lsp.enable({
   'lua_ls',
-  -- 'basedpyright',
-  -- 'bashls',
-  -- 'cssls',
-  -- 'dockerls',
-  -- 'html_ls',
-  -- 'jsonls',
-  -- 'prismals',
-  -- 'ruff',
-  -- 'rust_analyzer',
-  -- 'sqlls',
   'postgres_lsp',
-  -- 'zshcs',
-  -- 'svelte',
   'tailwindcss',
-  -- 'terraformls',
   'ts_go',
   'yamlls',
   'tombi',
@@ -118,10 +105,10 @@ cmp.setup({
 })
 
 require('tree-sitter-manager').setup({
-  dependencies = {},   -- tree-sitter CLI must be installed system-wide
+  dependencies = {}, 
   ensure_installed = { 'svelte' },
-  auto_install = true, -- install missing parsers when editing a new file
-  highlight = false,   -- treesitter highlighting is enabled by default
+  auto_install = true,
+  highlight = false,
 })
 
 require('oil').setup({
@@ -149,6 +136,6 @@ require('gitblame').setup({
   enabled = false,
   message_template = ' <summary> • <date> • <author> • <<sha>>',
   date_format = '%r',
-  virtual_text_column = 0,
+  virtual_text_column = 80,
   use_blame_commit_file_urls = false,
 })
