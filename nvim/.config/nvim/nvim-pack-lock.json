@@ -36,10 +36,6 @@
       "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
       "src": "https://github.com/folke/lazydev.nvim"
     },
-    "md-render.nvim": {
-      "rev": "1e55f744ae1d89d31f92e8af621f4428147db379",
-      "src": "https://github.com/delphinus/md-render.nvim"
-    },
     "mini.pick": {
       "rev": "04e73ab07222508361095bb6e27621b315e6b9f1",
       "src": "https://github.com/nvim-mini/mini.pick"
@@ -64,10 +60,6 @@
     "tree-sitter-manager.nvim": {
       "rev": "bb66b815aff01e87b2e26be995116be8d2f91474",
       "src": "https://github.com/romus204/tree-sitter-manager.nvim"
-    },
-    "ts-comments.nvim": {
-      "rev": "a59d6092213447450191122c9346f309161504cb",
-      "src": "https://github.com/folke/ts-comments.nvim"
     },
     "vague.nvim": {
       "rev": "fd58046b9d64259d9785e4aeb6d6f494c6943cad",
