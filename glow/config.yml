@@ -7,4 +7,5 @@ pager: false
 # word-wrap at width
 width: 80
 # show all files, including hidden and ignored.
-all: false
+all: true
+
