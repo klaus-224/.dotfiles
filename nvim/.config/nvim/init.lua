@@ -38,6 +38,16 @@ require('lazydev').setup({
 
 vim.lsp.enable({
   'lua_ls',
+  -- 'basedpyright',
+  -- 'bashls',
+  -- 'cssls',
+  -- 'dockerls',
+  -- 'html_ls',
+  'jsonls',
+  -- 'prismals',
+  -- 'ruff',
+  -- 'rust_analyzer',
+  -- 'sqlls',
   'postgres_lsp',
   'tailwindcss',
   'ts_go',
@@ -61,9 +71,9 @@ require('conform').setup({
     -- data/config
     yaml = { 'biome' },
     -- markdown = { 'biome' },
-    sql = { 'sleek' },
-    jsonc = { 'oxfmt', 'biome' },
-    json = { 'oxfmt', 'biome' },
+    sql = { 'postgres-language-server' },
+    -- jsonc = { 'oxfmt', 'biome' },
+    -- json = { 'oxfmt', 'biome' },
 
     -- toml
     toml = { 'tombi' },
