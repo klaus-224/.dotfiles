@@ -15,6 +15,9 @@
       "prompt": "{file:./agent-defs/pair-programmer.md}",
       "permission": {
         "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
         "skill": {
@@ -22,9 +25,7 @@
           "simple-coding": "allow"
         },
         "bash": {
-          "*": "deny",
-          "read": "allow",
-          "grep *": "allow"
+          "*": "deny"
         }
       }
     },
@@ -60,27 +61,22 @@
       "mode": "primary",
       "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
       "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "lsp": "allow",
         "todowrite": "allow",
-        "edit": {
-          "*": "deny",
-          "*.md": "allow"
-        },
+        "submit_plan": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "task": "deny",
         "skill": {
+          "*": "deny",
           "plannotator-compound": "allow",
-          "simple-coding": "allow",
           "find-docs": "allow"
         },
-        "bash": {
-          "*": "ask",
-          "git status*": "allow",
-          "git diff *": "allow",
-          "git log *": "allow",
-          "rg *": "allow",
-          "grep *": "allow",
-          "pnpx *": "allow",
-          "pnpm *": "allow",
-          "ctx *": "allow"
-        },
+        "bash": "deny",
         "external_directory": "deny"
       }
     },
@@ -92,11 +88,12 @@
     }
   },
   "plugin": [
+    "oh-my-opencode-slim@2.2.18",
     [
-      "@plannotator/opencode@latest",
+      "@plannotator/opencode@0.27.12",
       {
         "workflow": "user-managed",
-        "planningAgents": ["planner"]
+        "planningAgents": ["planner", "orchestrator"]
       }
     ]
   ]

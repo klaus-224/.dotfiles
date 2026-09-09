@@ -77,7 +77,7 @@ export const flag_current = tool({
   args: {
     agent: tool.schema
       .string()
-      .describe("Agent name (e.g., 'manual-testing', 'regression-writer')"),
+      .describe("Agent name whose most recent session should be flagged"),
     reason: tool.schema
       .string()
       .describe("Specific blocker reason with details"),

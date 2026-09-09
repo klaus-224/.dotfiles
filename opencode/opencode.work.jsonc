@@ -22,16 +22,16 @@
       "model": "github-copilot/gpt-5.6-luna",
       "variant": "medium",
       "prompt": "{file:./agent-defs/pair-programmer.md}",
-      "skill": {
-        "*": "deny",
-        "find-docs": "allow",
-        "simple-coding": "allow"
-      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
         "webfetch": "allow",
+        "skill": {
+          "*": "deny",
+          "find-docs": "allow",
+          "simple-coding": "allow"
+        },
         "bash": {
           "*": "allow"
         }
@@ -52,17 +52,17 @@
         "memory_query": true,
         "memory_add": true
       },
-      "skill": {
-        "*": "deny",
-        "playwright-cli": "allow",
-        "plannotator-annotate": "allow",
-        "simple-coding": "allow",
-        "find-docs": "allow"
-      },
       "permission": {
         "*": "deny",
         "read": "allow",
         "todowrite": "allow",
+        "skill": {
+          "*": "deny",
+          "playwright-cli": "allow",
+          "plannotator-annotate": "allow",
+          "simple-coding": "allow",
+          "find-docs": "allow"
+        },
         "bash": {
           "playwright-cli *": "allow"
         }
@@ -126,6 +126,9 @@
       "permission": {
         "*": "deny",
         "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "lsp": "allow",
         "todowrite": "allow",
         "submit_plan": "allow",
         "memory_query": "allow",
@@ -133,14 +136,11 @@
           "*": "deny",
           "plannotator-compound": "allow"
         },
-        "edit": {
-          "*": "deny",
-          "*.md": "allow"
-        },
+        "edit": "deny",
+        "write": "deny",
+        "task": "deny",
         "external_directory": "deny",
-        "bash": {
-          "cargo": "allow"
-        }
+        "bash": "deny"
       }
     },
     // Jira Operator
@@ -271,11 +271,12 @@
     }
   },
   "plugin": [
+    "oh-my-opencode-slim@2.2.18",
     [
-      "@plannotator/opencode@latest",
+      "@plannotator/opencode@0.27.12",
       {
         "workflow": "user-managed",
-        "planningAgents": ["planner, test-planner"]
+        "planningAgents": ["planner", "orchestrator"]
       }
     ]
   ]
