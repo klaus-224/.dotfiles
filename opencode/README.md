@@ -1,115 +1,131 @@
 # OpenCode Configuration
 
-Personal OpenCode configuration managed via dotfiles.
+Shared OpenCode configuration with separate work and personal profiles. OMO-slim provides reusable planning agents and background task management; OpenCode commands define workflows; Plannotator provides human review.
 
-## Structure
+## Tested Baseline
 
-```
-~/.dotfiles/opencode/
-├── AGENTS.md              # Global operating rules for all agents
-├── opencode.work.jsonc    # Work profile config
+| Component | Version |
+|---|---|
+| OpenCode | `1.18.30` |
+| `oh-my-opencode-slim` | `2.2.18` |
+| `@plannotator/opencode` | `0.27.12` |
+| `@opencode-ai/plugin` for local tools | `1.18.23` |
+
+Plugin entries are pinned in both profiles. OMO automatic updates are disabled so the configured schema and behavior do not drift independently.
+
+## Layout
+
+```text
+opencode/
+├── opencode.work.jsonc
 ├── opencode.personal.jsonc
-├── tools/                 # Custom tools (TypeScript, @opencode-ai/plugin)
-├── agents/                # Subagent definitions
-├── skills/                # Skill files (loaded on demand)
-├── commands/              # Slash commands
-├── bin/                   # Standalone scripts (on PATH)
-├── sql/                   # SQL snippets
-└── tui.json               # TUI theme
+├── oh-my-opencode-slim.jsonc
+├── oh-my-opencode-slim/orchestrator.md
+├── agent-defs/
+├── commands/
+├── skills/
+├── tools/
+├── sql/
+├── package.json
+└── tui.json
 ```
 
-## Tools
+`OPENCODE_CONFIG_DIR` points directly at this directory. There is no second global OpenCode configuration layer.
 
-Custom tools registered via `"tools": { "paths": true }` in config. The agent sees these in its tool list automatically.
+## Profiles
 
-| File            | Tool(s)                                                                                                                                                            | Description                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| `tools/repo.ts` | `repo_index`, `repo_query`                                                                                                                                         | Index repo structure + data-testids into DuckDB, then query with SQL |
-| `tools/auth.ts` | `auth`                                                                                                                                                             | Authenticate to Skyon (runs Playwright setup spec with secrets)      |
-| `tools/plan.ts` | `plan_init`, `plan_create`, `plan_claim`, `plan_release`, `plan_revise`, `plan_approve`, `plan_transition`, `plan_comment`, `plan_get`, `plan_list`, `plan_render` | Multi-agent plan store (SQLite-backed)                               |
+`zsh/.zshenv` selects the profile and matching OMO preset together:
 
-### repo_index
+| Profile | OpenCode config | OMO preset | Providers |
+|---|---|---|---|
+| Work | `opencode.work.jsonc` | `work` | GitHub Copilot; Atlassian MCP enabled |
+| Personal | `opencode.personal.jsonc` | `personal` | OpenAI and OpenCode; no work MCP |
 
-Indexes the current repo into `~/.codex/sqlite/repos.duckdb`. Scans files, modules, imports, entrypoints, and `data-testid` attributes.
+The existing username rule selects personal for `klaus224` and work otherwise. `pair-programmer` remains the default agent in both profiles; OMO's `setDefaultAgent` is disabled.
 
-```
-# Agent just calls the tool — no arguments needed
-repo_index
-```
+For a one-off profile launch, set all three values together:
 
-### repo_query
-
-Runs SQL against the indexed DuckDB. Useful tables:
-
-| Table          | Columns                                             |
-| -------------- | --------------------------------------------------- |
-| `files`        | repo_id, path                                       |
-| `modules`      | repo_id, module, path                               |
-| `dependencies` | repo_id, source_module, dependency                  |
-| `entrypoints`  | repo_id, path                                       |
-| `testids`      | repo_id, testid, component, filepath, line, context |
-
-```sql
--- Find all data-testids for a component
-SELECT testid, component, filepath, line
-FROM testids
-WHERE repo_id = 'skyon-worktree' AND component LIKE '%Button%';
-
--- Find all entrypoints
-SELECT path FROM entrypoints WHERE repo_id = 'skyon-worktree';
-
--- List modules that depend on a specific package
-SELECT source_module, dependency
-FROM dependencies
-WHERE repo_id = 'skyon-worktree' AND dependency LIKE '%zod%';
+```bash
+OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode" \
+OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc" \
+OH_MY_OPENCODE_SLIM_PRESET=personal \
+OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true \
+opencode
 ```
 
-### auth
+Use the corresponding `work` values for the work profile.
 
-Authenticates to the Skyon app for Playwright tests. Uses `secrets` CLI to inject credentials.
+## Planning Agents
 
+The OMO pilot enables only:
+
+| Agent | Purpose | Boundary |
+|---|---|---|
+| `orchestrator` | Execute declared command stages and reconcile results | Read-only; delegates only to `explorer` and `oracle`; can call `pr_context_get` and `submit_plan` |
+| `explorer` | Inspect changed behavior and existing coverage | Read-only; no shell or delegation |
+| `oracle` | Draft and independently critique plans | Read-only; no shell or delegation |
+
+`librarian`, `designer`, `fixer`, `observer`, and `council` are disabled for this pilot. OMO background concurrency is capped at two tasks with a 15-minute wall-clock deadline. Periodic automatic continuation is disabled.
+
+Native `planner` remains available for general conversational planning and Plannotator review. The existing `build`, `reviewer`, `jira-operator`, `test-orchestrator`, `playwright-user`, and `test-writer` roles remain temporarily registered but cannot be dispatched by the new orchestrator.
+
+## Test Planning
+
+```text
+/test-plan 123 manual
+/test-plan 123 unit
+/test-plan 123 playwright
+/test-plan https://github.com/owner/repo/pull/123 unit,playwright
 ```
-# Agent calls with literal env var names (secrets are injected at runtime)
-auth(username: "SKYON_USERNAME", password: "SKYON_PASSWORD")
+
+The test type is required and is never inferred. The workflow:
+
+1. Validates the PR source and selected test types.
+2. Retrieves PR metadata, base/head SHAs, all changed-file pages, and available patches using `pr_context_get`.
+3. Runs behavior and selected-type coverage discovery in parallel.
+4. Uses Oracle to draft and a fresh Oracle session to review.
+5. Allows one correction pass, submits Markdown directly through Plannotator, and stops.
+
+The command never modifies application code, executes tests, opens a browser, publishes results, or authorizes later execution. Plannotator approval is review feedback only.
+
+## Custom Tool
+
+`tools/pr_context.ts` exposes `pr_context_get`. It accepts only a positive PR number or canonical GitHub PR URL and a non-empty set of `manual`, `unit`, and `playwright` categories. It invokes authenticated `gh` with argument arrays, paginates the files endpoint, caps output, observes cancellation/timeouts, and reports omitted patches explicitly.
+
+Run local checks from this directory:
+
+```bash
+npm install --ignore-scripts
+npm test
+npm run typecheck
 ```
 
-## Agents
+## Deprecated Workflows
 
-| Agent             | Mode     | Model             | Purpose                                                                             |
-| ----------------- | -------- | ----------------- | ----------------------------------------------------------------------------------- |
-| `test-planner`    | subagent | claude-opus-4.6   | Gathers Jira context + code changes, produces a manual test plan in the plan store  |
-| `test-executor`   | subagent | gpt-5.4           | Executes an approved test plan via Playwright CLI, posts results to Jira            |
-| `pair-programmer` | primary  | claude-sonnet-4.6 | Read-only pair programming — reviews code, suggests changes, chats through problems |
+`/regression-test` and `/parallel-ui-tests` are deprecation stubs. They do not invoke removed persistence tools or treat Markdown as executable authorization.
 
-## Skills
+The old persistence executable, schema, and archived adapter were removed. Existing runtime databases outside this repository are untouched and are not used by this configuration.
 
-Loaded on demand when the agent recognizes a matching task.
+## Retirement Gates
 
-| Skill            | Description                                                    |
-| ---------------- | -------------------------------------------------------------- |
-| `plan-store`     | Instructions for using `plan_*` tools for multi-agent planning |
-| `playwright-cli` | Browser automation via `playwright-cli` CLI                    |
-| `repo-index`     | Documents what `repo_index` indexes and how                    |
-| `repo-map`       | Generates repo structure as JSON + Graphviz dependency graph   |
-| `repo-query`     | Documents how to query the DuckDB index                        |
+| Role | Remove after |
+|---|---|
+| `build` | OMO `fixer` has a separately approved implementation workflow and verified permissions |
+| `reviewer` | Oracle review covers the required review behavior and useful feedback conventions have moved into shared guidance |
+| `jira-operator` | Explicit Jira commands replace its operations; update `TODAY_AGENT_CMD` first |
+| `test-orchestrator`, `playwright-user`, `test-writer` | General coordination/execution supports their required behavior and project auth leaves global prompts |
+| Legacy test commands | Every supported input has a deliberate migration or explicit deprecation |
 
-## Commands (Slash Commands)
+## Installation
 
-| Command                                   | Description                                             |
-| ----------------------------------------- | ------------------------------------------------------- |
-| `/manual-test-all <BASE_URL>`             | Run manual testing for all Jira tickets assigned to you |
-| `/manual-test-single <TICKET> <BASE_URL>` | Run manual testing for one Jira ticket                  |
+Run `scripts/setup-opencode-cli.sh`. It installs OpenCode through Homebrew when needed, installs local tool dependencies without lifecycle scripts, and validates that the profile/configuration files exist. It does not adopt or overwrite files in another configuration directory.
 
-## Bin Scripts
+Source `zsh/.zshenv` (normally through the repository's zsh setup) before launching OpenCode.
 
-Scripts in `~/.dotfiles/opencode/bin/` (on PATH):
+For startup recovery only:
 
-| Script          | Description                                                     |
-| --------------- | --------------------------------------------------------------- |
-| `plan_store.py` | CLI for the plan store (used by `tools/plan.ts` under the hood) |
+```bash
+OH_MY_OPENCODE_SLIM_DISABLE=1 opencode
+```
 
-## MCP Servers
-
-| Server      | Type   | Description                               |
-| ----------- | ------ | ----------------------------------------- |
-| `atlassian` | remote | Jira + Confluence via `mcp.atlassian.com` |
+This disables OMO-slim for that launch; it does not restore retired workflows.

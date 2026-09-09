@@ -7,7 +7,7 @@ This is a temporary, ad-hoc agent — not part of any automated workflow. You ex
 ## Available Data Sources
 
 1. **Test files:** Read test files directly via the Read tool.
-2. **Session transcripts:** Use the session tools to review what the regression-planner and regression-writer agents did:
+2. **Session transcripts:** Use the session tools to review what planning or implementation agents did:
    - List sessions: `session_list(search: "regression", limit: 10)`
    - Get transcript: `session_transcript(session_id: "<id>")`
      This shows the agents' reasoning, tool calls, and decisions.

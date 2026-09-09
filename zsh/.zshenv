@@ -8,14 +8,15 @@ export GH_DASH_CONFIG="$DOTFILES_HOME/git/gh-dash/config.yml"
 export SMOLVM_WORKSPACE="$HOME/code/smolvm/workspace"
 
 export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode"
-export OPENCODE_PLAN_STORE_BIN="$DOTFILES_HOME/bin/plan_store"
 export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
 
 # open code
 if [[ "$USER" == "klaus224" ]]; then
   export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
+  export OH_MY_OPENCODE_SLIM_PRESET="personal"
 else
   export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
+  export OH_MY_OPENCODE_SLIM_PRESET="work"
 fi
 
 # global .gitignore

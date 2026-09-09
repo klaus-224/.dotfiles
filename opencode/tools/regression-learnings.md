@@ -38,5 +38,5 @@ python3 ~/.dotfiles/opencode/bin/learnings.py add \
   --summary "Dashboard fixture closes AI agent popup but it can reappear after navigation" \
   --detail "If you navigate away and back, the AI agent popup reappears. Use dashboard.closeAiAgent() again after navigation." \
   --tags "ai-agent,navigation,popup" \
-  --agent "regression-writer"
+  --agent "reviewer"
 ```

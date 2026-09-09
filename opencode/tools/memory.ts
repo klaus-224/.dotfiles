@@ -96,7 +96,7 @@ export const query = tool({
 
 export const add = tool({
   description:
-    "Record a new learning. Only use after implementation experience (regression-writer agent).",
+    "Record a new learning after implementation or review experience.",
   args: {
     category: tool.schema.enum([
       "navigation",
@@ -116,7 +116,7 @@ export const add = tool({
     agent: tool.schema
       .string()
       .optional()
-      .describe("Agent name (default: regression-writer)"),
+      .describe("Agent name associated with the learning"),
   },
 
   async execute(args) {

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@2.2.18/oh-my-opencode-slim.schema.json",
+  "preset": "work",
+  "setDefaultAgent": false,
+  "autoUpdate": false,
+  "presets": {
+    "work": {
+      "orchestrator": {
+        "model": "github-copilot/gpt-5.6-luna",
+        "variant": "high",
+        "skills": ["test-planning"],
+        "mcps": []
+      },
+      "explorer": {
+        "model": "github-copilot/gpt-5.6-luna",
+        "variant": "low",
+        "skills": [],
+        "mcps": []
+      },
+      "oracle": {
+        "model": "github-copilot/gpt-5.6-sol",
+        "variant": "high",
+        "skills": ["test-planning"],
+        "mcps": []
+      }
+    },
+    "personal": {
+      "orchestrator": {
+        "model": "openai/gpt-5.6-terra",
+        "variant": "high",
+        "skills": ["test-planning"],
+        "mcps": []
+      },
+      "explorer": {
+        "model": "openai/gpt-5.6-luna",
+        "variant": "low",
+        "skills": [],
+        "mcps": []
+      },
+      "oracle": {
+        "model": "openai/gpt-5.6-sol",
+        "variant": "high",
+        "skills": ["test-planning"],
+        "mcps": []
+      }
+    }
+  },
+  "agents": {
+    "orchestrator": {
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "todowrite": "allow",
+        "question": "allow",
+        "task": {
+          "*": "deny",
+          "explorer": "allow",
+          "oracle": "allow"
+        },
+        "task_status": "allow",
+        "task_result": "allow",
+        "task_message": "allow",
+        "task_cancel": "allow",
+        "task_revive": "allow",
+        "pr_context_get": "allow",
+        "submit_plan": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "bash": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "explorer": {
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "codesearch": "allow",
+        "task": "deny",
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "oracle": {
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "codesearch": "allow",
+        "task": "deny",
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "external_directory": "deny"
+      }
+    }
+  },
+  "disabled_agents": [
+    "librarian",
+    "designer",
+    "fixer",
+    "observer",
+    "council"
+  ],
+  "disabled_mcps": ["context7", "gh_grep"],
+  "disabled_skills": [
+    "clonedeps",
+    "codemap",
+    "deepwork",
+    "loop-engineering",
+    "oh-my-opencode-slim",
+    "reflect",
+    "simplify",
+    "verification-planning",
+    "worktrees"
+  ],
+  "multiplexer": {
+    "type": "none"
+  },
+  "backgroundJobs": {
+    "maxSessionsPerAgent": 2,
+    "orchestratorWake": {
+      "enabled": false,
+      "intervalMs": 300000
+    },
+    "wallClockTimeoutMs": 900000,
+    "abortGraceMs": 10000,
+    "concurrency": {
+      "defaultConcurrency": 2,
+      "providerConcurrency": {},
+      "modelConcurrency": {}
+    },
+    "waitForUserGuard": false
+  },
+  "fallback": {
+    "enabled": false,
+    "maxRetries": 0
+  },
+  "companion": {
+    "enabled": false
+  },
+  "webfetch": {
+    "enabled": false
+  }
+}
