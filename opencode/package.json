@@ -1,0 +1,21 @@
+{
+  "name": "dotfiles-opencode-config",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.16.0",
+  "scripts": {
+    "setup": "../scripts/setup-opencode-cli.sh",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.18.30"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "ajv": "8.20.0",
+    "jsonc-parser": "3.3.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

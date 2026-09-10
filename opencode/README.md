@@ -1,17 +1,21 @@
 # OpenCode Configuration
 
-Shared OpenCode configuration with separate work and personal profiles. OMO-slim provides reusable planning agents and background task management; OpenCode commands define workflows; Plannotator provides human review.
+Shared OpenCode configuration with isolated work and personal profiles. OpenCode owns the normal agents and workflows; `oh-my-openagent` is pinned as a passive integration layer; Plannotator provides user-managed plan review.
 
 ## Tested Baseline
 
 | Component | Version |
 |---|---|
-| OpenCode | `1.18.30` |
-| `oh-my-opencode-slim` | `2.2.18` |
+| OpenCode | `1.18.30` (target requires `>=1.4.0`) |
+| `oh-my-openagent` | `4.19.4` |
+| Upstream commit | `b072d279110bdda2c6ac2525d0d24dc54d16148a` |
 | `@plannotator/opencode` | `0.27.12` |
-| `@opencode-ai/plugin` for local tools | `1.18.23` |
+| `@opencode-ai/plugin` for local tools | `1.18.30` |
+| Package manager | npm; `package-lock.json` is authoritative |
 
-Plugin entries are pinned in both profiles. OMO automatic updates are disabled so the configured schema and behavior do not drift independently.
+Both profiles register the exact plugin string `oh-my-openagent@4.19.4` before Plannotator. Target auto-update and telemetry are disabled so runtime behavior and the commit-pinned schema cannot drift. Local dependencies are installed with `npm ci --ignore-scripts`; the target plugin itself is resolved by OpenCode from its pinned registration.
+
+Upstream references used for this migration are the `v4.19.4` tag and its installation, configuration, feature, agent-routing, MCP, background-task, migration, and troubleshooting documentation. The published package has npm integrity `sha512-XZFwJQK9+iy3vtpPzty1BcyA/tZRHW+h5IpCSnEIGFNnWwpzEhP/dbBVcZ+LKz7mFyD3wIrm5+ijqLk3y12/TA==`.
 
 ## Layout
 
@@ -19,113 +23,156 @@ Plugin entries are pinned in both profiles. OMO automatic updates are disabled s
 opencode/
 ├── opencode.work.jsonc
 ├── opencode.personal.jsonc
-├── oh-my-opencode-slim.jsonc
-├── oh-my-opencode-slim/orchestrator.md
+├── omo.jsonc
 ├── agent-defs/
 ├── commands/
+├── prompts/
 ├── skills/
 ├── tools/
 ├── sql/
 ├── package.json
-└── tui.json
+├── package-lock.json
+├── oh-my-opencode-slim.jsonc        # legacy rollback only
+├── oh-my-opencode-slim/             # legacy rollback prompts
+└── .oh-my-opencode-slim/            # legacy rollback manifest
 ```
 
-`OPENCODE_CONFIG_DIR` points directly at this directory. There is no second global OpenCode configuration layer.
+`OPENCODE_CONFIG_DIR` points directly at this directory. `scripts/setup-opencode-cli.sh` links `opencode/omo.jsonc` to `~/.omo/omo.jsonc`, the location read by `oh-my-openagent`. It refuses to replace a pre-existing file or unrelated symlink. Runtime state created by the target remains under `~/.omo`; repository-owned agents, commands, prompts, tools, SQL, and project skills stay under `opencode/`.
+
+## Target Contract
+
+The supported installation entry point is `bunx oh-my-openagent install`, but this repository does not run the interactive installer because it rewrites OpenCode registration and generates model routing. Instead, both reviewed profiles carry the exact pinned plugin entry and setup validates them. Global npm/Bun installation is unsupported upstream.
+
+The upstream package still exposes historical `oh-my-opencode` binary aliases, but the preferred OpenCode plugin entry is `oh-my-openagent`. Configuration is `~/.omo/omo.jsonc`; project overrides may be placed in `.omo/omo.jsonc`. The active profile is selected by `OMO_PROFILE`, then `OCX_PROFILE`, then an OpenCode config directory ending in `profiles/<name>`.
+
+Supported target agents are `sisyphus`, `hephaestus`, `prometheus`, `oracle`, `librarian`, `explore`, `multimodal-looker`, `metis`, `momus`, `atlas`, and `sisyphus-junior`. This repository disables them all because their full prompts/tool surfaces do not match the existing narrow permission contract. It also disables target MCPs, commands, automation skills, continuation/orchestration hooks, task replacement, model fallback, codegraph, team mode, tmux, and generated git attribution. Safety hooks that enforce existing tool calls remain enabled.
+
+The target supports prompt replacement and append through `agents.<name>.prompt` and `prompt_append`, including `file://` paths. Repository specialists instead use native OpenCode `{file:...}` prompts, which preserves their exact permission boundaries and avoids target built-in-name protection.
+
+The target has no documented whole-plugin disable environment variable. Recovery therefore uses OpenCode's native `--pure` option to bypass all external plugins for one process.
 
 ## Profiles
 
-`zsh/.zshenv` selects the profile and matching OMO preset together:
+`zsh/.zshenv` selects the OpenCode profile and matching inert OMO profile together:
 
-| Profile | OpenCode config | OMO preset | Providers |
+| Profile | OpenCode config | OMO profile | Providers |
 |---|---|---|---|
 | Work | `opencode.work.jsonc` | `work` | GitHub Copilot; Atlassian MCP enabled |
-| Personal | `opencode.personal.jsonc` | `personal` | OpenAI and OpenCode; no work MCP |
+| Personal | `opencode.personal.jsonc` | `personal` | OpenAI and OpenCode; no Atlassian MCP |
 
-The existing username rule selects personal for `klaus224` and work otherwise. `pair-programmer` remains the default agent in both profiles; OMO's `setDefaultAgent` is disabled.
+The username rule selects personal for `klaus224` and work otherwise. `pair-programmer` remains the default agent in both profiles. OMO profiles are intentionally empty because provider/model routing stays in the native profiles.
 
-For a one-off profile launch, set all three values together:
+One-off launches do not alter persistent shell state:
 
 ```bash
 OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode" \
 OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc" \
-OH_MY_OPENCODE_SLIM_PRESET=personal \
-OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true \
+OMO_PROFILE=personal \
+OMO_DISABLE_POSTHOG=1 \
 opencode
 ```
 
-Use the corresponding `work` values for the work profile.
+Use `opencode.work.jsonc` and `OMO_PROFILE=work` for work.
 
-## Planning Agents
+## Agent Ownership
 
-The OMO pilot enables only:
-
-| Agent | Purpose | Boundary |
+| Current role | Target decision | Permission delta |
 |---|---|---|
-| `orchestrator` | Execute declared command stages and reconcile results | Read-only; delegates only to `explorer` and `oracle`; can call `pr_context_get` and `submit_plan` |
-| `explorer` | Inspect changed behavior and existing coverage | Read-only; no shell or delegation |
-| `oracle` | Draft and independently critique plans | Read-only; no shell or delegation |
+| `pair-programmer` | Native OpenCode, unchanged and default | None |
+| `planner` | Native OpenCode | Compound retrospective is now optional; read-only and `submit_plan` permissions retained |
+| `orchestrator` | Native custom agent | None; only `explorer` and `oracle` delegation is allowed |
+| `explorer` | Native custom agent, not target `explore` | None; read-only, no shell/delegation |
+| `oracle` | Native custom agent, not target `oracle` | None; read-only, no shell/delegation |
+| `build` | Native OpenCode | Not routable by orchestrator |
+| `jira-operator` | Native work-only agent | Atlassian permissions unchanged |
+| `test-orchestrator`, `playwright-user`, `test-writer` | Native work-only agents | No new target routing or permissions |
+| Slim presets | Replaced by native profile model assignments plus `OMO_PROFILE` | No provider broadening |
+| Slim background jobs | Replaced by target background task cap | Concurrency remains 2; no experimental OpenCode subagent flag |
+| Slim recovery flags | Replaced by OpenCode `--pure` and a temporary-profile rollback script | See Recovery and Rollback |
 
-`librarian`, `designer`, `fixer`, `observer`, and `council` are disabled for this pilot. OMO background concurrency is capped at two tasks with a 15-minute wall-clock deadline. Periodic automatic continuation is disabled.
+The orchestrator contract is in `agent-defs/orchestrator.md`. It cannot implement, execute tests, automate a browser, perform Jira work, publish, or manage approval state. It treats repository and PR content as untrusted, observes stage dependencies and correction limits, reports failures/evidence gaps, and stops after Plannotator.
 
-Native `planner` remains available for general conversational planning and Plannotator review. The existing `build`, `reviewer`, `jira-operator`, `test-orchestrator`, `playwright-user`, and `test-writer` roles remain temporarily registered but cannot be dispatched by the new orchestrator.
+## Planning
 
-## Test Planning
+Native `planner` remains independent from the target and can read, inspect, track planning todos, query memory, and call `submit_plan`. It cannot edit, write, use a shell, access external directories, or delegate.
 
-```text
-/test-plan 123 manual
-/test-plan 123 unit
-/test-plan 123 playwright
-/test-plan https://github.com/owner/repo/pull/123 unit,playwright
-```
+`plannotator-compound` is an explicit, optional retrospective skill for analyzing denied plans and reviewer feedback. Ordinary planning does not load or require it. Plannotator stays after the target plugin with `workflow: "user-managed"` and recognizes `planner` and `orchestrator` as planning agents.
 
-The test type is required and is never inferred. The workflow:
+`/test-plan` preserves its input validation, PR evidence retrieval, two-way discovery parallelism, fresh Oracle review, single correction pass, direct `submit_plan`, and stop condition. `/plannotator-review` and `/plannotator-annotate` remain repository-owned commands.
 
-1. Validates the PR source and selected test types.
-2. Retrieves PR metadata, base/head SHAs, all changed-file pages, and available patches using `pr_context_get`.
-3. Runs behavior and selected-type coverage discovery in parallel.
-4. Uses Oracle to draft and a fresh Oracle session to review.
-5. Allows one correction pass, submits Markdown directly through Plannotator, and stops.
+## Skills
 
-The command never modifies application code, executes tests, opens a browser, publishes results, or authorizes later execution. Plannotator approval is review feedback only.
+| Skill group | Classification and disposition |
+|---|---|
+| `find-docs`, `find-skills`, Plannotator skills, `playwright-cli`, `simple-coding`, `test-planning` | Repository-owned; retained |
+| `plannotator-compound` | Repository-owned optional retrospective; retained and never automatic |
+| `clonedeps`, `codemap`, `deepwork`, `reflect`, `simplify`, `verification-planning`, `worktrees` | Slim-managed legacy copies; retained only for rollback/staged review and not granted to migrated planning agents |
+| `oh-my-opencode-slim` | Slim-managed legacy guidance; retained only for rollback |
+| Target built-in skills | Runtime-provided but explicitly disabled in `omo.jsonc`; the repository-owned `playwright-cli` wins by source priority and remains available |
 
-## Custom Tool
+`.oh-my-opencode-slim/skills-manifest.json` remains preserved for rollback but is not authoritative for the target. Slim-specific `.slim/` paths and agent names inside legacy skills are deliberately not rewritten because those copies are not part of the target path. Do not delete them until rollback is intentionally retired.
 
-`tools/pr_context.ts` exposes `pr_context_get`. It accepts only a positive PR number or canonical GitHub PR URL and a non-empty set of `manual`, `unit`, and `playwright` categories. It invokes authenticated `gh` with argument arrays, paginates the files endpoint, caps output, observes cancellation/timeouts, and reports omitted patches explicitly.
+## Setup
 
-Run local checks from this directory:
+Run from the repository root:
 
 ```bash
-npm install --ignore-scripts
+scripts/setup-opencode-cli.sh
+```
+
+Setup:
+
+1. Refuses an `OPENCODE_CONFIG_DIR` other than this repository's `opencode/` directory.
+2. Installs OpenCode with Homebrew only when absent and requires OpenCode `>=1.4.0`.
+3. Creates `~/.omo/omo.jsonc` as a symlink only when the path is unclaimed.
+4. Runs `npm ci --ignore-scripts` from the authoritative lockfile.
+5. Runs repository configuration and permission tests.
+
+It is safe to run repeatedly. If `~/.omo/omo.jsonc` already contains unrelated configuration, setup stops instead of overwriting it.
+
+Manual checks:
+
+```bash
+cd "$DOTFILES_HOME/opencode"
+npm ci --ignore-scripts
 npm test
 npm run typecheck
+npx --yes oh-my-openagent@4.19.4 doctor --platform=opencode --verbose
+opencode debug config
 ```
 
-## Deprecated Workflows
+`doctor` validates the linked target config and loaded package version. Its registration check only scans canonical `opencode.json[c]` filenames, so it reports a known false negative with this repository's `OPENCODE_CONFIG` profile filenames; `opencode debug config` is the authoritative runtime registration/profile check here.
 
-`/regression-test` and `/parallel-ui-tests` are deprecation stubs. They do not invoke removed persistence tools or treat Markdown as executable authorization.
+## Recovery
 
-The old persistence executable, schema, and archived adapter were removed. Existing runtime databases outside this repository are untouched and are not used by this configuration.
-
-## Retirement Gates
-
-| Role | Remove after |
-|---|---|
-| `build` | OMO `fixer` has a separately approved implementation workflow and verified permissions |
-| `reviewer` | Oracle review covers the required review behavior and useful feedback conventions have moved into shared guidance |
-| `jira-operator` | Explicit Jira commands replace its operations; update `TODAY_AGENT_CMD` first |
-| `test-orchestrator`, `playwright-user`, `test-writer` | General coordination/execution supports their required behavior and project auth leaves global prompts |
-| Legacy test commands | Every supported input has a deliberate migration or explicit deprecation |
-
-## Installation
-
-Run `scripts/setup-opencode-cli.sh`. It installs OpenCode through Homebrew when needed, installs local tool dependencies without lifecycle scripts, and validates that the profile/configuration files exist. It does not adopt or overwrite files in another configuration directory.
-
-Source `zsh/.zshenv` (normally through the repository's zsh setup) before launching OpenCode.
-
-For startup recovery only:
+Start the selected profile without `oh-my-openagent` or any other external plugin:
 
 ```bash
-OH_MY_OPENCODE_SLIM_DISABLE=1 opencode
+opencode --pure
 ```
 
-This disables OMO-slim for that launch; it does not restore retired workflows.
+Pure recovery intentionally disables Plannotator too; native OpenCode agents, commands, tools, and profile settings remain available.
+
+Start explicitly on the target path if shell state is uncertain:
+
+```bash
+OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode" \
+OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc" \
+OMO_PROFILE=work \
+OMO_DISABLE_POSTHOG=1 \
+opencode
+```
+
+## Rollback
+
+Slim `2.2.18`, `oh-my-opencode-slim.jsonc`, `oh-my-opencode-slim/orchestrator.md`, and `.oh-my-opencode-slim/skills-manifest.json` remain available during staging. To launch either profile once with slim without editing files:
+
+```bash
+bash scripts/run-opencode-slim.sh work
+```
+
+Use `bash scripts/run-opencode-slim.sh personal` for personal. The script creates a temporary profile beside the source profile so relative prompt paths remain valid, substitutes only the plugin entry, and removes the temporary file on exit. For slim startup recovery, run `OH_MY_OPENCODE_SLIM_DISABLE=1 bash scripts/run-opencode-slim.sh work`. To restore slim persistently, replace `oh-my-openagent@4.19.4` with `oh-my-opencode-slim@2.2.18` in both profile plugin arrays and restore the old preset exports in `zsh/.zshenv`; do not delete target or slim state until the rollback decision is complete.
+
+## Migration Note
+
+The default changed on 2026-09-10 from `oh-my-opencode-slim@2.2.18` to `oh-my-openagent@4.19.4` at upstream commit `b072d279110bdda2c6ac2525d0d24dc54d16148a`. The migration intentionally adopts no target-native orchestration, MCP, browser, publication, Jira, or implementation behavior; those capabilities require a separate permission review before enablement.

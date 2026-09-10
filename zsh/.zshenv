@@ -13,10 +13,10 @@ export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
 # open code
 if [[ "$USER" == "klaus224" ]]; then
   export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
-  export OH_MY_OPENCODE_SLIM_PRESET="personal"
+  export OMO_PROFILE="personal"
 else
   export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
-  export OH_MY_OPENCODE_SLIM_PRESET="work"
+  export OMO_PROFILE="work"
 fi
 
 # global .gitignore
