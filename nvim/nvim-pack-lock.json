@@ -20,10 +20,6 @@
       "rev": "f29d8bac6549bc1e7d699c83f680823d7def98bd",
       "src": "https://github.com/saghen/blink.lib"
     },
-    "conform.nvim": {
-      "rev": "18aeab3d63d350dcf44d64c462cc489a3412af40",
-      "src": "https://github.com/stevearc/conform.nvim"
-    },
     "friendly-snippets": {
       "rev": "6cd7280adead7f586db6fccbd15d2cac7e2188b9",
       "src": "https://github.com/rafamadriz/friendly-snippets"

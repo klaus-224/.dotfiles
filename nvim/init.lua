@@ -19,7 +19,6 @@ vim.pack.add({
   { src = 'https://github.com/nvim-mini/mini.pick' },
   { src = 'https://github.com/kylechui/nvim-surround',              version = vim.version.range('4.x') },
   { src = 'https://github.com/windwp/nvim-autopairs' },
-  { src = 'https://github.com/stevearc/conform.nvim' },
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
@@ -38,58 +37,22 @@ require('lazydev').setup({
 
 vim.lsp.enable({
   'lua_ls',
+  'jsonls',
+  'postgres_lsp',
+  'ts_go',
+  'yamlls',
+  'tombi',
+  'nixd',
+  -- 'tailwindcss',
+  -- 'prismals',
+  -- 'ruff',
+  -- 'rust_analyzer',
+  -- 'sqlls',
   -- 'basedpyright',
   -- 'bashls',
   -- 'cssls',
   -- 'dockerls',
   -- 'html_ls',
-  'jsonls',
-  -- 'prismals',
-  -- 'ruff',
-  -- 'rust_analyzer',
-  -- 'sqlls',
-  'postgres_lsp',
-  'tailwindcss',
-  'ts_go',
-  'yamlls',
-  'tombi',
-})
-
-require('conform').setup({
-  default_format_opts = {
-    lsp_format = 'fallback',
-  },
-  formatters_by_ft = {
-    lua = { 'stylua' },
-
-    -- web
-    javascript = { 'biome' },
-    javascriptreact = { 'biome' },
-    typescript = { 'oxfmt', 'biome' },
-    typescriptreact = { 'oxfmt', 'biome' },
-
-    -- data/config
-    yaml = { 'biome' },
-    -- markdown = { 'biome' },
-    sql = { 'postgres-language-server' },
-    -- jsonc = { 'oxfmt', 'biome' },
-    -- json = { 'oxfmt', 'biome' },
-
-    -- toml
-    toml = { 'tombi' },
-
-    -- python
-    python = { 'ruff_format' },
-
-    -- infra
-    terraform = { 'terraform_fmt' },
-    hcl = { 'terraform_fmt' },
-  },
-
-  format_on_save = {
-    timeout_ms = 500,
-    lsp_format = 'never',
-  },
 })
 
 require('luasnip.loaders.from_vscode').lazy_load()
@@ -115,7 +78,7 @@ cmp.setup({
 })
 
 require('tree-sitter-manager').setup({
-  dependencies = {}, 
+  dependencies = {},
   ensure_installed = { 'svelte' },
   auto_install = true,
   highlight = false,
