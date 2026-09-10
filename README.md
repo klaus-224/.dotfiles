@@ -22,11 +22,8 @@
       - [Install git](#install-git-1)
       - [Clone the dotfile repo into `$HOME`](#clone-the-dotfile-repo-into-home)
       - [Run the WSL Setup Script](#run-the-wsl-setup-script)
-- [Stow Packages](#stow-packages)
-  - [Re-link a single package (useful after changes)](#re-link-a-single-package-useful-after-changes)
 - [Cargo Package Management](#cargo-package-management)
 - [Optional: Install Coding Agents](#optional-install-coding-agents)
-- [Optional: Manual Agent Stow Commands](#optional-manual-agent-stow-commands)
 - [Tmux Commands](#tmux-commands)
 - [Opencode plugins](#opencode-plugins)
 - [TODO](#todo)
@@ -84,7 +81,6 @@
 - [awesome-modern-cli](https://github.com/thegdsks/awesome-modern-cli)
 - [getdesign.md](https://getdesign.md/)
 - [stich](https://stitch.withgoogle.com/)
-- [stow](https://www.youtube.com/watch?v=y6XCebnB9gs&t=166s)
 - [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode)
 - [useful-scripts-adamchainz](https://github.com/adamchainz/scripts) 
 - [gh cheat sheet](https://github.com/tiimgreen/github-cheat-sheet)
@@ -178,8 +174,6 @@ chmod +x setup-macos.sh
 - Writes installed Homebrew package versions to `packages/installed-versions/`
 - Installs `rustup-init`, bootstraps Rust/Cargo, and syncs cargo packages from `packages/cargo.txt`
 - Installs Ghostty terminal via Homebrew
-- Installs and configures zsh/tmux/nvim/ghostty stow-managed dotfiles.
-- Symlinks your core dotfiles using stow (`zsh`, `tmux`, `nvim`, `ghostty`)
 - Installs tmux plugin manager (TPM)
 - Runs the FZF setup
 
@@ -238,46 +232,7 @@ chmod +x setup-wsl.sh
 - Install required CLI tools (tmux, zsh, neovim, etc.)
 - Write installed Homebrew package versions to `packages/installed-versions/`
 - Install Alacritty on Windows via winget
-- Symlink stow packages for zsh/tmux/nvim, including any optional shell plugins.
-- Symlink dotfiles using stow
 - Install tmux plugin manager (TPM)
-
----
-
-# Stow Packages
-
-Each top-level directory is a stow package that mirrors `$HOME`:
-
-| Package   | Command        | What it links                                                                 |
-| --------- | -------------- | ----------------------------------------------------------------------------- |
-| `zsh`     | `stow zsh`     | `.zshrc`, `.zshrc.d/`                                                         |
-| `tmux`    | `stow tmux`    | `.tmux.conf`                                                                  |
-| `nvim`    | `stow nvim`    | `.config/nvim/`                                                               |
-| `ghostty` | `stow ghostty` | `.config/ghostty/`                                                            |
-| `agents`  |                | optional coding-agent config packages (`.codex`, `.codex-skills`, `.copilot`) |
-
-Global agent env vars are defined in `zsh/.zshenv`:
-
-- `DOTFILES_HOME`
-- `CODEX_HOME`, `CODEX_CONFIG_FILE`
-- `COPILOT_HOME`, `COPILOT_CONFIG_FILE`, `COPILOT_MCP_CONFIG_FILE`
-
-**Notes:**
-
-- Use `--adopt` on first link so existing files in `~/.codex` / `~/.copilot` are safely moved under `~/.dotfiles/agents/*` and replaced by symlinks
-- Codex system skills (`~/.codex/skills/.system`) are intentionally not managed here
-- To add a custom Codex skill:
-  - create `agents/.codex-skills/<skill-name>/SKILL.md`
-  - run:
-  ```zsh
-  stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills
-  ```
-
-### Re-link a single package (useful after changes)
-
-```zsh
-stow -R zsh tmux nvim ghostty
-```
 
 ---
 
@@ -308,21 +263,6 @@ The setup scripts (`setup-macos.sh`, `setup-linux.sh`) call this automatically w
 
 # Copilot CLI + config/skill symlinks
 ./scripts/setup-copilot-cli.sh
-```
-
----
-
-# Optional: Manual Agent Stow Commands
-
-```zsh
-# Codex config.toml -> ~/.codex/config.toml
-stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}" .codex
-
-# Custom Codex skills only -> ~/.codex/skills/*
-stow --restow --adopt --dir agents --target "${CODEX_HOME:-$HOME/.codex}/skills" .codex-skills
-
-# Copilot config/skills -> ~/.copilot/*
-stow --restow --adopt --dir agents --target "${COPILOT_HOME:-$HOME/.copilot}" .copilot
 ```
 
 ---

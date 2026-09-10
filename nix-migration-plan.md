@@ -101,16 +101,16 @@ Example:
 }
 ```
 
-- [ ] Link Neovim.
-- [ ] Link Ghostty.
-- [ ] Link tmux.
-- [ ] Link zsh.
-- [ ] Link git config.
-- [ ] Link OpenCode config.
-- [ ] Link Glow config.
-- [ ] Link any remaining managed config files.
-- [ ] Verify edits in `~/.dotfiles` are immediately reflected in their target locations.
-- [ ] Stop using Stow for migrated configs.
+- [x] Link Neovim.
+- [x] Link Ghostty.
+- [x] Link tmux.
+- [x] Link zsh.
+- [x] Link git config.
+- [x] Link OpenCode config.
+- [x] Link Glow config.
+- [x] Link any remaining managed config files.
+- [x] Verify edits in `~/.dotfiles` are immediately reflected in their target locations.
+- [x] Stop using Stow for migrated configs.
 
 ### Commit checkpoint
 

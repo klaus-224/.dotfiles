@@ -1,7 +1,6 @@
 export DOTFILES_HOME="$HOME/.dotfiles"
 export CODE_DIR="$HOME/code"
 export EDITOR="nvim"
-export PAGER=delta
 
 export STARSHIP_CONFIG="$DOTFILES_HOME/starship/starship.toml"
 
@@ -20,17 +19,14 @@ else
 fi
 
 # global .gitignore
-export GLOBAL_GITIGNORE="$HOME/.gitignore_global"
+export GLOBAL_GITIGNORE="$HOME/.gitignore.global"
 
 # ripgrep config
 export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
-
-# harlequin config
-export HARLEQUIN_CONFIG_PATH="$DOTFILES_HOME/harlequin.toml"
 
 # glow tui style
 export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"
 
 # gitlab-tui style
-export GLAB_TUI_CONFIG="$DOTFILES_HOME/glab-tui/config.toml"                         
+export GLAB_TUI_CONFIG="$DOTFILES_HOME/git/glab-tui/config.toml"                         
 

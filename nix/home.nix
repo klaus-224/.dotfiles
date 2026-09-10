@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{config, pkgs, ... }:
 
 {
   home.username = "klaus224";
@@ -45,7 +45,42 @@
   programs.eza.enable = true;
 
   xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "/Users/klaus224/.dotfiles/nvim";
-
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/nvim";
+  
   xdg.configFile."ghostty".source =
-    config.lib.file.mkOutOfStoreSymlink "/Users/klaus224/.dotfiles/ghostty";}
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/ghostty";
+
+  xdg.configFile.".tmux.conf".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/tmux/.tmux.conf";
+
+  xdg.configFile."gh-dash".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/git/gh-dash";
+
+  home.file.".zshenv".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/zsh/.zshenv";
+  
+  home.file.".zshrc".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc";
+  
+  home.file.".zshrc.d".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc.d";
+
+  home.file.".gitconfig".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
+
+  home.file.".gitconfig.local".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/git/.gitconfig.local";
+
+  home.file.".gitignore.global".source =
+    config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.dotfiles/git/.gitignore.global";
+}
