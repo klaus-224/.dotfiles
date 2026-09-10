@@ -304,18 +304,17 @@ git commit -m "feat(nix): migrate remaining homebrew formulae"
 
 Current GUI/cask inventory:
 
-- [ ] Arc
-- [ ] Docker Desktop
-- [ ] Ghostty
-- [ ] Nibble
-- [ ] Raycast
-- [ ] Spotify
+- [x] Arc
+- [x] Docker Desktop
+- [x] Ghostty
+- [x] Raycast
+- [x] Spotify
 
 For each app:
 
-- [ ] Check for a usable Darwin package in nixpkgs.
-- [ ] Verify the package launches correctly on macOS.
-- [ ] Confirm updates behave acceptably.
+- [x] Check for a usable Darwin package in nixpkgs.
+- [x] Verify the package launches correctly on macOS.
+- [x] Confirm updates behave acceptably.
 - [ ] Decide explicitly what to do if nixpkgs does not provide a practical package.
 - [ ] Avoid removing the Brew cask until the replacement is confirmed.
 

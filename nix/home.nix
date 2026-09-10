@@ -1,12 +1,20 @@
-{config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  ...
+}:
 
 {
   home.username = "klaus224";
   home.homeDirectory = "/Users/klaus224";
   home.stateVersion = "26.05";
-    
-  # configs managed by me 
+
+  # configs managed by me
   home.packages = with pkgs; [
+    # guis
+    raycast
+    spotify
+
     # core tooling
     git
     neovim
@@ -42,7 +50,7 @@
     nixfmt
   ];
 
-  # configs managued by home-manager 
+  # configs managued by home-manager
   programs.fzf.enable = true;
   programs.jq.enable = true;
   programs.fd.enable = true;
@@ -50,39 +58,30 @@
   programs.bat.enable = true;
 
   xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/nvim";
-  
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/nvim";
+
   xdg.configFile."ghostty".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/ghostty";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/ghostty";
 
   xdg.configFile."gh-dash".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/git/gh-dash";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/git/gh-dash";
 
   home.file.".tmux.conf".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/tmux/.tmux.conf";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/tmux/.tmux.conf";
 
   home.file.".zshenv".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/zsh/.zshenv";
-  
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshenv";
+
   home.file.".zshrc".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc";
-  
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc";
+
   home.file.".zshrc.d".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc.d";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc.d";
 
   home.file.".gitconfig".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
 
   home.file.".local/bin" = {
     source = config.lib.file.mkOutOfStoreSymlink "/Users/klaus224/.dotfiles/bin";
   };
 }
-

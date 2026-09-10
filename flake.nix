@@ -15,9 +15,15 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, darwin, home-manager, ... }: {
-    darwinConfigurations."klaus-macbook" =
-      darwin.lib.darwinSystem {
+  outputs =
+    inputs@{
+      nixpkgs,
+      darwin,
+      home-manager,
+      ...
+    }:
+    {
+      darwinConfigurations."klaus-macbook" = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
 
         modules = [
@@ -33,5 +39,5 @@
           }
         ];
       };
-  };
+    };
 }

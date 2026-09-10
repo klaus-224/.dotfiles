@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   nix.enable = false;
@@ -9,14 +9,29 @@
   programs.zsh.enable = true;
 
   environment.variables = {
-    ZSH_AUTOSUGGESTIONS =
-      "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+    ZSH_AUTOSUGGESTIONS = "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
 
-    ZSH_SYNTAX_HIGHLIGHTING =
-      "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
+    ZSH_SYNTAX_HIGHLIGHTING = "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
 
-    ZSH_COMPLETIONS =
-      "${pkgs.zsh-completions}/share/zsh/site-functions";
+    ZSH_COMPLETIONS = "${pkgs.zsh-completions}/share/zsh/site-functions";
+  };
+
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "raycast"
+      "spotify"
+    ];
+
+  homebrew = {
+    enable = true;
+
+    casks = [
+      "arc"
+      "docker"
+      "ghostty"
+      "docker-desktop" # TODO replace with docker daemon
+    ];
   };
 
   system.defaults = {
