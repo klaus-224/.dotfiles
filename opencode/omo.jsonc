@@ -1,0 +1,169 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/b072d279110bdda2c6ac2525d0d24dc54d16148a/assets/omo.schema.json",
+  "profiles": {
+    "work": {},
+    "personal": {}
+  },
+  "[opencode]": {
+    "auto_update": false,
+    "telemetry": false,
+    "hashline_edit": false,
+    "model_fallback": false,
+    "runtime_fallback": false,
+    "disabled_agents": [
+      "sisyphus",
+      "hephaestus",
+      "prometheus",
+      "oracle",
+      "librarian",
+      "explore",
+      "multimodal-looker",
+      "metis",
+      "momus",
+      "atlas",
+      "sisyphus-junior"
+    ],
+    "disabled_mcps": ["websearch", "context7", "grep_app", "lsp"],
+    "disabled_skills": [
+      "playwright",
+      "agent-browser",
+      "dev-browser",
+      "security-research",
+      "security-review",
+      "ast-grep",
+      "coding-agent-sessions",
+      "data-scientist",
+      "debugging",
+      "git-master",
+      "frontend",
+      "init-deep",
+      "lsp-setup",
+      "programming",
+      "refactor",
+      "remove-ai-slops",
+      "review-work",
+      "start-work",
+      "ultimate-browsing",
+      "ulw-plan",
+      "ulw-research",
+      "visual-qa",
+      "$omo:remove-ai-slops"
+    ],
+    "disabled_commands": [
+      "goal",
+      "refactor",
+      "start-work",
+      "stop-continuation",
+      "remove-ai-slops",
+      "hyperplan"
+    ],
+    "disabled_hooks": [
+      "todo-continuation-enforcer",
+      "session-notification",
+      "comment-checker",
+      "directory-readme-injector",
+      "empty-task-response-detector",
+      "think-mode",
+      "model-fallback",
+      "anthropic-context-window-limit-recovery",
+      "preemptive-compaction",
+      "rules-injector",
+      "background-notification",
+      "auto-update-checker",
+      "codegraph-bootstrap",
+      "ast-grep-sg-provision",
+      "startup-toast",
+      "keyword-detector",
+      "agent-usage-reminder",
+      "interactive-bash-session",
+      "monitor-status-injector",
+      "goal",
+      "category-skill-reminder",
+      "compaction-context-injector",
+      "compaction-todo-preserver",
+      "claude-code-hooks",
+      "auto-slash-command",
+      "delegate-task-retry",
+      "prometheus-md-only",
+      "sisyphus-junior-notepad",
+      "team-tool-gating",
+      "no-sisyphus-gpt",
+      "no-hephaestus-non-gpt",
+      "hephaestus-agents-md-injector",
+      "start-work",
+      "atlas",
+      "unstable-agent-babysitter",
+      "task-resume-info",
+      "stop-continuation-guard",
+      "tasks-todowrite-disabler",
+      "runtime-fallback",
+      "notepad-write-guard",
+      "hashline-read-enhancer",
+      "read-image-resizer",
+      "todo-description-override",
+      "fsync-skip-warning",
+      "plan-format-validator",
+      "legacy-plugin-toast"
+    ],
+    "claude_code": {
+      "mcp": false,
+      "commands": false,
+      "skills": false,
+      "agents": false,
+      "hooks": false,
+      "plugins": false
+    },
+    "sisyphus_agent": {
+      "disabled": true,
+      "default_builder_enabled": false,
+      "planner_enabled": false,
+      "replace_plan": false
+    },
+    "experimental": {
+      "task_system": false,
+      "disable_omo_env": true
+    },
+    "background_task": {
+      "defaultConcurrency": 2,
+      "maxDepth": 1,
+      "staleTimeoutMs": 900000
+    },
+    "goal": {
+      "enabled": false,
+      "auto_start": false,
+      "default_max_iterations": 100
+    },
+    "codegraph": {
+      "auto_init": false,
+      "enabled": false,
+      "auto_provision": false,
+      "daemon": false,
+      "telemetry": false
+    },
+    "team_mode": {
+      "enabled": false,
+      "tmux_visualization": false,
+      "max_parallel_members": 4,
+      "max_members": 8,
+      "max_messages_per_run": 10000,
+      "max_wall_clock_minutes": 120,
+      "max_member_turns": 500,
+      "message_payload_max_bytes": 32768,
+      "recipient_unread_max_bytes": 262144,
+      "mailbox_poll_interval_ms": 3000
+    },
+    "tmux": {
+      "enabled": false,
+      "layout": "main-vertical",
+      "main_pane_size": 60,
+      "main_pane_min_width": 120,
+      "agent_pane_min_width": 40,
+      "isolation": "inline"
+    },
+    "git_master": {
+      "commit_footer": false,
+      "include_co_authored_by": false,
+      "git_env_prefix": "GIT_MASTER=1"
+    }
+  }
+}

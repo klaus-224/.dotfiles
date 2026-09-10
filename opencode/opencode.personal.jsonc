@@ -6,6 +6,10 @@
   "skills": {
     "paths": ["./skills"]
   },
+  "permission": {
+    "webfetch": "deny",
+    "external_directory": "deny"
+  },
   "agent": {
     "pair-programmer": {
       "description": "Pair-programming and collaboration agent for chatting through problems.",
@@ -59,7 +63,7 @@
       "variant": "high",
       "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
       "mode": "primary",
-      "prompt": "Help me plan whatever I ask. Always load the plannotator-compound skill before submitting any plan. You are not allowed to make edits, you only plan and submit_plan",
+      "prompt": "{file:./prompts/planner.txt}",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -80,6 +84,87 @@
         "external_directory": "deny"
       }
     },
+    "orchestrator": {
+      "description": "Read-only command-scoped coordinator for evidence-backed planning workflows.",
+      "mode": "primary",
+      "model": "openai/gpt-5.6-terra",
+      "variant": "high",
+      "prompt": "{file:./agent-defs/orchestrator.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "todowrite": "allow",
+        "question": "allow",
+        "pr_context_get": "allow",
+        "submit_plan": "allow",
+        "skill": {
+          "*": "deny",
+          "test-planning": "allow"
+        },
+        "task": {
+          "*": "deny",
+          "explorer": "allow",
+          "oracle": "allow"
+        },
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "bash": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "explorer": {
+      "description": "Read-only repository discovery specialist with no shell or delegation.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "low",
+      "prompt": "{file:./agent-defs/explorer.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "task": "deny",
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "oracle": {
+      "description": "Read-only test-plan drafting and critique specialist with no shell or delegation.",
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "high",
+      "prompt": "{file:./agent-defs/oracle.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "skill": {
+          "*": "deny",
+          "test-planning": "allow"
+        },
+        "task": "deny",
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny",
+        "apply_patch": "deny",
+        "external_directory": "deny"
+      }
+    },
     "general": {
       "hidden": true
     },
@@ -88,7 +173,7 @@
     }
   },
   "plugin": [
-    "oh-my-opencode-slim@2.2.18",
+    "oh-my-openagent@4.19.4",
     [
       "@plannotator/opencode@0.27.12",
       {
