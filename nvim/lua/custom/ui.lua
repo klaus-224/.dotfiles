@@ -71,7 +71,7 @@ M.setup = function()
   vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = border_bg, bold = true })
   vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
-  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd166', bg = border_bg })
+  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd160', bg = border_bg })
   -- for the visual highlighitng
   -- vim.api.nvim_set_hl(0, 'Visual', { bg = '#2d4f67' })
 
