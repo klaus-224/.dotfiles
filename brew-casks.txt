@@ -1,6 +1,0 @@
-arc
-docker-desktop
-ghostty
-nibble
-raycast
-spotify

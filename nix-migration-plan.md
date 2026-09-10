@@ -432,14 +432,14 @@ git commit -m "chore: remove homebrew"
 
 ## Phase 12 — Remove Stow and Old Bootstrap Logic
 
-- [ ] Remove `stow` from package lists.
-- [ ] Delete `.stowrc`.
-- [ ] Delete `.stow-local-ignore`.
-- [ ] Delete obsolete Stow commands from scripts.
-- [ ] Remove old macOS setup scripts replaced by nix-darwin.
-- [ ] Remove obsolete Homebrew installation logic.
-- [ ] Remove obsolete Cargo sync logic.
-- [ ] Remove old package-version manifests no longer needed.
+- [x] Remove `stow` from package lists.
+- [x] Delete `.stowrc`.
+- [x] Delete `.stow-local-ignore`.
+- [x] Delete obsolete Stow commands from scripts.
+- [x] Remove old macOS setup scripts replaced by nix-darwin.
+- [x] Remove obsolete Homebrew installation logic.
+- [x] Remove obsolete Cargo sync logic.
+- [x] Remove old package-version manifests no longer needed.
 
 ### Commit checkpoint
 
