@@ -169,7 +169,7 @@ home.packages = with pkgs; [
   command -v tmux
   command -v gh
   ```
-- [ ] Confirm important commands point into `/nix/store` or a Home Manager profile.
+- [x] Confirm important commands point into `/nix/store` or a Home Manager profile.
 
 ### Commit checkpoint
 
@@ -186,11 +186,11 @@ Keep only genuinely global tooling in Home Manager.
 
 Good global candidates:
 
-- [ ] `lua-language-server`
-- [ ] `yaml-language-server`
-- [ ] `vscode-langservers-extracted`
-- [ ] shell-related language servers used across many repos
-- [ ] generic formatters or linters that are intentionally global
+- [x] `lua-language-server`
+- [x] `yaml-language-server`
+- [x] `vscode-langservers-extracted`
+- [x] shell-related language servers used across many repos
+- [x] generic formatters or linters that are intentionally global
 
 Prefer project-local tooling for version-sensitive packages:
 
@@ -203,8 +203,8 @@ Prefer project-local tooling for version-sensitive packages:
 - Python project tooling
 - Rust project toolchains
 
-- [ ] Confirm Neovim can still discover each global LSP.
-- [ ] Confirm project-local binaries override global fallbacks where intended.
+- [x] Confirm Neovim can still discover each global LSP.
+- [x] Confirm project-local binaries override global fallbacks where intended.
 
 ### Commit checkpoint
 

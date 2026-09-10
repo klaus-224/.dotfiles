@@ -35,7 +35,11 @@
     # global editor/LSP fallback
     yaml-language-server
     vscode-langservers-extracted
+    lua-language-server
     tombi
+    oxfmt
+    nixd
+    nixfmt
   ];
 
   # configs managued by home-manager 
@@ -76,4 +80,9 @@
   home.file.".gitconfig".source =
     config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
+
+  home.file.".local/bin" = {
+    source = config.lib.file.mkOutOfStoreSymlink "/Users/klaus224/.dotfiles/bin";
+  };
 }
+
