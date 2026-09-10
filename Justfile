@@ -1,11 +1,11 @@
 default:
   just --list
 
-sync-brew:
-  ./scripts/install-brew-packages.sh
+rebuild:
+    sudo darwin-rebuild switch --flake ~/.dotfiles#klaus-macbook
 
-sync-cargo:
-  ./scripts/sync-cargo-packages.sh
-
-symlink-bin:
-  ./scripts/symlink-bin.rs
+update:
+    nix flake update
+    sudo darwin-rebuild switch --flake ~/.dotfiles#klaus-macbook
+check:
+    nix flake check

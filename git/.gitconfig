@@ -1,18 +1,9 @@
 [core]
 	editor = nvim
-	excludesfile = /Users/klaus224/.gitignore_global
+	excludesfile = ~/.dotfiles/git/.gitignore.global
 
 [diff]
   tool = nvimdiff
-
-[interactive]
-    diffFilter = delta --color-only
-
-[delta]
-    navigate = true
-    dark = true  
-		side-by-side = true
-		line-numbers = true
 
 [merge]
     tool = nvimdiff
@@ -32,10 +23,10 @@
 	lg = log --oneline --graph --decorate
 
 [include]
-	path = ~/.gitconfig.local
+	path = ~/.dotfiles/git/.gitconfig.local
 [credential "https://github.com"]
 	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+  helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	helper = !gh auth git-credential
