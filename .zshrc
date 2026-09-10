@@ -7,11 +7,28 @@ emulate -LR zsh
 # source custom env vars
 # shellcheck source=/dev/null
 source "$HOME/.zshenv"
-source "$HOME/.dotfiles/zsh/path.zsh"
+
+typeset -U path PATH
+
+export PNPM_HOME="$HOME/Library/pnpm"
+export CARGO_HOME="$HOME/.cargo"
+export LOCAL_BIN="/usr/local"
+export NVM_DIR="$HOME/.nvm"
+
+path=(
+	"$HOME/.dotfiles/bin"
+	"$HOME/.local/bin"  
+	"$LOCAL_BIN/go/bin"  
+	"$CARGO_HOME/bin"
+	"$PNPM_HOME"
+	"${path[@]}"
+)
+
+export PATH
 
 eval "$(starship init zsh)"
 
-# wrapper to run opencode fom .dotfiles
+# runs opencode from .dotfiles
 opencode() {
   XDG_CONFIG_HOME="$HOME/.dotfiles/.config" command opencode "$@"
 }

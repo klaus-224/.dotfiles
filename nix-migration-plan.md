@@ -64,15 +64,15 @@ ghostty/.config/ghostty/  -> ghostty/
 alacritty/.config/...     -> alacritty/
 ```
 
-- [ ] Flatten Neovim.
-- [ ] Flatten Ghostty.
-- [ ] Flatten Alacritty if it is still used.
-- [ ] Flatten tmux.
-- [ ] Flatten zsh.
-- [ ] Flatten git.
-- [ ] Flatten other Stow-style config directories.
-- [ ] Remove `.DS_Store` files from tracked config directories.
-- [ ] Verify application configs still contain all expected files.
+- [x] Flatten Neovim.
+- [x] Flatten Ghostty.
+- [x] Flatten Alacritty if it is still used.
+- [x] Flatten tmux.
+- [x] Flatten zsh.
+- [x] Flatten git.
+- [x] Flatten other Stow-style config directories.
+- [x] Remove `.DS_Store` files from tracked config directories.
+- [x] Verify application configs still contain all expected files.
 
 ### Commit checkpoint
 
