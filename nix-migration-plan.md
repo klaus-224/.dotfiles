@@ -465,9 +465,9 @@ update:
     sudo darwin-rebuild switch --flake ~/.dotfiles#klaus-macbook
 ```
 
-- [ ] Add `rebuild`.
+- [x] Add `rebuild`.
 - [ ] Add `update`.
-- [ ] Optionally add `check`:
+- [x] Optionally add `check`:
   ```sh
   nix flake check
   ```
