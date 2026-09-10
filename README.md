@@ -35,8 +35,6 @@
 # TODO
 - [ ] devenv.zsh and mise
 - [ ] aerospace
-- [ ] look into dev containers [devpod](https://devpod.sh/)
-- [ ] consolidate everything into 1 `setup.sh` script
 - [ ] tools to look at
     - [age](https://github.com/FiloSottile/age) - file encryption/decryption 
     - [e1s](https://github.com/keidarcy/e1s) - tui to manage ECS 
@@ -45,6 +43,7 @@
     - [croc]
     - [ttyd]
     - zsh suffix alias
+    - hammerspoon
 ---
 
 # CLI Tool Reference

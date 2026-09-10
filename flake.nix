@@ -32,12 +32,16 @@
           home-manager.darwinModules.home-manager
 
           {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.klaus224 = ./nix/home.nix;
-            home-manager.backupFileExtension = "backup";
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              backupFileExtension = "backup";
+              users.klaus224 = ./nix/home.nix;
+            };
+            
           }
         ];
       };
+      specialArgs = { inherit inputs; };
     };
 }

@@ -4,6 +4,7 @@
   nix.enable = false;
 
   system.primaryUser = "klaus224";
+
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   programs.zsh.enable = true;
@@ -35,12 +36,17 @@
   };
 
   system.defaults = {
-    dock.autohide = true;
-    dock.mru-spaces = false;
+    dock = {
+      autohide = true;
+      mru-spaces = false;
+      show-recents = false;
+
+    };
 
     finder = {
       AppleShowAllExtensions = true;
     };
+
   };
 
   users.users.klaus224 = {

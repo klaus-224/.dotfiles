@@ -359,9 +359,9 @@ Expected responsibilities:
 }
 ```
 
-- [ ] Keep user CLI packages out of `environment.systemPackages` unless they truly need to be system-wide.
-- [ ] Keep personal app config out of `darwin.nix`.
-- [ ] Keep macOS defaults, users, security settings, and system services in `darwin.nix`.
+- [x] Keep user CLI packages out of `environment.systemPackages` unless they truly need to be system-wide.
+- [x] Keep personal app config out of `darwin.nix`.
+- [x] Keep macOS defaults, users, security settings, and system services in `darwin.nix`.
 
 ### Commit checkpoint
 
