@@ -1,6 +1,6 @@
 [core]
 	editor = nvim
-	excludesfile = ~/.gitignore.global
+	excludesfile = ~/.dotfiles/git/.gitignore.global
 
 [diff]
   tool = nvimdiff
@@ -23,10 +23,10 @@
 	lg = log --oneline --graph --decorate
 
 [include]
-	path = ~/.gitconfig.local
+	path = ~/.dotfiles/git/.gitconfig.local
 [credential "https://github.com"]
 	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+  helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	helper = !gh auth git-credential

@@ -158,10 +158,10 @@ home.packages = with pkgs; [
 ];
 ```
 
-- [ ] Compare `brew leaves` against `home.packages`.
-- [ ] Add missing tools that should be globally available.
-- [ ] Remove duplicates where a Home Manager module already installs the package.
-- [ ] Verify each important binary resolves from Nix:
+- [x] Compare `brew leaves` against `home.packages`.
+- [x] Add missing tools that should be globally available.
+- [x] Remove duplicates where a Home Manager module already installs the package.
+- [x] Verify each important binary resolves from Nix:
   ```sh
   command -v fd
   command -v rg

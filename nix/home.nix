@@ -4,41 +4,46 @@
   home.username = "klaus224";
   home.homeDirectory = "/Users/klaus224";
   home.stateVersion = "26.05";
+    
+  # configs managed by me 
   home.packages = with pkgs; [
+    # core tooling
+    git
+    neovim
+    ripgrep
+    just
+    lazygit
+    tmux
+    gh
+    glow
+    bottom
+    tree
+    starship
+
+    # shell support
     zsh-autosuggestions
     zsh-syntax-highlighting
     zsh-completions
-    # aws-cdk
-    # awscli2
-    # bat
-    # bottom
-    # duckdb
-    # fd
-    # gcc
-    # gh
-    # glow
-    # jq
-    # just
-    # lazygit
-    # lua
-    # lua-language-server
-    # neovim
-    # ripgrep
-    # rustup
-    # sqlite
-    # supabase-cli
-    # terraform
-    # tmux
-    # tree
-    # tree-sitter
-    # uv
-    # watchman
-    # yaml-language-server
+
+    # general-purpose CLIs
+    awscli2
+    duckdb
+
+    # llm
+    opencode
+
+    # global editor/LSP fallback
+    yaml-language-server
+    vscode-langservers-extracted
+    tombi
   ];
 
+  # configs managued by home-manager 
   programs.fzf.enable = true;
-  # programs.git.enable = true;
+  programs.jq.enable = true;
+  programs.fd.enable = true;
   programs.eza.enable = true;
+  programs.bat.enable = true;
 
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink
@@ -71,12 +76,4 @@
   home.file.".gitconfig".source =
     config.lib.file.mkOutOfStoreSymlink
       "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
-
-  home.file.".gitconfig.local".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/git/.gitconfig.local";
-
-  home.file.".gitignore.global".source =
-    config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.dotfiles/git/.gitignore.global";
 }

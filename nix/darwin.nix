@@ -8,9 +8,16 @@
 
   programs.zsh.enable = true;
 
-  environment.systemPackages = with pkgs; [
-    git
-  ];
+  environment.variables = {
+    ZSH_AUTOSUGGESTIONS =
+      "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+
+    ZSH_SYNTAX_HIGHLIGHTING =
+      "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
+
+    ZSH_COMPLETIONS =
+      "${pkgs.zsh-completions}/share/zsh/site-functions";
+  };
 
   system.defaults = {
     dock.autohide = true;
