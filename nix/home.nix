@@ -27,6 +27,7 @@
     bottom
     tree
     starship
+    devenv
 
     # shell support
     zsh-autosuggestions
