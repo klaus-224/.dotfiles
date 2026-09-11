@@ -15,33 +15,51 @@
     };
   };
 
-  outputs =
-    inputs@{
-      nixpkgs,
-      darwin,
-      home-manager,
-      ...
-    }:
+  outputs = inputs@{
+    nixpkgs,
+    darwin,
+    home-manager,
+    ...
+  }:
+    let
+      mkDarwinConfiguration =
+        {
+          username,
+          system ? "aarch64-darwin",
+        }:
+        darwin.lib.darwinSystem {
+          inherit system;
+
+          specialArgs = {
+            inherit inputs username system;
+          };
+
+          modules = [
+            ./nix/darwin.nix
+
+            home-manager.darwinModules.home-manager
+
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "backup";
+                extraSpecialArgs = { inherit username; };
+                users.${username} = ./nix/home.nix;
+              };
+            }
+          ];
+        };
+    in
     {
-      darwinConfigurations."klaus-macbook" = darwin.lib.darwinSystem {
-        system = "aarch64-darwin";
+      darwinConfigurations = {
+        klaus-macbook = mkDarwinConfiguration {
+          username = "klaus224";
+        };
 
-        modules = [
-          ./nix/darwin.nix
-
-          home-manager.darwinModules.home-manager
-
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              backupFileExtension = "backup";
-              users.klaus224 = ./nix/home.nix;
-            };
-            
-          }
-        ];
+        work-macbook = mkDarwinConfiguration {
+          username = "rohineshram";
+        };
       };
-      specialArgs = { inherit inputs; };
     };
 }

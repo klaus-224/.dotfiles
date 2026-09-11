@@ -1,11 +1,11 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, username, system, ... }:
 
 {
   nix.enable = false;
 
-  system.primaryUser = "klaus224";
+  system.primaryUser = username;
 
-  nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs.hostPlatform = system;
 
   programs.zsh.enable = true;
 
@@ -40,18 +40,16 @@
       autohide = true;
       mru-spaces = false;
       show-recents = false;
-
     };
 
     finder = {
       AppleShowAllExtensions = true;
     };
-
   };
 
-  users.users.klaus224 = {
-    name = "klaus224";
-    home = "/Users/klaus224";
+  users.users.${username} = {
+    name = username;
+    home = "/Users/${username}";
   };
 
   security.pam.services.sudo_local.touchIdAuth = true;
