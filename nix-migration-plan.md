@@ -140,7 +140,6 @@ home.packages = with pkgs; [
   glow
   jq
   just
-  lazygit
   lua
   lua-language-server
   neovim

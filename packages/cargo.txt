@@ -1,8 +1,0 @@
-# Cargo packages to keep installed globally.
-# Format: crate [git-source]
-toml-cli
-sleek
-diss
-tealdeer
-crates-tui
-zshcs https://github.com/yuys13/zshcs.git
