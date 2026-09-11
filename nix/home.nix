@@ -20,7 +20,6 @@
     neovim
     ripgrep
     just
-    lazygit
     tmux
     gh
     glow
