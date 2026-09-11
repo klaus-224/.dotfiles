@@ -1,12 +1,13 @@
 {
   config,
   pkgs,
+  username,
   ...
 }:
 
 {
-  home.username = "klaus224";
-  home.homeDirectory = "/Users/klaus224";
+  home.username = username;
+  home.homeDirectory = "/Users/${username}";
   home.stateVersion = "26.05";
 
   # configs managed by me
@@ -81,7 +82,6 @@
   home.file.".gitconfig".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
 
-  home.file.".local/bin" = {
-    source = config.lib.file.mkOutOfStoreSymlink "/Users/klaus224/.dotfiles/bin";
-  };
+  home.file.".local/bin".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/bin";
 }
