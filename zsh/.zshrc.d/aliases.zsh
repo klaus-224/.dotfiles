@@ -2,14 +2,11 @@
 alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
-alias cdnc="cd ~/.dotfiles/nvim/.config/nvim"
 
 alias ctx="ctx7"
 alias oc="opencode"
-alias lg="lazygit"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
-alias hq="harlequin"
 alias gwta="git worktree add"
 alias gwtr="git worktree remove"
 
@@ -31,6 +28,6 @@ alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
 
 # suffix alias
-alias -s {js,json,env,html,css,toml,ts,tsx,rs}="bat"
+# alias -s {js,json,env,html,css,toml,ts,tsx,rs}="bat"
 alias -s md="glow -t"
 alias -s {mov,png,mp4,pdf}="open"
