@@ -1,0 +1,15 @@
+#!/bin/sh
+
+message=$(head -n1 "$1")
+
+pattern='^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9._-]+\))?!?: .+'
+
+if ! echo "$message" | grep -Eq "$pattern"; then
+  echo "Invalid commit message:"
+  echo "  $message"
+  echo
+  echo "Expected:"
+  echo "  feat: add authentication"
+  echo "  fix(api): handle missing user"
+  exit 1
+fi
