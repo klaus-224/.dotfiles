@@ -63,3 +63,8 @@ The `commit-msg` hook should require:
 - an imperative lowercase summary with no trailing period
 - a subject under 72 characters
 
+## nvim diff
+- `git difftool` for a file-level diff;
+- `git difftool -d main...HEAD` for a branch review;
+- `git mergetool` for conflicts;
+- `]c` / `[c` to move between hunks and `do` / `dp` to obtain or put a hunk.
