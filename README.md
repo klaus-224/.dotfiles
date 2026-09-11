@@ -48,7 +48,7 @@ Clone the repository and apply the nix-darwin flake for this machine:
 
 ```sh
 git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
+cd ~/.dotfiles/nix
 
 sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#work-macbook
 ```
@@ -89,7 +89,7 @@ Keep the checkout at `~/.dotfiles`; the symlink definitions use that path.
 After changing Nix files or dotfiles, apply the current configuration with:
 
 ```sh
-sudo darwin-rebuild switch --flake ~/.dotfiles#work-macbook
+sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ```
 
 Use `~/.dotfiles#klaus-macbook` on the personal laptop.
@@ -99,7 +99,7 @@ To update flake inputs and activate the result:
 ```sh
 cd ~/.dotfiles
 nix flake update
-sudo darwin-rebuild switch --flake ~/.dotfiles#work-macbook
+sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ```
 
 The equivalent repository shortcuts are `just rebuild-work` and `just update-work`
