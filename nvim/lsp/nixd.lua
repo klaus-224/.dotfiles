@@ -11,7 +11,7 @@
 return {
   cmd = { 'nixd' },
   filetypes = { 'nix' },
-  root_markers = { 'flake.nix', '.git' },
+  root_markers = { 'flake.nix', '.git', 'flake.lock' },
   settings = {
     formatting = {
       command = { 'nixfmt' },

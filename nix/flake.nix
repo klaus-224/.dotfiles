@@ -35,7 +35,7 @@
           };
 
           modules = [
-            ./nix/darwin.nix
+            ./darwin.nix
 
             home-manager.darwinModules.home-manager
 
@@ -45,7 +45,7 @@
                 useUserPackages = true;
                 backupFileExtension = "backup";
                 extraSpecialArgs = { inherit username; };
-                users.${username} = ./nix/home.nix;
+                users.${username} = ./home.nix;
               };
             }
           ];
