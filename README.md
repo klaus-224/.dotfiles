@@ -1,7 +1,8 @@
 # macOS Dotfiles
 
 This repository contains the nix-darwin and Home Manager configuration for
-`klaus-macbook`.
+`klaus-macbook` and `work-macbook`. The personal configuration uses the
+`klaus224` user; the work configuration uses `rohineshram`.
 
 ## Contents
 
@@ -49,11 +50,12 @@ Clone the repository and apply the nix-darwin flake for this machine:
 git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
-sudo nix run nix-darwin/master#darwin-rebuild --   switch --flake .#klaus-macbook
+sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#work-macbook
 ```
 
 The first run creates the system configuration and activates Home Manager for
-the `klaus224` user. Future rebuilds can use `darwin-rebuild` directly.
+the `rohineshram` user. Use `.#klaus-macbook` on the personal laptop. Future
+rebuilds can use `darwin-rebuild` directly.
 
 ## What Each Layer Manages
 
@@ -62,7 +64,7 @@ the `klaus224` user. Future rebuilds can use `darwin-rebuild` directly.
 - **Home Manager** manages user packages, command-line programs, editor and
   shell configuration, and dotfile links declared in `nix/home.nix`.
 - **The flake** pins nixpkgs, nix-darwin, and Home Manager inputs in
-  `flake.lock` and exposes the `klaus-macbook` configuration.
+  `flake.lock` and exposes both the `klaus-macbook` and `work-macbook` configurations.
 
 ## Config Symlinks
 
@@ -87,18 +89,21 @@ Keep the checkout at `~/.dotfiles`; the symlink definitions use that path.
 After changing Nix files or dotfiles, apply the current configuration with:
 
 ```sh
-sudo darwin-rebuild switch --flake ~/.dotfiles#klaus-macbook
+sudo darwin-rebuild switch --flake ~/.dotfiles#work-macbook
 ```
+
+Use `~/.dotfiles#klaus-macbook` on the personal laptop.
 
 To update flake inputs and activate the result:
 
 ```sh
 cd ~/.dotfiles
 nix flake update
-sudo darwin-rebuild switch --flake ~/.dotfiles#klaus-macbook
+sudo darwin-rebuild switch --flake ~/.dotfiles#work-macbook
 ```
 
-The equivalent repository shortcuts are `just rebuild` and `just update`.
+The equivalent repository shortcuts are `just rebuild-work` and `just update-work`
+on the work laptop, or `just rebuild` and `just update` on the personal laptop.
 Validate the flake without activating it using `just check`.
 
 ## SSH Keys

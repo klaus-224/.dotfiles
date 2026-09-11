@@ -70,3 +70,6 @@ vim.opt.wildignore:append({
   '*/build/*',
   '*/target/*',
 })
+
+-- diff
+vim.diffopt = "internal,filler,closeoff,vertical,algorithm:histogram,indent-heuristic"

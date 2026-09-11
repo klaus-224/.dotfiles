@@ -1,0 +1,11 @@
+#!/bin/sh
+
+branch=$(git symbolic-ref --short HEAD)
+
+pattern='^(main|develop|(feat|fix|chore|refactor|docs|test)/[a-z0-9._-]+)$'
+
+if ! echo "$branch" | grep -Eq "$pattern"; then
+  echo "Invalid branch name: $branch"
+  echo "Expected: feat/foo, fix/foo, chore/foo, etc."
+  exit 1
+fi

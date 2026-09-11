@@ -1,16 +1,27 @@
 [core]
 	editor = nvim
+  hooksPath = ~/.dotfiles/git/hooks
 	excludesfile = ~/.dotfiles/git/.gitignore.global
-
-[diff]
-  tool = nvimdiff
-
-[merge]
-    tool = nvimdiff
-    conflictStyle = zdiff3
 
 [init]
 	defaultBranch = main
+
+[commit]
+    template = ~/.dotfiles/git/commit-template
+    verbose = true
+
+[difftool "nvim_difftool"]
+  cmd = nvim -c \"packadd nvim.difftool\" -d \"$LOCAL\" \"$REMOTE\"
+
+[diff]
+  tool = nvim_difftool
+
+[merge]
+    tool = nvim_difftool
+
+[mergetool "nvim"]
+    cmd = nvim -d "$LOCAL" "$BASE" "$REMOTE" "$MERGED"
+    trustExitCode = true
 
 [pull]
 	rebase = true
@@ -20,13 +31,20 @@
 	autoSetupRemote = true
 
 [alias]
-	lg = log --oneline --graph --decorate
+    s = status --short --branch
+    d = diff
+    ds = diff --staged
+    ai = add --interactive
+    ap = add --patch
+    ci = commit --interactive
+    cp = commit --patch
+    ca = commit --amend --no-edit
+    r = restore
+    rs = restore --staged
+    dt = difftool
+    dts = difftool --staged
+    lg = log --graph --decorate --oneline --all
+    last = log -1 --stat
 
 [include]
 	path = ~/.dotfiles/git/.gitconfig.local
-[credential "https://github.com"]
-	helper = 
-  helper = !gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !gh auth git-credential
