@@ -141,12 +141,12 @@ with both Darwin configurations evaluating successfully.
 
 ## Phase 1: Confirm the Existing Setup
 
-- [ ] Inspect the current Home Manager and zsh configuration.
-- [ ] Confirm `devenv --version` reports version 2.2 or newer.
-- [ ] Install or update devenv through the existing Nix configuration if needed.
-- [ ] Inventory globally installed project runtimes and package managers.
-- [ ] Identify the Node and pnpm versions required by the first work repository.
-- [ ] Check for existing direnv or devenv activation hooks.
+- [x] Inspect the current Home Manager and zsh configuration.
+- [x] Confirm `devenv --version` reports version 2.2 or newer.
+- [x] Install or update devenv through the existing Nix configuration if needed.
+- [x] Inventory globally installed project runtimes and package managers.
+- [x] Identify the Node and pnpm versions required by the first work repository.
+- [x] Check for existing direnv or devenv activation hooks.
 
 Keep existing runtimes available until the replacement environment passes validation.
 
