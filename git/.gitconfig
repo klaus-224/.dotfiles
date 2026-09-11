@@ -38,11 +38,13 @@
     ap = add --patch
     ci = commit --interactive
     cp = commit --patch
+    ca = commit --amend --no-edit
     r = restore
     rs = restore --staged
     dt = difftool
     dts = difftool --staged
     lg = log --graph --decorate --oneline --all
+    last = log -1 --stat
 
 [include]
 	path = ~/.dotfiles/git/.gitconfig.local
