@@ -2,15 +2,20 @@
   config,
   pkgs,
   username,
+  nixpkgs-devenv,
   ...
 }:
 
+let
+  devenvPkgs = import nixpkgs-devenv {
+    system = pkgs.system;
+  };
+in
 {
   home.username = username;
   home.homeDirectory = "/Users/${username}";
   home.stateVersion = "26.05";
 
-  # configs managed by me
   home.packages = with pkgs; [
     # guis
     raycast
@@ -26,11 +31,12 @@
     bottom
     tree
     starship
-    devenv
     neovim
     marksman
     tree-sitter
 
+    # pinned devenv 2.2.2 (2.3.0+ has a bug: https://github.com/cachix/devenv/issues/3183)
+    devenvPkgs.devenv
 
     # shell support
     zsh-autosuggestions
@@ -50,7 +56,6 @@
     tombi
   ];
 
-  # configs managued by home-manager
   programs.fzf.enable = true;
   programs.jq.enable = true;
   programs.fd.enable = true;
