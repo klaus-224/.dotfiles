@@ -1,30 +1,25 @@
 { pkgs, ... }:
 {
   languages.rust = {
-    languages.rust = {
-      enable = true;
-      channel = "stable";
-    };
+    enable = true;
+    channel = "stable";
   };
 
   packages = with pkgs; [
-    node
+    nodejs
     pnpm
-    python
-    uv
+    python3
     awscli2
     duckdb
-
-    # shell stuff i think?
-    shellcheck
-    pkg-config
-
-    # rust
-    rust
-    bacon
-
-    # formatter, linter
     biome
+    sleek
+    typescript-language-server
+    svelte-language-server
+    sql-language-server
+    tree-sitter
+    gnumake
+    pkg-config
+    shellcheck
   ];
 
 }
