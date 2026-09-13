@@ -47,11 +47,7 @@
     # global editor/LSP fallback
     yaml-language-server
     vscode-langservers-extracted
-    lua-language-server
     tombi
-    oxfmt
-    nixd
-    nixfmt
   ];
 
   # configs managued by home-manager

@@ -4,6 +4,9 @@
     pnpm
     lua-language-server
     shellcheck
+    nixd
+    nixfmt
+    oxfmt
   ];
 
 }
