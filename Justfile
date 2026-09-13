@@ -16,4 +16,4 @@ update-work:
     sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 
 check:
-    nix flake check
+    cd ~/.dotfiles/nix && nix flake check

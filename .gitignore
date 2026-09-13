@@ -4,3 +4,5 @@ zsh/.zshrc.d/local.zsh
 opencode/skills/playwright-docs/references/*
 
 node_modules/
+
+.omo/
