@@ -16,7 +16,7 @@ path=(
 export PATH
 
 eval "$(starship init zsh)"
-eval "$(devenv hook zsh)"
+eval "$(devenv hook zsh -- --no-tui)"
 
 # runs opencode from .dotfiles
 opencode() {
