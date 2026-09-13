@@ -14,7 +14,6 @@ vim.pack.add({
   { src = 'https://github.com/rafamadriz/friendly-snippets' },
   { src = 'https://github.com/saghen/blink.lib' },
   { src = 'https://github.com/saghen/blink.cmp' },
-  { src = 'https://github.com/romus204/tree-sitter-manager.nvim' },
   { src = 'https://github.com/stevearc/oil.nvim' },
   { src = 'https://github.com/nvim-mini/mini.pick' },
   { src = 'https://github.com/kylechui/nvim-surround',              version = vim.version.range('4.x') },
@@ -22,6 +21,9 @@ vim.pack.add({
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
+  {
+    src = "https://github.com/nvim-treesitter/nvim-treesitter",
+  },
   { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
@@ -78,11 +80,44 @@ cmp.setup({
   },
 })
 
-require('tree-sitter-manager').setup({
-  dependencies = {},
-  ensure_installed = { 'svelte' },
-  auto_install = true,
-  highlight = false,
+-- treesitter
+local parsers = {
+  "bash",
+  "css",
+  "csv",
+  "dockerfile",
+  "git_config",
+  "git_rebase",
+  "gitattributes",
+  "gitcommit",
+  "gitignore",
+  "html",
+  "javascript",
+  "json",
+  "jsonc",
+  "lua",
+  "markdown",
+  "markdown_inline",
+  "nix",
+  "python",
+  "rust",
+  "sql",
+  "svelte",
+  "terraform",
+  "toml",
+  "tsx",
+  "typescript",
+  "vim",
+  "vimdoc",
+  "yaml",
+}
+
+require("nvim-treesitter").install(parsers)
+
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function()
+    pcall(vim.treesitter.start)
+  end,
 })
 
 require('oil').setup({
