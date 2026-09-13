@@ -15,13 +15,11 @@ path=(
 
 export PATH
 
+# devenv
+export DEVENV_TUI=false
+
 eval "$(starship init zsh)"
 eval "$(devenv hook zsh )"
-
-# runs opencode from .dotfiles
-opencode() {
-  XDG_CONFIG_HOME="$HOME/.dotfiles/.config" command opencode "$@"
-}
 
 # Source modular config
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do

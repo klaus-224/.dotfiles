@@ -2,6 +2,7 @@
   config,
   pkgs,
   username,
+  profile,
   nixpkgs-devenv,
   ...
 }:
@@ -10,6 +11,10 @@ let
   devenvPkgs = import nixpkgs-devenv {
     system = pkgs.system;
   };
+
+  dotfiles = "${config.home.homeDirectory}/.dotfiles";
+
+  link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
 in
 {
   home.username = username;
@@ -62,30 +67,20 @@ in
   programs.eza.enable = true;
   programs.bat.enable = true;
 
-  xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/nvim";
+  xdg.configFile = {
+    nvim.source = link "nvim";
+    ghostty.source = link "ghostty";
+    gh-dash.source = link "git/gh-dash";
+    opencode.source = link "opencode";
+  };
 
-  xdg.configFile."ghostty".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/ghostty";
-
-  xdg.configFile."gh-dash".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/git/gh-dash";
-
-  home.file.".tmux.conf".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/tmux/.tmux.conf";
-
-  home.file.".zshenv".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshenv";
-
-  home.file.".zshrc".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc";
-
-  home.file.".zshrc.d".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/zsh/.zshrc.d";
-
-  home.file.".gitconfig".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/git/.gitconfig";
-
-  home.file.".local/bin".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/bin";
+  home.file = {
+    ".dotfiles/opencode/opencode.jsonc".source = link "opencode/opencode.${profile}.jsonc";
+    ".tmux.conf".source = link "tmux/.tmux.conf";
+    ".zshenv".source = link "zsh/.zshenv";
+    ".zshrc".source = link "zsh/.zshrc";
+    ".zshrc.d".source = link "zsh/.zshrc.d";
+    ".gitconfig".source = link "git/.gitconfig";
+    ".local/bin".source = link "bin";
+  };
 }
