@@ -29,9 +29,9 @@ This is an implementation plan, not an applied repository change. Reviewed again
 | dotfiles | Nix and Lua LSPs, Nix formatter, TOML tooling and the formatter used by dotfiles |
 | Repository environment | Project-specific runtime versions, language tools, databases and development processes |
 
-- [ ] Install a pinned devenv version supporting persistent bindings: minimum 2.2, preferably a current tested patch release.
-- [ ] Keep devenv globally available so activation does not depend on an already-active development shell.
-- [ ] Confirm the existing package inventory before removal; migrate packages only after their destination profile works.
+- [x] Install a pinned devenv version supporting persistent bindings: minimum 2.2, preferably a current tested patch release.
+- [x] Keep devenv globally available so activation does not depend on an already-active development shell.
+- [x] Confirm the existing package inventory before removal; migrate packages only after their destination profile works.
 
 The current `nix/home.nix` includes YAML/JSON/Lua LSPs, tombi, oxfmt, nixd, nixfmt, awscli2 and duckdb. Move YAML/JSON to base; move Nix/Lua/TOML/dotfiles formatting tools to dotfiles; move AWS CLI to work. Place DuckDB in the profile or project that actually uses it. Keep jq in Home Manager instead of duplicating it. [Current Home Manager configuration](https://github.com/klaus-224/.dotfiles/blob/main/nix/home.nix)
 
@@ -65,7 +65,7 @@ The current `nix/home.nix` includes YAML/JSON/Lua LSPs, tombi, oxfmt, nixd, nixf
 
 Each context explicitly inherits base. Select the context through directory bindings rather than username or hostname, since work and personal projects share a machine. [Profile composition](https://devenv.sh/profiles/)
 
-- [ ] Add `devenv/devenv.yaml` with a pinned input resolved through its lockfile:
+- [x] Add `devenv/devenv.yaml` with a pinned input resolved through its lockfile:
 
 ```yaml
 inputs:
