@@ -21,9 +21,7 @@ vim.pack.add({
   { src = 'https://github.com/tpope/vim-dadbod' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-ui' },
   { src = 'https://github.com/kristijanhusak/vim-dadbod-completion' },
-  {
-    src = "https://github.com/nvim-treesitter/nvim-treesitter",
-  },
+  { src = "https://github.com/nvim-treesitter/nvim-treesitter" },
   { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
