@@ -27,13 +27,14 @@
       mkDarwinConfiguration =
         {
           username,
+          profile,
           system ? "aarch64-darwin",
         }:
         darwin.lib.darwinSystem {
           inherit system;
 
           specialArgs = {
-            inherit inputs username system;
+            inherit inputs username profile system;
           };
 
           modules = [
@@ -47,7 +48,7 @@
                 useUserPackages = true;
                 backupFileExtension = "backup";
                 extraSpecialArgs = { 
-                  inherit  username;
+                  inherit  username profile;
                   nixpkgs-devenv = inputs.nixpkgs-devenv;
                 };
                 users.${username} = ./home.nix;
@@ -60,10 +61,12 @@
       darwinConfigurations = {
         klaus-macbook = mkDarwinConfiguration {
           username = "klaus224";
+          profile = "personal";
         };
 
         work-macbook = mkDarwinConfiguration {
           username = "rohineshram";
+          profile = "work";
         };
       };
     };
