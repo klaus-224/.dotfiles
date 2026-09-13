@@ -18,7 +18,6 @@
 
     # core tooling
     git
-    neovim
     ripgrep
     just
     tmux
@@ -28,6 +27,10 @@
     tree
     starship
     devenv
+    neovim
+    marksman
+    tree-sitter
+
 
     # shell support
     zsh-autosuggestions

@@ -49,13 +49,13 @@
       "src": "https://github.com/kylechui/nvim-surround",
       "version": "4.0.0 - 5.0.0"
     },
+    "nvim-treesitter": {
+      "rev": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "src": "https://github.com/nvim-treesitter/nvim-treesitter"
+    },
     "oil.nvim": {
       "rev": "0fcc83805ad11cf714a949c98c605ed717e0b83e",
       "src": "https://github.com/stevearc/oil.nvim"
-    },
-    "tree-sitter-manager.nvim": {
-      "rev": "bb66b815aff01e87b2e26be995116be8d2f91474",
-      "src": "https://github.com/romus204/tree-sitter-manager.nvim"
     },
     "vague.nvim": {
       "rev": "fd58046b9d64259d9785e4aeb6d6f494c6943cad",
