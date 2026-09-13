@@ -84,3 +84,17 @@ vim.api.nvim_create_user_command('CopyPath', function()
   vim.fn.setreg('+', path)
   vim.notify('Copied path: ' .. path)
 end, {})
+
+-- cd git root
+vim.api.nvim_create_user_command('CDRoot', function()
+  local git_root = vim.fs.root(0, {
+    '.git',
+  })
+
+  if git_root then
+    vim.cmd.cd(git_root)
+    print('Changed directory to ' .. git_root)
+  else
+    vim.notify('Git root not found.', vim.log.levels.WARN)
+  end
+end, {})
