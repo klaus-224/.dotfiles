@@ -15,9 +15,6 @@ path=(
 
 export PATH
 
-# devenv
-export DEVENV_TUI=false
-
 eval "$(starship init zsh)"
 eval "$(devenv hook zsh )"
 
