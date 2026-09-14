@@ -21,6 +21,7 @@
     "session_parent": "k"
   },
   "plugin": [
-    "oh-my-openagent@4.19.4"
+    "oh-my-openagent@4.19.4",
+    "oh-my-openagent@latest"
   ]
 }

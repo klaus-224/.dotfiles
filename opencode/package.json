@@ -2,9 +2,8 @@
   "name": "dotfiles-opencode-config",
   "private": true,
   "type": "module",
-  "packageManager": "npm@11.16.0",
+  "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "setup": "../scripts/setup-opencode-cli.sh",
     "test": "node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

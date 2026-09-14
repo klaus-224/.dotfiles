@@ -111,87 +111,6 @@
         "bash": "deny"
       }
     },
-    "orchestrator": {
-      "description": "Read-only command-scoped coordinator for evidence-backed planning workflows.",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
-      "variant": "high",
-      "prompt": "{file:./agent-defs/orchestrator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "question": "allow",
-        "pr_context_get": "allow",
-        "submit_plan": "allow",
-        "skill": {
-          "*": "deny",
-          "test-planning": "allow"
-        },
-        "task": {
-          "*": "deny",
-          "explorer": "allow",
-          "oracle": "allow"
-        },
-        "edit": "deny",
-        "write": "deny",
-        "apply_patch": "deny",
-        "bash": "deny",
-        "webfetch": "deny",
-        "websearch": "deny",
-        "external_directory": "deny"
-      }
-    },
-    "explorer": {
-      "description": "Read-only repository discovery specialist with no shell or delegation.",
-      "mode": "subagent",
-      "model": "github-copilot/gpt-5.6-luna",
-      "variant": "low",
-      "prompt": "{file:./agent-defs/explorer.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "task": "deny",
-        "bash": "deny",
-        "edit": "deny",
-        "write": "deny",
-        "apply_patch": "deny",
-        "external_directory": "deny"
-      }
-    },
-    "oracle": {
-      "description": "Read-only test-plan drafting and critique specialist with no shell or delegation.",
-      "mode": "subagent",
-      "model": "github-copilot/gpt-5.6-sol",
-      "variant": "high",
-      "prompt": "{file:./agent-defs/oracle.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "skill": {
-          "*": "deny",
-          "test-planning": "allow"
-        },
-        "task": "deny",
-        "bash": "deny",
-        "edit": "deny",
-        "write": "deny",
-        "apply_patch": "deny",
-        "external_directory": "deny"
-      }
-    },
     // Jira Operator
     "jira-operator": {
       "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
@@ -320,13 +239,6 @@
     }
   },
   "plugin": [
-    "oh-my-openagent@4.19.4",
-    [
-      "@plannotator/opencode@0.27.12",
-      {
-        "workflow": "user-managed",
-        "planningAgents": ["planner", "orchestrator"]
-      }
-    ]
+    "oh-my-openagent@latest"
   ]
 }
