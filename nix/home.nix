@@ -10,21 +10,12 @@ let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
-in
-{
-  home.username = username;
-  home.homeDirectory = "/Users/${username}";
-  home.stateVersion = "26.05";
 
-  home.packages = with pkgs; [
-    # guis
-    raycast
-    spotify
-
-    # core tooling
+  commonPackages = with pkgs; [
     git
     ripgrep
     just
+    gnumake
     tmux
     gh
     glow
@@ -35,25 +26,58 @@ in
     marksman
     tree-sitter
 
-    devenv
-
-    # shell support
     zsh-autosuggestions
     zsh-syntax-highlighting
     zsh-completions
 
-    # general-purpose CLIs
     awscli2
     duckdb
-
-    # llm
     opencode
 
-    # global editor/LSP fallback
     yaml-language-server
     vscode-langservers-extracted
+    lua-language-server
+    nixd
     tombi
+    # 2.3.1 broken right now 
+    # devenv
   ];
+
+  personalPackages = with pkgs; [
+    raycast
+    spotify
+
+    # personal development
+    nodejs
+    pnpm
+    postgres-language-server
+  ];
+
+  workPackages = with pkgs; [
+    nodejs
+    pnpm
+    python3
+    rustc
+    cargo
+
+    biome
+    typescript-language-server
+    svelte-language-server
+    sqls
+
+    pkg-config
+    shellcheck
+  ];
+in
+{
+  home.username = username;
+  home.homeDirectory = "/Users/${username}";
+  home.stateVersion = "26.05";
+
+  home.packages =
+    commonPackages
+    ++ pkgs.lib.optionals (profile == "personal") personalPackages
+    ++ pkgs.lib.optionals (profile == "work") workPackages;
 
   programs.fzf.enable = true;
   programs.jq.enable = true;
@@ -66,11 +90,12 @@ in
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
     opencode.source = link "opencode";
-    "devenv/config.yaml".source = link "devenv/config.yaml";
   };
 
   home.file = {
-    ".dotfiles/opencode/opencode.jsonc".source = link "opencode/opencode.${profile}.jsonc";
+    ".dotfiles/opencode/opencode.jsonc".source =
+      link "opencode/opencode.${profile}.jsonc";
+
     ".tmux.conf".source = link "tmux/.tmux.conf";
     ".zshenv".source = link "zsh/.zshenv";
     ".zshrc".source = link "zsh/.zshrc";
