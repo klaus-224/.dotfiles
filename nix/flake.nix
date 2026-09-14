@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-opencode.url = "github:NixOS/nixpkgs/5dbaca36ed1e5ce78fc33775124a54b3906dd585";
 
     darwin = {
       url = "github:nix-darwin/nix-darwin";
@@ -48,6 +49,9 @@
                 backupFileExtension = "backup";
                 extraSpecialArgs = { 
                   inherit  username profile;
+                  opencodePkgs = import inputs.nixpkgs-opencode {
+                    inherit system;
+                  };
                 };
                 users.${username} = ./home.nix;
               };

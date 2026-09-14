@@ -3,6 +3,7 @@
   pkgs,
   username,
   profile,
+  opencodePkgs,
   ...
 }:
 
@@ -32,7 +33,7 @@ let
 
     awscli2
     duckdb
-    opencode
+    # opencode
 
     yaml-language-server
     vscode-langservers-extracted
@@ -78,6 +79,7 @@ in
 
   home.packages =
     commonPackages
+    ++ [opencodePkgs.opencode]
     ++ pkgs.lib.optionals (profile == "personal") personalPackages
     ++ pkgs.lib.optionals (profile == "work") workPackages;
 
