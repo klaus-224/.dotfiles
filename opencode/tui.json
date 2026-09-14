@@ -7,7 +7,6 @@
     "theme_list": "<leader>t",
     "sidebar_toggle": "<leader>b",
     "status_view": "<leader>s",
-    "tool_details": "",
     "session_export": "<leader>x",
     "session_new": "<leader>n",
     "session_list": "<leader>l",
@@ -20,8 +19,4 @@
     "session_child_cycle_reverse": "h",
     "session_parent": "k"
   },
-  "plugin": [
-    "oh-my-openagent@4.19.4",
-    "oh-my-openagent@latest"
-  ]
 }

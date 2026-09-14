@@ -41,196 +41,196 @@
         }
       }
     },
-    // Building Agent
-    "build": {
-      "model": "github-copilot/gpt-5.6-sol",
-      "variant": "high",
-      "mode": "primary",
-      "tools": {
-        "paths": true
-      },
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "edit": "allow",
-        "write": "allow",
-        "task": "deny",
-        "skill": {
-          "*": "deny",
-          "simple-coding": "allow"
-        },
-        "session_reader *": "allow",
-        "bash": {
-          "*": "deny",
-          "python *": "allow",
-          "python3 *": "allow",
-          "cargo *": "allow",
-          "git *": "allow",
-          "pnpm *": "allow",
-          "npm *": "allow",
-          "node *": "allow",
-          "npx *": "allow",
-          "tsc *": "allow",
-          "eslint *": "allow",
-          "prettier *": "allow",
-          "docker *": "allow",
-          "make *": "allow",
-          "ls *": "allow",
-          "mkdir *": "allow",
-          "cp *": "allow",
-          "mv *": "allow",
-          "rm *": "ask",
-          "read *": "ask"
-        }
-      }
-    },
-    "planner": {
-      "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
-      "variant": "high",
-      "prompt": "{file:./prompts/planner.txt}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "submit_plan": "allow",
-        "memory_query": "allow",
-        "skill": {
-          "*": "deny",
-          "plannotator-compound": "allow"
-        },
-        "edit": "deny",
-        "write": "deny",
-        "task": "deny",
-        "external_directory": "deny",
-        "bash": "deny"
-      }
-    },
-    // Jira Operator
-    "jira-operator": {
-      "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
-      "variant": "low",
-      "prompt": "{file:./agent-defs/jira-operator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "todowrite": "allow",
-        "atlassian_getJiraIssue": "allow",
-        "atlassian_addCommentToJiraIssue": "allow",
-        "atlassian_getAccessibleAtlassianResources": "allow", //
-        "atlassian_searchJiraIssuesUsingJql": "allow",
-        "atlassian_getJiraIssueDevelopmentInfo": "allow",
-        "atlassian_lookupJiraAccountId": "allow"
-      }
-    },
-    "test-orchestrator": {
-      "description": "orchestrates playwright users",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
-      "prompt": "Read a markdown file and dispatch playwright-user agents to execute the tests",
-      "tools": {
-        "*": true
-      },
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "grep": "allow",
-        "glob": "allow",
-        "webfetch": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "submit_plan": "allow",
-        "skill": {
-          "*": "deny",
-          "plannotator-annotate": "allow",
-          "playwright-cli": "allow"
-        },
-        "task": {
-          "*": "deny",
-          "playwright-user": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "ls *": "allow",
-          "gh pr *": "allow",
-          "git *": "allow",
-          "rg *": "allow",
-          "pnpm -C apps/playwright-tests auth": "allow",
-          "playwright-cli *": "allow"
-        }
-      }
-    },
-    "playwright-user": {
-      "description": "executes manual tests",
-      "mode": "primary",
-      "model": "github-copilot/gpt-5.6-luna",
-      "prompt": "{file:./agent-defs/playwright-user.md}",
-      "tools": {
-        "*": true,
-        "session_flag_current": true
-      },
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "grep": "allow",
-        "glob": "allow",
-        "webfetch": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "submit_plan": "allow",
-        "skill": {
-          "*": "deny",
-          "plannotator-annotate": "allow",
-          "playwright-cli": "allow"
-        },
-        "task": {
-          "*": "deny",
-          "jira-operator": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "ls *": "allow",
-          "gh pr *": "allow",
-          "git *": "allow",
-          "rg *": "allow",
-          "pnpm -C apps/playwright-tests auth": "allow",
-          "playwright-cli *": "allow"
-        }
-      }
-    },
-    "test-writer": {
-      "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
-      "mode": "subagent",
-      "model": "github-copilot/gpt-5.6-terra",
-      "variant": "high",
-      "prompt": "{file:./agent-defs/pw-test-writer.md}",
-      "tools": {},
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "write": "allow",
-        "edit": "allow",
-        "todowrite": "allow",
-        "skill": {
-          "*": "deny",
-          "simple-coding": "allow",
-          "find-docs": "allow",
-          "playwright-cli": "allow"
-        },
-        "bash": {
-          "*": "deny",
-          "git": "allow",
-          "pnpm *": "allow"
-        }
-      }
-    },
+    // // Building Agent
+    // "build": {
+    //   "model": "github-copilot/gpt-5.6-sol",
+    //   "variant": "high",
+    //   "mode": "primary",
+    //   "tools": {
+    //     "paths": true
+    //   },
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "todowrite": "allow",
+    //     "edit": "allow",
+    //     "write": "allow",
+    //     "task": "deny",
+    //     "skill": {
+    //       "*": "deny",
+    //       "simple-coding": "allow"
+    //     },
+    //     "session_reader *": "allow",
+    //     "bash": {
+    //       "*": "deny",
+    //       "python *": "allow",
+    //       "python3 *": "allow",
+    //       "cargo *": "allow",
+    //       "git *": "allow",
+    //       "pnpm *": "allow",
+    //       "npm *": "allow",
+    //       "node *": "allow",
+    //       "npx *": "allow",
+    //       "tsc *": "allow",
+    //       "eslint *": "allow",
+    //       "prettier *": "allow",
+    //       "docker *": "allow",
+    //       "make *": "allow",
+    //       "ls *": "allow",
+    //       "mkdir *": "allow",
+    //       "cp *": "allow",
+    //       "mv *": "allow",
+    //       "rm *": "ask",
+    //       "read *": "ask"
+    //     }
+    //   }
+    // },
+    // "planner": {
+    //   "description": "Read-only planning agent for work tickets, PRs, and implementation plans.",
+    //   "mode": "primary",
+    //   "model": "github-copilot/gpt-5.6-luna",
+    //   "variant": "high",
+    //   "prompt": "{file:./prompts/planner.txt}",
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "glob": "allow",
+    //     "grep": "allow",
+    //     "lsp": "allow",
+    //     "todowrite": "allow",
+    //     "submit_plan": "allow",
+    //     "memory_query": "allow",
+    //     "skill": {
+    //       "*": "deny",
+    //       "plannotator-compound": "allow"
+    //     },
+    //     "edit": "deny",
+    //     "write": "deny",
+    //     "task": "deny",
+    //     "external_directory": "deny",
+    //     "bash": "deny"
+    //   }
+    // },
+    // // Jira Operator
+    // "jira-operator": {
+    //   "description": "General-purpose Jira operator for querying, creating, transitioning, commenting, and linking issues via the Jira MCP.",
+    //   "mode": "primary",
+    //   "model": "github-copilot/gpt-5.6-luna",
+    //   "variant": "low",
+    //   "prompt": "{file:./agent-defs/jira-operator.md}",
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "todowrite": "allow",
+    //     "atlassian_getJiraIssue": "allow",
+    //     "atlassian_addCommentToJiraIssue": "allow",
+    //     "atlassian_getAccessibleAtlassianResources": "allow", //
+    //     "atlassian_searchJiraIssuesUsingJql": "allow",
+    //     "atlassian_getJiraIssueDevelopmentInfo": "allow",
+    //     "atlassian_lookupJiraAccountId": "allow"
+    //   }
+    // },
+    // "test-orchestrator": {
+    //   "description": "orchestrates playwright users",
+    //   "mode": "primary",
+    //   "model": "github-copilot/gpt-5.6-luna",
+    //   "prompt": "Read a markdown file and dispatch playwright-user agents to execute the tests",
+    //   "tools": {
+    //     "*": true
+    //   },
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "grep": "allow",
+    //     "glob": "allow",
+    //     "webfetch": "allow",
+    //     "lsp": "allow",
+    //     "todowrite": "allow",
+    //     "submit_plan": "allow",
+    //     "skill": {
+    //       "*": "deny",
+    //       "plannotator-annotate": "allow",
+    //       "playwright-cli": "allow"
+    //     },
+    //     "task": {
+    //       "*": "deny",
+    //       "playwright-user": "allow"
+    //     },
+    //     "bash": {
+    //       "*": "ask",
+    //       "ls *": "allow",
+    //       "gh pr *": "allow",
+    //       "git *": "allow",
+    //       "rg *": "allow",
+    //       "pnpm -C apps/playwright-tests auth": "allow",
+    //       "playwright-cli *": "allow"
+    //     }
+    //   }
+    // },
+    // "playwright-user": {
+    //   "description": "executes manual tests",
+    //   "mode": "primary",
+    //   "model": "github-copilot/gpt-5.6-luna",
+    //   "prompt": "{file:./agent-defs/playwright-user.md}",
+    //   "tools": {
+    //     "*": true,
+    //     "session_flag_current": true
+    //   },
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "grep": "allow",
+    //     "glob": "allow",
+    //     "webfetch": "allow",
+    //     "lsp": "allow",
+    //     "todowrite": "allow",
+    //     "submit_plan": "allow",
+    //     "skill": {
+    //       "*": "deny",
+    //       "plannotator-annotate": "allow",
+    //       "playwright-cli": "allow"
+    //     },
+    //     "task": {
+    //       "*": "deny",
+    //       "jira-operator": "allow"
+    //     },
+    //     "bash": {
+    //       "*": "ask",
+    //       "ls *": "allow",
+    //       "gh pr *": "allow",
+    //       "git *": "allow",
+    //       "rg *": "allow",
+    //       "pnpm -C apps/playwright-tests auth": "allow",
+    //       "playwright-cli *": "allow"
+    //     }
+    //   }
+    // },
+    // "test-writer": {
+    //   "description": "Implements approved regression test plans as Playwright test files and verifies they pass",
+    //   "mode": "subagent",
+    //   "model": "github-copilot/gpt-5.6-terra",
+    //   "variant": "high",
+    //   "prompt": "{file:./agent-defs/pw-test-writer.md}",
+    //   "tools": {},
+    //   "permission": {
+    //     "*": "deny",
+    //     "read": "allow",
+    //     "write": "allow",
+    //     "edit": "allow",
+    //     "todowrite": "allow",
+    //     "skill": {
+    //       "*": "deny",
+    //       "simple-coding": "allow",
+    //       "find-docs": "allow",
+    //       "playwright-cli": "allow"
+    //     },
+    //     "bash": {
+    //       "*": "deny",
+    //       "git": "allow",
+    //       "pnpm *": "allow"
+    //     }
+    //   }
+    // },
     "general": {
       "hidden": true
     },
@@ -239,6 +239,5 @@
     }
   },
   "plugin": [
-    "oh-my-openagent@latest"
   ]
 }
