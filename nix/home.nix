@@ -95,9 +95,6 @@ in
   };
 
   home.file = {
-    ".dotfiles/opencode/opencode.jsonc".source =
-      link "opencode/opencode.${profile}.jsonc";
-
     ".tmux.conf".source = link "tmux/.tmux.conf";
     ".zshenv".source = link "zsh/.zshenv";
     ".zshrc".source = link "zsh/.zshrc";
