@@ -17,6 +17,7 @@
     "session_child_first": "<leader>j",
     "session_child_cycle": "l",
     "session_child_cycle_reverse": "h",
-    "session_parent": "k"
+    "session_parent": "k",
+    "tool_details": "none"
   },
 }

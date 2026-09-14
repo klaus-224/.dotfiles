@@ -18,3 +18,8 @@ export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
 # glow 
 export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"
 
+if [[ $USER == "klaus224" ]]; then
+    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
+  else
+    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
+fi
