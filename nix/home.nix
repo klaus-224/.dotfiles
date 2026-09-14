@@ -50,12 +50,14 @@ let
     # personal development
     nodejs
     pnpm
+    bun
     postgres-language-server
   ];
 
   workPackages = with pkgs; [
     nodejs
     pnpm
+    bun
     python3
     rustc
     cargo
