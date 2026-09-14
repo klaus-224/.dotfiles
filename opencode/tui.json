@@ -19,5 +19,8 @@
     "session_child_cycle": "l",
     "session_child_cycle_reverse": "h",
     "session_parent": "k"
-  }
+  },
+  "plugin": [
+    "oh-my-openagent@4.19.4"
+  ]
 }

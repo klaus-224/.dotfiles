@@ -4,8 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    nixpkgs-devenv.url = "github:NixOS/nixpkgs/bb11e50a8843e245cd8400e1ae3823bd6f64cc9c";
-
     darwin = {
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,6 +16,7 @@
   };
 
   outputs = inputs@{
+    self,
     nixpkgs,
     darwin,
     home-manager,
@@ -49,7 +48,6 @@
                 backupFileExtension = "backup";
                 extraSpecialArgs = { 
                   inherit  username profile;
-                  nixpkgs-devenv = inputs.nixpkgs-devenv;
                 };
                 users.${username} = ./home.nix;
               };

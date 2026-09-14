@@ -3,15 +3,10 @@
   pkgs,
   username,
   profile,
-  nixpkgs-devenv,
   ...
 }:
 
 let
-  devenvPkgs = import nixpkgs-devenv {
-    system = pkgs.system;
-  };
-
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
@@ -40,8 +35,7 @@ in
     marksman
     tree-sitter
 
-    # pinned devenv 2.2.2 (2.3.0+ has a bug: https://github.com/cachix/devenv/issues/3183)
-    devenvPkgs.devenv
+    devenv
 
     # shell support
     zsh-autosuggestions
@@ -72,6 +66,7 @@ in
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
     opencode.source = link "opencode";
+    "devenv/config.yaml".source = link "devenv/config.yaml";
   };
 
   home.file = {

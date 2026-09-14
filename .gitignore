@@ -6,3 +6,14 @@ opencode/skills/playwright-docs/references/*
 node_modules/
 
 .omo/
+
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
