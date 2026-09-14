@@ -38,6 +38,7 @@ require('lazydev').setup({
 vim.lsp.enable({
   'lua_ls',
   'jsonls',
+  'ts_ls',
   'tsc',
   'yamlls',
   'tombi',

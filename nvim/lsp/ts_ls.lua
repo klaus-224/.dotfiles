@@ -65,7 +65,7 @@ return {
     'typescript',
     'typescriptreact',
   },
-  oot_dir = function(bufnr, on_dir)
+  root_dir = function(bufnr, on_dir)
     local root = vim.fs.root(bufnr, {
       {
         "pnpm-lock.yaml",
