@@ -16,7 +16,7 @@ path=(
 export PATH
 
 eval "$(starship init zsh)"
-eval "$(devenv hook zsh )"
+# eval "$(devenv hook zsh )"
 
 # Source modular config
 for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
