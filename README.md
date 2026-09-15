@@ -29,7 +29,8 @@ bootstrapping:
    xcode-select --install
    ```
 
-2. Install the Nix package manager using the official installer:
+2. Install Nix using the Determinate Systems installer (this configuration sets
+   `nix.enable = false` so Determinate continues managing the daemon):
 
    ```sh
    curl --proto '=https' --tlsv1.2 -L https://install.determinate.systems/nix \
@@ -39,22 +40,37 @@ bootstrapping:
 3. Restart the terminal, or load the Nix profile as instructed by the
    installer. Confirm that `nix` is available with `nix --version`.
 
-Git and the other workstation tools are installed by the configuration, so no
-separate package-manager bootstrap is required.
+4. Separately install [Homebrew](https://docs.brew.sh/Installation) using its
+   official installer. Review the script and its prompts before proceeding:
+
+   ```sh
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   eval "$(/opt/homebrew/bin/brew shellenv)"
+   brew --version
+   ```
+
+   Follow the installer's shell setup instructions. `homebrew.enable` in
+   nix-darwin manages packages through an existing Homebrew installation; it
+   **does not install Homebrew**. Apple Silicon uses `/opt/homebrew`.
+
+5. The Command Line Tools provide Git for the initial clone. For SSH cloning,
+   complete [SSH Keys](#ssh-keys) and verify GitHub access **before** cloning.
+   Alternatively use the HTTPS clone below; no SSH key is needed for this public
+   repository.
 
 ## Bootstrap
 
 Clone the repository and apply the nix-darwin flake for this machine:
 
 ```sh
-git clone git@github.com:klaus-224/.dotfiles.git ~/.dotfiles
-cd ~/.dotfiles/nix
+git clone https://github.com/klaus-224/.dotfiles.git ~/.dotfiles
+# With SSH already configured, use git@github.com:klaus-224/.dotfiles.git instead.
 
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#work-macbook
+sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.dotfiles/nix#work-macbook
 ```
 
 The first run creates the system configuration and activates Home Manager for
-the `rohineshram` user. Use `.#klaus-macbook` on the personal laptop. Future
+the `rohineshram` user. Use `~/.dotfiles/nix#klaus-macbook` on the personal laptop. Future
 rebuilds can use `darwin-rebuild` directly.
 
 ## What Each Layer Manages
@@ -64,7 +80,7 @@ rebuilds can use `darwin-rebuild` directly.
 - **Home Manager** manages user packages, command-line programs, editor and
   shell configuration, and dotfile links declared in `nix/home.nix`.
 - **The flake** pins nixpkgs, nix-darwin, and Home Manager inputs in
-  `flake.lock` and exposes both the `klaus-macbook` and `work-macbook` configurations.
+  `nix/flake.lock` and exposes both the `klaus-macbook` and `work-macbook` configurations.
 
 ## Config Symlinks
 
@@ -80,7 +96,7 @@ Managed examples include:
 - `~/.tmux.conf` from `tmux/`
 - `~/.zshenv`, `~/.zshrc`, and `~/.zshrc.d` from `zsh/`
 - `~/.gitconfig` from `git/`
-- `~/.local/bin` from `bin/`
+- Individual `~/.local/bin/<helper>` links from `bin/`; unmanaged names remain yours.
 
 Keep the checkout at `~/.dotfiles`; the symlink definitions use that path.
 
@@ -92,19 +108,21 @@ After changing Nix files or dotfiles, apply the current configuration with:
 sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ```
 
-Use `~/.dotfiles#klaus-macbook` on the personal laptop.
+Use `~/.dotfiles/nix#klaus-macbook` on the personal laptop.
 
 To update flake inputs and activate the result:
 
 ```sh
-cd ~/.dotfiles
-nix flake update
+nix flake update --flake ~/.dotfiles/nix
 sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ```
 
 The equivalent repository shortcuts are `just rebuild-work` and `just update-work`
 on the work laptop, or `just rebuild` and `just update` on the personal laptop.
-Validate the flake without activating it using `just check`.
+Run offline validation using `just check`; explicitly evaluate both hosts using
+`just validate-nix-eval` without activation. See the
+[validation and migration guide](docs/config-audit.md), especially the required
+manual inspection before migrating an existing `~/.local/bin` directory symlink.
 
 ## SSH Keys
 
@@ -131,8 +149,10 @@ ssh -T git@github.com
 
 ## Opencode Plugins
 
-- [opentmux](https://github.com/AnganSamadder/opentmux): tmux integration for viewing agent execution in real time
-- [plannotator](https://github.com/backnotprop/plannotator): annotate agent plans
+Work intentionally has no plugins; personal uses
+[plannotator](https://github.com/backnotprop/plannotator) for user-managed plans.
+See [profile configuration and safe checks](opencode/README.md). OpenCode updates
+are Nix-managed, not application-managed.
 
 ## TODO
 

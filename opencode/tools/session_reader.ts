@@ -19,7 +19,15 @@ async function run(args: string[]) {
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
-    child.on("error", reject);
+    child.on("error", (error: NodeJS.ErrnoException) => {
+      reject(
+        error.code === "ENOENT"
+          ? new Error(
+              "Optional dependency session_reader is not on PATH. Provision the trusted helper separately before using session tools; see docs/config-audit.md. No database was opened.",
+            )
+          : error,
+      );
+    });
     child.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(stderr || stdout || `exited with ${code}`));

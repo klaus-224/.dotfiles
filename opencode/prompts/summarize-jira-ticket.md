@@ -1,8 +1,3 @@
----
-description: Fetch and Summarize Jira Ticket
-agent: jira-operator
----
-
 Fetch all Jira tickets assigned to the current user that are "In QC" using this JQL:
 
 ```jql

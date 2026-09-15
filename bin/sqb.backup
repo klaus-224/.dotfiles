@@ -1,0 +1,35 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# --------------------------------------------------
+# mnemonic: [S][Q]L SCRATCH [B]UFFER
+# Opens a temporary SQL buffer in Neovim with syntax highlighting and LSP
+#
+# Usage:
+#   sqb              			# Open empty SQL scratch buffer
+#   pbpaste | sqb    # Pipe SQL from clipboard
+#   cat query.sql | sqb
+# --------------------------------------------------
+
+function sqb() {
+  # Match nvim/lsp/{sqlls,postgres_lsp}.lua; never install on invocation.
+  if ! command -v sqls >/dev/null 2>&1 &&
+     ! command -v postgres-language-server >/dev/null 2>&1; then
+    print -u2 'sqb: SQL LSP unavailable; configure sqls (work) or postgres-language-server (personal). Opening without SQL LSP.'
+  fi
+  local editor="${EDITOR:-nvim}"
+  if ! command -v "$editor" >/dev/null 2>&1; then
+    print -u2 "sqb: editor not found: $editor (EDITOR must name one executable; default: nvim)."
+    return 127
+  fi
+
+  if [ -t 0 ]; then
+    # No stdin, open empty buffer
+    "$editor" -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile'
+  else
+    # Has stdin, read it
+    "$editor" -c 'setfiletype sql' -c 'setlocal buftype=nofile bufhidden=wipe noswapfile' -
+  fi
+}
+
+sqb "$@"

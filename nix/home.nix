@@ -16,6 +16,9 @@ let
     git
     ripgrep
     just
+    # Offline configuration validation is available on both hosts.
+    python3
+    shellcheck
     gnumake
     tmux
     gh
@@ -59,7 +62,6 @@ let
     nodejs
     pnpm
     bun
-    python3
     rustc
     cargo
 
@@ -69,13 +71,14 @@ let
     sqls
 
     pkg-config
-    shellcheck
   ];
 in
 {
   home.username = username;
   home.homeDirectory = "/Users/${username}";
   home.stateVersion = "26.05";
+  # Expose executable helpers to child processes, not just interactive aliases.
+  home.sessionPath = [ "$HOME/.local/bin" ];
 
   home.packages =
     commonPackages
@@ -102,6 +105,19 @@ in
     ".zshrc".source = link "zsh/.zshrc";
     ".zshrc.d".source = link "zsh/.zshrc.d";
     ".gitconfig".source = link "git/.gitconfig";
-    ".local/bin".source = link "bin";
+    # Own only these names, not the directory. Preserve unmanaged executables.
+    # Keep source executable modes; do not chmod through live links on activation.
+    ".local/bin/awv".source = link "bin/awv";
+    ".local/bin/ctx".source = link "bin/ctx";
+    ".local/bin/envv".source = link "bin/envv";
+    ".local/bin/gfd".source = link "bin/gfd";
+    ".local/bin/journal".source = link "bin/journal";
+    ".local/bin/pathv".source = link "bin/pathv";
+    ".local/bin/personal-journal".source = link "bin/personal-journal";
+    ".local/bin/pjs".source = link "bin/pjs";
+    ".local/bin/playwright_docs".source = link "bin/playwright_docs";
+    ".local/bin/secrets".source = link "bin/secrets";
+    ".local/bin/sparse-get".source = link "bin/sparse-get";
+    ".local/bin/sqb".source = link "bin/sqb";
   };
 }

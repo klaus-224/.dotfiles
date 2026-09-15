@@ -1,8 +1,3 @@
----
-description: Create a PR test plan limited to explicitly selected test types
-agent: orchestrator
----
-
 Workflow: `test-plan-v1`
 
 Source: `$1`

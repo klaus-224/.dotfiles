@@ -4,7 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "test": "node --import tsx --test tests/*.test.ts",
+    "test": "node --import tsx --test tests/config.test.ts tests/pr_context.test.ts tests/tools-dependencies.test.ts",
+    "test:schema": "node --import tsx --test tests/schema-validation.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
