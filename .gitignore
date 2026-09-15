@@ -1,4 +1,5 @@
 zsh/.zshrc.d/local.zsh
+git/.gitconfig.local
 
 # playwright-docs
 opencode/skills/playwright-docs/references/*
@@ -14,6 +15,3 @@ devenv.local.yaml
 
 # direnv
 .direnv
-
-# pre-commit
-.pre-commit-config.yaml

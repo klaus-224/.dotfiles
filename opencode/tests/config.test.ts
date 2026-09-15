@@ -1,133 +1,147 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { dirname, join, resolve, relative } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-
-import { parse } from "jsonc-parser";
+import { parse, type ParseError } from "jsonc-parser";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-
 function readJsonc(name: string): Record<string, any> {
-  const errors: { error: number; offset: number; length: number }[] = [];
-  const value = parse(readFileSync(join(root, name), "utf8"), errors, {
-    allowTrailingComma: true,
-    disallowComments: false,
-  });
+  const errors: ParseError[] = [];
+  const value = parse(readFileSync(join(root, name), "utf8"), errors, { allowTrailingComma: true });
   assert.deepEqual(errors, [], `${name} must be valid JSONC`);
   return value;
 }
+const work = readJsonc("opencode.work.jsonc");
+const personal = readJsonc("opencode.personal.jsonc");
+const profiles = { work, personal };
 
-const profiles = [
-  ["work", readJsonc("opencode.work.jsonc")],
-  ["personal", readJsonc("opencode.personal.jsonc")],
-] as const;
-
-test("both profiles pin the target before user-managed Plannotator", () => {
-  for (const [name, profile] of profiles) {
-    assert.equal(profile.default_agent, "pair-programmer", `${name} default agent`);
-    assert.equal(profile.permission.webfetch, "deny");
-    assert.equal(profile.permission.external_directory, "deny");
-    assert.equal(profile.plugin[0], "oh-my-openagent@4.19.4");
-    assert.equal(profile.plugin[1][0], "@plannotator/opencode@0.27.12");
-    assert.equal(profile.plugin[1][1].workflow, "user-managed");
-    assert.deepEqual(profile.plugin[1][1].planningAgents, ["planner", "orchestrator"]);
-  }
-});
-
-test("work and personal provider/MCP isolation is unchanged", () => {
-  const work = profiles[0][1];
-  const personal = profiles[1][1];
-
+test("profiles preserve distinct defaults, providers and plugin workflows", () => {
+  assert.equal(work.default_agent, "chat");
+  assert.equal(personal.default_agent, "pair-programmer");
   assert.deepEqual(work.enabled_providers, ["github-copilot"]);
   assert.deepEqual(work.disabled_providers, ["opencode", "openai"]);
   assert.equal(work.mcp.atlassian.enabled, true);
-
   assert.deepEqual(personal.enabled_providers, ["openai", "opencode"]);
   assert.equal(personal.mcp, undefined);
-});
-
-test("planner is read-only and compound analysis remains optional", () => {
-  const prompt = readFileSync(join(root, "prompts/planner.txt"), "utf8");
-  assert.match(prompt, /optional retrospective tool/);
-  assert.doesNotMatch(prompt, /Always load the plannotator-compound skill/);
-
-  for (const [, profile] of profiles) {
-    const planner = profile.agent.planner;
-    assert.equal(planner.permission.submit_plan, "allow");
-    for (const denied of ["edit", "write", "task", "bash", "external_directory"]) {
-      assert.equal(planner.permission[denied], "deny", `planner must deny ${denied}`);
-    }
+  assert.deepEqual(work.plugin, []);
+  assert.deepEqual(personal.plugin, [["@plannotator/opencode@0.27.12", {
+    workflow: "user-managed", planningAgents: ["planner", "orchestrator"],
+  }]]);
+  for (const profile of Object.values(profiles)) {
+    assert.equal(profile.autoupdate, false, "Nix owns OpenCode updates");
+    assert.equal(profile.permission.webfetch, "deny");
+    assert.equal(profile.permission.external_directory, "deny");
+    const agent = profile.agent[profile.default_agent];
+    assert.ok(agent && agent.disable !== true);
+    assert.equal(agent.mode, "primary");
   }
 });
 
-test("repository-owned planning specialists retain narrow permissions", () => {
-  for (const [, profile] of profiles) {
-    const { orchestrator, explorer, oracle } = profile.agent;
-    assert.deepEqual(orchestrator.permission.task, {
-      "*": "deny",
-      explorer: "allow",
-      oracle: "allow",
-    });
-    assert.equal(orchestrator.permission.pr_context_get, "allow");
-    assert.equal(orchestrator.permission.submit_plan, "allow");
-
-    for (const agent of [orchestrator, explorer, oracle]) {
-      for (const denied of ["edit", "write", "apply_patch", "bash", "external_directory"]) {
-        assert.equal(agent.permission[denied], "deny", `${agent.description} must deny ${denied}`);
+test("all configured agents have explicit modes/descriptions and valid task targets", () => {
+  for (const [profileName, profile] of Object.entries(profiles)) {
+    for (const [name, agent] of Object.entries<any>(profile.agent)) {
+      assert.ok(agent.description?.trim(), `${profileName}/${name} description`);
+      assert.ok(["primary", "subagent", "all"].includes(agent.mode), `${name} mode`);
+      if (typeof agent.permission?.task !== "object") continue;
+      for (const [target, action] of Object.entries(agent.permission.task)) {
+        if (target === "*" || action === "deny") continue;
+        assert.ok(profile.agent[target], `${name} task target ${target}`);
+        assert.ok(["subagent", "all"].includes(profile.agent[target].mode));
       }
     }
-    assert.equal(explorer.permission.task, "deny");
-    assert.equal(oracle.permission.task, "deny");
   }
 });
 
-test("target config is pinned to a passive, provider-neutral integration", () => {
-  const config = readJsonc("omo.jsonc");
-  const target = config["[opencode]"];
-
-  assert.match(config.$schema, /b072d279110bdda2c6ac2525d0d24dc54d16148a/);
-  assert.deepEqual(Object.keys(config.profiles).sort(), ["personal", "work"]);
-  assert.equal(target.auto_update, false);
-  assert.equal(target.telemetry, false);
-  assert.equal(target.sisyphus_agent.disabled, true);
-  assert.equal(target.sisyphus_agent.replace_plan, false);
-  assert.equal(target.experimental.task_system, false);
-  assert.equal(target.team_mode.enabled, false);
-  assert.equal(target.codegraph.enabled, false);
-  assert.equal(target.disabled_agents.includes("oracle"), true);
-  assert.equal(target.disabled_agents.includes("explore"), true);
-  assert.equal(target.disabled_mcps.includes("websearch"), true);
-  for (const skill of [
-    "security-research",
-    "security-review",
-    "ast-grep",
-    "coding-agent-sessions",
-    "data-scientist",
-    "debugging",
-    "frontend",
-    "git-master",
-    "init-deep",
-    "lsp-setup",
-    "programming",
-    "refactor",
-    "remove-ai-slops",
-    "review-work",
-    "start-work",
-    "ultimate-browsing",
-    "ulw-plan",
-    "ulw-research",
-    "visual-qa",
-  ]) {
-    assert.equal(target.disabled_skills.includes(skill), true, `target skill ${skill} disabled`);
+test("every file interpolation exists within the config directory", () => {
+  for (const profile of Object.values(profiles)) {
+    for (const match of JSON.stringify(profile).matchAll(/\{file:([^}]+)\}/g)) {
+      const path = resolve(root, match[1]);
+      assert.ok(!relative(root, path).startsWith(".."));
+      assert.ok(readFileSync(path, "utf8").trim(), `nonempty prompt ${path}`);
+    }
   }
-  assert.equal("agents" in target, false);
-  assert.equal("categories" in target, false);
+});
+
+test("profile-scoped and shared commands never reference missing agents", () => {
+  for (const profile of Object.values(profiles)) {
+    for (const command of Object.values<any>(profile.command ?? {})) {
+      assert.ok(profile.agent[command.agent]);
+      assert.ok(command.template);
+    }
+    for (const file of readdirSync(join(root, "commands"))) {
+      const text = readFileSync(join(root, "commands", file), "utf8");
+      const agent = text.match(/^agent:\s*(\S+)/m)?.[1];
+      if (agent) assert.ok(profile.agent[agent], `${file}: ${agent}`);
+    }
+  }
+  assert.equal(personal.command["test-plan"].agent, "orchestrator");
+  assert.equal(work.command["test-plan"], undefined);
+  assert.equal(work.command["summarize-jira-ticket"].agent, "jira-operator");
+  assert.equal(personal.command["summarize-jira-ticket"], undefined);
+});
+
+test("chat roles permit discovery but not unapproved shell or edits", () => {
+  for (const profile of Object.values(profiles)) {
+    const permissions = profile.agent[profile.default_agent].permission;
+    assert.equal(permissions["*"], "deny");
+    for (const tool of ["read", "glob", "grep"]) assert.equal(permissions[tool], "allow");
+    assert.ok(["ask", "deny"].includes(permissions.bash["*"]));
+    assert.ok(Object.values(permissions.bash).every((action) => action !== "allow"));
+    assert.notEqual(permissions.edit, "allow");
+  }
+  const prompt = readFileSync(join(root, "prompts/chat.md"), "utf8");
+  assert.match(prompt, /only when directly relevant/);
+  assert.match(prompt, /read-only access/);
+});
+
+test("work audit roles retain bounded delegation and explicit worker mode", () => {
+  assert.equal(work.agent["audit-orchestrator"].mode, "primary");
+  assert.equal(work.agent["audit-worker"].mode, "subagent");
+  assert.deepEqual(work.agent["audit-orchestrator"].permission.task, {
+    "*": "deny", "audit-worker": "allow",
+  });
+  assert.equal(work.agent["audit-worker"].permission.task, "deny");
+  for (const name of ["audit-orchestrator", "audit-worker"]) {
+    assert.equal(work.agent[name].permission.bash["*"], "ask");
+    assert.equal(work.agent[name].permission.bash["git commit*"], "deny");
+    assert.equal(work.agent[name].permission.bash["git push*"], "deny");
+  }
+});
+
+test("Jira summary only exposes approval-gated read operations", () => {
+  const permissions = work.agent["jira-operator"].permission;
+  assert.equal(permissions["*"], "deny");
+  assert.equal(permissions.bash["*"], "deny");
+  assert.equal(permissions.atlassian_getJiraIssue, "ask");
+  assert.equal(permissions["atlassian_*"], undefined);
+  for (const command of ["gh pr list *", "gh pr view *", "gh pr diff *"]) {
+    assert.equal(permissions.bash[command], "ask");
+  }
+});
+
+test("personal planning retains read-only specialists and optional retrospectives", () => {
+  const prompt = readFileSync(join(root, "prompts/planner.txt"), "utf8");
+  assert.match(prompt, /optional retrospective tool/);
+  const { planner, orchestrator, explorer, oracle } = personal.agent;
+  assert.equal(planner.permission.submit_plan, "allow");
+  for (const denied of ["edit", "write", "task", "bash", "external_directory"]) {
+    assert.equal(planner.permission[denied], "deny");
+  }
+  assert.deepEqual(orchestrator.permission.task, { "*": "deny", explorer: "allow", oracle: "allow" });
+  assert.equal(orchestrator.permission.pr_context_get, "allow");
+  assert.equal(orchestrator.permission.submit_plan, "allow");
+  for (const agent of [orchestrator, explorer, oracle]) {
+    for (const denied of ["edit", "write", "apply_patch", "bash", "external_directory"]) {
+      assert.equal(agent.permission[denied], "deny");
+    }
+  }
+  assert.equal(explorer.permission.task, "deny");
+  assert.equal(oracle.permission.task, "deny");
 });
 
 test("test-plan keeps its bounded workflow contract", () => {
-  const command = readFileSync(join(root, "commands/test-plan.md"), "utf8");
-  assert.match(command, /agent: orchestrator/);
+  const command = readFileSync(join(root, "prompts/test-plan.md"), "utf8");
   assert.match(command, /Launch only the two discovery stages in parallel/);
   assert.match(command, /fresh `oracle` session/);
   assert.match(command, /one correction pass/);
@@ -140,12 +154,4 @@ test("Plannotator review and annotation commands remain registered", () => {
     assert.match(command, /^---\n/);
     assert.match(command, /Plannotator/);
   }
-});
-
-test("shell profile selection uses OMO profiles without experimental subagents", () => {
-  const shell = readFileSync(join(root, "../zsh/.zshenv"), "utf8");
-  assert.match(shell, /OMO_PROFILE="personal"/);
-  assert.match(shell, /OMO_PROFILE="work"/);
-  assert.doesNotMatch(shell, /OH_MY_OPENCODE_SLIM_PRESET/);
-  assert.doesNotMatch(shell, /OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS/);
 });

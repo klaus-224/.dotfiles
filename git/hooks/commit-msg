@@ -1,15 +1,18 @@
 #!/bin/sh
 
-message=$(head -n1 "$1")
+LC_ALL=C
+export LC_ALL
+if [ "$#" -ne 1 ] || [ ! -f "$1" ] || [ ! -r "$1" ]; then
+  printf '%s\n' 'Expected a readable commit-message file.' >&2
+  exit 1
+fi
+message=
+IFS= read -r message < "$1" || :
 
-pattern='^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9._-]+\))?!?: .+'
+pattern='^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9._-]+\))?!?: .*[^[:space:]].*$'
 
-if ! echo "$message" | grep -Eq "$pattern"; then
-  echo "Invalid commit message:"
-  echo "  $message"
-  echo
-  echo "Expected:"
-  echo "  feat: add authentication"
-  echo "  fix(api): handle missing user"
+if ! printf '%s\n' "$message" | grep -Eq "$pattern"; then
+  printf 'Invalid commit message:\n  %s\n\n' "$message" >&2
+  printf '%s\n' 'Expected:' '  feat: add authentication' '  fix(api): handle missing user' >&2
   exit 1
 fi

@@ -1,43 +1,48 @@
 # --------------------------------------------------
 #  entry point for zsh configuration
 # --------------------------------------------------
-[[ -n "${ZSH_VERSION:-}" ]] || return 0
+[[ -n "${ZSH_VERSION:-}" && -o interactive ]] || return 0
 emulate -LR zsh
+export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 
 typeset -U path PATH
 
 path=(
-	"$HOME/.dotfiles/bin"
+	"${DOTFILES_HOME:-$HOME/.dotfiles}/bin"
 	"$HOME/.local/bin"  
-	"$LOCAL_BIN/go/bin"  
 	"${path[@]}"
 )
+# LOCAL_BIN is optional; an unset value must not add /go/bin.
+[[ -n "${LOCAL_BIN:-}" ]] && path=("$LOCAL_BIN/go/bin" "${path[@]}")
 
 export PATH
 
-eval "$(starship init zsh)"
+if (( $+commands[starship] )); then
+	eval "$(starship init zsh)"
+fi
 # eval "$(devenv hook zsh )"
 
-# Source modular config
-for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh; do
+# Choose the keymap before applying personal bindings.
+[[ -r "$DOTFILES_HOME/zsh/.zshrc.d/vim-mode.zsh" ]] && source "$DOTFILES_HOME/zsh/.zshrc.d/vim-mode.zsh"
+# Source modular config (including optional local.zsh), then bind available widgets.
+for file in "$DOTFILES_HOME"/zsh/.zshrc.d/*.zsh(N); do
+	[[ "$file:t" == (vim-mode|keybinds).zsh ]] && continue
 	[[ -f "$file" ]] || continue
 	source "$file"
 done
+[[ -r "$DOTFILES_HOME/zsh/.zshrc.d/keybinds.zsh" ]] && source "$DOTFILES_HOME/zsh/.zshrc.d/keybinds.zsh"
 
 # Completions
-fpath=(
-  "$ZSH_COMPLETIONS"
-  "$HOME/.zsh/completions"
-  $fpath
-)
+[[ -d "${ZSH_COMPLETIONS:-}" ]] && fpath=("$ZSH_COMPLETIONS" $fpath)
+[[ -d "$HOME/.zsh/completions" ]] && fpath=("$HOME/.zsh/completions" $fpath)
 
 mkdir -p "$HOME/.cache/zsh"
 autoload -Uz compinit
 compinit -d "$HOME/.cache/zsh/zcompdump-$ZSH_VERSION"
 
 # Plugins
-source "$ZSH_AUTOSUGGESTIONS"
-source "$ZSH_SYNTAX_HIGHLIGHTING"
+[[ -r "${ZSH_AUTOSUGGESTIONS:-}" ]] && source "$ZSH_AUTOSUGGESTIONS"
+[[ -r "${ZSH_SYNTAX_HIGHLIGHTING:-}" ]] && source "$ZSH_SYNTAX_HIGHLIGHTING"
 
 # options
 setopt AUTO_PUSHD

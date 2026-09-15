@@ -1,4 +1,4 @@
-export DOTFILES_HOME="$HOME/.dotfiles"
+export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 export CODE_DIR="$HOME/code"
 export EDITOR="nvim"
 

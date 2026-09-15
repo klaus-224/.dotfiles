@@ -25,11 +25,11 @@
     ];
 
   homebrew = {
+    # Manages packages only; install Homebrew separately before first activation.
     enable = true;
 
     casks = [
       "arc"
-      "docker"
       "ghostty"
       "docker-desktop" # TODO replace with docker daemon
     ];

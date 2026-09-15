@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+(( $# <= 1 )) || { printf '%s\n' 'Usage: tmux-session-dispensary.sh [directory]' >&2; exit 1; }
 
 DIRS=(
     "$HOME"
@@ -15,11 +17,17 @@ else
             --type directory \
             --max-depth 1 \
             --absolute-path |
-        sk "${SKIM_THEME_SESSION[@]}"
-    )
+        fzf
+    ) || {
+        status=$?
+        # fzf uses 1 for no match and 130 for cancellation.
+        [[ "$status" == 1 || "$status" == 130 ]] && exit 0
+        exit "$status"
+    }
 fi
 
 [[ -n "$selected" ]] || exit 0
+[[ -d "$selected" ]] || { printf 'Not a directory: %s\n' "$selected" >&2; exit 1; }
 
 relative="${selected#"$HOME"/}"
 [[ "$selected" == "$HOME" ]] && relative="home"

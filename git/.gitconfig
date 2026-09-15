@@ -20,8 +20,8 @@
     tool = nvim_difftool
 
 [mergetool "nvim"]
-    cmd = nvim -d "$LOCAL" "$BASE" "$REMOTE" "$MERGED"
-    trustExitCode = true
+    cmd = nvim -d \"$LOCAL\" \"$BASE\" \"$REMOTE\" \"$MERGED\"
+    trustExitCode = false
 
 [pull]
 	rebase = true

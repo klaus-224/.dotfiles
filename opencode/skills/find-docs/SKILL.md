@@ -31,7 +31,7 @@ Run commands with `ctx` so setup always uses the latest CLI without a global ins
 Optionally install globally if you prefer a bare `ctx7` command:
 
 ```bash
-npm install -g ctx
+npm install -g ctx7
 ```
 
 ## Workflow

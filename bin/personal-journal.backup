@@ -1,0 +1,566 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# --------------------------------------------------
+# personal-journal - Daily personal journal with
+#                    deterministic TODO carry-forward
+#                    and optional AI prioritization.
+# --------------------------------------------------
+
+function _personal_journal_dir() {
+	echo "${PERSONAL_JOURNAL_DIR:-$HOME/code/personal-journal}"
+}
+
+function _date() {
+	date +%m-%d-%Y
+}
+
+function _date_epoch() {
+	local day="$1"
+
+	date -j -f "%m-%d-%Y" "$day" +%s 2>/dev/null ||
+		date -d "$day" +%s 2>/dev/null
+}
+
+function _file_for_date() {
+	local day="$1"
+	echo "$(_personal_journal_dir)/${day}.md"
+}
+
+function _journal_file() {
+	_file_for_date "$(_date)"
+}
+
+function _legacy_file() {
+	echo "$(_personal_journal_dir)/journal.md"
+}
+
+function _ensure_journal_dir() {
+	mkdir -p "$(_personal_journal_dir)"
+}
+
+function _link_legacy() {
+	local journal_file="$1"
+	local legacy_file
+	legacy_file="$(_legacy_file)"
+
+	ln -sfn "${journal_file:t}" "$legacy_file"
+}
+
+function _bootstrap_file() {
+	local file="$1"
+
+	if [[ -f "$file" ]]; then
+		return 0
+	fi
+
+	cat >"$file" <<EOT
+Personal Journal
+Date: $(_date)
+---
+
+### TODO
+
+#### Today
+
+#### Next
+
+#### Later
+
+#### Backlog
+
+### Notes
+- 
+
+### Conclusion
+
+#### Accomplishments
+- 
+EOT
+}
+
+function _archive_legacy_internal() {
+	local journal_file legacy_file archive_target
+	journal_file="$(_journal_file)"
+	legacy_file="$(_legacy_file)"
+	archive_target="$journal_file"
+
+	_ensure_journal_dir
+
+	if [[ -L "$legacy_file" ]]; then
+		_link_legacy "$journal_file"
+		return 0
+	fi
+
+	if [[ ! -f "$legacy_file" ]]; then
+		return 0
+	fi
+
+	if [[ -e "$archive_target" ]]; then
+		archive_target="$(_personal_journal_dir)/$(_date)-$(date +%H%M%S).md"
+	fi
+
+	mv "$legacy_file" "$archive_target"
+	echo "Archived: $legacy_file -> $archive_target"
+
+	_link_legacy "$journal_file"
+}
+
+function _archive_legacy() {
+	local legacy_file
+	legacy_file="$(_legacy_file)"
+
+	if [[ ! -f "$legacy_file" && ! -L "$legacy_file" ]]; then
+		echo "No journal.md found in $(_personal_journal_dir)"
+		return 0
+	fi
+
+	_archive_legacy_internal
+}
+
+function _prepare_today() {
+	local journal_file
+	journal_file="$(_journal_file)"
+
+	_ensure_journal_dir
+	_archive_legacy_internal
+	_bootstrap_file "$journal_file"
+	_link_legacy "$journal_file"
+}
+
+function _previous_journal_file() {
+	local current_epoch file day epoch best_epoch=0 best_file=""
+	local journal_dir
+	journal_dir="$(_personal_journal_dir)"
+
+	if ! current_epoch="$(_date_epoch "$(_date)")"; then
+		return 1
+	fi
+
+	for file in "$journal_dir"/*.md(N); do
+		[[ -f "$file" || -L "$file" ]] || continue
+
+		day="${file:t:r}"
+		[[ "$day" =~ '^[0-9]{2}-[0-9]{2}-[0-9]{4}$' ]] || continue
+
+		if ! epoch="$(_date_epoch "$day")"; then
+			continue
+		fi
+
+		if ((epoch < current_epoch && epoch > best_epoch)); then
+			best_epoch="$epoch"
+			best_file="$file"
+		fi
+	done
+
+	if [[ -n "$best_file" ]]; then
+		echo "$best_file"
+		return 0
+	fi
+
+	return 1
+}
+
+function _open_file() {
+	local file="$1"
+	shift
+
+	if ! command -v nvim >/dev/null 2>&1; then
+		echo "nvim is required." >&2
+		return 1
+	fi
+
+	nvim "$@" "$file"
+}
+
+function _open_journal() {
+	local journal_file
+	_prepare_today
+	journal_file="$(_journal_file)"
+	_open_file "$journal_file"
+}
+
+function _section_content() {
+	local file="$1" heading="$2"
+
+	awk -v heading="$heading" '
+		$0 == heading { in_section = 1; next }
+		in_section && (/^#### / || /^### /) { exit }
+		in_section { print }
+	' "$file"
+}
+
+function _section_last_content_line() {
+	local file="$1" heading="$2"
+
+	awk -v heading="$heading" '
+		$0 == heading {
+			in_section = 1
+			found = 1
+			last = NR
+			next
+		}
+		in_section && (/^#### / || /^### /) {
+			print last
+			printed = 1
+			exit
+		}
+		in_section && $0 !~ /^[[:space:]]*$/ { last = NR }
+		END {
+			if (!printed) {
+				if (found) print last
+				else print 0
+			}
+		}
+	' "$file"
+}
+
+function _heading_for_bucket() {
+	case "$1" in
+	today) echo "#### Today" ;;
+	next) echo "#### Next" ;;
+	later) echo "#### Later" ;;
+	backlog) echo "#### Backlog" ;;
+	*) return 1 ;;
+	esac
+}
+
+function _todo_line() {
+	[[ "$1" == '- [ ] '* || "$1" == '- [x] '* || "$1" == '- [X] '* ]]
+}
+
+function _todo_text() {
+	local line="$1" text
+
+	case "$line" in
+	'- [ ] '*) text="${line#- [ ] }" ;;
+	'- [x] '*) text="${line#- [x] }" ;;
+	'- [X] '*) text="${line#- [X] }" ;;
+	'- [ ]' | '- [x]' | '- [X]') text="" ;;
+	*) text="$line" ;;
+	esac
+
+	printf '%s' "$text" |
+		tr '[:upper:]' '[:lower:]' |
+		tr -s '[:space:]' ' ' |
+		sed 's/^[[:space:]]*//; s/[[:space:]]*$//'
+}
+
+function _todo_identity() {
+	printf 'text:%s' "$(_todo_text "$1")"
+}
+
+function _checked_todo_line() {
+	local line="$1" text
+	text="$(_todo_text "$line")"
+	printf '%s' "- [x] $text"
+}
+
+function _merge_bucket() {
+	local existing="$1" additions="$2"
+	local line identity index text
+	local -a lines=()
+	local -A positions=() checked=()
+
+	if [[ -n "$existing" ]]; then
+		while IFS= read -r line; do
+			if _todo_line "$line"; then
+				text="$(_todo_text "$line")"
+				if [[ -z "$text" ]]; then
+					lines+=("$line")
+					continue
+				fi
+
+				identity="$(_todo_identity "$line")"
+				if [[ -n "${positions[$identity]:-}" ]]; then
+					index=${positions[$identity]}
+					if [[ "$line" == '- [x] '* || "$line" == '- [X] '* ]] &&
+						[[ -z "${checked[$identity]:-}" ]]; then
+						lines[$index]="$(_checked_todo_line "$line")"
+						checked[$identity]=1
+					fi
+					continue
+				fi
+
+				lines+=("$line")
+				positions[$identity]=${#lines[@]}
+				if [[ "$line" == '- [x] '* || "$line" == '- [X] '* ]]; then
+					checked[$identity]=1
+				fi
+			else
+				lines+=("$line")
+			fi
+		done <<<"$existing"
+	fi
+
+	if [[ -n "$additions" ]]; then
+		while IFS= read -r line; do
+			_todo_line "$line" || continue
+			text="$(_todo_text "$line")"
+			[[ -n "$text" ]] || continue
+			identity="$(_todo_identity "$line")"
+
+			if [[ -n "${positions[$identity]:-}" ]]; then
+				continue
+			fi
+
+			lines+=("$line")
+			positions[$identity]=${#lines[@]}
+			done <<<"$additions"
+	fi
+
+	if ((${#lines[@]} > 0)); then
+		printf '%s\n' "${lines[@]}"
+	fi
+}
+
+function _set_section_block() {
+	local file="$1" heading="$2" content="$3"
+	local tmp content_file
+	tmp="$(mktemp -t personal-journal-set.XXXXXX)"
+	content_file="$(mktemp -t personal-journal-content.XXXXXX)"
+	printf '%s' "$content" >"$content_file"
+
+	if ! awk -v heading="$heading" -v content_file="$content_file" '
+		BEGIN {
+			in_block = 0
+			found = 0
+			content = ""
+			while ((getline line < content_file) > 0) content = content line "\n"
+			close(content_file)
+		}
+		$0 == heading {
+			print
+			if (content != "") printf "%s", content
+			in_block = 1
+			found = 1
+			next
+		}
+		in_block && (/^#### / || /^### /) { in_block = 0 }
+		!in_block { print }
+		END {
+			if (!found) {
+				print ""
+				print heading
+				if (content != "") printf "%s", content
+			}
+		}
+	' "$file" >"$tmp"; then
+		rm -f "$content_file" "$tmp"
+		return 1
+	fi
+
+	rm -f "$content_file"
+	mv "$tmp" "$file"
+}
+
+function _sync() {
+	local journal_file previous_file bucket heading source current filtered merged line identity
+	local carried=0
+	local -a buckets=(today next later backlog)
+	local -A seen=()
+
+	_prepare_today
+	journal_file="$(_journal_file)"
+
+	if ! previous_file="$(_previous_journal_file)"; then
+		echo "No previous personal journal file found. Nothing to carry forward."
+		echo "Synced: $journal_file"
+		echo "Carried-forward todos: 0"
+		return 0
+	fi
+
+	# Seed the identity set with every current TODO so completed or moved tasks
+	# are not reintroduced from an older bucket.
+	for bucket in "${buckets[@]}"; do
+		heading="$(_heading_for_bucket "$bucket")"
+		current="$(_section_content "$journal_file" "$heading")"
+		if [[ -n "$current" ]]; then
+			while IFS= read -r line; do
+				_todo_line "$line" || continue
+				[[ -n "$(_todo_text "$line")" ]] || continue
+				identity="$(_todo_identity "$line")"
+				seen[$identity]=1
+			done <<<"$current"
+		fi
+	done
+
+	for bucket in "${buckets[@]}"; do
+		heading="$(_heading_for_bucket "$bucket")"
+		current="$(_section_content "$journal_file" "$heading")"
+		source="$(_section_content "$previous_file" "$heading")"
+		filtered=""
+
+		if [[ -n "$source" ]]; then
+			while IFS= read -r line; do
+				_todo_line "$line" || continue
+				[[ "$line" == '- [ ] '* ]] || continue
+				[[ -n "$(_todo_text "$line")" ]] || continue
+				identity="$(_todo_identity "$line")"
+				[[ -z "${seen[$identity]:-}" ]] || continue
+
+				filtered+="$line"$'\n'
+				seen[$identity]=1
+				carried=$((carried + 1))
+			done <<<"$source"
+		fi
+
+		merged="$(_merge_bucket "$current" "$filtered")"
+		_set_section_block "$journal_file" "$heading" "$merged"
+		done
+
+	echo "Synced: $journal_file"
+	echo "Source: $previous_file"
+	echo "Carried-forward todos: $carried"
+}
+
+function _add() {
+	local bucket="${1:-today}" journal_file heading line line_text
+
+	if ! heading="$(_heading_for_bucket "$bucket")"; then
+		echo "Unknown TODO bucket: $bucket" >&2
+		echo "Use: today, next, later, or backlog" >&2
+		return 1
+	fi
+
+	_prepare_today
+	journal_file="$(_journal_file)"
+	line="$(_section_last_content_line "$journal_file" "$heading")"
+
+	if [[ "$line" -eq 0 ]]; then
+		printf '\n%s\n' "$heading" >>"$journal_file"
+		line="$(_section_last_content_line "$journal_file" "$heading")"
+	fi
+
+	line_text="$(awk -v line="$line" 'NR == line { print; exit }' "$journal_file")"
+	if [[ "$line_text" == "- [ ]" || "$line_text" == "- [ ] " ]]; then
+		_open_file "$journal_file" "+${line}" "+normal! A "
+	else
+		_open_file "$journal_file" "+${line}" "+normal! o- [ ] "
+	fi
+}
+
+function _yesterday() {
+	local previous_file
+
+	_ensure_journal_dir
+	if ! previous_file="$(_previous_journal_file)"; then
+		echo "No previous personal journal file found."
+		return 1
+	fi
+
+	_open_file "$previous_file"
+}
+
+function _fzf_files() {
+	local selected
+
+	if ! command -v fzf >/dev/null 2>&1; then
+		echo "fzf is required. Install with: brew install fzf" >&2
+		return 1
+	fi
+
+	_ensure_journal_dir
+	selected=$(printf '%s\n' "$(_personal_journal_dir)"/*.md(N) |
+		fzf --height=70% --layout=reverse --prompt='personal-journal> ' \
+			--preview 'bat --color=always -n {} 2>/dev/null || sed -n "1,240p" {}')
+
+	[[ -z "$selected" ]] && return 0
+	_open_file "$selected"
+}
+
+function _prioritize() {
+	local journal_file journal_content prompt
+
+	if ! command -v opencode >/dev/null 2>&1; then
+		echo "opencode is required for prioritization." >&2
+		return 1
+	fi
+
+	_prepare_today
+	journal_file="$(_journal_file)"
+	journal_content="$(<"$journal_file")"
+	prompt=$(cat <<EOT
+You are helping me prioritize my personal TODO list through a conversational session.
+
+Read the journal below. Do not edit files or apply changes. Ask focused follow-up questions one at a time about deadlines, available time, importance, and dependencies. After you have enough context, propose a revised placement in Today, Next, Later, or Backlog, with a short reason for each proposed change. Keep the final proposal actionable and wait for my confirmation before treating it as final; I will make the Markdown edits myself.
+
+Current journal path: $journal_file
+
+---BEGIN PERSONAL JOURNAL---
+$journal_content
+---END PERSONAL JOURNAL---
+EOT
+)
+
+	opencode run --interactive --agent=pair-programmer \
+		--title="Personal journal prioritization" "$prompt"
+}
+
+function personal_journal() {
+	local cmd="${1:-open}"
+
+	case "$cmd" in
+	open)
+		_open_journal
+		;;
+	add)
+		shift
+		_add "$@"
+		;;
+	sync)
+		_sync
+		;;
+	prioritize)
+		_prioritize
+		;;
+	yesterday)
+		_yesterday
+		;;
+	archive)
+		_archive_legacy
+		;;
+	path)
+		_journal_file
+		;;
+	files | list | fzf)
+		_fzf_files
+		;;
+	help | -h | --help)
+		cat <<'EOT'
+Usage: personal-journal [command]
+
+Commands:
+  open                    Open today's personal journal in nvim (default)
+  add [bucket]            Add a TODO in today, next, later, or backlog
+  sync                    Copy unfinished TODOs from the nearest prior entry
+  prioritize              Start an interactive agent prioritization session
+  yesterday               Open the nearest prior journal file
+  archive                 Archive a non-symlink legacy journal.md
+  path                    Print today's journal file path
+  files                   Browse journal files with fzf and open a selection
+
+TODO buckets:
+  Today                   Work to make meaningful progress on today
+  Next                    Important work for the next few days
+  Later                   Lower urgency work for later this week
+  Backlog                 Not currently time-boxed
+
+Sync behavior:
+  Only unchecked TODO lines are carried forward.
+  Existing TODOs, notes, and the Conclusion are preserved.
+  Repeated syncs are idempotent and do not use an agent or network.
+
+Environment:
+  PERSONAL_JOURNAL_DIR    Override the default $HOME/code/personal-journal
+EOT
+		;;
+	*)
+		echo "Unknown command: $cmd" >&2
+		echo "Run: personal-journal help" >&2
+		return 1
+		;;
+	esac
+}
+
+personal_journal "$@"

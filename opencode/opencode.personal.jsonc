@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
   "model": "openai/gpt-5.6-luna",
   "default_agent": "pair-programmer",
   "enabled_providers": ["openai", "opencode"],
@@ -16,7 +17,7 @@
       "mode": "primary",
       "model": "openai/gpt-5.6-sol",
       "variant": "high",
-      "prompt": "{file:./agent-defs/pair-programmer.md}",
+      "prompt": "{file:./prompts/chat.md}",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -34,6 +35,7 @@
       }
     },
     "build": {
+      "description": "Implementation agent for explicitly requested code changes.",
       "model": "openai/gpt-5.6-luna",
       "variant": "xhigh",
       "mode": "primary",
@@ -89,7 +91,7 @@
       "mode": "primary",
       "model": "openai/gpt-5.6-terra",
       "variant": "high",
-      "prompt": "{file:./agent-defs/orchestrator.md}",
+      "prompt": "{file:./prompts/orchestrator.md}",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -124,7 +126,7 @@
       "mode": "subagent",
       "model": "openai/gpt-5.6-luna",
       "variant": "low",
-      "prompt": "{file:./agent-defs/explorer.md}",
+      "prompt": "{file:./prompts/explorer.md}",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -145,7 +147,7 @@
       "mode": "subagent",
       "model": "openai/gpt-5.6-sol",
       "variant": "high",
-      "prompt": "{file:./agent-defs/oracle.md}",
+      "prompt": "{file:./prompts/oracle.md}",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -166,14 +168,24 @@
       }
     },
     "general": {
+      "description": "Built-in general-purpose subagent (hidden).",
+      "mode": "subagent",
       "hidden": true
     },
     "plan": {
+      "description": "Built-in planning agent.",
+      "mode": "primary",
       "hidden": true
     }
   },
+  "command": {
+    "test-plan": {
+      "description": "Create a PR test plan limited to explicitly selected test types",
+      "agent": "orchestrator",
+      "template": "{file:./prompts/test-plan.md}"
+    }
+  },
   "plugin": [
-    "oh-my-openagent@4.19.4",
     [
       "@plannotator/opencode@0.27.12",
       {

@@ -1,5 +1,7 @@
+repo := justfile_directory()
+
 default:
-  just --list
+  @just --justfile {{quote(justfile())}} --list
 
 rebuild:
     sudo darwin-rebuild switch --flake ~/.dotfiles/nix#klaus-macbook
@@ -20,5 +22,48 @@ clean:
     sudo nix-collect-garbage -d
     nix store optimise
 
-check:
-    cd ~/.dotfiles/nix && nix flake check
+# Offline/default validation never evaluates Nix or fetches schemas.
+check: validate
+
+doctor:
+    python3 -B {{quote(repo / "scripts/config-doctor.py")}} --repo {{quote(repo)}}
+
+# Opt-in: inspect link metadata in the supplied home, not its contents.
+doctor-deployed home:
+    python3 -B {{quote(repo / "scripts/config-doctor.py")}} --repo {{quote(repo)}} --deployed-home {{quote(home)}}
+
+validate: validate-refs validate-zsh validate-shellcheck validate-audit-tests validate-opencode validate-typecheck validate-hooks
+
+validate-refs:
+    python3 -B {{quote(repo / "scripts/config-doctor.py")}} --repo {{quote(repo)}} --refs-only
+
+validate-zsh:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} zsh
+
+validate-shellcheck:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} shellcheck
+
+validate-audit-tests:
+    python3 -B {{quote(repo / "scripts/test-config-audit.py")}}
+
+validate-opencode:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} opencode
+
+validate-typecheck:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} typecheck
+
+validate-hooks:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} hooks
+
+# Explicit network-only schema suite; never a dependency of validate.
+validate-schema:
+    python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} schema
+
+# Both hosts, no lock writes, no activation. May fetch inputs/write Nix caches.
+validate-nix-eval:
+    nix eval --no-update-lock-file --no-write-lock-file --raw {{quote("path:" + repo / "nix#darwinConfigurations.klaus-macbook.system.drvPath")}}
+    nix eval --no-update-lock-file --no-write-lock-file --raw {{quote("path:" + repo / "nix#darwinConfigurations.work-macbook.system.drvPath")}}
+
+# Explicit builds may download/build store paths; no result links or switch.
+validate-nix-build:
+    nix build --no-update-lock-file --no-write-lock-file --no-link {{quote("path:" + repo / "nix#darwinConfigurations.klaus-macbook.system")}} {{quote("path:" + repo / "nix#darwinConfigurations.work-macbook.system")}}

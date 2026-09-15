@@ -1,66 +1,30 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { Ajv2020 } from "ajv/dist/2020.js";
+import { parse, type ParseError } from "jsonc-parser";
 
-import { Ajv } from "ajv";
-import { parse } from "jsonc-parser";
-
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const targetCommit = "b072d279110bdda2c6ac2525d0d24dc54d16148a";
-
-function readJsonc(name: string): unknown {
-  return parse(readFileSync(join(root, name), "utf8"), [], {
-    allowTrailingComma: true,
-    disallowComments: false,
+// Opt-in network check: fetch schema data only, never load OpenCode/plugins/MCP.
+async function loadSchema(uri: string) {
+  const url = new URL(uri);
+  assert.equal(url.protocol, "https:");
+  assert.ok(["opencode.ai", "models.dev"].includes(url.hostname));
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(30000), redirect: "error",
   });
+  assert.ok(response.ok, `schema fetch failed: ${url} (${response.status})`);
+  return response.json();
 }
 
-async function fetchSchema(name: string): Promise<Record<string, unknown>> {
-  const url = `https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/${targetCommit}/assets/${name}`;
-  const response = await fetch(url);
-  assert.equal(response.ok, true, `failed to fetch pinned schema: ${url}`);
-  const schema = (await response.json()) as Record<string, unknown>;
-  // Generated harness schemas embed repeated copies of the plugin schema with
-  // one dev-branch $id. Validate the fetched commit content without registering
-  // those non-versioned identifiers.
-  const stripIds = (value: unknown): void => {
-    if (value === null || typeof value !== "object") return;
-    if (Array.isArray(value)) {
-      for (const entry of value) stripIds(entry);
-      return;
-    }
-    const record = value as Record<string, unknown>;
-    delete record.$id;
-    for (const entry of Object.values(record)) stripIds(entry);
-  };
-  stripIds(schema);
-  return schema;
-}
-
-test("OMO config validates against the pinned target schemas", async () => {
-  const [omoSchema, pluginSchema] = await Promise.all([
-    fetchSchema("omo.schema.json"),
-    fetchSchema("oh-my-opencode.schema.json"),
-  ]);
-  const config = readJsonc("omo.jsonc") as Record<string, unknown>;
-
-  const validateOmo = new Ajv({
-    allErrors: true,
-    strict: false,
-    validateFormats: false,
-  }).compile(omoSchema);
-  assert.equal(validateOmo(config), true, JSON.stringify(validateOmo.errors, null, 2));
-
-  const validatePlugin = new Ajv({
-    allErrors: true,
-    strict: false,
-    validateFormats: false,
-  }).compile(pluginSchema);
-  assert.equal(
-    validatePlugin(config["[opencode]"]),
-    true,
-    JSON.stringify(validatePlugin.errors, null, 2),
-  );
+test("profiles validate against the current official OpenCode schema", async () => {
+  const ajv = new Ajv2020({ strict: false, allErrors: true, validateFormats: false, loadSchema });
+  const validate = await ajv.compileAsync(await loadSchema("https://opencode.ai/config.json"));
+  for (const profile of ["work", "personal"]) {
+    const errors: ParseError[] = [];
+    const config = parse(readFileSync(new URL(`../opencode.${profile}.jsonc`, import.meta.url), "utf8"), errors, {
+      allowTrailingComma: true,
+    });
+    assert.deepEqual(errors, []);
+    assert.ok(validate(config), `${profile}: ${JSON.stringify(validate.errors, null, 2)}`);
+  }
 });

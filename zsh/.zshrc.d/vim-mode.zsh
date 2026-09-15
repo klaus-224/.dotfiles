@@ -17,6 +17,7 @@ bindkey '^?' backward-delete-char
 bindkey '^H' backward-delete-char
 
 # History search with arrow keys based on current buffer
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
