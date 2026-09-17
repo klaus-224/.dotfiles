@@ -36,13 +36,9 @@ let
 
     awscli2
     duckdb
-    # opencode
 
-    yaml-language-server
-    vscode-langservers-extracted
-    lua-language-server
-    nixd
-    tombi
+    mise
+
     # 2.3.1 broken right now 
     # devenv
   ];
@@ -59,15 +55,10 @@ let
   ];
 
   workPackages = with pkgs; [
-    nodejs
-    pnpm
-    bun
     rustc
     cargo
 
     biome
-    typescript-language-server
-    svelte-language-server
     sqls
 
     pkg-config
@@ -97,6 +88,7 @@ in
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
     opencode.source = link "opencode";
+    mise.source = link "mise";
   };
 
   home.file = {
