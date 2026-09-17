@@ -17,6 +17,8 @@
       "arc"
       "ghostty"
       "docker-desktop" # TODO replace with docker daemon
+      "raycast"
+      "spotify"
     ];
   };
 }
