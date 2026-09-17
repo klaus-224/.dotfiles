@@ -44,7 +44,7 @@ let
     nixd
     tombi
     # 2.3.1 broken right now 
-    devenv
+    # devenv
   ];
 
   personalPackages = with pkgs; [
