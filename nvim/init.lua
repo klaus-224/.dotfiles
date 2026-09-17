@@ -1,5 +1,5 @@
-require('core')
-require('vim._core.ui2').enable()
+require 'core'
+require 'vim._core.ui2'.enable()
 
 vim.cmd.packadd('cfilter')
 vim.cmd.packadd('nvim.difftool')
@@ -25,9 +25,9 @@ vim.pack.add({
   { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
-require('custom.ui').setup()
-require('custom.statusline').setup()
-require('custom.execution-buffer').setup()
+require 'custom.ui'.setup()
+require 'custom.statusline'.setup()
+require 'custom.execution-buffer'.setup()
 
 require('lazydev').setup({
   library = {
