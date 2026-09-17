@@ -70,6 +70,39 @@ class AuditTests(unittest.TestCase):
             self.assertIn("WARN: deployed", output.getvalue())
         self.assertEqual(list(self.home.iterdir()), [])
 
+    def test_managed_links_match_modular_home_configuration(self):
+        self.assertEqual(doctor.managed_links(ROOT), {
+            ".config/nvim": "nvim",
+            ".config/ghostty": "ghostty",
+            ".config/gh-dash": "git/gh-dash",
+            ".config/opencode": "opencode",
+            ".config/mise": "mise",
+            ".tmux.conf": "tmux/.tmux.conf",
+            ".zshenv": "zsh/.zshenv",
+            ".zshrc": "zsh/.zshrc",
+            ".zshrc.d": "zsh/.zshrc.d",
+            ".gitconfig": "git/.gitconfig",
+        })
+
+    def test_modular_checkout_recognition_reports_missing_modules(self):
+        checkout = self.home / "fixture"
+        (checkout / "nix/home").mkdir(parents=True)
+        (checkout / "nix/home/default.nix").write_text("{ ... }: { }\n")
+        (checkout / "nix/home/files.nix").write_text("{ ... }: { }\n")
+        (checkout / "Justfile").write_text("")
+        with patch.object(doctor, "references", return_value=[]):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(doctor.audit(checkout, refs_only=True), 1)
+            self.assertIn("Checkout:", output.getvalue())
+            self.assertNotIn("not a dotfiles checkout", output.getvalue())
+
+        (checkout / "nix/home/files.nix").unlink()
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertEqual(doctor.audit(checkout, refs_only=True), 1)
+        self.assertIn("missing nix/home/files.nix", output.getvalue())
+
     def test_jsonc_reference_scan_ignores_comments_not_strings(self):
         text = r'''{
           // "prompt": "{file:./missing.md}"
