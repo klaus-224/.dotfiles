@@ -69,7 +69,6 @@
         "workflow": "plan-agent",
         "planningAgents": [
           "plan",
-          "sisyphus"
         ]
       }
     ]
@@ -121,6 +120,7 @@
         "submit_plan": "allow",
         "edit": "deny",
         "write": "deny",
+        "webfetch": "allow",
         "task": {
           "*": "deny",
           "explorer": "allow"
@@ -143,16 +143,17 @@
         "grep": "allow",
         "list": "allow",
         "lsp": "allow",
+        "webfetch": "allow",
         "skill": {
           "*": "deny",
           "find-docs": "allow"
         },
-        "task": "deny",
         "bash": {
           "*": "deny",
-          "ctx library *": "allow",
-          "ctx docs *": "allow"
+          "ctx7 library *": "allow",
+          "ctx7 docs *": "allow"
         },
+        "task": "deny",
         "edit": "deny",
         "write": "deny",
         "apply_patch": "deny",
@@ -161,6 +162,8 @@
     },
     "builder": {
       "prompt": "{file:./prompts/builder.md}",
+      "model": "github-copilot/gpt-5.6-sol",
+      "variant": "medium",
       "permission": {
         "*": "deny",
         "read": "allow",
@@ -191,7 +194,8 @@
           "git add --all*": "deny",
           "git add .*": "deny",
           "git commit*--amend*": "deny",
-          "git commit*--no-verify*": "deny"
+          "git commit*--no-verify*": "deny",
+          "just *": "allow"
         }
       },
       "jira-operator": {
@@ -313,13 +317,6 @@
           "git clean*": "deny",
           "git * clean*": "deny"
         }
-      }
-    },
-    "command": {
-      "summarize-jira-ticket": {
-        "description": "Fetch and summarize Jira tickets using read-only operations",
-        "agent": "jira-operator",
-        "template": "{file:./prompts/summarize-jira-ticket.md}"
       }
     },
     "general": {
