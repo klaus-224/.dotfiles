@@ -15,7 +15,7 @@ function M.make()
     title = 'Compile',
   }
 
-  function on_data(data)
+  local function on_data(data)
     vim.list_extend(lines, data)
     for _, line in ipairs(data) do
       if not line:match('^%s*$') then
