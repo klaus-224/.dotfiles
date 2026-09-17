@@ -125,7 +125,10 @@
           "*": "deny",
           "explorer": "allow"
         },
-        "skill": "deny",
+        "skill": {
+          "plannotator-annotate": "allow",
+          "submit_plan": "allow"
+        },
         "bash": "deny",
         "external_directory": "ask"
       }
@@ -315,7 +318,9 @@
           "git reset*": "deny",
           "git * reset*": "deny",
           "git clean*": "deny",
-          "git * clean*": "deny"
+          "git * clean*": "deny",
+          "plannotator review --commit *": "allow",
+          "plannotator review --branch *": "allow"
         }
       }
     },
