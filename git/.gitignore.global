@@ -1,3 +1,4 @@
+.DS_STORE
 .gitconfig.local
 
 # Devenv
@@ -7,3 +8,7 @@ devenv.local.yaml
 
 # direnv
 .direnv
+
+#mise
+mise.local.toml
+mise.local.local
