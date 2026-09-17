@@ -33,9 +33,12 @@ OPTIONAL = {
     "starship": "optional shell prompt",
 }
 
+HOME_ENTRY = Path("nix/home/default.nix")
+HOME_FILES = Path("nix/home/files.nix")
+
 
 def managed_links(root):
-    text = (root / "nix/home.nix").read_text()
+    text = (root / HOME_FILES).read_text()
     links = {}
     section = None
     for line in text.splitlines():
@@ -85,8 +88,10 @@ def audit(root, *, refs_only=False, deployed_home=None):
         print(f"{level}: {detail}")
         failures += int(not ok and not optional)
 
-    if not (root / "nix/home.nix").is_file() or not (root / "Justfile").is_file():
-        report(False, f"not a dotfiles checkout: {root}")
+    required_checkout_files = (HOME_ENTRY, HOME_FILES, Path("Justfile"))
+    missing = [str(path) for path in required_checkout_files if not (root / path).is_file()]
+    if missing:
+        report(False, f"not a dotfiles checkout: {root}; missing {', '.join(missing)}")
         return 1
     print(f"Checkout: {root}")
     if not refs_only:

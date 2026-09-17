@@ -10,6 +10,7 @@ This repository contains the nix-darwin and Home Manager configuration for
 - [Bootstrap](#bootstrap)
 - [What Each Layer Manages](#what-each-layer-manages)
 - [Config Symlinks](#config-symlinks)
+- [Homebrew Migration Safety](#homebrew-migration-safety)
 - [Rebuild and Update](#rebuild-and-update)
 - [SSH Keys](#ssh-keys)
 - [Tmux Commands](#tmux-commands)
@@ -40,18 +41,9 @@ bootstrapping:
 3. Restart the terminal, or load the Nix profile as instructed by the
    installer. Confirm that `nix` is available with `nix --version`.
 
-4. Separately install [Homebrew](https://docs.brew.sh/Installation) using its
-   official installer. Review the script and its prompts before proceeding:
-
-   ```sh
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   eval "$(/opt/homebrew/bin/brew shellenv)"
-   brew --version
-   ```
-
-   Follow the installer's shell setup instructions. `homebrew.enable` in
-   nix-darwin manages packages through an existing Homebrew installation; it
-   **does not install Homebrew**. Apple Silicon uses `/opt/homebrew`.
+4. Homebrew does not need a separate bootstrap. `nix-homebrew` installs it at
+   the native Apple Silicon prefix (`/opt/homebrew`) or migrates an existing
+   official installation during the first activation.
 
 5. The Command Line Tools provide Git for the initial clone. For SSH cloning,
    complete [SSH Keys](#ssh-keys) and verify GitHub access **before** cloning.
@@ -61,6 +53,9 @@ bootstrapping:
 ## Bootstrap
 
 Clone the repository and apply the nix-darwin flake for this machine:
+
+Before running the switch command, complete the per-machine inventory and
+backup steps in [Homebrew migration safety](#homebrew-migration-safety).
 
 ```sh
 git clone https://github.com/klaus-224/.dotfiles.git ~/.dotfiles
@@ -75,10 +70,13 @@ rebuilds can use `darwin-rebuild` directly.
 
 ## What Each Layer Manages
 
-- **nix-darwin** manages macOS settings, the system-level zsh setup, allowed
-  unfree packages, and GUI applications declared in `nix/darwin.nix`.
-- **Home Manager** manages user packages, command-line programs, editor and
-  shell configuration, and dotfile links declared in `nix/home.nix`.
+- **nix-darwin** manages macOS settings, system-level Git, mise and shell
+  packages, and Homebrew applications through modules under `nix/darwin/`.
+- **Home Manager** manages the remaining user packages and links the existing
+  application, Git, mise, and shell files through modules under `nix/home/`.
+  It does not generate Git, mise, or shell configuration.
+- **Host modules** under `nix/hosts/` contain personal/work package and cask
+  differences.
 - **The flake** pins nixpkgs, nix-darwin, and Home Manager inputs in
   `nix/flake.lock` and exposes both the `klaus-macbook` and `work-macbook` configurations.
 
@@ -99,6 +97,25 @@ Managed examples include:
 - Individual `~/.local/bin/<helper>` links from `bin/`; unmanaged names remain yours.
 
 Keep the checkout at `~/.dotfiles`; the symlink definitions use that path.
+
+## Homebrew migration safety
+
+The Homebrew activation policy intentionally matches the starter repository:
+activation upgrades declared packages and runs cleanup with `zap`. Any formula,
+cask, or tap not present in the generated Brewfile may be removed, and cask data
+associated with an undeclared application may also be deleted. Cask quarantine
+is disabled through `no_quarantine`, an option Homebrew has deprecated.
+
+Before the first switch on **each machine**, inventory installed formulae, casks,
+and taps with `brew leaves`, `brew list --cask`, and `brew tap`. Compare that
+inventory with the generated Brewfile, declare everything that must survive,
+back up important application data, and inspect existing Raycast or Spotify
+installations for conflicts. Building or evaluating the configuration is safe;
+do not switch until this review is complete.
+
+`flake.lock` pins the nix-homebrew/Homebrew source used to run Homebrew, but it
+does not lock individual formula or cask versions. Reverting a Nix generation
+cannot restore application data removed by `brew bundle cleanup --zap`.
 
 ## Rebuild and Update
 
@@ -191,7 +208,8 @@ are Nix-managed, not application-managed.
 ## CLI Tool Reference
 
 This is a reference list, not an installation procedure. The active Nix-managed
-tool list is defined in `nix/home.nix`.
+tool lists are split between `nix/darwin/default.nix`, `nix/home/packages.nix`,
+and the modules under `nix/hosts/`.
 
 - [book of secret knowledge](https://github.com/trimstray/the-book-of-secret-knowledge)
 - [gh-dash](https://www.gh-dash.dev/getting-started): TUI dashboard for GitHub PRs and issues
