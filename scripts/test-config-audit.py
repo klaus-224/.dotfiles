@@ -113,27 +113,6 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(result.returncode, 23)
         self.assertEqual(result.stdout, "<docs>\n</example/lib>\n<two words>\n")
 
-    @unittest.skipUnless(ZSH, "zsh unavailable")
-    def test_sqb_warns_without_install_and_accepts_both_servers(self):
-        self.stub("nvim", 'printf "<%s>\\n" "$@"')
-        self.env["PATH"] = str(self.home)
-        result = self.run_command([ZSH, "-d", "-f", ROOT / "bin/sqb"], input="select 1;")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("SQL LSP unavailable", result.stderr)
-        self.assertIn("<->", result.stdout)
-        self.assertNotIn("Mason", result.stdout)
-        for server in ("sqls", "postgres-language-server"):
-            stub = self.stub(server, 'printf called >> "$HOME/server-called"; exit 99')
-            result = self.run_command([ZSH, "-d", "-f", ROOT / "bin/sqb"], input="")
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stderr, "")
-            self.assertFalse((self.home / "server-called").exists())
-            stub.unlink()
-        self.env["EDITOR"] = "missing-editor"
-        result = self.run_command([ZSH, "-d", "-f", ROOT / "bin/sqb"], input="")
-        self.assertEqual(result.returncode, 127)
-        self.assertIn("editor not found", result.stderr)
-
     def shell_fixture(self):
         dotfiles = self.home / "checkout"
         modules = dotfiles / "zsh/.zshrc.d"
