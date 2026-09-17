@@ -1,0 +1,12 @@
+[tools]
+tombi = "latest"
+"npm:yaml-language-server" = "latest"
+"npm:vscode-langservers-extracted" = "latest"
+
+[settings]
+jobs = 10
+auto_install = true
+not_found_auto_install = true
+pin = false
+minimum_release_age = "24h"
+idiomatic_version_file_enable_tools = ["node", "python"]

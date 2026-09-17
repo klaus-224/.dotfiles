@@ -20,7 +20,9 @@ export PATH
 if (( $+commands[starship] )); then
 	eval "$(starship init zsh)"
 fi
-# eval "$(devenv hook zsh )"
+
+# auto activate mise env
+eval "$(mise activate zsh)"
 
 # Choose the keymap before applying personal bindings.
 [[ -r "$DOTFILES_HOME/zsh/.zshrc.d/vim-mode.zsh" ]] && source "$DOTFILES_HOME/zsh/.zshrc.d/vim-mode.zsh"

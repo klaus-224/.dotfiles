@@ -1,0 +1,12 @@
+[plugins]
+nix = "https://github.com/jbadeau/mise-nix.git"
+
+[tools]
+node = "latest"
+pnpm = "latest"
+lua-language-server = "latest"
+rust = "latest"
+oxfmt = "latest"
+"nix:nixd" = "latest"
+
+"github:microsoft/typescript" = "latest"
