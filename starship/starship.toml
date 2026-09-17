@@ -1,5 +1,5 @@
 format = """
-$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python$aws
+$aws$mise$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python
 $character
 """
 add_newline = false
@@ -13,9 +13,20 @@ green = "#99b782"
 yellow = "#e8b589"
 red = "#c48282"
 lavender = "#c9b1ca"
+cyan = "#78a8ad"
+teal = "#7fa89a"
+orange = "#d99a78"
+pink = "#c996a5"
+purple = "#a993bd"
 
 [fill]
 symbol = " "
+
+[mise]
+disabled = false
+format = "[$symbol]($style)"
+symbol = "󰏗 "
+style = "bold purple"
 
 [username]
 show_always = true
@@ -28,23 +39,6 @@ disabled = false
 detect_env_vars = ["!TMUX", "SSH_CONNECTION"]
 format = "@[$hostname]($style) "
 style = "bold blue"
-
-[os]
-disabled = false
-format = "[$symbol]($style)"
-style = "bold #cdd6f4"
-
-[os.symbols]
-Alpine = ""
-Amazon = ""
-Android = ""
-Arch = ""
-Debian = ""
-Fedora = ""
-Linux = ""
-Macos = " "
-Ubuntu = ""
-Windows = ""
 
 [directory]
 style = "bold fg"
@@ -72,25 +66,21 @@ format = "[node:$version]($style) "
 
 [rust]
 symbol = ""
-style = "#f38ba8"
+style = "bold red"
 format = "[rust:$version]($style) "
 
 [python]
 symbol = ""
-style = "#f9e2af"
+style = "bold yellow"
 format = "[py:$version]($style) "
 
 [aws]
 symbol = ""
-style = "#ff964f"
-format = "[aws:$profile]($style)"
-force_display = false
-disabled = false
+style = "bold orange"
+format = "[aws:$profile]($style) "
 
-[shell]
-disabled = false
-format = "[$indicator]($style)"
-style = "muted"
+[aws.profile_aliases]
+Enterprise_Naming_Scheme-voidstars = "void**"
 
 [character]
 success_symbol = "[❯](green)"
