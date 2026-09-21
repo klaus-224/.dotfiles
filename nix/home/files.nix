@@ -11,6 +11,7 @@ in
     gh-dash.source = link "git/gh-dash";
     opencode.source = link "opencode";
     mise.source = link "mise";
+    aerospace.source = link "aerospace";
   };
 
   home.file = {

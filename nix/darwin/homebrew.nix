@@ -16,10 +16,15 @@
       {
         name = "FelixKratz/formulae/borders";
         trusted = true;
+        start_service = true;
       }
       {
         name = "FelixKratz/formulae/sketchybar";
         trusted = true;
+        start_service = true;
+      }
+      {
+        name = "rtk";
       }
     ];
 
