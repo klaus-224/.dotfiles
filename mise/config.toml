@@ -2,6 +2,7 @@
 tombi = "latest"
 "npm:yaml-language-server" = "latest"
 "npm:vscode-langservers-extracted" = "latest"
+"npm:opentmux" = "latest"
 
 [settings]
 jobs = 10
