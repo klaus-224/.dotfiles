@@ -12,6 +12,7 @@ This repository contains the nix-darwin and Home Manager configuration for
 - [Config Symlinks](#config-symlinks)
 - [Homebrew Migration Safety](#homebrew-migration-safety)
 - [Rebuild and Update](#rebuild-and-update)
+- [Window Management](#window-management)
 - [SSH Keys](#ssh-keys)
 - [Tmux Commands](#tmux-commands)
 - [Opencode Plugins](#opencode-plugins)
@@ -140,6 +141,41 @@ Run offline validation using `just check`; explicitly evaluate both hosts using
 `just validate-nix-eval` without activation. See the
 [validation and migration guide](docs/config-audit.md), especially the required
 manual inspection before migrating an existing `~/.local/bin` directory symlink.
+
+## Window Management
+
+AeroSpace manages tiled windows and workspaces, JankyBorders highlights the
+focused window, and SketchyBar displays workspace buttons and a clock.
+
+Workspace assignments:
+
+- `1`: Ghostty
+- `2`: Arc
+- `3`: development
+- `4`: communication
+- `5`: Spotify
+
+Use `option-h/j/k/l` to move focus, `option-shift-h/j/k/l` to move the focused
+window, and `option-1` through `option-5` to switch workspaces. Add `shift` to a
+workspace shortcut to move the focused window there.
+
+The app-home helper is `scripts/aerospace-home.sh`. It switches to an app's home
+workspace and opens or focuses the app. Repair misplaced windows with, for
+example:
+
+```sh
+~/.dotfiles/scripts/aerospace-home.sh --repair 1 com.mitchellh.ghostty
+```
+
+Configuration lives in `aerospace/aerospace.toml`, `borders/bordersrc`, and
+`sketchybar/`. Home Manager links these directories into `~/.config`. After a
+configuration change, reload AeroSpace or restart the Homebrew services:
+
+```sh
+aerospace reload-config
+brew services restart borders
+brew services restart sketchybar
+```
 
 ## SSH Keys
 
