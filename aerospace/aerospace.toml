@@ -1,5 +1,6 @@
 config-version = 2
 start-at-login = true
+auto-reload-config = true
 
 default-root-container-layout = "tiles"
 default-root-container-orientation = "auto"
@@ -34,3 +35,15 @@ alt-shift-2 = "move-node-to-workspace 2"
 alt-shift-3 = "move-node-to-workspace 3"
 alt-shift-4 = "move-node-to-workspace 4"
 alt-shift-5 = "move-node-to-workspace 5"
+
+[[on-window-detected]]
+if.app-id = "com.mitchellh.ghostty"
+run = "move-node-to-workspace 1"
+
+[[on-window-detected]]
+if.app-id = "company.thebrowser.Browser"
+run = "move-node-to-workspace 2"
+
+[[on-window-detected]]
+if.app-id = "com.spotify.client"
+run = "move-node-to-workspace 5"
