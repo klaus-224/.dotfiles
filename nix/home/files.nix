@@ -12,6 +12,8 @@ in
     opencode.source = link "opencode";
     mise.source = link "mise";
     aerospace.source = link "aerospace";
+    borders.source = link "borders";
+    sketchybar.source = link "sketchybar";
   };
 
   home.file = {

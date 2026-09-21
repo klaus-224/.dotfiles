@@ -1,0 +1,26 @@
+#!/bin/bash
+
+CONFIG_DIR="$HOME/.config/sketchybar"
+
+sketchybar --bar height=32 color=0xff1f1f28
+sketchybar --add event aerospace_workspace_change
+
+for sid in $(aerospace list-workspaces --all); do
+  sketchybar --add item "space.$sid" left \
+    --subscribe "space.$sid" aerospace_workspace_change \
+    --set "space.$sid" \
+      label="$sid" \
+      background.color=0xff6e94b2 \
+      background.corner_radius=5 \
+      background.height=22 \
+      background.drawing=off \
+      click_script="aerospace workspace $sid" \
+      script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+done
+
+# SketchyBar expands NAME when the item script runs.
+# shellcheck disable=SC2016
+sketchybar --add item clock right \
+  --set clock update_freq=30 script='sketchybar --set "$NAME" label="$(date +%H:%M)"'
+
+sketchybar --update
