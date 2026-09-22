@@ -2,7 +2,7 @@
 
 CONFIG_DIR="$HOME/.config/sketchybar"
 
-sketchybar --bar height=32 color=0xff1f1f28
+sketchybar --bar height=36 color=0xff1f1f28
 sketchybar --add event aerospace_workspace_change
 
 for sid in $(aerospace list-workspaces --all); do
