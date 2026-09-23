@@ -76,7 +76,7 @@ test("profile-scoped and shared commands never reference missing agents", () => 
     }
   }
   assert.equal(personal.command["test-plan"].agent, "orchestrator");
-  assert.equal(work.command["test-plan"], undefined);
+  assert.equal(work.command["test-plan"].agent, "ticket-review");
   assert.equal(work.command["summarize-jira-ticket"].agent, "jira-operator");
   assert.equal(personal.command["summarize-jira-ticket"], undefined);
 });
