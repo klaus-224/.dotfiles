@@ -278,7 +278,11 @@
           "git add .*": "deny",
           "git commit*--amend*": "deny",
           "git commit*--no-verify*": "deny",
-          "just *": "allow"
+          "just *": "allow",
+          "ctx7 library *": "allow",
+          "ctx7 docs *": "allow",
+          "plannotator review --commit *": "allow",
+          "plannotator review --branch *": "allow"
         }
       },
       "jira-operator": {

@@ -4,7 +4,7 @@ local colors = require("colors")
 sbar.bar({
   position = "top",
   height = 36,
-  color = colors.transparent,
+  color = colors.bg,
   padding_left = 8,
   padding_right = 8,
 })
