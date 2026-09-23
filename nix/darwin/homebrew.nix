@@ -13,11 +13,8 @@
     global.brewfile = true;
 
     brews = [
-      "lua"
       {
-        name = "FelixKratz/formulae/borders";
-        trusted = true;
-        start_service = true;
+        name = "lua";
       }
       {
         name = "FelixKratz/formulae/sketchybar";
