@@ -3,7 +3,7 @@ local colors = require("colors")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
 local query_command = aerospace
-  .. " list-workspaces --all --json --format '%{workspace}%{workspace-is-focused}'"
+    .. " list-workspaces --all --json --format '%{workspace}%{workspace-is-focused}'"
 
 local items = {}
 local order = {}
@@ -56,14 +56,22 @@ local function add_workspace(workspace, index)
   local background, label = selected_color(workspace == focused_workspace)
   local item = sbar.add("item", "workspace." .. index, {
     position = "left",
+    padding_left = 3,
+    padding_right = 3,
     icon = { drawing = false },
     label = {
       string = workspace,
       color = label,
+      width = 28,
+      align = "center",
+      padding_left = 0,
+      padding_right = 0,
     },
     background = {
       drawing = true,
       color = background,
+      border_color = colors.lavender,
+      border_width = 1,
       corner_radius = 6,
       height = 24,
     },
