@@ -8,7 +8,6 @@
   home.packages = with pkgs; [
     ripgrep
     just
-    # Offline configuration validation is available on both hosts.
     python3
     shellcheck
     gnumake

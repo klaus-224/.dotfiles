@@ -2,11 +2,12 @@ config-version = 2
 start-at-login = true
 auto-reload-config = true
 
-exec-on-workspace-change = [
-  "/bin/bash",
-  "-c",
-  "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\"",
+after-startup-command = [
+  # JankyBorders has a built-in detection of already running process,
+  # so it won't be run twice on AeroSpace restart
+  "exec-and-forget borders active_color=0xffc9b1ca inactive_color=0xffcdcdcd width=5.0"
 ]
+exec-on-workspace-change = ["/bin/bash", "-c", "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\""]
 
 default-root-container-layout = "tiles"
 default-root-container-orientation = "auto"
@@ -26,12 +27,13 @@ persistent-workspaces = ["1", "2", "3", "4", "5"]
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.left = 3
-outer.bottom = 8
-outer.right = 8
-outer.top = [{ monitor."built-in" = 10 }, { monitor."main" = 50 }, 50]
+outer.left = 12
+outer.bottom = 12
+outer.right = 12
+outer.top = [{ monitor."built-in" = 10 }, { monitor."main" = 48 }, 44]
 
 [mode.main.binding]
+alt-tab = "focus-monitor --wrap-around next"
 alt-slash = "layout tiles horizontal vertical"
 alt-comma = "layout accordion horizontal vertical"
 alt-h = "focus left"
@@ -57,10 +59,10 @@ alt-shift-4 = "move-node-to-workspace 4"
 alt-shift-5 = "move-node-to-workspace 5"
 
 # Vim-like resizing
-alt-cmd-h = 'resize width -10'
-alt-cmd-j = 'resize height +10'
-alt-cmd-k = 'resize height -10'
-alt-cmd-l = 'resize width +10'
+alt-cmd-h = "resize width -25"
+alt-cmd-j = "resize height +25"
+alt-cmd-k = "resize height -25"
+alt-cmd-l = "resize width +25"
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
