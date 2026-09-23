@@ -1,10 +1,4 @@
-{ pkgs, username, ... }:
+# host specific configs from klaus-macbook
+{ ... }:
 
-{
-  home-manager.users.${username}.home.packages = with pkgs; [
-    nodejs
-    pnpm
-    bun
-    postgres-language-server
-  ];
-}
+{ }

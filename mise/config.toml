@@ -1,12 +1,29 @@
+[env]
+MISE_RUSTUP_HOME = "{{env.HOME}}/.local/share/rustup"
+MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
+
 [tools]
-tombi = "latest"
-"npm:yaml-language-server" = "latest"
-"npm:vscode-langservers-extracted" = "latest"
+# Runtimes
+node = "26.10.0"
+python = "3.14.7"
+
+# Project package managers
+pnpm = "12.6.0"
+uv = "0.12.18"
+
+# Language servers and development tools
+tombi = "1.5.5"
+"npm:yaml-language-server" = "1.24.0"
+"npm:vscode-langservers-extracted" = "4.10.0"
+marksman = "2026-02-08"
+tree-sitter = "0.27.0"
+shellcheck = "0.11.0"
+rust = { version = "nightly", profile = "minimal" }
 
 [settings]
 jobs = 10
 auto_install = true
 not_found_auto_install = true
-pin = false
+pin = true
 minimum_release_age = "24h"
-idiomatic_version_file_enable_tools = ["node", "python"]
+idiomatic_version_file_enable_tools = ["node"]
