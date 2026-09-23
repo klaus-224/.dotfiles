@@ -55,6 +55,29 @@ validate-typecheck:
 validate-hooks:
     python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} hooks
 
+# Explicit Homebrew-runtime check; not part of the offline default validation.
+validate-sketchybar:
+    #!/bin/bash
+    set -euo pipefail
+    lua=/opt/homebrew/bin/lua
+    luac=/opt/homebrew/bin/luac
+    for executable in "$lua" "$luac"; do
+      if [[ ! -x "$executable" ]]; then
+        printf 'FAIL: required SketchyBar runtime is missing: %s\n' "$executable" >&2
+        exit 1
+      fi
+    done
+    bash -n {{quote(repo / "sketchybar/sketchybarrc")}}
+    shellcheck --norc --shell=bash {{quote(repo / "sketchybar/sketchybarrc")}}
+    "$luac" -p \
+      {{quote(repo / "sketchybar/init.lua")}} \
+      {{quote(repo / "sketchybar/colors.lua")}} \
+      {{quote(repo / "sketchybar/bar.lua")}} \
+      {{quote(repo / "sketchybar/items/aerospace.lua")}} \
+      {{quote(repo / "sketchybar/items/clock.lua")}} \
+      {{quote(repo / "tests/sketchybar.test.lua")}}
+    CONFIG_DIR={{quote(repo / "sketchybar")}} "$lua" {{quote(repo / "tests/sketchybar.test.lua")}} {{quote(repo)}}
+
 # Explicit network-only schema suite; never a dependency of validate.
 validate-schema:
     python3 -B {{quote(repo / "scripts/config-validate.py")}} --repo {{quote(repo)}} schema
