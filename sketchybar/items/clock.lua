@@ -3,7 +3,7 @@ local colors = require("colors")
 
 local clock = sbar.add("item", "clock", {
   position = "right",
-  update_freq = 10,
+  update_freq = 30,
   label = { color = colors.fg },
 })
 

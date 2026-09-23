@@ -24,7 +24,7 @@ macos-option-as-alt = true
 bell-features = border
 desktop-notifications = false
 
-fullscreen = true
+fullscreen = false
 window-decoration = true
 macos-titlebar-style = hidden
 macos-non-native-fullscreen = true

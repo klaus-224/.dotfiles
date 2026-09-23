@@ -22,8 +22,8 @@ local loaded, sbar = pcall(require, "sketchybar")
 if not loaded then
   error(
     "cannot load SbarLua from ~/.local/share/sketchybar_lua/sketchybar.so; "
-      .. "install a Lua-compatible module before starting SketchyBar: "
-      .. tostring(sbar)
+    .. "install a Lua-compatible module before starting SketchyBar: "
+    .. tostring(sbar)
   )
 end
 
@@ -31,6 +31,7 @@ sbar.begin_config()
 
 require("bar")
 require("items.aerospace")
+require("items.slack")
 require("items.clock")
 
 sbar.end_config()
