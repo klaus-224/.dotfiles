@@ -1,26 +1,16 @@
 #!/bin/bash
 
-CONFIG_DIR="$HOME/.config/sketchybar"
+set -eu
 
-sketchybar --bar height=36 color=0xff1f1f28
-sketchybar --add event aerospace_workspace_change
+LUA=/opt/homebrew/bin/lua
+if [[ -z "${CONFIG_DIR:-}" ]]; then
+  CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/sketchybar"
+fi
+export CONFIG_DIR
 
-for sid in $(aerospace list-workspaces --all); do
-  sketchybar --add item "space.$sid" left \
-    --subscribe "space.$sid" aerospace_workspace_change \
-    --set "space.$sid" \
-      label="$sid" \
-      background.color=0xff6e94b2 \
-      background.corner_radius=5 \
-      background.height=22 \
-      background.drawing=off \
-      click_script="aerospace workspace $sid" \
-      script="$CONFIG_DIR/plugins/aerospace.sh $sid"
-done
+if [[ ! -x "$LUA" ]]; then
+  printf 'sketchybar: Homebrew Lua is missing at %s; rebuild the nix-darwin configuration first\n' "$LUA" >&2
+  exit 1
+fi
 
-# SketchyBar expands NAME when the item script runs.
-# shellcheck disable=SC2016
-sketchybar --add item clock right \
-  --set clock update_freq=30 script='sketchybar --set "$NAME" label="$(date +%H:%M)"'
-
-sketchybar --update
+exec "$LUA" "$CONFIG_DIR/init.lua"
