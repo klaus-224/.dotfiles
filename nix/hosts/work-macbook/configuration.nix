@@ -1,11 +1,5 @@
-{ pkgs, username, ... }:
+# host specific configs from klaus-macbook
+{ ... }:
 
-{
-  home-manager.users.${username}.home.packages = with pkgs; [
-    rustc
-    cargo
-    biome
-    sqls
-    pkg-config
-  ];
-}
+{ }
+
