@@ -58,7 +58,7 @@
   "mcp": {
     "atlassian": {
       "type": "remote",
-      "url": "https://mcp.atlassian.com/v1/mcp",
+      "url": "https://mcp.atlassian.com/v2/mcp?tools=all",
       "enabled": true
     }
   },
@@ -73,7 +73,87 @@
       }
     ]
   ],
+  "command": {
+    "test-plan": {
+      "description": "Create a manual test plan from a Jira ticket and linked PRs",
+      "agent": "ticket-review",
+      "template": "{file:./prompts/jira-test-plan-command.md}"
+    }
+  },
   "agent": {
+    "ticket-review": {
+      "description": "Retrieve Jira intent and coordinate PR review followed by manual test planning.",
+      "mode": "primary",
+      "prompt": "{file:./prompts/ticket-review.md}",
+      "permission": {
+        "*": "deny",
+        "question": "allow",
+        "skill": "deny",
+        "task": {
+          "*": "deny",
+          "pr-review": "allow",
+          "test-planner": "allow"
+        },
+        "atlassian_getAccessibleAtlassianResources": "allow",
+        "atlassian_getJiraIssue": "allow",
+        "atlassian_listJiraIssueComments": "allow",
+        "atlassian_listJiraIssueRemoteIssueLinks": "allow",
+        "atlassian_getJiraIssueRemoteIssueLinks": "allow",
+        "atlassian_searchJiraIssuesUsingJql": "allow",
+        "bash": "deny",
+        "edit": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "pr-review": {
+      "description": "Inspect linked PR implementations and return evidence-backed manual test scenarios.",
+      "mode": "subagent",
+      "hidden": true,
+      "prompt": "{file:./prompts/pr-review.md}",
+      "permission": {
+        "*": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": {
+          "*": "deny",
+          "gh repo view --json nameWithOwner,url": "allow",
+          "gh pr list *": "allow",
+          "gh pr view *": "allow",
+          "gh pr diff *": "allow",
+          "gh api --method GET repos/*/pulls/*/files*": "allow",
+          "gh api --method GET repos/*/contents/*": "allow",
+          "git rev-parse HEAD": "allow",
+          "git status --short": "allow",
+          "* --output*": "deny",
+          "* --web*": "deny",
+          "* --template*": "deny"
+        },
+        "task": "deny",
+        "skill": "deny",
+        "edit": "deny",
+        "external_directory": "deny"
+      }
+    },
+    "test-planner": {
+      "description": "Turn Jira requirements and completed PR findings into manual tests for the user.",
+      "mode": "subagent",
+      "hidden": true,
+      "prompt": "{file:./prompts/test-planner.md}",
+      "permission": {
+        "*": "deny",
+        "skill": {
+          "*": "deny",
+          "manual-test-plan": "allow"
+        },
+        "task": "deny",
+        "bash": "deny",
+        "edit": "deny",
+        "submit_plan": "deny",
+        "external_directory": "deny"
+      }
+    },
     "chat": {
       "description": "Chat and collaboration agent.",
       "mode": "primary",
