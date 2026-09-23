@@ -17,16 +17,16 @@ focus-follows-mouse.enabled = false
 persistent-workspaces = ["1", "2", "3", "4", "5"]
 
 [workspace-to-monitor-force-assignment]
-1 = "main"
-2 = "main"
-3 = "secondary"
-4 = "secondary"
-5 = "secondary"
+1 = ["main", "built-in"]
+2 = ["main", "built-in"]
+3 = ["secondary", "built-in"]
+4 = ["secondary", "built-in"]
+5 = ["secondary", "built-in"]
 
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.left = 8
+outer.left = 3
 outer.bottom = 8
 outer.right = 8
 outer.top = [{ monitor."built-in" = 10 }, { monitor."main" = 50 }, 50]
@@ -56,14 +56,24 @@ alt-shift-3 = "move-node-to-workspace 3"
 alt-shift-4 = "move-node-to-workspace 4"
 alt-shift-5 = "move-node-to-workspace 5"
 
+# Vim-like resizing
+alt-cmd-h = 'resize width -10'
+alt-cmd-j = 'resize height +10'
+alt-cmd-k = 'resize height -10'
+alt-cmd-l = 'resize width +10'
+
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
 run = "move-node-to-workspace 1"
 
 [[on-window-detected]]
-if.app-id = "come.tinyspeck.slackmacgap"
-run = "move-node-to-workspace 4"
+if.app-id = "com.thebrowser.Browser"
+run = "move-node-to-workspace 2"
 
 [[on-window-detected]]
 if.app-id = "com.spotify.client"
-run = "move-node-to-workspace 5"
+run = "move-node-to-workspace 3"
+
+[[on-window-detected]]
+if.app-id = "come.tinyspeck.slackmacgap"
+run = "move-node-to-workspace 4"
