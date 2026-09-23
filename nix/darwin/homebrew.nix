@@ -13,6 +13,7 @@
     global.brewfile = true;
 
     brews = [
+      "lua"
       {
         name = "FelixKratz/formulae/borders";
         trusted = true;
