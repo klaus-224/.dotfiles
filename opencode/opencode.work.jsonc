@@ -178,7 +178,9 @@
           "simple-coding": "allow"
         },
         "bash": {
-          "*": "ask"
+          "*": "ask",
+          "ctx7 library *": "allow",
+          "ctx7 docs *": "allow"
         }
       }
     },
