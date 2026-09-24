@@ -4,9 +4,15 @@ local settings = require("settings")
 
 sbar.bar({
   position = "top",
-  height = settings.bar.height,
   color = colors.bg,
+  height = settings.bar.height,
+  border_color = colors.purple,
+  broder_width = settings.bar.border_width,
   padding_left = settings.bar.padding_left,
   padding_right = settings.bar.padding_right,
-  display = "all"
+  -- y_offset = settings.bar.margin,
+  -- margin = settings.bar.margin,
+  -- corner_radius = settings.bar.radius,
+  display = "all",
+  font_smoothing = true
 })

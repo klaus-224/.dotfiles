@@ -5,12 +5,12 @@ local settings = require("settings")
 local aerospace = "/opt/homebrew/bin/aerospace"
 local script = os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-groups.sh"
 local groups = {
-  { id = "code", label = "Code" },
-  { id = "browse", label = "Browse" },
-  { id = "music", label = "Music" },
-  { id = "slack", label = "Slack" },
-  { id = "discord", label = "Discord" },
-  { id = "teams", label = "Teams" },
+  { id = "code", label = "1" },
+  { id = "browse", label = "2" },
+  { id = "music", label = "3" },
+  { id = "slack", label = "4" },
+  { id = "discord", label = "5" },
+  { id = "teams", label = "6" },
 }
 local workspace_groups = {
   ["code-main"] = "code", ["code-secondary"] = "code",
