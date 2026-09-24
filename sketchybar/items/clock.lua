@@ -1,10 +1,8 @@
 local sbar = require("sketchybar")
-local colors = require("colors")
 
 local clock = sbar.add("item", "clock", {
   position = "right",
   update_freq = 30,
-  label = { color = colors.fg },
 })
 
 local function update_clock()

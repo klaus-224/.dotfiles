@@ -30,9 +30,8 @@ end
 sbar.begin_config()
 
 require("bar")
-require("items.aerospace-groups")
-require("items.slack")
-require("items.clock")
+require("defaults")
+require("items")
 
 sbar.hotload(true)
 sbar.end_config()
