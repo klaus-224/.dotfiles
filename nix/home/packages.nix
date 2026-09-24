@@ -6,10 +6,9 @@
 
 {
   home.packages = with pkgs; [
+    pkg-config
     ripgrep
     just
-    python3
-    shellcheck
     gnumake
     tmux
     gh
@@ -17,15 +16,12 @@
     bottom
     tree
     neovim
-    marksman
-    tree-sitter
     awscli2
     duckdb
 
+    opencodePkgs.opencode
     # 2.3.1 broken right now
     # devenv
-
-    opencodePkgs.opencode
   ];
 
   programs.fzf.enable = true;
