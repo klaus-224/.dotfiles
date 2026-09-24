@@ -5,18 +5,23 @@ local settings = require("settings")
 local aerospace = "/opt/homebrew/bin/aerospace"
 local script = os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-groups.sh"
 local groups = {
-  { id = "code", label = "1" },
-  { id = "browse", label = "2" },
-  { id = "music", label = "3" },
-  { id = "slack", label = "4" },
+  { id = "code",    label = "1" },
+  { id = "browse",  label = "2" },
+  { id = "music",   label = "3" },
+  { id = "slack",   label = "4" },
   { id = "discord", label = "5" },
-  { id = "teams", label = "6" },
+  { id = "teams",   label = "6" },
 }
 local workspace_groups = {
-  ["code-main"] = "code", ["code-secondary"] = "code",
-  ["browse-main"] = "browse", ["browse-secondary"] = "browse",
-  music = "music", slack = "slack", discord = "discord",
-  teams = "teams", ["teams-call"] = "teams",
+  ["code-main"] = "code",
+  ["code-secondary"] = "code",
+  ["browse-main"] = "browse",
+  ["browse-secondary"] = "browse",
+  music = "music",
+  slack = "slack",
+  discord = "discord",
+  teams = "teams",
+  ["teams-call"] = "teams",
 }
 local displays = {}
 local in_flight = false
@@ -42,8 +47,9 @@ local function add_display(display)
         padding_right = settings.groups.label_padding_right,
       },
       background = {
-        drawing = true, color = colors.transparent,
-        border_color = colors.lavender,
+        drawing = true,
+        color = colors.transparent,
+        border_color = colors.yellow,
         border_width = settings.groups.background_border_width,
         corner_radius = settings.groups.background_corner_radius,
         height = settings.groups.background_height,
@@ -81,7 +87,7 @@ local function apply_snapshot(records)
     for group_id, item in pairs(displays[display]) do
       local highlighted = group_id == selected
       item:set({
-        background = { color = highlighted and colors.lavender or colors.transparent },
+        background = { color = highlighted and colors.yellow or colors.transparent },
         label = { color = highlighted and colors.bg or colors.fg },
       })
     end
@@ -90,7 +96,9 @@ end
 
 local refresh
 refresh = function()
-  if in_flight then pending = true; return end
+  if in_flight then
+    pending = true; return
+  end
   in_flight = true
   sbar.exec(quote(aerospace)
     .. " list-workspaces --monitor all --visible --json"

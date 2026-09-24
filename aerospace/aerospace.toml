@@ -2,7 +2,7 @@ config-version = 2
 start-at-login = true
 auto-reload-config = true
 
-after-startup-command = ["exec-and-forget borders active_color=0xffc9b1ca inactive_color=0xffcdcdcd width=5.0"]
+after-startup-command = ["exec-and-forget borders active_color=0xffe8b589 inactive_color=0xffcdcdcd width=2"]
 exec-on-workspace-change = ["/bin/bash", "-c", "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\""]
 
 default-root-container-layout = "tiles"
