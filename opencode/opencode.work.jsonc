@@ -68,7 +68,7 @@
       {
         "workflow": "plan-agent",
         "planningAgents": [
-          "plan",
+          "planner",
         ]
       }
     ]
@@ -197,7 +197,6 @@
         "lsp": "allow",
         "todowrite": "allow",
         "question": "allow",
-        "submit_plan": "allow",
         "edit": "deny",
         "write": "deny",
         "webfetch": "allow",
@@ -205,11 +204,11 @@
           "*": "deny",
           "explorer": "allow"
         },
-        "skill": {
-          "plannotator-annotate": "allow",
-          "submit_plan": "allow"
+        "bash": {
+          "*": "deny",
+          "ctx7 library *": "allow",
+          "ctx7 docs *": "allow",
         },
-        "bash": "deny",
         "external_directory": "ask"
       }
     },
@@ -281,8 +280,7 @@
           "just *": "allow",
           "ctx7 library *": "allow",
           "ctx7 docs *": "allow",
-          "plannotator review --commit *": "allow",
-          "plannotator review --branch *": "allow"
+          "plannotator review *": "allow"
         }
       },
       "jira-operator": {
