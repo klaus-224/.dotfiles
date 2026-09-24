@@ -13,6 +13,9 @@ return {
     height = 36,
     padding_left = 8,
     padding_right = 8,
+    margin = 8,
+    radius = 10,
+    border_width = 2,
   },
   groups = {
     item_padding_left = 3,
