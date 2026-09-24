@@ -2,8 +2,7 @@ local sbar = require("sketchybar")
 local colors = require("colors")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
-local script = os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-group.rs"
-local rustup = os.getenv("HOME") .. "/.cargo/bin/rustup"
+local script = os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-groups.sh"
 local groups = {
   { id = "code", label = "Code" },
   { id = "browse", label = "Browse" },
@@ -44,8 +43,7 @@ local function add_display(display)
       },
     })
     item:subscribe("mouse.clicked", function()
-      sbar.exec(quote(rustup) .. " run nightly cargo -Zscript "
-        .. quote(script) .. " " .. quote(group_id), function(_, exit_code)
+      sbar.exec("/bin/bash " .. quote(script) .. " " .. quote(group_id), function(_, exit_code)
         if exit_code ~= 0 then
           print("aerospace-group failed for " .. group_id .. "; run it in a terminal for details")
         end

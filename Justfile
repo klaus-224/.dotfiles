@@ -67,15 +67,15 @@ validate-sketchybar:
         exit 1
       fi
     done
-    bash -n {{quote(repo / "sketchybar/sketchybarrc")}}
-    shellcheck --norc --shell=bash {{quote(repo / "sketchybar/sketchybarrc")}}
-    "$luac" -p \
-      {{quote(repo / "sketchybar/init.lua")}} \
-      {{quote(repo / "sketchybar/colors.lua")}} \
-      {{quote(repo / "sketchybar/bar.lua")}} \
-      {{quote(repo / "sketchybar/items/aerospace.lua")}} \
-      {{quote(repo / "sketchybar/items/clock.lua")}} \
-      {{quote(repo / "tests/sketchybar.test.lua")}}
+    while IFS= read -r file; do
+      "$luac" -p "$file"
+    done < <(printf '%s\n' \
+      {{quote(repo / "sketchybar/sketchybarrc")}} \
+      {{quote(repo / "sketchybar")}}/*.lua \
+      {{quote(repo / "sketchybar/items")}}/*.lua \
+      {{quote(repo / "tests/sketchybar.test.lua")}})
+    bash -n {{quote(repo / "scripts/aerospace-groups.sh")}}
+    shellcheck --norc --shell=bash {{quote(repo / "scripts/aerospace-groups.sh")}}
     CONFIG_DIR={{quote(repo / "sketchybar")}} "$lua" {{quote(repo / "tests/sketchybar.test.lua")}} {{quote(repo)}}
 
 # Explicit network-only schema suite; never a dependency of validate.
