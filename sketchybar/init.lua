@@ -34,5 +34,6 @@ require("items.aerospace-groups")
 require("items.slack")
 require("items.clock")
 
+sbar.hotload(true)
 sbar.end_config()
 sbar.event_loop()
