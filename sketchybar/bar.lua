@@ -1,16 +1,12 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
+local settings = require("settings")
 
 sbar.bar({
   position = "top",
-  height = 36,
+  height = settings.bar.height,
   color = colors.bg,
-  padding_left = 8,
-  padding_right = 8,
+  padding_left = settings.bar.padding_left,
+  padding_right = settings.bar.padding_right,
   display = "all"
-})
-
-sbar.default({
-  icon = { color = colors.fg },
-  label = { color = colors.fg },
 })

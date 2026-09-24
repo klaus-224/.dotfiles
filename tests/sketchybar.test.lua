@@ -9,6 +9,7 @@ package.path = table.concat({
 }, ";")
 
 local calls, items, executions = {}, {}, {}
+local default_properties = {}
 
 local function fail(message)
   io.stderr:write("FAIL: " .. message .. "\n")
@@ -29,15 +30,44 @@ local function record(kind, value)
   calls[#calls + 1] = { kind = kind, value = value }
 end
 
+local function copy(value)
+  if type(value) ~= "table" then return value end
+  local result = {}
+  for key, nested in pairs(value) do result[key] = copy(nested) end
+  return result
+end
+
+local function merge(target, source)
+  for key, value in pairs(source or {}) do
+    if type(value) == "table" and type(target[key]) == "table" then
+      merge(target[key], value)
+    else
+      target[key] = copy(value)
+    end
+  end
+  return target
+end
+
 local sbar = {}
 function sbar.begin_config() record("lifecycle", "begin") end
 function sbar.hotload(value) record("lifecycle", "hotload:" .. tostring(value)) end
 function sbar.end_config() record("lifecycle", "end") end
 function sbar.event_loop() record("lifecycle", "event_loop") end
 function sbar.bar(properties) record("bar", properties) end
-function sbar.default(properties) record("default", properties) end
+function sbar.default(properties)
+  merge(default_properties, properties)
+  record("default", properties)
+end
 function sbar.add(kind, name, properties)
-  local item = { kind = kind, name = name, properties = properties or {}, subscriptions = {}, sets = {} }
+  local effective = merge(copy(default_properties), properties or {})
+  local item = {
+    kind = kind,
+    name = name,
+    declared = properties or {},
+    properties = effective,
+    subscriptions = {},
+    sets = {},
+  }
   function item:set(properties) self.sets[#self.sets + 1] = properties end
   function item:subscribe(events, callback)
     if type(events) == "string" then events = { events } end
@@ -124,6 +154,13 @@ end
 equal(table.concat(lifecycle, ","), "begin,hotload:true,end,event_loop", "single lifecycle order")
 equal(_G.sbar, nil, "SbarLua is not leaked as a global")
 
+local default_index, first_add_index
+for index, call in ipairs(calls) do
+  if call.kind == "default" and not default_index then default_index = index end
+  if call.kind == "add" and not first_add_index then first_add_index = index end
+end
+expect(default_index and first_add_index and default_index < first_add_index, "defaults precede all item creation")
+
 local bar
 for _, call in ipairs(calls) do if call.kind == "bar" then bar = call.value end end
 expect(bar, "bar configuration is present")
@@ -133,6 +170,13 @@ equal(bar.color, 0xff252530, "bar background")
 equal(bar.padding_left, 8, "bar left padding")
 equal(bar.padding_right, 8, "bar right padding")
 equal(bar.display, "all", "bar display association")
+
+local settings = require("settings")
+equal(settings.fonts.icon.family, "Hack Nerd Font", "baseline icon font family")
+equal(settings.fonts.icon.style, "Bold", "baseline icon font style")
+equal(settings.fonts.icon.size, 14.0, "baseline icon font size")
+equal(settings.fonts.label.family, "Hack Nerd Font", "baseline label font family")
+equal(settings.fonts.label.size, 14.0, "baseline label font size")
 
 local colors = require("colors")
 equal(colors.bg, 0xff252530, "Vague background")
@@ -147,6 +191,9 @@ equal(colors.transparent, 0x00000000, "transparent color")
 local observer = assert(items["aerospace.observer"], "AeroSpace observer is present")
 equal(observer.properties.drawing, false, "observer hidden")
 equal(observer.properties.update_freq, 10, "observer heartbeat")
+equal(observer.properties.icon.font.size, 14.0, "observer inherits shared icon font")
+equal(observer.properties.label.font.size, 14.0, "observer inherits shared label font")
+equal(observer.properties.background, nil, "group background defaults do not leak to observer")
 for _, event in ipairs({ "aerospace_workspace_change", "display_change", "system_woke", "routine", "forced" }) do
   expect(type(observer.subscriptions[event]) == "function", "observer subscribes to " .. event)
 end
@@ -169,6 +216,8 @@ local browse = assert(items["group.2.browse"])
 equal(code.properties.position, "left", "group position")
 equal(code.properties.padding_left, 3, "group padding")
 equal(code.properties.label.string, "Code", "group label")
+equal(code.properties.label.padding_left, 8, "group label override")
+equal(code.properties.label.font.family, "Hack Nerd Font", "deferred group inherits label font")
 equal(latest(code, "background", "color"), colors.lavender, "selected group background")
 equal(latest(code, "label", "color"), colors.bg, "selected group label")
 equal(latest(items["group.1.browse"], "background", "color"), colors.transparent, "inactive group background")
@@ -222,6 +271,9 @@ expect(printed and printed:find("aerospace-group failed for teams", 1, true), "g
 
 local slack = assert(items["widgets.slack"], "Slack item is present")
 equal(slack.properties.update_freq, 30, "Slack interval")
+equal(slack.properties.icon.font.size, 14.0, "Slack inherits icon font")
+equal(slack.properties.padding_left, nil, "group item padding does not leak to Slack")
+equal(slack.properties.background, nil, "group background does not leak to Slack")
 local slack_initial = next_execution("lsappinfo")
 slack_initial.callback("unavailable", 1)
 equal(latest(slack, "icon", "color"), colors.muted, "unavailable Slack is muted")
@@ -238,6 +290,8 @@ equal(next_execution('/usr/bin/open -a "Slack"').command, '/usr/bin/open -a "Sla
 
 local clock = assert(items.clock, "clock item is present")
 equal(clock.properties.update_freq, 30, "clock interval")
+equal(clock.properties.label.color, colors.fg, "clock inherits foreground")
+equal(clock.properties.label.padding_left, 0, "clock inherits shared label padding")
 local clock_initial = next_execution("/bin/date")
 clock_initial.callback(" 09:42\n", 0)
 equal(latest(clock, "label", "string"), "09:42", "clock trims output")
@@ -250,5 +304,22 @@ equal(#clock.sets, clock_sets, "failed clock output preserves label")
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({}, 0)
 equal(group_count(1), 0, "valid empty snapshot clears groups")
+
+settings.bar.padding_left = 11
+settings.fonts.label.size = 15
+settings.groups.label_padding_left = 9
+dofile(config_dir .. "/bar.lua")
+dofile(config_dir .. "/defaults.lua")
+local changed_bar = calls[#calls - 1].value
+local changed_defaults = calls[#calls].value
+equal(changed_bar.padding_left, 11, "bar consumes changed shared padding")
+equal(changed_defaults.label.font.size, 15, "defaults consume changed label font size")
+observer.subscriptions.routine()
+next_execution("list-workspaces").callback({
+  { workspace = "code-main", ["monitor-appkit-nsscreen-screens-id"] = 3 },
+}, 0)
+equal(items["group.3.code"].properties.label.padding_left, 9, "deferred groups consume changed label padding")
+equal(items["group.3.code"].properties.label.font.size, 15, "deferred groups inherit changed defaults")
+equal(items["group.3.code"].properties.padding_left, 3, "font changes do not alter group geometry")
 
 print("PASS: SketchyBar Lua configuration")

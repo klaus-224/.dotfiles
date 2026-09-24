@@ -147,29 +147,17 @@ manual inspection before migrating an existing `~/.local/bin` directory symlink.
 AeroSpace manages tiled windows and workspaces, JankyBorders highlights the
 focused window, and SketchyBar displays workspace buttons and a clock.
 
-Workspace assignments:
-
-- `1`: Ghostty
-- `2`: Arc
-- `3`: development
-- `4`: communication
-- `5`: Spotify
-
-Use `option-h/j/k/l` to move focus, `option-shift-h/j/k/l` to move the focused
-window, and `option-1` through `option-5` to switch workspaces. Add `shift` to a
-workspace shortcut to move the focused window there.
-
-The app-home helper is `scripts/aerospace-home.sh`. It switches to an app's home
-workspace and opens or focuses the app. Repair misplaced windows with, for
-example:
-
-```sh
-~/.dotfiles/scripts/aerospace-home.sh --repair 1 com.mitchellh.ghostty
-```
+Named workspace groups include `code`, `browse`, `music`, `slack`, `discord`,
+and `teams`. Use `option-c/b/m/s/t` to switch to the corresponding group, and
+`option-tab` to change monitors. Group buttons perform the same actions through
+`scripts/aerospace-groups.sh`; both routes intentionally require two connected
+displays.
 
 Configuration lives in `aerospace/aerospace.toml`, `borders/bordersrc`, and
-`sketchybar/`. Home Manager links these directories into `~/.config`. After a
-configuration change, reload AeroSpace or restart the Homebrew services:
+`sketchybar/`. Home Manager links these directories into `~/.config`. See the
+[SketchyBar guide](sketchybar/README.md) for its module layout and shared style
+settings. After a configuration change, reload AeroSpace or restart the
+Homebrew services:
 
 ```sh
 aerospace reload-config

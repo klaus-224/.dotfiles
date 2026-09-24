@@ -1,5 +1,6 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
+local settings = require("settings")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
 local script = os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-groups.sh"
@@ -32,14 +33,20 @@ local function add_display(display)
     local item = sbar.add("item", "group." .. display .. "." .. group_id, {
       display = display,
       position = "left",
-      padding_left = 3,
-      padding_right = 3,
+      padding_left = settings.groups.item_padding_left,
+      padding_right = settings.groups.item_padding_right,
       icon = { drawing = false },
-      label = { string = group.label, color = colors.fg, padding_left = 8, padding_right = 8 },
+      label = {
+        string = group.label,
+        padding_left = settings.groups.label_padding_left,
+        padding_right = settings.groups.label_padding_right,
+      },
       background = {
         drawing = true, color = colors.transparent,
-        border_color = colors.lavender, border_width = 1,
-        corner_radius = 6, height = 24,
+        border_color = colors.lavender,
+        border_width = settings.groups.background_border_width,
+        corner_radius = settings.groups.background_corner_radius,
+        height = settings.groups.background_height,
       },
     })
     item:subscribe("mouse.clicked", function()
