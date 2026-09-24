@@ -52,14 +52,14 @@
     [
       "@plannotator/opencode@0.27.12",
       {
-        "workflow": "user-managed",
+        "workflow": [
+          "plan-agent"
+        ],
         "planningAgents": [
           "planner",
-          "orchestrator"
         ]
       }
     ],
-    "opentmux"
   ],
   "agent": {
     "chat": {
@@ -114,10 +114,8 @@
         },
         "skill": {
           "plannotator-annotate": "allow",
-          "submit_plan": "allow"
         },
         "bash": "deny",
-        "submit_plan": "allow",
         "external_directory": "ask"
       }
     },
@@ -189,8 +187,7 @@
           "just*": "allow",
           "ctx7 library*": "allow",
           "ctx7 docs*": "allow",
-          "plannotator review --commit *": "allow",
-          "plannotator review --branch *": "allow"
+          "plannotator review *": "allow",
         }
       },
     },
