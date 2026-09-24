@@ -2,50 +2,42 @@
 	editor = nvim
   hooksPath = ~/.dotfiles/git/hooks
 	excludesfile = ~/.dotfiles/git/.gitignore.global
-
 [init]
-	defaultBranch = main
-
+  defaultBranch = main
 [commit]
-    template = ~/.dotfiles/git/commit-template
-    verbose = true
-
+  template = ~/.dotfiles/git/commit-template
+  verbose = true
 [difftool "nvim_difftool"]
   cmd = nvim -c \"packadd nvim.difftool\" -d \"$LOCAL\" \"$REMOTE\"
-
 [diff]
   tool = nvim_difftool
-
 [merge]
-    tool = nvim_difftool
-
-[mergetool "nvim"]
-    cmd = nvim -d \"$LOCAL\" \"$BASE\" \"$REMOTE\" \"$MERGED\"
-    trustExitCode = false
-
+  tool = nvimdiff
+[mergetool]
+  prompt = false
+  keepBackup = false
+[mergetool "nvimdiff"]
+  layout = "LOCAL,BASE,REMOTE / MERGED"
 [pull]
 	rebase = true
 	ff = only
-
 [push]
 	autoSetupRemote = true
-
 [alias]
-    s = status --short --branch
-    d = diff
-    ds = diff --staged
-    ai = add --interactive
-    ap = add --patch
-    ci = commit --interactive
-    cp = commit --patch
-    ca = commit --amend --no-edit
-    r = restore
-    rs = restore --staged
-    dt = difftool
-    dts = difftool --staged
-    lg = log --graph --decorate --oneline --all
-    last = log -1 --stat
-
+  s = status --short --branch
+  d = diff
+  ds = diff --staged
+  ai = add --interactive
+  ap = add --patch
+  ci = commit --interactive
+  cp = commit --patch
+  ca = commit --amend --no-edit
+  r = restore
+  rs = restore --staged
+  dt = difftool
+  dts = difftool --staged
+  lg = log --graph --decorate --oneline --all
+  last = log -1 --stat
 [include]
 	path = ~/.dotfiles/git/.gitconfig.local
 [credential "https://github.com"]
