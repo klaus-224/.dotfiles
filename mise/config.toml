@@ -2,6 +2,7 @@
 tombi = "latest"
 "npm:yaml-language-server" = "latest"
 "npm:vscode-langservers-extracted" = "latest"
+"github:backnotprop/plannotator" = "latest"
 
 [settings]
 jobs = 10

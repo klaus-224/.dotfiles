@@ -30,7 +30,7 @@ end
 sbar.begin_config()
 
 require("bar")
-require("items.aerospace")
+require("items.aerospace-groups")
 -- require("items.slack")
 require("items.clock")
 

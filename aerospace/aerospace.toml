@@ -2,11 +2,7 @@ config-version = 2
 start-at-login = true
 auto-reload-config = true
 
-after-startup-command = [
-  # JankyBorders has a built-in detection of already running process,
-  # so it won't be run twice on AeroSpace restart
-  "exec-and-forget borders active_color=0xffc9b1ca inactive_color=0xffcdcdcd width=5.0"
-]
+after-startup-command = ["exec-and-forget borders active_color=0xffc9b1ca inactive_color=0xffcdcdcd width=5.0"]
 exec-on-workspace-change = ["/bin/bash", "-c", "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\""]
 
 default-root-container-layout = "tiles"
@@ -15,14 +11,28 @@ on-focused-monitor-changed = ["move-mouse monitor-lazy-center"]
 automatically-unhide-macos-hidden-apps = false
 focus-follows-mouse.enabled = false
 
-persistent-workspaces = ["1", "2", "3", "4", "5"]
+persistent-workspaces = [
+  "code-main",
+  "code-secondary",
+  "browse-main",
+  "browse-secondary",
+  "music",
+  "slack",
+  "discord",
+  "teams",
+  "teams-call",
+]
 
 [workspace-to-monitor-force-assignment]
-1 = ["main", "built-in"]
-2 = ["main", "built-in"]
-3 = ["secondary", "built-in"]
-4 = ["secondary", "built-in"]
-5 = ["secondary", "built-in"]
+code-main = "main"
+code-secondary = "secondary"
+browse-main = "main"
+browse-secondary = "secondary"
+music = "secondary"
+slack = "secondary"
+discord = "secondary"
+teams = "secondary"
+teams-call = "main"
 
 [gaps]
 inner.horizontal = 8
@@ -46,17 +56,11 @@ alt-shift-j = "move down"
 alt-shift-k = "move up"
 alt-shift-l = "move right"
 
-alt-1 = "workspace 1"
-alt-2 = "workspace 2"
-alt-3 = "workspace 3"
-alt-4 = "workspace 4"
-alt-5 = "workspace 5"
-
-alt-shift-1 = "move-node-to-workspace 1"
-alt-shift-2 = "move-node-to-workspace 2"
-alt-shift-3 = "move-node-to-workspace 3"
-alt-shift-4 = "move-node-to-workspace 4"
-alt-shift-5 = "move-node-to-workspace 5"
+alt-c = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh code"'
+alt-b = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh browse"'
+alt-s = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh slack"'
+alt-t = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh teams"'
+alt-m = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh music"'
 
 # Vim-like resizing
 alt-cmd-h = "resize width -25"
@@ -66,16 +70,16 @@ alt-cmd-l = "resize width +25"
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
-run = "move-node-to-workspace 1"
-
-[[on-window-detected]]
-if.app-id = "com.thebrowser.Browser"
-run = "move-node-to-workspace 2"
+run = "move-node-to-workspace code-main"
 
 [[on-window-detected]]
 if.app-id = "com.spotify.client"
-run = "move-node-to-workspace 3"
+run = "move-node-to-workspace music"
 
 [[on-window-detected]]
-if.app-id = "come.tinyspeck.slackmacgap"
-run = "move-node-to-workspace 4"
+if.app-id = "com.tinyspeck.slackmacgap"
+run = "move-node-to-workspace slack"
+
+[[on-window-detected]]
+if.app-id = "com.hnc.Discord"
+run = "move-node-to-workspace discord"
