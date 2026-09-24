@@ -278,12 +278,7 @@
           "git commit*--amend*": "deny",
           "git commit*--no-verify*": "deny",
           "just *": "allow",
-<<<<<<< HEAD
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow",
-=======
           "ctx7 *": "allow",
->>>>>>> 3ae168d (refactor(agents): plannotator perms)
           "plannotator review *": "allow"
         }
       },
