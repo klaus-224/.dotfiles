@@ -14,6 +14,7 @@ in
     aerospace.source = link "aerospace";
     borders.source = link "borders";
     sketchybar.source = link "sketchybar";
+    "gh/config.yml".source = link "gh/config.yml";
   };
 
   home.file = {
