@@ -9,5 +9,4 @@ rust = "latest"
 oxfmt = "latest"
 "nix:nixd" = "latest"
 "npm:ctx7" = "latest"
-
 "github:microsoft/typescript" = "latest"
