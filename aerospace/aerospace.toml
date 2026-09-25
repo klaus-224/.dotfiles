@@ -12,27 +12,26 @@ automatically-unhide-macos-hidden-apps = false
 focus-follows-mouse.enabled = false
 
 persistent-workspaces = [
-  "code-main",
-  "code-secondary",
-  "browse-main",
-  "browse-secondary",
-  "music",
-  "slack",
-  "discord",
-  "teams",
-  "teams-call",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
 ]
 
 [workspace-to-monitor-force-assignment]
-code-main = "main"
-code-secondary = "secondary"
-browse-main = "main"
-browse-secondary = "secondary"
-music = "secondary"
-slack = "secondary"
-discord = "secondary"
-teams = "secondary"
-teams-call = "main"
+1 = "main"
+2 = "secondary"
+3 = "secondary"
+4 = "secondary"
+5 = "secondary"
+# browse-main = "main"
+# browse-secondary = "secondary"
+# music = "secondary"
+# slack = "secondary"
+# discord = "secondary"
+# teams = "secondary"
+# teams-call = "main"
 
 [gaps]
 inner.horizontal = 8
@@ -56,11 +55,17 @@ alt-shift-j = "move down"
 alt-shift-k = "move up"
 alt-shift-l = "move right"
 
-alt-1 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh code"'
-alt-2 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh browse"'
-alt-3 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh slack"'
-alt-4 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh teams"'
-alt-5 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh music"'
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+
+# alt-1 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh code"'
+# alt-2 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh browse"'
+# alt-3 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh slack"'
+# alt-4 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh teams"'
+# alt-5 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh music"'
 
 # Vim-like resizing
 alt-cmd-h = "resize width -25"
@@ -70,16 +75,12 @@ alt-cmd-l = "resize width +25"
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
-run = "move-node-to-workspace code-main"
-
-[[on-window-detected]]
-if.app-id = "com.spotify.client"
-run = "move-node-to-workspace music"
+run = "move-node-to-workspace 1"
 
 [[on-window-detected]]
 if.app-id = "com.tinyspeck.slackmacgap"
-run = "move-node-to-workspace slack"
+run = "move-node-to-workspace 3"
 
 [[on-window-detected]]
-if.app-id = "com.hnc.Discord"
-run = "move-node-to-workspace discord"
+if.app-id = "com.spotify.client"
+run = "move-node-to-workspace 4"
