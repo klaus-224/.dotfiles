@@ -406,6 +406,10 @@ equal(media.properties.position, "center", "media is centered")
 equal(media.properties.drawing, false, "media starts hidden")
 equal(media.properties.updates, true, "media accepts events while hidden")
 equal(media_bracket.properties.drawing, false, "media bracket starts hidden")
+local media_initial = next_execution('application "Spotify" is running')
+media_initial.callback("playing|||Startup Song|||Startup Artist", 0)
+equal(latest(media, "label", "string"), "Startup Song – Startup Artist", "media syncs existing playback")
+equal(media.sets[#media.sets].drawing, true, "startup playback is visible")
 media.subscriptions.media_change({ INFO = {
   app = "Spotify", title = "I Wonder", artist = "Kanye West", state = "playing",
 } })
@@ -429,6 +433,8 @@ media.subscriptions.media_change({ INFO = {
 } })
 equal(media.sets[#media.sets].drawing, false, "paused media is hidden")
 equal(media_bracket.sets[#media_bracket.sets].drawing, false, "paused media bracket is hidden")
+media.subscriptions.routine()
+next_execution('application "Spotify" is running').callback("", 0)
 
 local right_additions = {}
 for _, call in ipairs(calls) do
