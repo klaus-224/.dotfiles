@@ -4,9 +4,7 @@
   "autoupdate": true,
   "default_agent": "chat",
   "shell": "zsh",
-  // use builtin opencode formatter 
   "formatter": true,
-  // use builtin opencode lsp 
   "lsp": {
     "typescript": {
       "command": [
@@ -41,10 +39,6 @@
   },
   "enabled_providers": [
     "github-copilot"
-  ],
-  "disabled_providers": [
-    "opencode",
-    "openai"
   ],
   "skills": {
     "paths": [
@@ -84,6 +78,7 @@
     "ticket-review": {
       "description": "Retrieve Jira intent and coordinate PR review followed by manual test planning.",
       "mode": "primary",
+      "model": "github-copilot/gpt-6-astra",
       "prompt": "{file:./prompts/ticket-review.md}",
       "permission": {
         "*": "deny",
@@ -107,6 +102,8 @@
     },
     "pr-review": {
       "description": "Inspect linked PR implementations and return evidence-backed manual test scenarios.",
+      "model": "github-copilot/claude-opus-5",
+      "variant": "default",
       "mode": "subagent",
       "hidden": true,
       "prompt": "{file:./prompts/pr-review.md}",
@@ -138,6 +135,7 @@
     },
     "test-planner": {
       "description": "Turn Jira requirements and completed PR findings into manual tests for the user.",
+      "model": "github-copilot/gpt-6-astra",
       "mode": "subagent",
       "hidden": true,
       "prompt": "{file:./prompts/test-planner.md}",
@@ -158,8 +156,7 @@
       "description": "Chat and collaboration agent.",
       "mode": "primary",
       "model": "github-copilot/gpt-6-astra",
-      "variant": "high",
-      "steps": 3,
+      "steps": 2,
       "prompt": "{file:./prompts/chat.md}",
       "permission": {
         "*": "deny",
@@ -243,8 +240,8 @@
     },
     "builder": {
       "prompt": "{file:./prompts/builder.md}",
-      "model": "github-copilot/gpt-5.6-sol",
-      "variant": "medium",
+      "model": "github-copilot/claude-opus-5",
+      "variant": "default",
       "permission": {
         "*": "deny",
         "read": "allow",
