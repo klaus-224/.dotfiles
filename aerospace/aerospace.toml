@@ -21,17 +21,10 @@ persistent-workspaces = [
 
 [workspace-to-monitor-force-assignment]
 1 = "main"
-2 = "secondary"
+2 = "main"
 3 = "secondary"
 4 = "secondary"
 5 = "secondary"
-# browse-main = "main"
-# browse-secondary = "secondary"
-# music = "secondary"
-# slack = "secondary"
-# discord = "secondary"
-# teams = "secondary"
-# teams-call = "main"
 
 [gaps]
 inner.horizontal = 8
@@ -61,11 +54,11 @@ alt-3 = 'workspace 3'
 alt-4 = 'workspace 4'
 alt-5 = 'workspace 5'
 
-# alt-1 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh code"'
-# alt-2 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh browse"'
-# alt-3 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh slack"'
-# alt-4 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh teams"'
-# alt-5 = 'exec-and-forget /bin/bash -lc "$HOME/.dotfiles/scripts/aerospace-groups.sh music"'
+alt-shift-1 = "move-node-to-workspace 1"
+alt-shift-2 = "move-node-to-workspace 2"
+alt-shift-3 = "move-node-to-workspace 3"
+alt-shift-4 = "move-node-to-workspace 4"
+alt-shift-5 = "move-node-to-workspace 5"
 
 # Vim-like resizing
 alt-cmd-h = "resize width -25"

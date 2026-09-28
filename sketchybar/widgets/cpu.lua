@@ -17,7 +17,7 @@ return {
       return { icon = { color = colors.muted }, label = { string = "" } }
     end
 
-    local color = colors.fg
+    local color = colors.yellow
     if usage > 80 then
       color = colors.red
     elseif usage > 50 then

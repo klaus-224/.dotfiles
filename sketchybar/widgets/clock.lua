@@ -1,6 +1,5 @@
 return {
   name = "clock",
-  icon = "󰃭",
   update_freq = 30,
   command = "/bin/date '+%a %d %b %H:%M'",
   parse = function(output)
