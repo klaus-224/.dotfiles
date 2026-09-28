@@ -11,15 +11,22 @@ function group.add(name, specs)
   -- Right-side items are inserted from right to left. Accept specs in visual
   -- left-to-right order so extending a group does not require mental reversal.
   for index = #specs, 1, -1 do
-    widget.add(specs[index], "right")
+    local spec = specs[index]
+    spec.item = spec.item or {}
+    if index == 1 then
+      spec.item.padding_left = settings.widgets.item_padding + settings.widgets.group_padding
+    end
+    if index == #specs then
+      spec.item.padding_right = settings.widgets.item_padding + settings.widgets.group_padding
+    end
+    widget.add(spec, "right")
     table.insert(members, 1, "widgets." .. specs[index].name)
   end
 
   local bracket = sbar.add("bracket", "bracket." .. name, members, {
     background = {
       color = colors.transparent,
-      border_color = colors.yellow,
-      border_width = settings.groups.background_border_width,
+      border_width = 0,
       corner_radius = settings.groups.background_corner_radius,
       height = settings.groups.background_height,
     },

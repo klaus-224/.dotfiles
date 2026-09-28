@@ -10,7 +10,12 @@ return {
     label_padding_right = 0,
   },
   widgets = {
-    group_gap = 6,
+    font = { family = "Hack Nerd Font", style = "Bold", size = 16.0 },
+    icon_label_gap = 6,
+    item_padding = 8,
+    group_gap = 16,
+    group_padding = 4,
+    y_offset = 0,
   },
   bar = {
     height = 36,

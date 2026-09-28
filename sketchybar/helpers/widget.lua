@@ -1,4 +1,5 @@
 local sbar = require("sketchybar")
+local settings = require("settings")
 
 local widget = {}
 
@@ -27,8 +28,20 @@ function widget.add(spec, position)
 
   local properties = merge({
     position = position or "right",
-    icon = { string = spec.icon or "" },
-    label = { string = "" },
+    padding_left = settings.widgets.item_padding,
+    padding_right = settings.widgets.item_padding,
+    icon = {
+      string = spec.icon or "",
+      font = settings.widgets.font,
+      padding_right = 0,
+      y_offset = settings.widgets.y_offset,
+    },
+    label = {
+      string = "",
+      drawing = false,
+      font = settings.widgets.font,
+      y_offset = settings.widgets.y_offset,
+    },
   }, spec.item)
 
   if spec.update_freq then properties.update_freq = spec.update_freq end
@@ -36,7 +49,15 @@ function widget.add(spec, position)
   local item = sbar.add("item", "widgets." .. spec.name, properties)
 
   local function render(state)
-    if spec.render then item:set(spec.render(state)) end
+    if not spec.render then return end
+
+    local rendered = spec.render(state) or {}
+    local label = rendered.label and rendered.label.string
+    rendered.icon = rendered.icon or {}
+    rendered.label = rendered.label or {}
+    rendered.icon.padding_right = label and label ~= "" and settings.widgets.icon_label_gap or 0
+    rendered.label.drawing = label and label ~= "" or false
+    item:set(rendered)
   end
 
   local function refresh()
