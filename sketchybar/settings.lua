@@ -9,6 +9,9 @@ return {
     label_padding_left = 0,
     label_padding_right = 0,
   },
+  widgets = {
+    group_gap = 6,
+  },
   bar = {
     height = 36,
     padding_left = 8,

@@ -11,13 +11,26 @@ owns SbarLua loading, configuration batching, hotload, and the event loop.
 - `bar.lua`: bar-only placement, display association, and appearance
 - `defaults.lua`: properties inherited by every subsequently created item
 - `items/init.lua`: explicit item import order
-- `items/*.lua`: widget definitions, subscriptions, refresh logic, and meaningful overrides
+- `items/*.lua`: dynamic items that need direct access to SbarLua
+- `widgets/*.lua`: declarative widget specifications
+- `helpers/widget.lua`: shared item creation, refresh, parsing, rendering, and click wiring
+- `helpers/group.lua`: right-side ordering, bracket styling, and group spacing
 
 Change icon and label fonts in `settings.fonts`, shared text padding in
 `settings.item`, bar dimensions in `settings.bar`, and workspace-button spacing
 and dimensions in `settings.groups`. Change palette values in `colors.lua`.
 State-dependent colors, update intervals, icons, and command behavior stay with
 their item modules.
+
+## Adding a widget
+
+Add a module under `widgets/` that returns a widget specification, then include
+it in a `group.add` call in `items/init.lua`. A specification names the widget
+and can provide its icon, update interval, events, command, parser, renderer,
+and click action. The shared widget helper owns subscriptions, command execution,
+error handling, and the initial refresh. Group members are declared in visual
+left-to-right order; the group helper handles SketchyBar's reversed right-side
+insertion order and creates the surrounding bracket.
 
 The font values (`Hack Nerd Font`, Bold, 14) record the effective defaults
 queried from the running SketchyBar configuration before this layout was

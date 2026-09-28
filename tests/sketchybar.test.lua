@@ -276,9 +276,9 @@ local slack_initial = next_execution("lsappinfo")
 slack_initial.callback("unavailable", 1)
 equal(latest(slack, "icon", "color"), colors.muted, "unavailable Slack is muted")
 slack.subscriptions.routine(); next_execution("lsappinfo").callback('"label"=""', 0)
-equal(latest(slack, "icon", "color"), colors.green, "empty Slack status is green")
+equal(latest(slack, "icon", "color"), colors.red, "empty Slack status is red")
 slack.subscriptions.forced(); next_execution("lsappinfo").callback('"label" = "•"', 0)
-equal(latest(slack, "icon", "color"), colors.yellow, "bullet Slack status is yellow")
+equal(latest(slack, "icon", "color"), colors.red, "bullet Slack status is red")
 slack.subscriptions.aerospace_workspace_change(); next_execution("lsappinfo").callback('"label" = "12"', 0)
 equal(latest(slack, "icon", "color"), colors.red, "numeric Slack status is red")
 slack.subscriptions.routine(); next_execution("lsappinfo").callback('"label" = "?"', 0)
@@ -286,18 +286,46 @@ equal(latest(slack, "icon", "color"), colors.muted, "unknown Slack status is mut
 slack.subscriptions["mouse.clicked"]()
 equal(next_execution('/usr/bin/open -a "Slack"').command, '/usr/bin/open -a "Slack"', "Slack click opens Slack")
 
-local clock = assert(items.clock, "clock item is present")
+local clock = assert(items["widgets.clock"], "clock item is present")
 equal(clock.properties.update_freq, 30, "clock interval")
 equal(clock.properties.label.color, colors.fg, "clock inherits foreground")
 equal(clock.properties.label.padding_left, 0, "clock inherits shared label padding")
 local clock_initial = next_execution("/bin/date")
+equal(clock_initial.command, "/bin/date '+%a %d %b %H:%M'", "clock requests date and time")
 clock_initial.callback(" 09:42\n", 0)
 equal(latest(clock, "label", "string"), "09:42", "clock trims output")
 local clock_sets = #clock.sets
 clock.subscriptions.routine(); next_execution("/bin/date").callback("", 0)
-equal(#clock.sets, clock_sets, "empty clock output preserves label")
+equal(#clock.sets, clock_sets + 1, "empty clock output renders unavailable state")
 clock.subscriptions.forced(); next_execution("/bin/date").callback("ignored", 1)
-equal(#clock.sets, clock_sets, "failed clock output preserves label")
+equal(#clock.sets, clock_sets + 2, "failed clock output renders unavailable state")
+
+local clock_bracket = assert(items["bracket.clock"], "clock bracket is present")
+equal(clock_bracket.kind, "bracket", "clock group creates a bracket")
+equal(table.concat(clock_bracket.members, ","), "widgets.clock", "clock bracket membership")
+local socials_bracket = assert(items["bracket.socials"], "socials bracket is present")
+equal(table.concat(socials_bracket.members, ","), "widgets.slack", "socials bracket membership")
+equal(socials_bracket.properties.background.border_color, colors.yellow, "widget bracket border")
+
+local widget = require("helpers.widget")
+local function_spec = {
+  name = "function-test",
+  command = "function-test-command",
+  parse = function(output) return output == "valid" and output or nil end,
+  render = function(value) return { label = { string = value or "unavailable" } } end,
+  on_click = function(item) item:set({ icon = { color = colors.blue } }) end,
+}
+local function_item = widget.add(function_spec)
+next_execution("function-test-command").callback("invalid", 0)
+equal(latest(function_item, "label", "string"), "unavailable", "nil parse renders unavailable state")
+function_item.subscriptions.routine()
+next_execution("function-test-command").callback("valid", 0)
+equal(latest(function_item, "label", "string"), "valid", "default events refresh widget")
+function_item.subscriptions.forced()
+next_execution("function-test-command").callback("valid", 1)
+equal(latest(function_item, "label", "string"), "unavailable", "failed command renders unavailable state")
+function_item.subscriptions["mouse.clicked"]()
+equal(latest(function_item, "icon", "color"), colors.blue, "function click handler receives item")
 
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({}, 0)
