@@ -18,6 +18,11 @@ export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
 # glow 
 export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"
 
+# non-interactive shells can use mise environment and tools
+typeset -U path PATH
+path=("$HOME/.local/share/mise/shims" "${path[@]}")
+export PATH
+
 if [[ $USER == "klaus224" ]]; then
     export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
   else
