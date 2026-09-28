@@ -58,11 +58,17 @@ function sbar.default(properties)
   merge(default_properties, properties)
   record("default", properties)
 end
-function sbar.add(kind, name, properties)
+function sbar.add(kind, name, properties, bracket_properties)
+  local members
+  if kind == "bracket" then
+    members = properties
+    properties = bracket_properties
+  end
   local effective = merge(copy(default_properties), properties or {})
   local item = {
     kind = kind,
     name = name,
+    members = members,
     declared = properties or {},
     properties = effective,
     subscriptions = {},
@@ -127,10 +133,10 @@ local function count_calls(kind)
   return count
 end
 
-local function group_count(display)
+local function workspace_count(display)
   local count = 0
   for name in pairs(items) do
-    if name:match("^group%." .. display .. "%.") then count = count + 1 end
+    if name:match("^workspace%." .. display .. "%.") then count = count + 1 end
   end
   return count
 end
@@ -202,72 +208,64 @@ local initial = next_execution("list-workspaces")
 expect(initial.command:find("--monitor all --visible --json", 1, true), "query requests visible JSON workspaces")
 expect(initial.command:find("monitor-appkit-nsscreen-screens-id", 1, true), "query requests AppKit display IDs")
 initial.callback("unavailable", 1)
-equal(group_count(1), 0, "failed discovery preserves empty registry")
+equal(workspace_count(1), 0, "failed discovery preserves empty registry")
 
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({
-  { workspace = "code-main", ["monitor-appkit-nsscreen-screens-id"] = 1 },
-  { workspace = "browse-secondary", ["monitor-appkit-nsscreen-screens-id"] = "2" },
+  { workspace = "1", ["monitor-appkit-nsscreen-screens-id"] = 1 },
+  { workspace = "2", ["monitor-appkit-nsscreen-screens-id"] = "2" },
 }, 0)
-equal(group_count(1), 6, "first display receives six groups")
-equal(group_count(2), 6, "second display receives six groups")
-local code = assert(items["group.1.code"])
-local browse = assert(items["group.2.browse"])
-equal(code.properties.position, "left", "group position")
-equal(code.properties.padding_left, 3, "group padding")
-equal(code.properties.label.string, "Code", "group label")
-equal(code.properties.label.padding_left, 8, "group label override")
-equal(code.properties.label.font.family, "Hack Nerd Font", "deferred group inherits label font")
-equal(latest(code, "background", "color"), colors.lavender, "selected group background")
-equal(latest(code, "label", "color"), colors.bg, "selected group label")
-equal(latest(items["group.1.browse"], "background", "color"), colors.transparent, "inactive group background")
-equal(latest(browse, "label", "color"), colors.bg, "second display selection")
+equal(workspace_count(1), 5, "first display receives five workspaces")
+equal(workspace_count(2), 5, "second display receives five workspaces")
+local workspace_one = assert(items["workspace.1.1"])
+local workspace_two = assert(items["workspace.2.2"])
+equal(workspace_one.properties.position, "left", "workspace position")
+equal(workspace_one.properties.padding_left, 3, "workspace padding")
+equal(workspace_one.properties.label.string, "1", "workspace label")
+equal(workspace_one.properties.label.padding_left, 8, "workspace label override")
+equal(workspace_one.properties.label.font.family, "Hack Nerd Font", "deferred workspace inherits label font")
+equal(latest(workspace_one, "background", "color"), colors.yellow, "selected workspace background")
+equal(latest(workspace_one, "label", "color"), colors.bg, "selected workspace label")
+equal(latest(items["workspace.1.2"], "background", "color"), colors.transparent, "inactive workspace background")
+equal(latest(workspace_two, "label", "color"), colors.bg, "second display selection")
 
 local additions, removals = count_calls("add"), count_calls("remove")
 observer.subscriptions.forced()
 next_execution("list-workspaces").callback({
-  { workspace = "code-main", ["monitor-appkit-nsscreen-screens-id"] = 1 },
-  { workspace = "browse-secondary", ["monitor-appkit-nsscreen-screens-id"] = 2 },
+  { workspace = "1", ["monitor-appkit-nsscreen-screens-id"] = 1 },
+  { workspace = "2", ["monitor-appkit-nsscreen-screens-id"] = 2 },
 }, 0)
 equal(count_calls("add"), additions, "unchanged snapshot does not duplicate items")
 equal(count_calls("remove"), removals, "unchanged snapshot does not remove items")
 
 observer.subscriptions.display_change()
 next_execution("list-workspaces").callback({
-  { workspace = "music", ["monitor-appkit-nsscreen-screens-id"] = 1 },
+  { workspace = "3", ["monitor-appkit-nsscreen-screens-id"] = 1 },
 }, 0)
-equal(group_count(2), 0, "disconnected display groups are removed")
-equal(group_count(1), 6, "remaining display groups are retained")
+equal(workspace_count(2), 0, "disconnected display workspaces are removed")
+equal(workspace_count(1), 5, "remaining display workspaces are retained")
 
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback("malformed", 0)
-equal(group_count(1), 6, "malformed discovery preserves registry")
+equal(workspace_count(1), 5, "malformed discovery preserves registry")
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({}, 1)
-equal(group_count(1), 6, "failed discovery preserves registry")
+equal(workspace_count(1), 5, "failed discovery preserves registry")
 
 observer.subscriptions.routine()
 observer.subscriptions.aerospace_workspace_change()
 local stale = next_execution("list-workspaces")
-stale.callback({ { workspace = "slack", ["monitor-appkit-nsscreen-screens-id"] = 1 } }, 0)
-equal(latest(items["group.1.music"], "background", "color"), colors.lavender, "superseded snapshot is discarded")
+stale.callback({ { workspace = "4", ["monitor-appkit-nsscreen-screens-id"] = 1 } }, 0)
+equal(latest(items["workspace.1.3"], "background", "color"), colors.yellow, "superseded snapshot is discarded")
 next_execution("list-workspaces").callback({
-  { workspace = "teams-call", ["monitor-appkit-nsscreen-screens-id"] = 1 },
+  { workspace = "5", ["monitor-appkit-nsscreen-screens-id"] = 1 },
 }, 0)
-equal(latest(items["group.1.teams"], "background", "color"), colors.lavender, "queued refresh applies newest snapshot")
+equal(latest(items["workspace.1.5"], "background", "color"), colors.yellow, "queued refresh applies newest snapshot")
 
-local click_item = items["group.1.teams"]
+local click_item = items["workspace.1.5"]
 click_item.subscriptions["mouse.clicked"]()
-local click = next_execution("aerospace-groups.sh")
-equal(click.command, "/bin/bash '" .. os.getenv("HOME") .. "/.dotfiles/scripts/aerospace-groups.sh' 'teams'", "group click uses shell helper")
-click.callback("", 0)
-local printed
-local real_print = print
-print = function(message) printed = message end
-click_item.subscriptions["mouse.clicked"]()
-next_execution("aerospace-groups.sh").callback("", 1)
-print = real_print
-expect(printed and printed:find("aerospace-group failed for teams", 1, true), "group click failure is reported")
+local click = next_execution(" workspace ")
+equal(click.command, "'/opt/homebrew/bin/aerospace' workspace '5'", "workspace click invokes AeroSpace")
 
 local slack = assert(items["widgets.slack"], "Slack item is present")
 equal(slack.properties.update_freq, 30, "Slack interval")
@@ -303,7 +301,7 @@ equal(#clock.sets, clock_sets, "failed clock output preserves label")
 
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({}, 0)
-equal(group_count(1), 0, "valid empty snapshot clears groups")
+equal(workspace_count(1), 0, "valid empty snapshot clears workspaces")
 
 settings.bar.padding_left = 11
 settings.fonts.label.size = 15
@@ -316,10 +314,10 @@ equal(changed_bar.padding_left, 11, "bar consumes changed shared padding")
 equal(changed_defaults.label.font.size, 15, "defaults consume changed label font size")
 observer.subscriptions.routine()
 next_execution("list-workspaces").callback({
-  { workspace = "code-main", ["monitor-appkit-nsscreen-screens-id"] = 3 },
+  { workspace = "1", ["monitor-appkit-nsscreen-screens-id"] = 3 },
 }, 0)
-equal(items["group.3.code"].properties.label.padding_left, 9, "deferred groups consume changed label padding")
-equal(items["group.3.code"].properties.label.font.size, 15, "deferred groups inherit changed defaults")
-equal(items["group.3.code"].properties.padding_left, 3, "font changes do not alter group geometry")
+equal(items["workspace.3.1"].properties.label.padding_left, 9, "deferred workspaces consume changed label padding")
+equal(items["workspace.3.1"].properties.label.font.size, 15, "deferred workspaces inherit changed defaults")
+equal(items["workspace.3.1"].properties.padding_left, 3, "font changes do not alter workspace geometry")
 
 print("PASS: SketchyBar Lua configuration")
