@@ -397,6 +397,39 @@ equal(table.concat(metrics_bracket.members, ","), "widgets.cpu,widgets.battery,w
 equal(items["spacer.socials"].properties.width, 8, "socials group gap")
 equal(items["spacer.metrics"].properties.width, 8, "metrics group gap")
 
+local media = assert(items["media.now_playing"], "media item is present")
+local media_previous = assert(items["media.previous"], "media previous control is present")
+local media_play_pause = assert(items["media.play_pause"], "media play-pause control is present")
+local media_next = assert(items["media.next"], "media next control is present")
+local media_bracket = assert(items["media.bracket"], "media bracket is present")
+equal(media.properties.position, "center", "media is centered")
+equal(media.properties.drawing, false, "media starts hidden")
+equal(media_bracket.properties.drawing, false, "media bracket starts hidden")
+media.subscriptions.media_change({
+  app = "Spotify",
+  title = "I Wonder",
+  artist = "Kanye West",
+  state = "playing",
+})
+equal(latest(media, "label", "string"), "I Wonder – Kanye West", "media renders title and artist")
+equal(media.sets[#media.sets].drawing, true, "playing media is visible")
+equal(media_bracket.sets[#media_bracket.sets].drawing, true, "playing media bracket is visible")
+media_previous.subscriptions["mouse.clicked"]()
+equal(next_execution('previous track').command,
+  "/usr/bin/osascript -e 'tell application \"Spotify\" to previous track' >/dev/null 2>&1",
+  "media previous control targets current app")
+media_play_pause.subscriptions["mouse.clicked"]()
+equal(next_execution('playpause').command,
+  "/usr/bin/osascript -e 'tell application \"Spotify\" to playpause' >/dev/null 2>&1",
+  "media play-pause control targets current app")
+media_next.subscriptions["mouse.clicked"]()
+equal(next_execution('next track').command,
+  "/usr/bin/osascript -e 'tell application \"Spotify\" to next track' >/dev/null 2>&1",
+  "media next control targets current app")
+media.subscriptions.media_change({ app = "Spotify", title = "I Wonder", state = "paused" })
+equal(media.sets[#media.sets].drawing, false, "paused media is hidden")
+equal(media_bracket.sets[#media_bracket.sets].drawing, false, "paused media bracket is hidden")
+
 local right_additions = {}
 for _, call in ipairs(calls) do
   if call.kind == "add" and call.value.kind == "item" and call.value.properties.position == "right"

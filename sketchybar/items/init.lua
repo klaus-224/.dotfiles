@@ -1,4 +1,6 @@
 require("items.aerospace-groups")
+-- Center-positioned media is independent of right-side group insertion order.
+require("items.media")
 
 local group = require("helpers.group")
 
