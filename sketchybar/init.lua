@@ -27,12 +27,10 @@ if not loaded then
   )
 end
 
-sbar.begin_config()
 local pill = require("helpers.pill")
-require("bar")
-require("defaults")
-require("widgets.aerospace")
 
+-- Right-side pills in insertion order. SketchyBar inserts right-side items from
+-- right to left, so this is the reverse of the visual order.
 local right_pills = {
   "battery",
   "time",
@@ -43,6 +41,15 @@ local right_pills = {
   "teams",
   "slack",
 }
+
+sbar.begin_config()
+
+sbar.bar(require("bar"))
+sbar.default(require("defaults"))
+
+-- AeroSpace is a self-contained dynamic integration and registers its custom
+-- event, so it is loaded before the widgets that subscribe to it.
+require("widgets.aerospace")
 
 for _, name in ipairs(right_pills) do
   pill.add(require("widgets." .. name), "right")
