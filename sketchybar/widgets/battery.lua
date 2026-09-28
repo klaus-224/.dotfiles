@@ -31,24 +31,24 @@ return {
     end
 
     local icon = icons.full
+    local color = colors.fg
     if state.charging then
       icon = icons.charging
+      color = colors.green
     elseif state.percentage <= 10 then
       icon = icons.empty
+      color = colors.red
     elseif state.percentage <= 30 then
       icon = icons.low
+      color = colors.red
     elseif state.percentage <= 60 then
       icon = icons.medium
+      color = colors.yellow
     elseif state.percentage <= 90 then
       icon = icons.high
+      color = colors.green
     end
 
-    local color = colors.fg
-    if state.percentage <= 20 then
-      color = colors.red
-    elseif state.percentage <= 40 then
-      color = colors.yellow
-    end
     return {
       icon = { string = icon, color = color },
       label = { string = state.percentage .. "%" },

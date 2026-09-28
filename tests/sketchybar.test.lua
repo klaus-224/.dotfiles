@@ -335,6 +335,8 @@ wifi.subscriptions.wifi_change(); next_execution("ipconfig getsummary").callback
 equal(latest(wifi, "label", "string"), "", "hidden SSID has empty label")
 wifi.subscriptions.routine(); next_execution("ipconfig getsummary").callback("disconnected", 0)
 equal(latest(wifi, "icon", "color"), colors.muted, "disconnected Wi-Fi is muted")
+wifi.subscriptions["mouse.clicked"]()
+equal(next_execution("com.apple.wifi-settings-extension").command, "/usr/bin/open x-apple.systempreferences:com.apple.wifi-settings-extension", "Wi-Fi click opens settings")
 
 local bluetooth = assert(items["widgets.bluetooth"], "Bluetooth item is present")
 equal(bluetooth.properties.update_freq, 30, "Bluetooth interval")

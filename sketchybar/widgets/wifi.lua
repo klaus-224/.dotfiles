@@ -33,4 +33,5 @@ fi']=],
       label = { string = state.ssid or "" },
     }
   end,
+  on_click = "/usr/bin/open x-apple.systempreferences:com.apple.wifi-settings-extension",
 }
