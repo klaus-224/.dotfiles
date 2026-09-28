@@ -8,7 +8,6 @@ return {
     return value ~= "" and value or nil
   end,
   render = function(value)
-    if not value then return {} end
-    return { label = { string = value } }
+    return { label = { string = value or "" } }
   end,
 }

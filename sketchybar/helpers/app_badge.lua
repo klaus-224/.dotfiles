@@ -1,4 +1,5 @@
 local colors = require("colors")
+local style = require("helpers.style")
 
 local function quote(value)
   return '"' .. value:gsub('"', '\\"') .. '"'
@@ -7,8 +8,11 @@ end
 return function(options)
   return {
     name = options.name,
-    icon = options.icon,
-    label_width = options.label_width,
+    item = style.resolve({
+      icon = { string = options.icon },
+      label = { width = options.label_width },
+    }, options.item),
+    pill = options.pill,
     update_freq = 30,
     command = '/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
       .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ ' .. quote(options.app),

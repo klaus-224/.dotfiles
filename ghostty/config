@@ -9,11 +9,17 @@ font-size = 16
 cursor-opacity = 1
 cursor-color= "#f8ce9d"
 bold-is-bright = true
-background-opacity = 1
-background-blur-radius = 10
+background-opacity = 0.76
+background-blur-radius = 30
+
+# background = #252530
+# background-opacity = 0.76
+# background-blur = macos-glass-clear
+background-opacity-cells = true
+
 selection-background = "#0a385c"
 window-padding-x = 1
-window-padding-y = 10,0
+window-padding-y = 0,0
 window-padding-color = extend
 window-padding-balance = false
 window-vsync = true
@@ -25,7 +31,7 @@ bell-features = border
 desktop-notifications = false
 
 fullscreen = false
-window-decoration = true
+window-decoration = false
 macos-titlebar-style = hidden
 macos-non-native-fullscreen = true
 

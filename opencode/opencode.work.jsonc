@@ -183,7 +183,7 @@
     "planner": {
       "description": "Produces evidence-backed implementation plans and submits them for human approval before code changes begin.",
       "model": "github-copilot/gpt-6-astra",
-      "variant": "high",
+      "variant": "xhigh",
       "mode": "primary",
       "prompt": "{file:./prompts/planner.md}",
       "permission": {

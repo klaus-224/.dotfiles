@@ -1,7 +1,9 @@
 return {
   name = "time",
-  icon = "󰥔",
-  label_width = 42,
+  item = {
+    icon = { string = "󰥔" },
+    label = { width = 42 },
+  },
   update_freq = 30,
   command = "/bin/date '+%H:%M'",
   parse = function(output)
