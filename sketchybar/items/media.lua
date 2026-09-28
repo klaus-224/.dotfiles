@@ -8,6 +8,7 @@ local current_app
 local function media_item(name, properties)
   properties.position = "center"
   properties.drawing = false
+  properties.updates = true
   return sbar.add("item", "media." .. name, properties)
 end
 
@@ -73,7 +74,8 @@ local function set_drawing(drawing)
   bracket:set({ drawing = drawing })
 end
 
-now_playing:subscribe("media_change", function(info)
+now_playing:subscribe("media_change", function(env)
+  local info = type(env) == "table" and env.INFO or nil
   info = type(info) == "table" and info or {}
   current_app = info.app
 
