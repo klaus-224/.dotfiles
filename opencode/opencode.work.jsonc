@@ -77,7 +77,7 @@
     "test-plan": {
       "description": "Create a manual test plan from a Jira ticket and linked PRs",
       "agent": "ticket-review",
-      "template": "{file:./prompts/jira-test-plan-command.md}"
+      "template": "{file:./commands/jira-test-plan-command.md}"
     }
   },
   "agent": {
@@ -304,103 +304,6 @@
       },
       "plan": {
         "hidden": true
-      }
-    },
-    "audit-orchestrator": {
-      "description": "Coordinates approved configuration audits in isolated worktrees.",
-      "mode": "primary",
-      "model": "github-copilot/gpt-6-astra",
-      "reasoning": "high",
-      "prompt": "{file:./prompts/audit-orchestrator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "question": "allow",
-        "webfetch": "allow",
-        "doom_loop": "ask",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "simple-coding": "allow"
-        },
-        "task": {
-          "*": "deny",
-          "audit-worker": "allow"
-        },
-        "external_directory": {
-          "*": "deny",
-          "~/.dotfiles/**": "allow",
-          "~/code/dotfiles-audit": "allow",
-          "~/code/dotfiles-audit/**": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "mkdir": "allow",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git worktree list*": "allow",
-          "git commit*": "deny",
-          "git * commit*": "deny",
-          "git push*": "deny",
-          "git * push*": "deny",
-          "git reset*": "deny",
-          "git * reset*": "deny",
-          "git clean*": "deny",
-          "git * clean*": "deny"
-        }
-      }
-    },
-    "audit-worker": {
-      "description": "Implements only assigned audit checkpoints without further delegation.",
-      "mode": "subagent",
-      "hidden": true,
-      "prompt": "{file:./prompts/audit-worker.md}",
-      "model": "github-copilot/claude-opus-4.7",
-      "variant": "medium",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "doom_loop": "ask",
-        "task": "deny",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "simple-coding": "allow"
-        },
-        "external_directory": {
-          "*": "deny",
-        },
-        "bash": {
-          "*": "ask",
-          "mkdir": "allow",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git commit*": "deny",
-          "git * commit*": "deny",
-          "git push*": "deny",
-          "git * push*": "deny",
-          "git reset*": "deny",
-          "git * reset*": "deny",
-          "git clean*": "deny",
-          "git * clean*": "deny",
-          "plannotator review --commit *": "allow",
-          "plannotator review --branch *": "allow"
-        }
       }
     },
     "general": {
