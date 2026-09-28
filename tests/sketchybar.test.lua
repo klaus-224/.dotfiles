@@ -272,19 +272,74 @@ equal(slack.properties.update_freq, 30, "Slack interval")
 equal(slack.properties.icon.font.size, 14.0, "Slack inherits icon font")
 equal(slack.properties.padding_left, nil, "group item padding does not leak to Slack")
 equal(slack.properties.background, nil, "group background does not leak to Slack")
-local slack_initial = next_execution("lsappinfo")
+local slack_initial = next_execution('StatusLabel "Slack"')
 slack_initial.callback("unavailable", 1)
 equal(latest(slack, "icon", "color"), colors.muted, "unavailable Slack is muted")
-slack.subscriptions.routine(); next_execution("lsappinfo").callback('"label"=""', 0)
+slack.subscriptions.routine(); next_execution('StatusLabel "Slack"').callback('"label"=""', 0)
 equal(latest(slack, "icon", "color"), colors.red, "empty Slack status is red")
-slack.subscriptions.forced(); next_execution("lsappinfo").callback('"label" = "•"', 0)
+slack.subscriptions.forced(); next_execution('StatusLabel "Slack"').callback('"label" = "•"', 0)
 equal(latest(slack, "icon", "color"), colors.red, "bullet Slack status is red")
-slack.subscriptions.aerospace_workspace_change(); next_execution("lsappinfo").callback('"label" = "12"', 0)
+slack.subscriptions.aerospace_workspace_change(); next_execution('StatusLabel "Slack"').callback('"label" = "12"', 0)
 equal(latest(slack, "icon", "color"), colors.red, "numeric Slack status is red")
-slack.subscriptions.routine(); next_execution("lsappinfo").callback('"label" = "?"', 0)
+slack.subscriptions.routine(); next_execution('StatusLabel "Slack"').callback('"label" = "?"', 0)
 equal(latest(slack, "icon", "color"), colors.muted, "unknown Slack status is muted")
 slack.subscriptions["mouse.clicked"]()
 equal(next_execution('/usr/bin/open -a "Slack"').command, '/usr/bin/open -a "Slack"', "Slack click opens Slack")
+
+local teams = assert(items["widgets.teams"], "Teams item is present")
+next_execution('StatusLabel "Microsoft Teams"').callback('"label" = "4"', 0)
+equal(latest(teams, "icon", "color"), colors.blue, "Teams badge is blue")
+equal(latest(teams, "label", "string"), "4", "Teams badge count")
+teams.subscriptions.routine(); next_execution('StatusLabel "Microsoft Teams"').callback("unavailable", 1)
+equal(latest(teams, "icon", "color"), colors.muted, "unavailable Teams is muted")
+teams.subscriptions["mouse.clicked"]()
+equal(next_execution('/usr/bin/open -a "Microsoft Teams"').command, '/usr/bin/open -a "Microsoft Teams"', "Teams click opens Teams")
+
+local cpu = assert(items["widgets.cpu"], "CPU item is present")
+equal(cpu.properties.update_freq, 3, "CPU interval")
+next_execution("CPU usage").callback("CPU usage: 20.5% user, 10.4% sys, 69.1% idle", 0)
+equal(latest(cpu, "label", "string"), "31%", "CPU sums user and system usage")
+equal(latest(cpu, "icon", "color"), colors.fg, "normal CPU uses foreground")
+cpu.subscriptions.routine(); next_execution("CPU usage").callback("CPU usage: 45% user, 10% sys, 45% idle", 0)
+equal(latest(cpu, "icon", "color"), colors.yellow, "elevated CPU is yellow")
+cpu.subscriptions.forced(); next_execution("CPU usage").callback("CPU usage: 70% user, 15% sys, 15% idle", 0)
+equal(latest(cpu, "icon", "color"), colors.red, "high CPU is red")
+
+local battery = assert(items["widgets.battery"], "battery item is present")
+equal(battery.properties.update_freq, 120, "battery interval")
+for _, event in ipairs({ "routine", "forced", "power_source_change", "system_woke" }) do
+  expect(type(battery.subscriptions[event]) == "function", "battery subscribes to " .. event)
+end
+next_execution("pmset -g batt").callback("Now drawing from 'Battery Power'\n -InternalBattery-0 18%; discharging", 0)
+equal(latest(battery, "label", "string"), "18%", "battery percentage")
+equal(latest(battery, "icon", "color"), colors.red, "low battery is red")
+battery.subscriptions.power_source_change()
+next_execution("pmset -g batt").callback("Now drawing from 'AC Power'\n -InternalBattery-0 75%; charging", 0)
+equal(latest(battery, "icon", "string"), "󰂄", "charging battery uses charging icon")
+
+local wifi = assert(items["widgets.wifi"], "Wi-Fi item is present")
+equal(wifi.properties.update_freq, 30, "Wi-Fi interval")
+for _, event in ipairs({ "routine", "forced", "wifi_change", "system_woke" }) do
+  expect(type(wifi.subscriptions[event]) == "function", "Wi-Fi subscribes to " .. event)
+end
+next_execution("ipconfig getsummary").callback("ssid:Office", 0)
+equal(latest(wifi, "label", "string"), "Office", "Wi-Fi shows SSID")
+equal(latest(wifi, "icon", "color"), colors.fg, "connected Wi-Fi uses foreground")
+wifi.subscriptions.wifi_change(); next_execution("ipconfig getsummary").callback("connected", 0)
+equal(latest(wifi, "label", "string"), "", "hidden SSID has empty label")
+wifi.subscriptions.routine(); next_execution("ipconfig getsummary").callback("disconnected", 0)
+equal(latest(wifi, "icon", "color"), colors.muted, "disconnected Wi-Fi is muted")
+
+local bluetooth = assert(items["widgets.bluetooth"], "Bluetooth item is present")
+equal(bluetooth.properties.update_freq, 30, "Bluetooth interval")
+next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: Off", 0)
+equal(latest(bluetooth, "icon", "color"), colors.muted, "disabled Bluetooth is muted")
+bluetooth.subscriptions.routine(); next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: On", 0)
+equal(latest(bluetooth, "icon", "color"), colors.fg, "enabled Bluetooth uses foreground")
+bluetooth.subscriptions.forced(); next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: On\n  Connected:\n    Headphones:\n      Address: 00", 0)
+equal(latest(bluetooth, "icon", "color"), colors.blue, "connected Bluetooth is blue")
+bluetooth.subscriptions["mouse.clicked"]()
+equal(next_execution("com.apple.BluetoothSettings").command, "/usr/bin/open x-apple.systempreferences:com.apple.BluetoothSettings", "Bluetooth click opens settings")
 
 local clock = assert(items["widgets.clock"], "clock item is present")
 equal(clock.properties.update_freq, 30, "clock interval")
@@ -304,8 +359,22 @@ local clock_bracket = assert(items["bracket.clock"], "clock bracket is present")
 equal(clock_bracket.kind, "bracket", "clock group creates a bracket")
 equal(table.concat(clock_bracket.members, ","), "widgets.clock", "clock bracket membership")
 local socials_bracket = assert(items["bracket.socials"], "socials bracket is present")
-equal(table.concat(socials_bracket.members, ","), "widgets.slack", "socials bracket membership")
+equal(table.concat(socials_bracket.members, ","), "widgets.slack,widgets.teams", "socials bracket membership")
 equal(socials_bracket.properties.background.border_color, colors.yellow, "widget bracket border")
+local metrics_bracket = assert(items["bracket.metrics"], "metrics bracket is present")
+equal(table.concat(metrics_bracket.members, ","), "widgets.cpu,widgets.battery,widgets.wifi,widgets.bluetooth", "metrics bracket membership")
+
+local right_additions = {}
+for _, call in ipairs(calls) do
+  if call.kind == "add" and call.value.kind == "item" and call.value.properties.position == "right"
+      and call.value.name:match("^widgets%.") and call.value.name ~= "widgets.function-test" then
+    right_additions[#right_additions + 1] = call.value.name
+  end
+end
+equal(table.concat(right_additions, ","), table.concat({
+  "widgets.clock", "widgets.bluetooth", "widgets.wifi", "widgets.battery",
+  "widgets.cpu", "widgets.teams", "widgets.slack",
+}, ","), "right-side widgets are added in visual group order")
 
 local widget = require("helpers.widget")
 local function_spec = {

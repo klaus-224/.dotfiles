@@ -4,6 +4,9 @@ Home Manager links this directory to `~/.config/sketchybar`. The executable
 `sketchybarrc` loads `init.lua` by using SketchyBar's `CONFIG_DIR`; `init.lua`
 owns SbarLua loading, configuration batching, hotload, and the event loop.
 
+The bar places AeroSpace workspaces on the far left. The right side is grouped
+as `[Slack | Teams] [CPU | battery | Wi-Fi | Bluetooth] [date and time]`.
+
 ## Layout
 
 - `settings.lua`: shared fonts, text padding, bar geometry, and workspace-group geometry
@@ -32,6 +35,10 @@ error handling, and the initial refresh. Group members are declared in visual
 left-to-right order; the group helper handles SketchyBar's reversed right-side
 insertion order and creates the surrounding bracket.
 
+Wi-Fi SSIDs can be redacted by macOS privacy controls. When the interface has
+an address but the SSID is unavailable, the widget still shows a connected
+icon and leaves its label empty.
+
 The font values (`Hack Nerd Font`, Bold, 14) record the effective defaults
 queried from the running SketchyBar configuration before this layout was
 introduced. They are now explicit to prevent upstream defaults from changing
@@ -54,8 +61,7 @@ Run the isolated syntax and mock behavior checks with:
 just validate-sketchybar
 ```
 
-The check does not contact SketchyBar, switch workspaces, or launch Slack. After
+The check does not contact SketchyBar, switch workspaces, or launch apps. After
 configuration changes, reload the live bar separately and compare both displays,
-workspace selection, group clicks, Slack status/click behavior, and the clock.
-Group clicks call `scripts/aerospace-groups.sh`, which intentionally requires
-exactly two connected displays.
+workspace selection and clicks, bracket ordering, Slack and Teams badges and
+clicks, CPU and battery values, Wi-Fi and Bluetooth state, and the clock.
