@@ -8,10 +8,7 @@ end
 return function(options)
   return {
     name = options.name,
-    item = style.resolve({
-      icon = { string = options.icon },
-      label = { width = options.label_width },
-    }, options.item),
+    item = style.resolve({ icon = { string = options.icon } }, options.item),
     pill = options.pill,
     update_freq = 30,
     command = '/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
