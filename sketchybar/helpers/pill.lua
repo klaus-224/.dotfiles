@@ -3,16 +3,20 @@ local colors = require("colors")
 local settings = require("settings")
 local widget = require("helpers.widget")
 
+-- One fixed-width pill per widget: the widget item plus the bracket that draws
+-- the pill surface around it.
 local pill = {}
 
 function pill.add(spec, position)
-  spec.item = spec.item or {}
-  spec.item.padding_left = settings.pills.gap
-  spec.item.padding_right = 0
-  spec.item.label = spec.item.label or {}
-  spec.item.label.width = spec.label_width
+  -- Enforced after the widget module's own `item` properties, so a pill always
+  -- has a consistent outer gap and an optional fixed label width.
+  local overrides = {
+    padding_left = settings.pills.gap,
+    padding_right = 0,
+    label = { width = spec.label_width },
+  }
 
-  local item = widget.add(spec, position or "right")
+  local item = widget.add(spec, position or "right", overrides)
 
   sbar.add("bracket", "pill." .. spec.name, { "widgets." .. spec.name }, {
     background = {

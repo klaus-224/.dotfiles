@@ -1,6 +1,9 @@
 local sbar = require("sketchybar")
 local settings = require("settings")
 
+-- Shared runtime for declarative widgets: item creation, refresh, parsing,
+-- rendering, and click wiring. Widget modules under `widgets/` stay pure data
+-- plus `parse`/`render` functions and never talk to SbarLua themselves.
 local widget = {}
 
 local function copy(value)
@@ -22,11 +25,11 @@ local function merge(target, source)
   return target
 end
 
-function widget.add(spec, position)
-  assert(type(spec) == "table", "widget spec must be a table")
-  assert(type(spec.name) == "string", "widget spec requires a name")
-
-  local properties = merge({
+-- Item properties for a widget. `overrides` is applied after `spec.item`, so
+-- wrappers such as `helpers/pill.lua` can enforce their geometry without
+-- mutating the widget module.
+local function properties(spec, position, overrides)
+  local merged = merge({
     position = position or "right",
     padding_left = settings.widgets.item_padding,
     padding_right = settings.widgets.item_padding,
@@ -44,9 +47,18 @@ function widget.add(spec, position)
     },
   }, spec.item)
 
-  if spec.update_freq then properties.update_freq = spec.update_freq end
+  merge(merged, overrides)
 
-  local item = sbar.add("item", "widgets." .. spec.name, properties)
+  if spec.update_freq then merged.update_freq = spec.update_freq end
+
+  return merged
+end
+
+function widget.add(spec, position, overrides)
+  assert(type(spec) == "table", "widget spec must be a table")
+  assert(type(spec.name) == "string", "widget spec requires a name")
+
+  local item = sbar.add("item", "widgets." .. spec.name, properties(spec, position, overrides))
 
   local function render(state)
     if not spec.render then return end
@@ -84,11 +96,7 @@ function widget.add(spec, position)
 
   if spec.on_click then
     item:subscribe("mouse.clicked", function()
-      if type(spec.on_click) == "function" then
-        spec.on_click(item)
-      else
-        sbar.exec(spec.on_click)
-      end
+      sbar.exec(spec.on_click)
     end)
   end
 
