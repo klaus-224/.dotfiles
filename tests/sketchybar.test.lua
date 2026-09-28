@@ -404,13 +404,11 @@ local media_next = assert(items["media.next"], "media next control is present")
 local media_bracket = assert(items["media.bracket"], "media bracket is present")
 equal(media.properties.position, "center", "media is centered")
 equal(media.properties.drawing, false, "media starts hidden")
+equal(media.properties.updates, true, "media accepts events while hidden")
 equal(media_bracket.properties.drawing, false, "media bracket starts hidden")
-media.subscriptions.media_change({
-  app = "Spotify",
-  title = "I Wonder",
-  artist = "Kanye West",
-  state = "playing",
-})
+media.subscriptions.media_change({ INFO = {
+  app = "Spotify", title = "I Wonder", artist = "Kanye West", state = "playing",
+} })
 equal(latest(media, "label", "string"), "I Wonder – Kanye West", "media renders title and artist")
 equal(media.sets[#media.sets].drawing, true, "playing media is visible")
 equal(media_bracket.sets[#media_bracket.sets].drawing, true, "playing media bracket is visible")
@@ -426,7 +424,9 @@ media_next.subscriptions["mouse.clicked"]()
 equal(next_execution('next track').command,
   "/usr/bin/osascript -e 'tell application \"Spotify\" to next track' >/dev/null 2>&1",
   "media next control targets current app")
-media.subscriptions.media_change({ app = "Spotify", title = "I Wonder", state = "paused" })
+media.subscriptions.media_change({ INFO = {
+  app = "Spotify", title = "I Wonder", state = "paused",
+} })
 equal(media.sets[#media.sets].drawing, false, "paused media is hidden")
 equal(media_bracket.sets[#media_bracket.sets].drawing, false, "paused media bracket is hidden")
 
