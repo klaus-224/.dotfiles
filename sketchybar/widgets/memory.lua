@@ -2,8 +2,10 @@ local colors = require("colors")
 
 return {
   name = "memory",
-  icon = "󰍛",
-  label_width = 36,
+  item = {
+    icon = { string = "󰍛" },
+    label = { width = 36 },
+  },
   update_freq = 10,
   command = "/usr/bin/memory_pressure",
   parse = function(output)

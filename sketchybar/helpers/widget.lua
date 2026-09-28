@@ -1,76 +1,49 @@
 local sbar = require("sketchybar")
 local settings = require("settings")
+local style = require("helpers.style")
 
 -- Shared runtime for declarative widgets: item creation, refresh, parsing,
 -- rendering, and click wiring. Widget modules under `widgets/` stay pure data
 -- plus `parse`/`render` functions and never talk to SbarLua themselves.
 local widget = {}
 
-local function copy(value)
-  if type(value) ~= "table" then return value end
-
-  local result = {}
-  for key, nested in pairs(value) do result[key] = copy(nested) end
-  return result
-end
-
-local function merge(target, source)
-  for key, value in pairs(source or {}) do
-    if type(value) == "table" and type(target[key]) == "table" then
-      merge(target[key], value)
-    else
-      target[key] = copy(value)
-    end
-  end
-  return target
-end
-
--- Item properties for a widget. `overrides` is applied after `spec.item`, so
--- wrappers such as `helpers/pill.lua` can enforce their geometry without
--- mutating the widget module.
-local function properties(spec, position, overrides)
-  local merged = merge({
+-- Runtime fallbacks only. Everything visual comes from `settings.widgets` and
+-- the widget module's own `item` table.
+local function base(position)
+  return {
     position = position or "right",
-    padding_left = settings.widgets.item_padding,
-    padding_right = settings.widgets.item_padding,
-    icon = {
-      string = spec.icon or "",
-      font = settings.widgets.font,
-      padding_right = 0,
-      y_offset = settings.widgets.y_offset,
-    },
-    label = {
-      string = "",
-      drawing = false,
-      font = settings.widgets.font,
-      y_offset = settings.widgets.y_offset,
-    },
-  }, spec.item)
-
-  merge(merged, overrides)
-
-  if spec.update_freq then merged.update_freq = spec.update_freq end
-
-  return merged
+    icon = { string = "" },
+    label = { string = "" },
+  }
 end
 
-function widget.add(spec, position, overrides)
+-- Creation-time properties for a widget, resolved in a single documented order:
+-- inherited SketchyBar defaults, then runtime fallbacks, then
+-- `settings.widgets`, then the widget module's own `item` table.
+local function properties(spec, position)
+  local resolved = style.resolve(base(position), settings.widgets, spec.item)
+
+  -- Scheduling, not styling: the spec field stays authoritative.
+  if spec.update_freq then resolved.update_freq = spec.update_freq end
+
+  return resolved
+end
+
+function widget.add(spec, position)
   assert(type(spec) == "table", "widget spec must be a table")
   assert(type(spec.name) == "string", "widget spec requires a name")
 
-  local item = sbar.add("item", "widgets." .. spec.name, properties(spec, position, overrides))
+  local item = sbar.add("item", "widgets." .. spec.name, properties(spec, position))
 
+  -- A render result is a plain property update: only the fields it returns
+  -- change, and everything else keeps its current value.
   local function render(state)
     if not spec.render then return end
 
-    local rendered = spec.render(state) or {}
-    local label = rendered.label and rendered.label.string
-    rendered.icon = rendered.icon or {}
-    rendered.label = rendered.label or {}
-    rendered.icon.padding_right = label and label ~= "" and settings.widgets.icon_label_gap or 0
-    rendered.label.drawing = label ~= nil
-    if label == nil then rendered.label.string = "" end
-    item:set(rendered)
+    local rendered = spec.render(state)
+    if type(rendered) ~= "table" then return end
+
+    item:set(style.copy(rendered))
   end
 
   local function refresh()

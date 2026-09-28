@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
 local settings = require("settings")
+local style = require("helpers.style")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
 local workspaces = { "1", "2", "3", "4", "5" }
@@ -77,15 +78,12 @@ local function add_display(display)
     members[#members + 1] = "workspace." .. display .. "." .. workspace
   end
 
-  local bracket = sbar.add("bracket", "workspace.bracket." .. display, members, {
-    background = {
-      color = colors.pill_bg,
-      border_color = colors.pill_border,
-      border_width = settings.pill.border_width,
-      corner_radius = settings.pill.corner_radius,
-      height = settings.pill.height,
-    },
-  })
+  local bracket = sbar.add(
+    "bracket",
+    "workspace.bracket." .. display,
+    members,
+    style.resolve(settings.pill)
+  )
 
   return {
     workspaces = workspaces_by_name,
