@@ -286,8 +286,8 @@ equal(click.command, "'/opt/homebrew/bin/aerospace' workspace '5'", "workspace c
 
 local slack = assert(items["widgets.slack"], "Slack item is present")
 equal(slack.properties.update_freq, 30, "Slack interval")
-equal(slack.properties.icon.font.size, 16.0, "Slack uses widget icon font")
-equal(slack.properties.label.font.size, 16.0, "Slack uses widget label font")
+equal(slack.properties.icon.font.size, 14.0, "Slack uses widget icon font")
+equal(slack.properties.label.font.size, 14.0, "Slack uses widget label font")
 equal(slack.properties.padding_left, 12, "Slack includes outer group padding")
 equal(slack.properties.background, nil, "group background does not leak to Slack")
 local slack_initial = next_execution('_ "Slack"')
@@ -340,101 +340,41 @@ battery.subscriptions.power_source_change()
 next_execution("pmset -g batt").callback("Now drawing from 'AC Power'\n -InternalBattery-0 75%; charging", 0)
 equal(latest(battery, "icon", "string"), "󰂄", "charging battery uses charging icon")
 
-local wifi = assert(items["widgets.wifi"], "Wi-Fi item is present")
-equal(wifi.properties.update_freq, 30, "Wi-Fi interval")
-for _, event in ipairs({ "routine", "forced", "wifi_change", "system_woke" }) do
-  expect(type(wifi.subscriptions[event]) == "function", "Wi-Fi subscribes to " .. event)
-end
-next_execution("ipconfig getsummary").callback("ssid:Office", 0)
-equal(latest(wifi, "label", "string"), "Office", "Wi-Fi shows SSID")
-equal(latest(wifi, "icon", "color"), colors.fg, "connected Wi-Fi uses foreground")
-wifi.subscriptions.wifi_change(); next_execution("ipconfig getsummary").callback("connected", 0)
-equal(latest(wifi, "label", "string"), "", "hidden SSID has empty label")
-wifi.subscriptions.routine(); next_execution("ipconfig getsummary").callback("disconnected", 0)
-equal(latest(wifi, "icon", "color"), colors.muted, "disconnected Wi-Fi is muted")
-wifi.subscriptions["mouse.clicked"]()
-equal(next_execution("com.apple.wifi-settings-extension").command, "/usr/bin/open x-apple.systempreferences:com.apple.wifi-settings-extension", "Wi-Fi click opens settings")
+equal(items["widgets.wifi"], nil, "Wi-Fi widget is removed")
+equal(items["widgets.bluetooth"], nil, "Bluetooth widget is removed")
 
-local bluetooth = assert(items["widgets.bluetooth"], "Bluetooth item is present")
-equal(bluetooth.properties.update_freq, 30, "Bluetooth interval")
-next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: Off", 0)
-equal(latest(bluetooth, "icon", "color"), colors.muted, "disabled Bluetooth is muted")
-bluetooth.subscriptions.routine(); next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: On", 0)
-equal(latest(bluetooth, "icon", "color"), colors.fg, "enabled Bluetooth uses foreground")
-bluetooth.subscriptions.forced(); next_execution("SPBluetoothDataType").callback("Bluetooth:\n  State: On\n  Connected:\n    Headphones:\n      Address: 00", 0)
-equal(latest(bluetooth, "icon", "color"), colors.blue, "connected Bluetooth is blue")
-bluetooth.subscriptions["mouse.clicked"]()
-equal(next_execution("com.apple.BluetoothSettings").command, "/usr/bin/open x-apple.systempreferences:com.apple.BluetoothSettings", "Bluetooth click opens settings")
+local memory = assert(items["widgets.memory"], "memory item is present")
+equal(memory.properties.label.width, 36, "memory label has fixed width")
+next_execution("memory_pressure").callback("System-wide memory free percentage: 58%", 0)
+equal(latest(memory, "label", "string"), "42%", "memory reports used percentage")
 
-local clock = assert(items["widgets.clock"], "clock item is present")
-equal(clock.properties.update_freq, 30, "clock interval")
-equal(clock.properties.label.color, colors.fg, "clock inherits foreground")
-equal(clock.properties.label.font.size, 16.0, "clock uses widget label font")
-equal(clock.properties.padding_left, 12, "clock includes group padding")
-equal(clock.properties.padding_right, 12, "clock includes group padding on both sides")
-local clock_initial = next_execution("/bin/date")
-equal(clock_initial.command, "/bin/date '+%a %d %b %H:%M'", "clock requests date and time")
-clock_initial.callback(" 09:42\n", 0)
-equal(latest(clock, "label", "string"), "09:42", "clock trims output")
-local clock_sets = #clock.sets
-clock.subscriptions.routine(); next_execution("/bin/date").callback("", 0)
-equal(#clock.sets, clock_sets + 1, "empty clock output renders unavailable state")
-clock.subscriptions.forced(); next_execution("/bin/date").callback("ignored", 1)
-equal(#clock.sets, clock_sets + 2, "failed clock output renders unavailable state")
+local date = assert(items["widgets.date"], "date item is present")
+equal(date.properties.label.width, 78, "date label has fixed width")
+next_execution("+%d %b %a").callback(" 28 Sep Sun\n", 0)
+equal(latest(date, "label", "string"), "28 Sep Sun", "date trims output")
 
-local clock_bracket = assert(items["bracket.clock"], "clock bracket is present")
-equal(clock_bracket.kind, "bracket", "clock group creates a bracket")
-equal(table.concat(clock_bracket.members, ","), "widgets.clock", "clock bracket membership")
-local socials_bracket = assert(items["bracket.socials"], "socials bracket is present")
-equal(table.concat(socials_bracket.members, ","), "widgets.slack,widgets.teams", "socials bracket membership")
-equal(socials_bracket.properties.background.color, colors.pill_bg, "widget groups use pill background")
-equal(socials_bracket.properties.background.border_color, colors.pill_border, "widget groups use pill border")
-equal(socials_bracket.properties.background.border_width, 1, "widget groups have a thin border")
-equal(socials_bracket.properties.background.corner_radius, 12, "widget groups are rounded")
-equal(socials_bracket.properties.background.height, 32, "widget groups use shared pill height")
-local metrics_bracket = assert(items["bracket.metrics"], "metrics bracket is present")
-equal(table.concat(metrics_bracket.members, ","), "widgets.cpu,widgets.battery,widgets.wifi,widgets.bluetooth", "metrics bracket membership")
-equal(items["spacer.socials"].properties.width, 8, "socials group gap")
-equal(items["spacer.metrics"].properties.width, 8, "metrics group gap")
+local time = assert(items["widgets.time"], "time item is present")
+equal(time.properties.label.width, 42, "time label has fixed width")
+equal(time.properties.label.font.size, 14.0, "time uses widget label font")
+next_execution("+%H:%M").callback(" 09:42\n", 0)
+equal(latest(time, "label", "string"), "09:42", "time trims output")
+local time_sets = #time.sets
+time.subscriptions.routine(); next_execution("+%H:%M").callback("", 0)
+equal(#time.sets, time_sets + 1, "empty time output renders unavailable state")
+time.subscriptions.forced(); next_execution("+%H:%M").callback("ignored", 1)
+equal(#time.sets, time_sets + 2, "failed time output renders unavailable state")
 
-local media = assert(items["media.now_playing"], "media item is present")
-local media_previous = assert(items["media.previous"], "media previous control is present")
-local media_play_pause = assert(items["media.play_pause"], "media play-pause control is present")
-local media_next = assert(items["media.next"], "media next control is present")
-local media_bracket = assert(items["media.bracket"], "media bracket is present")
-equal(media.properties.position, "center", "media is centered")
-equal(media.properties.drawing, false, "media starts hidden")
-equal(media.properties.updates, true, "media accepts events while hidden")
-equal(media_bracket.properties.drawing, false, "media bracket starts hidden")
-local media_initial = next_execution('application "Spotify" is running')
-media_initial.callback("playing|||Startup Song|||Startup Artist", 0)
-equal(latest(media, "label", "string"), "Startup Song – Startup Artist", "media syncs existing playback")
-equal(media.sets[#media.sets].drawing, true, "startup playback is visible")
-media.subscriptions.media_change({ INFO = {
-  app = "Spotify", title = "I Wonder", artist = "Kanye West", state = "playing",
-} })
-equal(latest(media, "label", "string"), "I Wonder – Kanye West", "media renders title and artist")
-equal(media.sets[#media.sets].drawing, true, "playing media is visible")
-equal(media_bracket.sets[#media_bracket.sets].drawing, true, "playing media bracket is visible")
-media_previous.subscriptions["mouse.clicked"]()
-equal(next_execution('previous track').command,
-  "/usr/bin/osascript -e 'tell application \"Spotify\" to previous track' >/dev/null 2>&1",
-  "media previous control targets current app")
-media_play_pause.subscriptions["mouse.clicked"]()
-equal(next_execution('playpause').command,
-  "/usr/bin/osascript -e 'tell application \"Spotify\" to playpause' >/dev/null 2>&1",
-  "media play-pause control targets current app")
-media_next.subscriptions["mouse.clicked"]()
-equal(next_execution('next track').command,
-  "/usr/bin/osascript -e 'tell application \"Spotify\" to next track' >/dev/null 2>&1",
-  "media next control targets current app")
-media.subscriptions.media_change({ INFO = {
-  app = "Spotify", title = "I Wonder", state = "paused",
-} })
-equal(media.sets[#media.sets].drawing, false, "paused media is hidden")
-equal(media_bracket.sets[#media_bracket.sets].drawing, false, "paused media bracket is hidden")
-media.subscriptions.routine()
-next_execution('application "Spotify" is running').callback("", 0)
+local cpu_pill = assert(items["pill.cpu"], "CPU has its own pill")
+equal(table.concat(cpu_pill.members, ","), "widgets.cpu", "CPU pill contains only CPU")
+equal(cpu_pill.properties.background.color, colors.pill_bg, "widget pills use pill background")
+equal(cpu_pill.properties.background.border_width, 1, "widget pills have a thin border")
+equal(cpu.properties.label.width, 36, "CPU label has fixed width")
+equal(battery.properties.label.width, 36, "battery label has fixed width")
+local spotify = assert(items["widgets.spotify"], "Spotify item is present")
+equal(spotify.properties.icon.color, colors.green, "Spotify stays green")
+equal(spotify.properties.label.drawing, false, "Spotify has no label")
+spotify.subscriptions["mouse.clicked"]()
+equal(next_execution('/usr/bin/open -a "Spotify"').command, '/usr/bin/open -a "Spotify"', "Spotify click opens Spotify")
 
 local right_additions = {}
 for _, call in ipairs(calls) do
@@ -444,9 +384,9 @@ for _, call in ipairs(calls) do
   end
 end
 equal(table.concat(right_additions, ","), table.concat({
-  "widgets.clock", "widgets.bluetooth", "widgets.wifi", "widgets.battery",
-  "widgets.cpu", "widgets.teams", "widgets.slack",
-}, ","), "right-side widgets are added in visual group order")
+  "widgets.battery", "widgets.spotify", "widgets.teams", "widgets.slack", "widgets.time",
+  "widgets.date", "widgets.cpu", "widgets.memory",
+}, ","), "right-side pills are added in reverse visual order")
 
 local widget = require("helpers.widget")
 local function_spec = {

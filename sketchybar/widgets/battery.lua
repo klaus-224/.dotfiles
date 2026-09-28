@@ -12,6 +12,7 @@ local icons = {
 return {
   name = "battery",
   icon = icons.empty,
+  label_width = 36,
   update_freq = 120,
   events = { "routine", "forced", "power_source_change", "system_woke" },
   command = "/usr/bin/pmset -g batt",
