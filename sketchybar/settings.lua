@@ -28,11 +28,11 @@ return {
     border_width = 1,
   },
   groups = {
-    item_padding_left = 2,
-    item_padding_right = 2,
-    label_padding_left = 8,
-    label_padding_right = 8,
+    item_padding_left = 1,
+    item_padding_right = 1,
+    label_padding_left = 7,
+    label_padding_right = 7,
     background_height = 24,
-    background_corner_radius = 6,
+    background_corner_radius = 7,
   },
 }
