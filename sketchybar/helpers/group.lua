@@ -25,10 +25,11 @@ function group.add(name, specs)
 
   local bracket = sbar.add("bracket", "bracket." .. name, members, {
     background = {
-      color = colors.transparent,
-      border_width = 0,
-      corner_radius = settings.groups.background_corner_radius,
-      height = settings.groups.background_height,
+      color = colors.pill_bg,
+      border_color = colors.pill_border,
+      border_width = settings.pill.border_width,
+      corner_radius = settings.pill.corner_radius,
+      height = settings.pill.height,
     },
   })
 

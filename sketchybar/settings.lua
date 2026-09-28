@@ -18,12 +18,14 @@ return {
     y_offset = 0,
   },
   bar = {
-    height = 36,
+    height = 44,
     padding_left = 8,
     padding_right = 8,
-    margin = 8,
-    radius = 10,
-    border_width = 2,
+  },
+  pill = {
+    height = 32,
+    corner_radius = 12,
+    border_width = 1,
   },
   groups = {
     item_padding_left = 2,
@@ -32,6 +34,5 @@ return {
     label_padding_right = 8,
     background_height = 24,
     background_corner_radius = 6,
-    background_border_width = 1,
   },
 }
