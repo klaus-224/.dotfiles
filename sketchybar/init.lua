@@ -28,10 +28,25 @@ if not loaded then
 end
 
 sbar.begin_config()
-
+local pill = require("helpers.pill")
 require("bar")
 require("defaults")
-require("items")
+require("widgets.aerospace")
+
+local right_pills = {
+  "battery",
+  "time",
+  "date",
+  "cpu",
+  "memory",
+  "spotify",
+  "teams",
+  "slack",
+}
+
+for _, name in ipairs(right_pills) do
+  pill.add(require("widgets." .. name), "right")
+end
 
 sbar.hotload(true)
 sbar.end_config()

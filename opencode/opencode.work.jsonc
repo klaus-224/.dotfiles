@@ -179,8 +179,7 @@
         },
         "bash": {
           "*": "ask",
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow"
+          "ctx7 *": "allow"
         }
       }
     },
@@ -233,8 +232,7 @@
         },
         "bash": {
           "*": "deny",
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow"
+          "ctx7 *": "allow",
         },
         "task": "deny",
         "edit": "deny",
@@ -280,7 +278,7 @@
           "git commit*--no-verify*": "deny",
           "just *": "allow",
           "ctx7 *": "allow",
-          "plannotator review *": "allow"
+          "plannotator *": "allow"
         }
       },
       "jira-operator": {
