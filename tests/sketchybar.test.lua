@@ -222,14 +222,26 @@ equal(workspace_count(2), 5, "second display receives five workspaces")
 local workspace_one = assert(items["workspace.1.1"])
 local workspace_two = assert(items["workspace.2.2"])
 equal(workspace_one.properties.position, "left", "workspace position")
-equal(workspace_one.properties.padding_left, 3, "workspace padding")
+equal(workspace_one.properties.padding_left, 1, "workspace padding")
 equal(workspace_one.properties.label.string, "1", "workspace label")
-equal(workspace_one.properties.label.padding_left, 8, "workspace label override")
+equal(workspace_one.properties.label.padding_left, 7, "workspace label override")
 equal(workspace_one.properties.label.font.family, "Hack Nerd Font", "deferred workspace inherits label font")
+equal(workspace_one.properties.background.border_width, nil, "workspace has no individual border")
 equal(latest(workspace_one, "background", "color"), colors.yellow, "selected workspace background")
 equal(latest(workspace_one, "label", "color"), colors.bg, "selected workspace label")
 equal(latest(items["workspace.1.2"], "background", "color"), colors.transparent, "inactive workspace background")
+equal(latest(items["workspace.1.2"], "label", "color"), colors.muted, "inactive workspace label")
 equal(latest(workspace_two, "label", "color"), colors.bg, "second display selection")
+
+local workspace_logo = assert(items["workspace.logo.1"], "workspace logo is present")
+equal(workspace_logo.properties.icon.string, "", "workspace logo glyph")
+expect(items["workspace.separator.1"], "workspace separator is present")
+local workspace_bracket = assert(items["workspace.bracket.1"], "workspace bracket is present")
+equal(table.concat(workspace_bracket.members, ","), table.concat({
+  "workspace.logo.1", "workspace.separator.1", "workspace.1.1",
+  "workspace.1.2", "workspace.1.3", "workspace.1.4", "workspace.1.5",
+}, ","), "workspace bracket membership")
+equal(workspace_bracket.properties.background.color, colors.pill_bg, "workspace bracket uses pill background")
 
 local additions, removals = count_calls("add"), count_calls("remove")
 observer.subscriptions.forced()
@@ -245,6 +257,9 @@ next_execution("list-workspaces").callback({
   { workspace = "3", ["monitor-appkit-nsscreen-screens-id"] = 1 },
 }, 0)
 equal(workspace_count(2), 0, "disconnected display workspaces are removed")
+equal(items["workspace.logo.2"], nil, "disconnected display logo is removed")
+equal(items["workspace.separator.2"], nil, "disconnected display separator is removed")
+equal(items["workspace.bracket.2"], nil, "disconnected display bracket is removed")
 equal(workspace_count(1), 5, "remaining display workspaces are retained")
 
 observer.subscriptions.routine()
@@ -433,6 +448,6 @@ next_execution("list-workspaces").callback({
 }, 0)
 equal(items["workspace.3.1"].properties.label.padding_left, 9, "deferred workspaces consume changed label padding")
 equal(items["workspace.3.1"].properties.label.font.size, 15, "deferred workspaces inherit changed defaults")
-equal(items["workspace.3.1"].properties.padding_left, 3, "font changes do not alter workspace geometry")
+equal(items["workspace.3.1"].properties.padding_left, 1, "font changes do not alter workspace geometry")
 
 print("PASS: SketchyBar Lua configuration")

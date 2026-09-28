@@ -14,7 +14,40 @@ local function quote(value)
 end
 
 local function add_display(display)
-  local items = {}
+  local workspaces_by_name = {}
+  local members = {}
+
+  local logo = sbar.add("item", "workspace.logo." .. display, {
+    display = display,
+    position = "left",
+    padding_left = 8,
+    padding_right = 7,
+    icon = {
+      string = "",
+      color = colors.fg,
+      padding_left = 0,
+      padding_right = 0,
+    },
+    label = { drawing = false },
+  })
+  members[#members + 1] = "workspace.logo." .. display
+
+  -- The logo is decorative and intentionally has no click action.
+  local separator = sbar.add("item", "workspace.separator." .. display, {
+    display = display,
+    position = "left",
+    width = 1,
+    padding_left = 0,
+    padding_right = 5,
+    icon = { drawing = false },
+    label = { drawing = false },
+    background = {
+      drawing = true,
+      color = colors.separator,
+      height = 16,
+    },
+  })
+  members[#members + 1] = "workspace.separator." .. display
 
   for _, workspace in ipairs(workspaces) do
     local item = sbar.add("item", "workspace." .. display .. "." .. workspace, {
@@ -31,8 +64,6 @@ local function add_display(display)
       background = {
         drawing = true,
         color = colors.transparent,
-        border_color = colors.yellow,
-        border_width = settings.groups.background_border_width,
         corner_radius = settings.groups.background_corner_radius,
         height = settings.groups.background_height,
       },
@@ -42,10 +73,24 @@ local function add_display(display)
       sbar.exec(quote(aerospace) .. " workspace " .. quote(workspace))
     end)
 
-    items[workspace] = item
+    workspaces_by_name[workspace] = item
+    members[#members + 1] = "workspace." .. display .. "." .. workspace
   end
 
-  return items
+  local bracket = sbar.add("bracket", "workspace.bracket." .. display, members, {
+    background = {
+      color = colors.pill_bg,
+      border_color = colors.pill_border,
+      border_width = settings.pill.border_width,
+      corner_radius = settings.pill.corner_radius,
+      height = settings.pill.height,
+    },
+  })
+
+  return {
+    workspaces = workspaces_by_name,
+    decorations = { logo, separator, bracket },
+  }
 end
 
 local function apply_snapshot(records)
@@ -60,11 +105,12 @@ local function apply_snapshot(records)
     active[display] = record.workspace
   end
 
-  for display, items in pairs(displays) do
+  for display, group in pairs(displays) do
     if active[display] == nil then
-      for _, item in pairs(items) do
+      for _, item in pairs(group.workspaces) do
         sbar.remove(item)
       end
+      for _, item in ipairs(group.decorations) do sbar.remove(item) end
       displays[display] = nil
     end
   end
@@ -72,7 +118,7 @@ local function apply_snapshot(records)
   for display, selected in pairs(active) do
     displays[display] = displays[display] or add_display(display)
 
-    for workspace, item in pairs(displays[display]) do
+    for workspace, item in pairs(displays[display].workspaces) do
       local highlighted = workspace == selected
 
       item:set({
@@ -80,7 +126,7 @@ local function apply_snapshot(records)
           color = highlighted and colors.yellow or colors.transparent,
         },
         label = {
-          color = highlighted and colors.bg or colors.fg,
+          color = highlighted and colors.bg or colors.muted,
         },
       })
     end
