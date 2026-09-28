@@ -14,7 +14,7 @@ return {
   orange = 0xffd99a78,      -- #d99a78
   pink = 0xffc996a5,        -- #c996a5
   purple = 0xffa993bd,      -- #a993bd
-  pill_bg = 0xd9252530,     -- #252530 at 85% opacity
+  pill_bg = 0xd92b3b55,     -- dark blue-gray surface at 85% opacity
   pill_border = 0x30cdcdcd, -- #cdcdcd at 19% opacity
   separator = 0x40606079,   -- #606079 at 25% opacity
   transparent = 0x00000000, -- #00000000

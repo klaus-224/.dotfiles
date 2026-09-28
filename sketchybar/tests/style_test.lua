@@ -119,12 +119,28 @@ local function new_item(name, properties)
   return item
 end
 
-function sbar.bar(properties)
+-- SbarLua rejects a call that receives more than the arguments it expects.
+-- Since Lua 5.4 `require` returns the module *and* its loader data, so
+-- `sbar.bar(require("bar"))` passes two arguments and is silently dropped.
+local function arity(name, expected, ...)
+  local received = select("#", ...)
+  if received > expected then
+    error(string.format(
+      "expecting %d argument(s) to function '%s', received %d; "
+        .. "bind require() to a local before passing it on",
+      expected, name, received
+    ), 3)
+  end
+end
+
+function sbar.bar(properties, ...)
+  arity("bar", 1, properties, ...)
   recorded.bar = properties
   record("bar", properties)
 end
 
-function sbar.default(properties)
+function sbar.default(properties, ...)
+  arity("default", 1, properties, ...)
   recorded.defaults = properties
   record("default", properties)
 end
@@ -234,6 +250,31 @@ do
   ok(settings.defaults.icon.font.family ~= nil, "the shared icon font lives in settings.defaults")
   ok(settings.defaults.label.font.family ~= nil, "the shared label font lives in settings.defaults")
   ok(settings.pill.background ~= nil, "the pill surface is expressed as bracket background properties")
+end
+
+-- The reference-inspired baseline. These are chosen approximations, pinned so a
+-- later edit cannot drift them silently.
+do
+  equals(settings.defaults.icon.font, { family = "Hack Nerd Font", style = "Bold", size = 14.0 },
+    "icons use the bold shared font")
+  equals(settings.defaults.label.font, { family = "Hack Nerd Font", style = "Regular", size = 14.0 },
+    "labels use the regular shared font")
+  equals(settings.defaults.icon.color, colors.cyan, "icons default to the pale cyan accent")
+  equals(settings.defaults.label.color, colors.fg, "labels default to the light foreground")
+
+  equals(settings.bar.height, 40, "the bar height matches the chosen baseline")
+  equals(settings.pill.background.height, 28, "pills use the compact height")
+  equals(settings.pill.background.corner_radius, 12, "pills stay rounded")
+  equals(settings.pill.background.border_width, 0, "pills are borderless")
+  equals(settings.pill.background.color, colors.pill_bg, "pills use the shared surface colour")
+
+  equals(settings.widgets.padding_left, 8, "pills are separated by a consistent gap")
+  equals(settings.widgets.padding_right, 0, "the inter-pill gap is applied on one side only")
+  equals(settings.widgets.icon.padding_left, 8, "labelled pills have a left inset")
+  equals(settings.widgets.label.padding_right, 8, "labelled pills have a matching right inset")
+
+  equals(settings.groups.background_height, 22, "workspace buttons fit inside the pill")
+  equals(settings.groups.background_corner_radius, 7, "workspace buttons stay rounded")
 end
 
 --------------------------------------------------------------------------------
@@ -482,7 +523,8 @@ end
 do
   local spotify = widget_module("spotify")
   equals(spotify.item.label.drawing, false, "spotify hides its label explicitly")
-  equals(spotify.item.icon.padding_right, 0, "an icon-only pill removes the icon gap explicitly")
+  equals(spotify.item.icon.padding_right, settings.widgets.icon.padding_left,
+    "an icon-only pill mirrors the shared left inset explicitly")
   equals(spotify.item.icon.color, colors.green, "spotify keeps its static green icon")
   equals(spotify.on_click, '/usr/bin/open -a "Spotify"', "spotify keeps its click action")
   equals(spotify.render, nil, "spotify has no renderer to override its static colour")
@@ -522,25 +564,32 @@ do
   end
 
   local previous_config = os.getenv("CONFIG_DIR")
-  local init = assert(loadfile(config_dir .. "/init.lua"))
 
-  -- `init.lua` requires CONFIG_DIR and HOME; both are already reflected in the
-  -- search path configured above, so run it only when CONFIG_DIR is present.
-  if previous_config and previous_config ~= "" then
-    init()
-  else
-    -- Exercise the same startup sequence without the environment guard.
-    sbar.bar(require("bar"))
-    sbar.default(settings.defaults)
-    require("widgets.aerospace")
-    for _, name in ipairs({ "battery", "time", "date", "cpu", "memory", "spotify", "teams", "slack" }) do
-      pill.add(require("widgets." .. name), "right")
-    end
-  end
+  -- Run the real `init.lua` in a sandboxed environment so the startup sequence,
+  -- including the bar call, is covered without depending on the caller's
+  -- environment or the native module.
+  local environment
+  environment = setmetatable({
+    os = setmetatable({
+      getenv = function(name)
+        if name == "CONFIG_DIR" then return config_dir end
+        if name == "HOME" then return os.getenv("HOME") or "/tmp" end
+        return os.getenv(name)
+      end,
+    }, { __index = os }),
+  }, { __index = _G })
+
+  local init = assert(loadfile(config_dir .. "/init.lua", "t", environment))
+  init()
 
   sbar.exec_handler = nil
 
   equals(recorded.defaults, settings.defaults, "startup applies the shared defaults")
+  ok(recorded.bar ~= nil, "startup applies the bar properties")
+  equals(recorded.bar.height, settings.bar.height, "the bar uses the configured height")
+  equals(recorded.bar.color, colors.transparent, "the bar stays transparent")
+  equals(recorded.bar.padding_left, settings.bar.padding_left, "the bar uses the configured padding")
+  ok(previous_config == nil or previous_config ~= "", "CONFIG_DIR is not required by the tests")
 
   local default_index, first_item_index
   for index, call in ipairs(recorded.calls) do

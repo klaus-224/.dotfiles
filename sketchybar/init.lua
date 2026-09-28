@@ -30,6 +30,12 @@ end
 local pill = require("helpers.pill")
 local settings = require("settings")
 
+-- Bound to a local on purpose. Since Lua 5.4 a first `require` of a module
+-- returns the module *and* its loader data, so `sbar.bar(require("bar"))` would
+-- pass two arguments. SbarLua rejects that call and the bar silently keeps its
+-- built-in defaults.
+local bar = require("bar")
+
 -- Right-side pills in insertion order. SketchyBar inserts right-side items from
 -- right to left, so this is the reverse of the visual order.
 local right_pills = {
@@ -45,7 +51,7 @@ local right_pills = {
 
 sbar.begin_config()
 
-sbar.bar(require("bar"))
+sbar.bar(bar)
 sbar.default(settings.defaults)
 
 -- AeroSpace is a self-contained dynamic integration and registers its custom
@@ -53,7 +59,8 @@ sbar.default(settings.defaults)
 require("widgets.aerospace")
 
 for _, name in ipairs(right_pills) do
-  pill.add(require("widgets." .. name), "right")
+  local spec = require("widgets." .. name)
+  pill.add(spec, "right")
 end
 
 sbar.hotload(true)

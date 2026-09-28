@@ -44,6 +44,20 @@ label = { font = { size = 16.0 } }
 See the upstream [item properties][items] reference for the full list of
 available properties. This configuration adds no styling vocabulary of its own.
 
+### The current look
+
+`settings.lua` holds a deliberate approximation of a reference screenshot:
+compact borderless pills 28 points high with a 12 point radius on a 40 point
+transparent bar, Hack Nerd Font icons in Bold and labels in Regular at 14
+points, pale cyan default icons on light labels, and a warm yellow active
+workspace. These values were chosen by eye, not recovered from the reference
+configuration, so adjust them freely.
+
+Battery, CPU, and memory keep their own status colors, and Slack, Teams, and
+Spotify keep their brand colors, because each of those renderers or item tables
+sets an icon color explicitly. The cyan default applies to every icon that does
+not.
+
 ### Where to edit
 
 | To change | Edit |
@@ -182,14 +196,21 @@ CPU and memory thresholds work the same way.
 - A fixed-width label keeps its space when its string is empty. Hide it with an
   explicit `label = { drawing = false }`.
 - Spotify is static: it has no `command` or `render`, so its green icon lives in
-  its `item` table. It hides its label and sets `icon.padding_right = 0` so the
-  icon-only pill stays symmetric.
+  its `item` table. It hides its label and mirrors the shared left inset with
+  `icon.padding_right` so the icon-only pill stays symmetric.
 - Slack and Teams are built by `helpers/app_badge.lua`, which supplies the shared
   command, parser, and renderer. They pass their own icon, brand color, and
   `item` table into the factory.
 - AeroSpace inherits `settings.defaults` but not `settings.widgets`. It styles
   its own workspace buttons from `settings.groups` and reuses `settings.pill`
   for its bracket.
+- Bind `require` to a local before passing a module to SbarLua. Since Lua 5.4 a
+  module's first `require` returns the module *and* its loader data, so
+  `sbar.bar(require("bar"))` passes two arguments. SbarLua rejects the call with
+  `expecting a table as an argument`, the configuration keeps running, and that
+  whole domain silently stays at its built-in defaults. `tests/style_test.lua`
+  fails on this, and `sketchybar --query` plus the service log below will show
+  it.
 
 ### Migrated field names
 
@@ -220,6 +241,16 @@ sketchybar --query pill.battery
 
 Values set from the command line are temporary: the next reload, or the next
 explicit property in a renderer, overwrites them.
+
+A configuration error does not stop the bar, so a silently unstyled domain is
+usually explained by the service log:
+
+```sh
+tail /opt/homebrew/var/log/sketchybar/sketchybar.err.log
+tail /opt/homebrew/var/log/sketchybar/sketchybar.out.log
+```
+
+Lua errors appear in the first file and SbarLua argument errors in the second.
 
 Run the styling regression tests from the repository root. They use a stubbed
 SbarLua module and need neither a running bar nor the native module:
