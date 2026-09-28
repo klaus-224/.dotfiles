@@ -6,4 +6,5 @@ return app_badge({
   app = "Microsoft Teams",
   icon = "󰊻",
   color = colors.blue,
+  label_width = 22,
 })

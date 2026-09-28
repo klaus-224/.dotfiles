@@ -56,7 +56,8 @@ function widget.add(spec, position)
     rendered.icon = rendered.icon or {}
     rendered.label = rendered.label or {}
     rendered.icon.padding_right = label and label ~= "" and settings.widgets.icon_label_gap or 0
-    rendered.label.drawing = label and label ~= "" or false
+    rendered.label.drawing = label ~= nil
+    if label == nil then rendered.label.string = "" end
     item:set(rendered)
   end
 

@@ -1,18 +1,20 @@
-require("items.aerospace-groups")
--- Center-positioned media is independent of right-side group insertion order.
-require("items.media")
+local pill = require("helpers.pill")
 
-local group = require("helpers.group")
+require("items.aerospace")
 
--- Each group added on the right is placed to the left of the previous group.
-group.add("clock", { (require("widgets.clock")) })
-group.add("metrics", {
-  (require("widgets.cpu")),
-  (require("widgets.battery")),
-  (require("widgets.wifi")),
-  (require("widgets.bluetooth")),
-})
-group.add("socials", {
-  (require("widgets.slack")),
-  (require("widgets.teams")),
-})
+-- Right-side items are inserted right to left, so this declaration order
+-- displays left to right.
+local right_pills = {
+  "battery",
+  "spotify",
+  "teams",
+  "slack",
+  "time",
+  "date",
+  "cpu",
+  "memory",
+}
+
+for _, name in ipairs(right_pills) do
+  pill.add(require("widgets." .. name), "right")
+end

@@ -4,9 +4,9 @@ Home Manager links this directory to `~/.config/sketchybar`. The executable
 `sketchybarrc` loads `init.lua` by using SketchyBar's `CONFIG_DIR`; `init.lua`
 owns SbarLua loading, configuration batching, hotload, and the event loop.
 
-The transparent bar places an Apple logo and AeroSpace workspaces in a pill on
-the far left, a now-playing pill in the center, and groups the right side as
-`[Slack | Teams] [CPU | battery | Wi-Fi | Bluetooth] [date and time]`.
+The transparent bar places AeroSpace workspaces in a pill on the left. The
+right side is one pill per widget, displayed as
+`[memory] [CPU] [date] [time] [Slack] [Teams] [Spotify] [battery]`.
 
 ## Layout
 
@@ -18,46 +18,39 @@ the far left, a now-playing pill in the center, and groups the right side as
 - `items/*.lua`: dynamic items that need direct access to SbarLua
 - `widgets/*.lua`: declarative widget specifications
 - `helpers/widget.lua`: shared item creation, refresh, parsing, rendering, and click wiring
-- `helpers/group.lua`: right-side ordering, bracket styling, and group spacing
+- `helpers/pill.lua`: one fixed-width pill per widget
 
 Change icon and label fonts in `settings.fonts`, shared text padding in
 `settings.item`, bar dimensions in `settings.bar`, pill height/radius/border in
 `settings.pill`, and workspace-button spacing and dimensions in
-`settings.groups`. Change palette values, including the translucent
+`settings.groups`. Change pill spacing in `settings.pills`, and lock a changing
+label with `label_width` in its widget module. Change palette values, including the translucent
 `pill_bg`, `pill_border`, and `separator` surfaces, in `colors.lua`.
 
 For an individual widget, edit its module under `widgets/`: `icon` changes the
 glyph, `item.icon.font` or `item.label.font` overrides the shared font or size,
 and the tables returned by `render` control state-dependent icon and label
 colors. Other per-widget overrides such as padding belong in the specification's
-`item` table. Group membership and ordering live in `items/init.lua`; group-wide
-spacing and surfaces are controlled by `settings.widgets` and
-`helpers/group.lua`. Direct items such as workspaces and media keep their icon,
-label, and state colors in `items/aerospace-groups.lua` and `items/media.lua`.
+`item` table. Pill order lives in `items/init.lua`; each pill surface comes from
+`helpers/pill.lua`. Workspace icon, label, and state colors stay in
+`items/aerospace-groups.lua`.
 
 ## Adding a widget
 
-Add a module under `widgets/` that returns a widget specification, then include
-it in a `group.add` call in `items/init.lua`. A specification names the widget
-and can provide its icon, update interval, events, command, parser, renderer,
-and click action. The shared widget helper owns subscriptions, command execution,
-error handling, and the initial refresh. Group members are declared in visual
-left-to-right order; the group helper handles SketchyBar's reversed right-side
-insertion order and creates the surrounding bracket.
+Add a module under `widgets/` that returns a widget specification, then add its
+name to `right_pills` in `items/init.lua`. Names are listed in reverse visual
+order because SketchyBar inserts right-side items from right to left. A
+specification names the widget and can provide its icon, update interval,
+events, command, parser, renderer, and click action. The shared widget helper
+owns subscriptions, command execution, error handling, and the initial refresh.
+`helpers/pill.lua` wraps each widget in its own pill.
 
 Right-side widgets use Hack Nerd Font glyphs. Their common size, icon-to-label
-gap, item padding, group spacing, and vertical alignment are controlled by
-`settings.widgets`. Groups use the shared dark translucent pill background and
-thin foreground-tinted border over the transparent, full-width bar.
+gap, item padding, and vertical alignment are controlled by `settings.widgets`.
+Each pill uses the shared dark translucent background and thin border.
 
-The center media pill listens to SketchyBar's native `media_change` event and
-adds no Homebrew dependency. It is hidden unless media is playing. Previous,
-play/pause, and next clicks send AppleScript commands to the app named by the
-event; apps without a compatible scripting interface may ignore those controls.
-
-Wi-Fi SSIDs can be redacted by macOS privacy controls. When the interface has
-an address but the SSID is unavailable, the widget still shows a connected
-icon and leaves its label empty.
+The Spotify pill is always green and has no playback state. Clicking it opens
+Spotify.
 
 The font values (`Hack Nerd Font`, Bold, 14) record the effective defaults
 queried from the running SketchyBar configuration before this layout was
@@ -83,5 +76,4 @@ just validate-sketchybar
 
 The check does not contact SketchyBar, switch workspaces, or launch apps. After
 configuration changes, reload the live bar separately and compare both displays,
-workspace selection and clicks, bracket ordering, Slack and Teams badges and
-clicks, CPU and battery values, Wi-Fi and Bluetooth state, and the clock.
+workspace selection and clicks, bracket ordering, Slack, Teams, and Spotify clicks, memory, CPU, battery, date, and time.

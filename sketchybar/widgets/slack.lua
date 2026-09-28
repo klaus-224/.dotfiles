@@ -6,4 +6,5 @@ return app_badge({
   app = "Slack",
   icon = "󰒱",
   color = colors.red,
+  label_width = 22,
 })

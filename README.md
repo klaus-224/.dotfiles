@@ -185,7 +185,7 @@ sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 
 - AeroSpace manages tiled windows and workspaces.
 - JankyBorders highlights the focused window.
-- SketchyBar displays workspace, now-playing, app, system, and clock pills.
+- SketchyBar displays workspace, app, system, and clock pills.
 
 <<<<<<< HEAD
 Named workspace groups include `code`, `browse`, `music`, `slack`, `discord`,

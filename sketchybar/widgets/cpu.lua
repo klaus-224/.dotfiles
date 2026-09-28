@@ -2,7 +2,8 @@ local colors = require("colors")
 
 return {
   name = "cpu",
-  icon = "󰍛",
+  icon = "󰻠",
+  label_width = 36,
   update_freq = 3,
   command = "/usr/bin/top -l 2 -n 0 -s 1 | /usr/bin/grep 'CPU usage' | /usr/bin/tail -1",
   parse = function(output)
