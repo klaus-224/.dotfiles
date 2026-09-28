@@ -9,16 +9,17 @@ return function(options)
     name = options.name,
     icon = options.icon,
     update_freq = 30,
-    command = '/usr/bin/lsappinfo info -only StatusLabel ' .. quote(options.app),
+    command = '/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
+      .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ ' .. quote(options.app),
     events = { "routine", "forced", "aerospace_workspace_change" },
     parse = function(output)
       if type(output) ~= "string" then return nil end
 
-      local label = output:match('"label"%s*=%s*"([^"]*)"')
-      if label == "" or label == "•" or (label and label:match("^%d+$")) then
-        return label
-      end
-      return nil
+      if not output:match("pid%s*=%s*%d+") then return nil end
+
+      local label = output:match('"label"%s*=%s*"([^"]*)"') or ""
+      if label == "" or label == "•" or label:match("^%d+$") then return label end
+      return ""
     end,
     render = function(label)
       return {
