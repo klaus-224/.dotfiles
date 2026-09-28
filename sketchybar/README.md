@@ -35,6 +35,10 @@ error handling, and the initial refresh. Group members are declared in visual
 left-to-right order; the group helper handles SketchyBar's reversed right-side
 insertion order and creates the surrounding bracket.
 
+Right-side widgets use Hack Nerd Font glyphs. Their common size, icon-to-label
+gap, item padding, group spacing, and vertical alignment are controlled by
+`settings.widgets`. Groups have transparent backgrounds without borders.
+
 Wi-Fi SSIDs can be redacted by macOS privacy controls. When the interface has
 an address but the SSID is unavailable, the widget still shows a connected
 icon and leaves its label empty.
