@@ -26,5 +26,5 @@ export PATH
 if [[ $USER == "klaus224" ]]; then
     export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
   else
-    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
+    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
 fi

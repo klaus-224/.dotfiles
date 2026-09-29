@@ -11,7 +11,7 @@ cursor-color= "#f8ce9d"
 bold-is-bright = true
 
 # background = #252530
-# background-opacity = 0.76
+background-opacity = 0.78
 background-blur = macos-glass-regular
 background-opacity-cells = true
 
