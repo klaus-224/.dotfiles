@@ -2,6 +2,7 @@ local M = {}
 
 M.palette = {
   bg = '#252530',
+  -- bg = 'NONE',
   fg = '#cdcdcd',
   muted = '#606079',
   blue = '#6e94b2',
