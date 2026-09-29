@@ -29,10 +29,10 @@ persistent-workspaces = [
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.left = 8
-outer.bottom = 8
-outer.right = 8
-outer.top = [{ monitor."built-in" = 10 }, { monitor."main" = 44 }, 44]
+outer.left = 16
+outer.bottom = 24
+outer.right = 16
+outer.top = [{ monitor."built-in" = 10 }, { monitor."main" = 50 }, 50]
 
 [mode.main.binding]
 alt-tab = "focus-monitor --wrap-around next"
@@ -47,7 +47,7 @@ alt-shift-h = "move left"
 alt-shift-j = "move down"
 alt-shift-k = "move up"
 alt-shift-l = "move right"
-
+ 
 alt-1 = "workspace 1"
 alt-2 = "workspace 2"
 alt-3 = "workspace 3"
