@@ -9,12 +9,10 @@ font-size = 16
 cursor-opacity = 1
 cursor-color= "#f8ce9d"
 bold-is-bright = true
-background-opacity = 0.76
-background-blur-radius = 30
 
 # background = #252530
 # background-opacity = 0.76
-# background-blur = macos-glass-clear
+background-blur = macos-glass-regular
 background-opacity-cells = true
 
 selection-background = "#0a385c"
