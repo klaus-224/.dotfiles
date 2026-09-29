@@ -78,28 +78,35 @@ M.setup = function()
 
 
   -- generic floats: hover, cmd+k, docs, random plugin popups
-  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = colors.bg, fg = colors.fg })
-  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = colors.bg, fg = colors.border })
+  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE', fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = 'NONE', fg = colors.border })
   vim.api.nvim_set_hl(0, 'FloatTitle', { bg = colors.bg, fg = colors.blue, bold = true })
   vim.api.nvim_set_hl(0, 'FloatFooter', { bg = colors.bg, fg = colors.muted, italic = true })
 
   -- generic completion menu groups
-  vim.api.nvim_set_hl(0, 'Pmenu', { bg = colors.bg, fg = colors.fg })
-  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.red, bold = true })
-  vim.api.nvim_set_hl(0, 'PmenuKind', { bg = colors.bg, fg = colors.blue })
-  vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = colors.bg, fg = colors.border })
-  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = colors.bg, fg = colors.border })
+  vim.api.nvim_set_hl(0, 'Pmenu', { bg = 'NONE', fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.yellow, bold = true })
+  vim.api.nvim_set_hl(0, 'PmenuKind', { bg = 'NONE', fg = colors.blue })
+  vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = 'NONE', fg = colors.border })
+  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = 'NONE', fg = colors.border, bold = true })
 
   -- scrollbar, if visible
   vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = colors.border })
   vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = colors.bg })
 
+  -- mini pick
   vim.api.nvim_set_hl(0, 'MiniPickMatchCurrent', {
-    fg = colors.red,
+    fg = colors.yellow,
     bg = colors.selection,
     bold = true,
   })
+  vim.api.nvim_set_hl(0, 'MiniPickNormal', {
+    fg = colors.fg,
+    bg = 'NONE',
+  })
 
+  -- blink
+  vim.api.nvim_set_hl(0, 'BlinkCmpMenuBorder', { fg = colors.border })
   setup_alpha()
 end
 
