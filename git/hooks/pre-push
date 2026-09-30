@@ -4,7 +4,7 @@
 # Tags, other namespaces, and deletions have no branch-name policy here.
 LC_ALL=C
 export LC_ALL
-pattern='^(main|develop|(feat|fix|chore|refactor|docs|test|style)/[a-z0-9._-]+)$'
+pattern='^(main|develop|(feat|fix|chore|refactor|docs|test|style|merge|codex)/[a-z0-9._-]+)$'
 status=0
 while read -r local_ref local_oid remote_ref remote_oid extra; do
   if [ -z "$local_ref" ] || [ -z "$local_oid" ] || [ -z "$remote_ref" ] ||
@@ -19,7 +19,7 @@ while read -r local_ref local_oid remote_ref remote_oid extra; do
       branch=${remote_ref#refs/heads/}
       if ! printf '%s\n' "$branch" | grep -Eq "$pattern"; then
         printf 'Invalid destination branch name: %s\n' "$branch" >&2
-        printf '%s\n' 'Expected main, develop, or feat|fix|docs|style|refactor|test|chore/<lowercase-name>.' >&2
+        printf '%s\n' 'Expected main, develop, or feat|fix|docs|style|refactor|test|chore|merge|codex/<lowercase-name>.' >&2
         status=1
       fi
       ;;
