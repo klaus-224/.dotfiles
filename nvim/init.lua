@@ -25,10 +25,6 @@ vim.pack.add({
   { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
-require 'custom.ui'.setup()
-require 'custom.statusline'.setup()
-require 'custom.execution-buffer'.setup()
-
 require('lazydev').setup({
   library = {
     { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
@@ -70,6 +66,7 @@ cmp.setup({
   completion = {
     menu = {
       auto_show = false,
+      border = 'rounded'
     },
 
     ghost_text = {
@@ -146,3 +143,8 @@ require('gitblame').setup({
   virtual_text_column = 80,
   use_blame_commit_file_urls = false,
 })
+
+
+require 'custom.ui'.setup()
+require 'custom.statusline'.setup()
+require 'custom.execution-buffer'.setup()

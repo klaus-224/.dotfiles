@@ -1,3 +1,5 @@
+local colors = require('custom.colors').palette
+
 local M = {}
 
 local function setup_alpha()
@@ -14,9 +16,9 @@ local function setup_alpha()
     return math.floor((height - content_height) / 2) - 1
   end
 
-  vim.api.nvim_set_hl(0, 'AlphaRegular', { fg = '#e8b589', italic = true })
-  vim.api.nvim_set_hl(0, 'AlphaItalic', { fg = '#c48282', italic = true })
-  vim.api.nvim_set_hl(0, 'AlphaAuthor', { fg = '#6e94b2', italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaRegular', { fg = colors.yellow, italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaItalic', { fg = colors.red, italic = true })
+  vim.api.nvim_set_hl(0, 'AlphaAuthor', { fg = colors.blue, italic = true })
 
   -- alpha
   require('alpha').setup({
@@ -63,45 +65,48 @@ M.setup = function()
 
   vim.cmd.colorscheme('vague')
 
-  local border_bg = '#252530'
   -- transarent background
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = colors.muted, bg = colors.bg })
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = colors.muted, bg = colors.bg })
+  vim.api.nvim_set_hl(0, 'LineNr', { fg = colors.yellow, bg = colors.bg, bold = true })
   vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE', ctermbg = 'NONE' })
-  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#606079', bg = border_bg })
-  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#606079', bg = border_bg })
-  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#ffd166', bg = border_bg, bold = true })
   vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
-  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = '#ffd160', bg = border_bg })
+  vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.yellow, bg = colors.bg })
   -- for the visual highlighitng
-  -- vim.api.nvim_set_hl(0, 'Visual', { bg = '#2d4f67' })
+  vim.api.nvim_set_hl(0, 'Visual', { bg = colors.selection })
 
-  local colors = {
-    bg = '#000000',
-    fg = '#b4bcc8',
-    muted = '#747b89',
-    border = '#e6c384',
-    selection = '#23252e',
-    blue = '#8aadf4',
-    yellow = '#e6c384',
-  }
 
   -- generic floats: hover, cmd+k, docs, random plugin popups
-  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = colors.bg, fg = colors.fg })
-  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = colors.bg, fg = colors.border })
+  vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE', fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'FloatBorder', { bg = 'NONE', fg = colors.border })
   vim.api.nvim_set_hl(0, 'FloatTitle', { bg = colors.bg, fg = colors.blue, bold = true })
   vim.api.nvim_set_hl(0, 'FloatFooter', { bg = colors.bg, fg = colors.muted, italic = true })
 
   -- generic completion menu groups
-  vim.api.nvim_set_hl(0, 'Pmenu', { bg = colors.bg, fg = colors.fg })
-  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.fg, bold = true })
-  vim.api.nvim_set_hl(0, 'PmenuKind', { bg = colors.bg, fg = colors.blue })
-  vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = colors.bg, fg = colors.muted })
-  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = colors.bg, fg = colors.border })
+  vim.api.nvim_set_hl(0, 'Pmenu', { bg = 'NONE', fg = colors.fg })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.yellow, bold = true })
+  vim.api.nvim_set_hl(0, 'PmenuKind', { bg = 'NONE', fg = colors.blue })
+  vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = 'NONE', fg = colors.border })
+  vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = 'NONE', fg = colors.border, bold = true })
 
   -- scrollbar, if visible
   vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = colors.border })
   vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = colors.bg })
 
+  -- mini pick
+  vim.api.nvim_set_hl(0, 'MiniPickMatchCurrent', {
+    fg = colors.yellow,
+    bg = colors.selection,
+    bold = true,
+  })
+  vim.api.nvim_set_hl(0, 'MiniPickNormal', {
+    fg = colors.fg,
+    bg = 'NONE',
+  })
+
+  -- blink
+  vim.api.nvim_set_hl(0, 'BlinkCmpMenuBorder', { fg = colors.border })
   setup_alpha()
 end
 
