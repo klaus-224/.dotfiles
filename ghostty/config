@@ -51,7 +51,6 @@ keybind = super+digit_7=text:\x01\x37
 keybind = super+digit_8=text:\x01\x38
 keybind = super+digit_9=text:\x01\x39
 
-keybind = super+p=text:\x01\x50
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
 keybind = super+x=text:\x01\x78
