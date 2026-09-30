@@ -10,7 +10,7 @@ return function(options)
     name = options.name,
     item = style.resolve({ icon = { string = options.icon } }, options.item),
     pill = options.pill,
-    update_freq = 30,
+    update_freq = 10,
     command = '/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
       .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ ' .. quote(options.app),
     events = { "routine", "forced", "aerospace_workspace_change" },

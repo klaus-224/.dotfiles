@@ -1,3 +1,4 @@
+local colors = require('custom.colors').palette
 local M = {}
 
 local modes = {
@@ -45,64 +46,64 @@ local function mode()
 end
 
 local function set_colors()
-  local bg_color = '#252530'
+
 
   vim.api.nvim_set_hl(0, 'StatusLine', {
-    fg = '#F3BE7C',
-    bg = bg_color,
+    fg = colors.yellow,
+    bg = colors.bg,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBufferActive', {
-    fg = '#F3BE7C',
-    bg = bg_color,
+    fg = colors.yellow,
+    bg = colors.bg,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineBuffer', {
-    fg = '#606079',
-    bg = bg_color,
+    fg = colors.muted,
+    bg = colors.bg,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineNC', {
-    fg = '#606079',
-    bg = bg_color,
+    fg = colors.muted,
+    bg = colors.bg,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineAccent', {
-    fg = '#0f1117',
-    bg = '#7E98E8',
+    fg = colors.deep_blue,
+    bg = colors.blue,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineInsertAccent', {
-    fg = '#0f1117',
-    bg = '#7FA563',
+    fg = colors.deep_blue,
+    bg = colors.green,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineVisualAccent', {
-    fg = '#0f1117',
-    bg = '#BB9DBD',
+    fg = colors.deep_blue,
+    bg = colors.purple,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineReplaceAccent', {
-    fg = '#0f1117',
-    bg = '#D8647E',
+    fg = colors.deep_blue,
+    bg = colors.red,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineCmdLineAccent', {
-    fg = '#0f1117',
-    bg = '#F3BE7C',
+    fg = colors.deep_blue,
+    bg = colors.yellow,
     bold = true,
   })
 
   vim.api.nvim_set_hl(0, 'StatusLineTerminalAccent', {
-    fg = '#0f1117',
-    bg = '#6E94B2',
+    fg = colors.deep_blue,
+    bg = colors.blue,
     bold = true,
   })
 end
