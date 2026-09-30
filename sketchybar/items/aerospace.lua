@@ -2,6 +2,7 @@ local sbar = require("sketchybar")
 local colors = require("colors")
 local settings = require("settings")
 local style = require("helpers.style")
+local apple = require("items.apple")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
 local workspaces = { "1", "2", "3", "4", "5" }
@@ -18,22 +19,9 @@ local function add_display(display)
   local workspaces_by_name = {}
   local members = {}
 
-  local logo = sbar.add("item", "workspace.logo." .. display, {
-    display = display,
-    position = "left",
-    padding_left = 8,
-    padding_right = 7,
-    icon = {
-      string = "",
-      color = colors.fg,
-      padding_left = 0,
-      padding_right = 0,
-    },
-    label = { drawing = false },
-  })
+  local logo = apple.add(display)
   members[#members + 1] = "workspace.logo." .. display
 
-  -- The logo is decorative and intentionally has no click action.
   local separator = sbar.add("item", "workspace.separator." .. display, {
     display = display,
     position = "left",

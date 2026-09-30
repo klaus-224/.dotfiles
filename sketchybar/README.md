@@ -1,236 +1,149 @@
 # SketchyBar
 
 Home Manager links this directory to `~/.config/sketchybar`. The executable
-`sketchybarrc` loads `init.lua` by using SketchyBar's `CONFIG_DIR`.
+`sketchybarrc` loads `init.lua` using SketchyBar's `CONFIG_DIR`.
 
-Responsibilities are split as follows:
-
-- `init.lua` orchestrates startup: module loading, bar and default properties,
-  pill order, hotload, and the event loop.
-- `helpers/` creates and updates ordinary widgets and owns their SbarLua calls.
-- `widgets/*.lua` are configuration: values plus `parse` and `render` functions.
-  They do not call SbarLua.
-- `widgets/aerospace.lua` is the exception. It is a self-contained dynamic
-  integration that owns its own items, events, and live state.
-
-The transparent bar places AeroSpace workspaces in a pill on the left. The
-right side is one pill per widget, displayed left to right as
+The transparent bar places the decorative Apple logo, separator, and five
+AeroSpace workspaces in one pill per display on the left. The right side has
+one pill per item, displayed left to right as
 `[Slack] [Teams] [Spotify] [memory] [CPU] [date] [time] [battery]`.
 
 ## Layout
 
-- `init.lua`: startup, bar/default application, and right-side pill order
-- `settings.lua`: all shared styling, plus bar and workspace geometry
-- `colors.lua`: the shared Vague palette and semantic colors
-- `bar.lua`: bar-only placement, display association, and appearance
-- `widgets/*.lua`: declarative widget specifications
-- `widgets/aerospace.lua`: the dynamic workspace integration
-- `helpers/style.lua`: the property merge used to resolve styling
-- `helpers/widget.lua`: item creation, refresh, parsing, rendering, click wiring
-- `helpers/pill.lua`: the pill surface drawn around each widget
-- `helpers/app_badge.lua`: shared specification factory for app presence badges
-- `tests/style_test.lua`: regression tests for the styling contract
+```text
+sketchybar/
+├── sketchybarrc
+├── init.lua
+├── bar.lua
+├── settings.lua
+├── colors.lua
+├── icons.lua
+├── items/
+│   ├── init.lua
+│   ├── apple.lua
+│   ├── aerospace.lua
+│   ├── battery.lua
+│   ├── time.lua
+│   ├── date.lua
+│   ├── cpu.lua
+│   ├── memory.lua
+│   ├── spotify.lua
+│   ├── teams.lua
+│   ├── slack.lua
+│   └── clock.lua
+├── helpers/
+│   └── style.lua
+└── tests/
+    └── style_test.lua
+```
+
+- Root `init.lua` loads SbarLua, applies the bar and shared defaults, loads
+  `items`, and manages hotload and the configuration/event-loop lifecycle.
+- `items/init.lua` explicitly imports items in insertion order. SketchyBar
+  inserts right-side items from right to left, so imports reverse visual order.
+- Each ordinary item module creates its item and bracket, owns subscriptions
+  and click handlers, and performs its initial refresh when it has a command.
+  Spotify is static and only subscribes to clicks.
+- `items/apple.lua` exposes `add(display)`, which creates and returns a
+  decorative logo. AeroSpace calls it when a display appears and includes it
+  in the workspace bracket; importing Apple alone creates no items.
+- `items/aerospace.lua` owns display discovery, workspace state and clicks,
+  brackets, the separator, and removal of all per-display items. It registers
+  `aerospace_workspace_change` before Slack and Teams subscribe to it.
+- `items/clock.lua` is an optional combined date/time item. It is not imported
+  by default; the separate date and time items remain active.
+- `helpers/style.lua` contains pure utilities for copying and merging property
+  tables, with no SketchyBar item creation or subscriptions. Slack and Teams
+  each contain their own commands, parsing, rendering, and click actions.
+
+Runtime names remain `widgets.<name>`, `pill.<name>`, and
+`workspace.<display>.<name>`, even though Lua modules now live under `items/`.
+Existing query commands therefore continue to work. There is no declarative
+widget specification or shared widget runtime.
 
 ## Styling
 
-Every styling value is a native SketchyBar property written in SbarLua's nested
-form. A dotted property in the SketchyBar documentation becomes a sub-table, so
-`label.font.size=16` is written as:
-
-```lua
-label = { font = { size = 16.0 } }
-```
-
-See the upstream [item properties][items] reference for the full list of
-available properties. This configuration adds no styling vocabulary of its own.
-
-### The current look
-
-`settings.lua` holds a deliberate approximation of a reference screenshot:
-compact borderless pills 28 points high with a 12 point radius on a 40 point
-transparent bar, Hack Nerd Font icons in Bold and labels in Regular at 14
-points, pale cyan default icons on light labels, and a warm yellow active
-workspace. These values were chosen by eye, not recovered from the reference
-configuration, so adjust them freely.
-
-Battery, CPU, and memory keep their own status colors, and Slack, Teams, and
-Spotify keep their brand colors, because each of those renderers or item tables
-sets an icon color explicitly. The cyan default applies to every icon that does
-not.
-
-### Where to edit
+The migration preserves the existing Vague palette, glyphs, fonts, dimensions,
+spacing, status colors, and pill groupings. Shared values remain centralized:
 
 | To change | Edit |
 |---|---|
-| Fonts and colors for everything in the bar | `settings.defaults` |
-| Shared spacing for all right-side widgets | `settings.widgets` |
-| One widget's static styling | `widgets/<name>.lua` → `item` |
-| One widget's state-dependent styling | `widgets/<name>.lua` → `render` |
-| The pill surface behind every widget | `settings.pill` |
-| The pill surface behind one widget | `widgets/<name>.lua` → `pill` |
-| Bar height, position, and outer padding | `settings.bar`, `bar.lua` |
-| Workspace buttons and decorations | `settings.groups`, `widgets/aerospace.lua` |
-| Palette values | `colors.lua` |
+| Palette and semantic colors | `colors.lua` |
+| Glyphs | `icons.lua` |
+| Default fonts and icon/label colors | `settings.defaults` |
+| Shared right-side item spacing | `settings.widgets` |
+| Shared pill surface | `settings.pill` |
+| Bar geometry and placement | `settings.bar`, `bar.lua` |
+| Workspace geometry | `settings.groups`, `items/aerospace.lua` |
+| One item's properties or state-dependent appearance | `items/<name>.lua` |
+| Apple logo geometry | `items/apple.lua` |
 
-### How properties are resolved
+`settings.widgets` keeps its existing name as the shared right-side styling
+preset. It is not a widget factory. Properties use native SketchyBar names in
+SbarLua's nested form; for example, `label.font.size` is
+`label = { font = { size = 16.0 } }`.
 
-An item's properties are built once at creation, in this order:
+Each right-side item resolves its properties from runtime defaults (position
+and empty strings), then `settings.widgets`, then its own properties. The
+`style.resolve` helper merges nested tables without mutating the inputs.
+Explicit `false` and `0` override previous values. Fonts and default colors
+are inherited from `sbar.default(settings.defaults)`.
 
-1. Properties inherited from `settings.defaults`, applied through
-   `sbar.default` before any item exists
-2. Shared widget properties from `settings.widgets`
-3. The widget module's own `item` table
-
-Each step merges into the previous one. Nested tables merge key by key, so
-overriding `label.font.size` keeps the inherited family and style. Any other
-explicit value replaces the previous one, including `false` and `0`. The last
-explicit write wins, and nothing is applied after the widget's own `item` table.
-
-After the item exists, each refresh applies exactly what `render` returns:
-
-- A returned field is written to the item.
-- An omitted field keeps its current value. Omission is not deletion.
-- Returning `nil`, or having no `render`, changes nothing.
-
-To undo a value a renderer previously set, return the desired fallback
-explicitly. A static value in `item` will not come back on its own.
-
-### Widget specification fields
-
-| Field | Type | Consumed by | Meaning |
-|---|---|---|---|
-| `name` | string | helpers | Item name `widgets.<name>` and pill name `pill.<name>` |
-| `item` | table | SketchyBar | Static item properties for this widget |
-| `pill` | table | SketchyBar | Bracket properties for this widget's pill surface |
-| `update_freq` | number | SketchyBar | Refresh interval in seconds |
-| `events` | list | helpers | Events that trigger a refresh |
-| `command` | string | helpers | Shell command run asynchronously on refresh |
-| `parse` | function | helpers | Turns command output into a state value |
-| `render` | function | helpers | Turns a state value into a property update |
-| `on_click` | string | helpers | Shell command run on `mouse.clicked` |
-
-`update_freq` is scheduling, not styling. It stays authoritative even if
-`item.update_freq` is also set. A widget without `command` is static and is
-rendered once at startup.
-
-### Worked example: battery
-
-`widgets/battery.lua` returns:
+A bracket draws the pill separately from the item's own background. Adjust
+one item's surface in that module's bracket call, for example:
 
 ```lua
-return {
-  name = "battery",
-  item = {
-    icon = { string = icons.empty },
-    label = { width = 36 },
-  },
-  update_freq = 120,
-  events = { "routine", "forced", "power_source_change", "system_woke" },
-  command = "/usr/bin/pmset -g batt",
-  parse = function(output) ... end,
-  render = function(state) ... end,
-}
+sbar.add("bracket", "pill.battery", { "widgets.battery" },
+  style.resolve(settings.pill, { background = { color = colors.pill_bg } }))
 ```
 
-`init.lua` passes it to `helpers/pill.lua`, which creates two things:
+Refresh callbacks apply partial property updates: omitted fields retain their
+current values. Returning an empty label does not change padding, width, or
+visibility. Spotify keeps the shared padding and an empty label; Slack and
+Teams use content-sized labels, with no fixed label width. Their renderers
+use brand colors when the app is running and a muted icon otherwise.
 
-- the item `widgets.battery`, whose properties are
-  `settings.defaults` → `settings.widgets` → the module's `item` table
-- the bracket `pill.battery`, whose properties are
-  `settings.pill` → the module's `pill` table
+## Adding or editing an item
 
-So at startup the battery icon uses the shared Bold icon font and the shared
-icon spacing, and its label uses the shared label font with an explicit width of
-36 points.
+Create `items/<name>.lua` and import it explicitly in `items/init.lua` at the
+intended position. Follow an existing module:
 
-On each refresh the helper runs `pmset`, passes the output to `parse`, and
-passes the resulting state to `render`. While charging, `render` returns:
+- Create the item using `sbar.add` and shared styling where appropriate.
+- Define its command, parser, renderer, and refresh callback locally.
+- Subscribe to its refresh events and click action, and refresh once at startup
+  if it has dynamic data. Failed commands or parsing use the item's fallback.
+- Create its bracket and return the item handle.
 
-```lua
-{
-  icon = { string = "󰂄", color = colors.green },
-  label = { string = "84%" },
-}
+There is no helper build step. CPU still polls `top`; memory uses
+`memory_pressure`, battery uses `pmset`, and app badges use `lsappinfo`.
+AeroSpace uses its existing trigger plus display, wake, and fallback refresh
+notifications. Its five numbered workspaces match `persistent-workspaces` in
+`aerospace/aerospace.toml`.
+
+## Verification and activation
+
+Run the regression tests from the repository root. They use a stubbed SbarLua
+module and require neither a running bar nor the native module:
+
+```sh
+lua sketchybar/tests/style_test.lua
 ```
 
-Only those four values change. The icon font, the label font, the 36 point label
-width, the item padding, and the pill surface are all untouched, because the
-renderer did not mention them.
+The tests exercise item creation and order, shared styles, refresh and click
+callbacks, malformed output, and AeroSpace multi-display state, disconnects,
+reconnects, and overlapping refreshes.
 
-### Common edits
+Syntax-check the Lua sources and executable Lua entrypoint:
 
-Change only the battery label size, keeping the shared family and style:
-
-```lua
-item = {
-  icon = { string = icons.empty },
-  label = { width = 36, font = { size = 16.0 } },
-},
+```sh
+for file in sketchybar/*.lua sketchybar/items/*.lua sketchybar/helpers/*.lua sketchybar/tests/*.lua sketchybar/sketchybarrc; do
+  luac -p "$file" || exit 1
+done
 ```
 
-Give the battery a wider label and a bigger gap between icon and label:
-
-```lua
-item = {
-  icon = { string = icons.empty, padding_right = 8 },
-  label = { width = 44 },
-},
-```
-
-Give one widget a different pill surface:
-
-```lua
-pill = { background = { color = colors.pill_bg, border_width = 1 } },
-```
-
-Change a battery state color by editing the branch in its `render` function.
-CPU and memory thresholds work the same way.
-
-### Things worth knowing
-
-- `render` cannot style the pill. The pill is a bracket drawn around the item
-  and is a different surface from the item's own `background`. Use `pill` or
-  `settings.pill`.
-- A static color in `item` is superseded whenever the renderer explicitly writes
-  that same color. Set state-dependent colors in `render`, not both places.
-- A fixed-width label keeps its space when its string is empty. Hide it with an
-  explicit `label = { drawing = false }`.
-- Spotify is static: it has no `command` or `render`, so its green icon lives in
-  its `item` table. It hides its label and mirrors the shared left inset with
-  `icon.padding_right` so the icon-only pill stays symmetric.
-- Slack and Teams are built by `helpers/app_badge.lua`, which supplies the shared
-  command, parser, and renderer. They pass their own icon, brand color, and
-  `item` table into the factory.
-- AeroSpace inherits `settings.defaults` but not `settings.widgets`. It styles
-  its own workspace buttons from `settings.groups` and reuses `settings.pill`
-  for its bracket.
-- Bind `require` to a local before passing a module to SbarLua. Since Lua 5.4 a
-  module's first `require` returns the module *and* its loader data, so
-  `sbar.bar(require("bar"))` passes two arguments. SbarLua rejects the call with
-  `expecting a table as an argument`, the configuration keeps running, and that
-  whole domain silently stays at its built-in defaults. `tests/style_test.lua`
-  fails on this, and `sketchybar --query` plus the service log below will show
-  it.
-
-### Migrated field names
-
-| Removed | Use instead |
-|---|---|
-| `defaults.lua` | `settings.defaults` |
-| `settings.fonts`, `settings.item` | `settings.defaults` |
-| `settings.widgets.font` | `settings.defaults` |
-| `settings.widgets.item_padding` | `settings.widgets.padding_left` / `padding_right` |
-| `settings.widgets.icon_label_gap` | `settings.widgets.icon.padding_right` |
-| `settings.widgets.y_offset` | `settings.widgets.icon.y_offset` / `label.y_offset` |
-| `settings.pills.gap` | `settings.widgets.padding_left` |
-| `settings.pill.height` and siblings | `settings.pill.background.*` |
-| widget `icon = "󰂎"` | widget `item.icon.string` |
-| widget `label_width = 36` | widget `item.label.width` |
-
-### Editing workflow
-
-Hotload is enabled, so saving a file in this directory reloads the bar. To
-reload explicitly and inspect what actually applied:
+Home Manager points at `~/.dotfiles/sketchybar`. Changes in another worktree
+are not active until integrated into that checkout. Once active, hotload
+reloads saved edits; an explicit reload and inspection use:
 
 ```sh
 sketchybar --reload
@@ -239,42 +152,30 @@ sketchybar --query widgets.battery
 sketchybar --query pill.battery
 ```
 
-Values set from the command line are temporary: the next reload, or the next
-explicit property in a renderer, overwrites them.
+Compare the live appearance, item order and spacing, clicks, and dynamic
+updates. Exercise workspaces on each monitor, display disconnect/reconnect,
+and wake. Each monitor should highlight its own active workspace with no
+stale or duplicate items.
 
-A configuration error does not stop the bar, so a silently unstyled domain is
-usually explained by the service log:
+Configuration errors can leave the bar running with incomplete properties.
+Inspect both service logs:
 
 ```sh
 tail /opt/homebrew/var/log/sketchybar/sketchybar.err.log
 tail /opt/homebrew/var/log/sketchybar/sketchybar.out.log
 ```
 
-Lua errors appear in the first file and SbarLua argument errors in the second.
-
-Run the styling regression tests from the repository root. They use a stubbed
-SbarLua module and need neither a running bar nor the native module:
-
-```sh
-lua sketchybar/tests/style_test.lua
-```
-
-## Adding a widget
-
-Add a module under `widgets/` that returns a widget specification, then add its
-name to `right_pills` in `init.lua`. Names are listed in reverse visual order
-because SketchyBar inserts right-side items from right to left.
-`helpers/widget.lua` owns subscriptions, command execution, error handling, and
-the initial refresh, and `helpers/pill.lua` wraps the widget in its own pill.
-
-Right-side widgets use Hack Nerd Font glyphs.
+Bind `require` to a local before passing its result to SbarLua: since Lua 5.4,
+a first `require` returns both the module and loader data. For example,
+`sbar.bar(require("bar"))` passes an extra argument and SbarLua rejects it.
+The startup regression test covers this case.
 
 ## SbarLua
 
-Startup expects a Lua-compatible SbarLua native module at
+Startup expects a Lua-compatible native module at
 `~/.local/share/sketchybar_lua/sketchybar.so`; it does not install or update the
 module automatically. Follow the [SbarLua installation instructions][sbarlua]
-and build the module with the Lua runtime used to start SketchyBar.
+and build with the Lua runtime used to start SketchyBar.
 
 [items]: https://felixkratz.github.io/SketchyBar/config/items
 [sbarlua]: https://github.com/FelixKratz/SbarLua

@@ -27,7 +27,6 @@ if not loaded then
   )
 end
 
-local pill = require("helpers.pill")
 local settings = require("settings")
 
 -- Bound to a local on purpose. Since Lua 5.4 a first `require` of a module
@@ -36,32 +35,12 @@ local settings = require("settings")
 -- built-in defaults.
 local bar = require("bar")
 
--- Right-side pills in insertion order. SketchyBar inserts right-side items from
--- right to left, so this is the reverse of the visual order.
-local right_pills = {
-  "battery",
-  "time",
-  "date",
-  "cpu",
-  "memory",
-  "spotify",
-  "teams",
-  "slack",
-}
-
 sbar.begin_config()
 
 sbar.bar(bar)
 sbar.default(settings.defaults)
 
--- AeroSpace is a self-contained dynamic integration and registers its custom
--- event, so it is loaded before the widgets that subscribe to it.
-require("widgets.aerospace")
-
-for _, name in ipairs(right_pills) do
-  local spec = require("widgets." .. name)
-  pill.add(spec, "right")
-end
+require("items")
 
 sbar.hotload(true)
 sbar.end_config()

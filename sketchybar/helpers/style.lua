@@ -1,4 +1,4 @@
--- Property table helpers shared by the widget and pill helpers.
+-- Pure property table helpers shared by the item modules.
 --
 -- SketchyBar properties are plain nested tables, so styling is resolved by
 -- merging those tables in a fixed order. Nested tables merge key by key; any

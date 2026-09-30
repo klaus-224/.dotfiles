@@ -109,6 +109,7 @@ local function new_item(name, properties)
     if type(events) == "string" then events = { events } end
     for _, event in ipairs(events) do
       self.subscriptions[event] = callback
+      record("subscribe", { name = self.name, event = event })
     end
   end
 
@@ -153,6 +154,7 @@ function sbar.add(kind, name, third, fourth)
   end
 
   if kind == "bracket" then
+    ok(recorded.brackets[name] == nil, "no duplicate bracket: " .. name)
     local bracket = { name = name, members = third, properties = fourth }
     recorded.brackets[name] = bracket
     record("bracket", bracket)
@@ -165,6 +167,7 @@ function sbar.add(kind, name, third, fourth)
     name = "anonymous." .. tostring(#recorded.calls)
   end
 
+  ok(recorded.items[name] == nil, "no duplicate item: " .. name)
   local item = new_item(name, properties)
   recorded.items[name] = item
   record("item", item)
@@ -173,6 +176,8 @@ end
 
 function sbar.remove(item)
   record("remove", item)
+  recorded.items[item.name] = nil
+  recorded.brackets[item.name] = nil
 end
 
 function sbar.exec(command, callback)
@@ -184,10 +189,10 @@ function sbar.exec(command, callback)
   end
 end
 
-function sbar.hotload() end
-function sbar.begin_config() end
-function sbar.end_config() end
-function sbar.event_loop() end
+function sbar.hotload(value) record("hotload", value) end
+function sbar.begin_config() record("begin_config", true) end
+function sbar.end_config() record("end_config", true) end
+function sbar.event_loop() record("event_loop", true) end
 function sbar.trigger() end
 
 package.loaded["sketchybar"] = sbar
@@ -200,13 +205,7 @@ reset()
 local style = require("helpers.style")
 local settings = require("settings")
 local colors = require("colors")
-local widget = require("helpers.widget")
-local pill = require("helpers.pill")
 
-local function widget_module(name)
-  package.loaded["widgets." .. name] = nil
-  return require("widgets." .. name)
-end
 
 --------------------------------------------------------------------------------
 -- style.lua
@@ -278,363 +277,316 @@ do
 end
 
 --------------------------------------------------------------------------------
--- Widget creation
+-- Item modules: exercise the callbacks, not the old declarative specifications.
 --------------------------------------------------------------------------------
 
-do
-  reset()
+local icons = require("icons")
+local order = { "battery", "time", "date", "cpu", "memory", "spotify", "teams", "slack" }
+local commands = {
+  battery = "/usr/bin/pmset -g batt",
+  time = "/bin/date '+%H:%M'",
+  date = "/bin/date '+%d %b %a'",
+  cpu = "/usr/bin/top -l 2 -n 0 -s 1 | /usr/bin/grep 'CPU usage' | /usr/bin/tail -1",
+  memory = "/usr/bin/memory_pressure",
+  clock = "/bin/date '+%a %d %b %H:%M'",
+}
+for name, app in pairs({ slack = "Slack", teams = "Microsoft Teams" }) do
+  commands[name] = '/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
+    .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ "' .. app .. '"'
+end
+local intervals = { battery = 120, time = 30, date = 60, cpu = 3, memory = 10, teams = 10, slack = 10, clock = 30 }
+local widths = { battery = 36, time = 42, date = 78, cpu = 36, memory = 36 }
+local events = {
+  battery = { "routine", "forced", "power_source_change", "system_woke" },
+  slack = { "routine", "forced", "aerospace_workspace_change", "mouse.clicked" },
+  teams = { "routine", "forced", "aerospace_workspace_change", "mouse.clicked" },
+  spotify = { "mouse.clicked" },
+}
 
-  local item = widget.add({
-    name = "example",
-    update_freq = 7,
-    item = {
-      icon = { string = "A", color = colors.green },
-      label = { width = 36 },
-    },
-  })
-
-  equals(item.name, "widgets.example", "an item is named after its widget")
-  equals(item.properties.position, "right", "widgets default to the right position")
-  equals(item.properties.update_freq, 7, "update_freq reaches the item")
-  equals(item.properties.icon.string, "A", "the widget icon comes from its item table")
-  equals(item.properties.icon.color, colors.green, "a widget colour survives creation")
-  equals(item.properties.label.width, 36, "a fixed label width comes from item.label.width")
-  equals(item.properties.icon.padding_right, settings.widgets.icon.padding_right,
-    "shared widget spacing is applied")
-  equals(item.properties.padding_left, settings.widgets.padding_left, "shared outer padding is applied")
-  equals(item.properties.padding_right, settings.widgets.padding_right, "shared right padding is applied")
-  equals(item.properties.icon.font, nil, "widgets inherit fonts instead of redefining them")
+local function keys(value)
+  local result = {}
+  for key in pairs(value) do result[#result + 1] = key end
+  table.sort(result)
+  return result
 end
 
-do
-  reset()
-
-  local item = widget.add({
-    name = "override",
-    update_freq = 5,
-    item = {
-      padding_left = 20,
-      icon = { padding_right = 0 },
-      label = { drawing = false },
-      update_freq = 99,
-    },
-  })
-
-  equals(item.properties.padding_left, 20, "a widget overrides shared outer padding")
-  equals(item.properties.icon.padding_right, 0, "a widget overrides the shared icon gap")
-  equals(item.properties.label.drawing, false, "a widget controls label visibility explicitly")
-  equals(item.properties.update_freq, 5, "the spec update_freq stays authoritative")
+local function load_item(name)
+  package.loaded["items." .. name] = nil
+  return require("items." .. name)
 end
 
-do
-  reset()
-
-  widget.add({ name = "first", item = { icon = { color = colors.red } } })
-  widget.add({ name = "second" })
-
-  equals(recorded.items["widgets.second"].properties.icon.color, nil,
-    "one widget's styling does not leak into another")
-  equals(settings.widgets.icon.padding_right ~= nil, true, "shared settings survive widget creation")
+local function latest(item)
+  return item.updates[#item.updates]
 end
 
---------------------------------------------------------------------------------
--- Render is a plain property update
---------------------------------------------------------------------------------
-
-do
-  reset()
-
-  local item = widget.add({
-    name = "patch",
-    item = { label = { width = 36 } },
-    render = function(state) return { label = { string = state } } end,
-  })
-
-  item:set({ label = { string = "one" } })
-  equals(item.updates[#item.updates], { label = { string = "one" } },
-    "an update carries only the fields it sets")
-  equals(item.properties.label.width, 36, "a rendered update does not change the configured width")
-end
-
-do
-  -- Drive the render path through the helper rather than calling it directly.
-  reset()
-  sbar.exec_handler = function() return "", 0 end
-
-  local nil_item = widget.add({
-    name = "nilrender",
-    command = "true",
-    render = function() return nil end,
-  })
-  equals(#nil_item.updates, 0, "a nil render result applies no update")
-
-  local empty_item = widget.add({
-    name = "emptyrender",
-    command = "true",
-    render = function() return {} end,
-  })
-  equals(empty_item.updates[1], {}, "an empty render result changes nothing")
-
-  local silent_item = widget.add({ name = "norender", command = "true" })
-  equals(#silent_item.updates, 0, "a widget without a renderer never sets properties")
-
+local function refresh(item, output, exit_code, event)
+  sbar.exec_handler = function() return output, exit_code or 0 end
+  item.subscriptions[event or "forced"]()
   sbar.exec_handler = nil
+  return latest(item)
 end
 
-do
+local names = { table.unpack(order) }
+names[#names + 1] = "clock"
+for _, name in ipairs(names) do
   reset()
-
-  local item = widget.add({
-    name = "noderive",
-    item = { icon = { padding_right = 4 }, label = { width = 36 } },
-    command = "true",
-    parse = function() return "" end,
-    render = function(value) return { label = { string = value } } end,
-  })
-
-  sbar.exec_handler = function() return "", 0 end
-  item.subscriptions.forced()
+  local shared_before = style.copy(settings)
+  sbar.exec_handler = function() return "", 1 end
+  local item = load_item(name)
   sbar.exec_handler = nil
 
-  local update = item.updates[#item.updates]
-  equals(update, { label = { string = "" } },
-    "an empty label does not trigger derived spacing or visibility changes")
-  equals(item.properties.icon.padding_right, 4, "the configured icon gap survives an empty label")
-  equals(item.properties.label.drawing, nil, "label visibility is never rewritten at render time")
-end
+  local expected = {
+    position = "right",
+    padding_left = 8,
+    padding_right = 0,
+    icon = { string = name == "battery" and icons.battery.empty or icons[name] or "",
+      padding_left = 8, padding_right = 4, y_offset = 0 },
+    label = { string = "", padding_left = 0, padding_right = 8, y_offset = 0 },
+    update_freq = intervals[name],
+  }
+  expected.label.width = widths[name]
+  if name == "spotify" then expected.icon.color = colors.green end
+  equals(item.properties, expected, name .. " preserves its complete creation properties")
+  equals(recorded.brackets["pill." .. name].members, { "widgets." .. name }, name .. " keeps its bracket membership")
+  equals(recorded.brackets["pill." .. name].properties, settings.pill, name .. " keeps its surface")
+  equals(settings, shared_before, name .. " does not mutate shared settings")
+  local expected_events = events[name] or { "routine", "forced" }
+  local sorted = { table.unpack(expected_events) }
+  table.sort(sorted)
+  equals(keys(item.subscriptions), sorted, name .. " keeps exactly its subscriptions")
 
-do
-  reset()
-
-  local item = widget.add({
-    name = "reset",
-    item = { icon = { color = colors.fg } },
-    command = "true",
-    parse = function(output) return output end,
-    render = function(state)
-      if state == "hot" then return { icon = { color = colors.red } } end
-      return { icon = { color = colors.fg } }
-    end,
-  })
-
-  sbar.exec_handler = function() return "hot", 0 end
-  item.subscriptions.forced()
-  equals(item.updates[#item.updates].icon.color, colors.red, "a state colour is applied")
-
-  sbar.exec_handler = function() return "cool", 0 end
-  item.subscriptions.forced()
-  equals(item.updates[#item.updates].icon.color, colors.fg,
-    "a previous dynamic value is undone by returning it explicitly")
-  sbar.exec_handler = nil
-end
-
---------------------------------------------------------------------------------
--- Pills
---------------------------------------------------------------------------------
-
-do
-  reset()
-
-  local item = pill.add({
-    name = "surface",
-    item = { padding_left = 20, label = { width = 36 } },
-  })
-
-  equals(item.properties.padding_left, 20, "a pill no longer overrides item padding")
-  equals(item.properties.label.width, 36, "a pill no longer overrides the label width")
-
-  local bracket = recorded.brackets["pill.surface"]
-  equals(bracket.members, { "widgets.surface" }, "a pill brackets its own widget")
-  equals(bracket.properties, settings.pill, "a pill uses the shared surface properties")
-end
-
-do
-  reset()
-
-  pill.add({ name = "custom", pill = { background = { color = colors.red } } })
-  pill.add({ name = "plain" })
-
-  equals(recorded.brackets["pill.custom"].properties.background.color, colors.red,
-    "a per-widget pill override reaches the bracket")
-  equals(recorded.brackets["pill.custom"].properties.background.height, settings.pill.background.height,
-    "a pill override merges with the shared surface")
-  equals(recorded.brackets["pill.plain"].properties.background.color, settings.pill.background.color,
-    "a pill override does not leak into another pill")
-  equals(recorded.items["widgets.custom"].properties.background, nil,
-    "a pill override does not touch the item background")
-end
-
---------------------------------------------------------------------------------
--- Widget modules
---------------------------------------------------------------------------------
-
-do
-  local names = { "battery", "cpu", "memory", "date", "time", "clock", "spotify", "slack", "teams" }
-
-  for _, name in ipairs(names) do
-    local spec = widget_module(name)
-    equals(spec.icon, nil, name .. " no longer uses a top-level icon field")
-    equals(spec.label_width, nil, name .. " no longer uses a top-level label_width field")
-  end
-end
-
-do
-  local battery = widget_module("battery")
-
-  equals(battery.item.label.width, 36, "battery keeps its fixed label width")
-  equals(battery.update_freq, 120, "battery keeps its refresh interval")
-  equals(battery.command, "/usr/bin/pmset -g batt", "battery keeps its command")
-  equals(battery.events, { "routine", "forced", "power_source_change", "system_woke" },
-    "battery keeps its subscriptions")
-
-  local charging = battery.parse("Now drawing from 'AC Power'\n -InternalBattery-0 84%; charging")
-  equals(charging, { percentage = 84, charging = true }, "battery parses a charging state")
-  equals(battery.render(charging).icon.color, colors.green, "a charging battery is green")
-
-  local low = { percentage = 8, charging = false }
-  equals(battery.render(low).icon.color, colors.red, "a low battery is red")
-  equals(battery.render(low).label.string, "8%", "battery renders its percentage")
-
-  local normal = { percentage = 75, charging = false }
-  equals(battery.render(normal).icon.color, colors.green, "a healthy battery is green")
-
-  equals(battery.render(nil).icon.color, colors.muted, "a missing battery state is muted")
-  equals(battery.render(nil).label.string, "", "a missing battery state clears the label")
-end
-
-do
-  local cpu = widget_module("cpu")
-  equals(cpu.render(90).icon.color, colors.red, "a busy CPU is red")
-  equals(cpu.render(10).label.string, "10%", "the CPU label shows a percentage")
-
-  local memory = widget_module("memory")
-  equals(memory.render(nil).label.string, "--%", "memory shows a placeholder when unavailable")
-
-  local clock = widget_module("clock")
-  equals(clock.render(nil).label.string, "", "the clock clears its label explicitly")
-
-  local date = widget_module("date")
-  equals(date.item.label.width, 78, "date keeps its fixed label width")
-
-  local time = widget_module("time")
-  equals(time.item.label.width, 42, "time keeps its fixed label width")
-end
-
-do
-  local spotify = widget_module("spotify")
-  equals(spotify.item.label.drawing, false, "spotify hides its label explicitly")
-  equals(spotify.item.icon.padding_right, settings.widgets.icon.padding_left,
-    "an icon-only pill mirrors the shared left inset explicitly")
-  equals(spotify.item.icon.color, colors.green, "spotify keeps its static green icon")
-  equals(spotify.on_click, '/usr/bin/open -a "Spotify"', "spotify keeps its click action")
-  equals(spotify.render, nil, "spotify has no renderer to override its static colour")
-end
-
-do
-  local slack = widget_module("slack")
-  equals(slack.item.icon.string, "󰒱", "the badge factory forwards its icon into item")
-  equals(slack.item.label.width, 22, "the badge factory forwards its label width")
-  equals(slack.render(nil).icon.color, colors.muted, "a closed app badge is muted")
-  equals(slack.render("3").icon.color, colors.red, "slack keeps its brand colour")
-  equals(slack.render("3").label.string, "3", "a badge renders its count")
-  equals(slack.on_click, '/usr/bin/open -a "Slack"', "slack keeps its click action")
-
-  local teams = widget_module("teams")
-  equals(teams.render("").icon.color, colors.blue, "teams keeps its brand colour")
-end
-
---------------------------------------------------------------------------------
--- Startup
---------------------------------------------------------------------------------
-
-do
-  reset()
-
-  for _, name in ipairs({ "battery", "time", "date", "cpu", "memory", "spotify", "teams", "slack" }) do
-    package.loaded["widgets." .. name] = nil
-  end
-  package.loaded["widgets.aerospace"] = nil
-  package.loaded["bar"] = nil
-
-  sbar.exec_handler = function(command)
-    if command:find("list%-workspaces") then
-      return { { workspace = "2", ["monitor-appkit-nsscreen-screens-id"] = 1 } }, 0
+  if commands[name] then
+    equals(#recorded.execs, 1, name .. " refreshes once during loading")
+    equals(recorded.execs[1].command, commands[name], name .. " keeps its command")
+    for _, event in ipairs(expected_events) do
+      if event ~= "mouse.clicked" then
+        local count = #recorded.execs
+        refresh(item, "", 1, event)
+        equals(#recorded.execs, count + 1, name .. " refreshes on " .. event)
+        equals(recorded.execs[#recorded.execs].command, commands[name], name .. " repeats the same command")
+      end
     end
-    return nil, 1
+  else
+    equals(#recorded.execs, 0, "Spotify stays static")
+    equals(#item.updates, 0, "Spotify has no dynamic renderer")
   end
 
-  local previous_config = os.getenv("CONFIG_DIR")
-
-  -- Run the real `init.lua` in a sandboxed environment so the startup sequence,
-  -- including the bar call, is covered without depending on the caller's
-  -- environment or the native module.
-  local environment
-  environment = setmetatable({
-    os = setmetatable({
-      getenv = function(name)
-        if name == "CONFIG_DIR" then return config_dir end
-        if name == "HOME" then return os.getenv("HOME") or "/tmp" end
-        return os.getenv(name)
-      end,
-    }, { __index = os }),
-  }, { __index = _G })
-
-  local init = assert(loadfile(config_dir .. "/init.lua", "t", environment))
-  init()
-
-  sbar.exec_handler = nil
-
-  equals(recorded.defaults, settings.defaults, "startup applies the shared defaults")
-  ok(recorded.bar ~= nil, "startup applies the bar properties")
-  equals(recorded.bar.height, settings.bar.height, "the bar uses the configured height")
-  equals(recorded.bar.color, colors.transparent, "the bar stays transparent")
-  equals(recorded.bar.padding_left, settings.bar.padding_left, "the bar uses the configured padding")
-  ok(previous_config == nil or previous_config ~= "", "CONFIG_DIR is not required by the tests")
-
-  local default_index, first_item_index
-  for index, call in ipairs(recorded.calls) do
-    if call.kind == "default" then default_index = default_index or index end
-    if call.kind == "item" then first_item_index = first_item_index or index end
+  local app = ({ spotify = "Spotify", teams = "Microsoft Teams", slack = "Slack" })[name]
+  if app then
+    item.subscriptions["mouse.clicked"]()
+    equals(recorded.execs[#recorded.execs].command, '/usr/bin/open -a "' .. app .. '"', name .. " keeps its launcher")
   end
-  ok(default_index and first_item_index and default_index < first_item_index,
-    "defaults are applied before any item is created")
+end
 
-  for _, name in ipairs({ "battery", "time", "date", "cpu", "memory", "spotify", "teams", "slack" }) do
-    ok(recorded.items["widgets." .. name] ~= nil, name .. " is created at startup")
-    ok(recorded.brackets["pill." .. name] ~= nil, name .. " is wrapped in a pill")
+-- Test real output through subscription callbacks, including dynamic colours,
+-- placeholders, and invalid command output. Updates must remain partial.
+local cases = {
+  { "battery", "Now drawing from 'AC Power'\n84%; charging", { icon = { string = icons.battery.charging, color = colors.green }, label = { string = "84%" } } },
+  { "battery", "8%", { icon = { string = icons.battery.empty, color = colors.red }, label = { string = "8%" } } },
+  { "battery", "30%", { icon = { string = icons.battery.low, color = colors.red }, label = { string = "30%" } } },
+  { "battery", "60%", { icon = { string = icons.battery.medium, color = colors.yellow }, label = { string = "60%" } } },
+  { "battery", "90%", { icon = { string = icons.battery.high, color = colors.green }, label = { string = "90%" } } },
+  { "battery", "100%", { icon = { string = icons.battery.full, color = colors.fg }, label = { string = "100%" } } },
+  { "cpu", "CPU usage: 5.2% user, 4.6% sys, 90.2% idle", { icon = { color = colors.yellow }, label = { string = "10%" } } },
+  { "cpu", "90% user, 1% sys", { icon = { color = colors.red }, label = { string = "91%" } } },
+  { "cpu", "0% user, 0% sys", { icon = { color = colors.yellow }, label = { string = "0%" } } },
+  { "memory", "System-wide memory free percentage: 50%", { icon = { color = colors.green }, label = { string = "50%" } } },
+  { "memory", "free percentage: 30%", { icon = { color = colors.yellow }, label = { string = "70%" } } },
+  { "memory", "free percentage: 10%", { icon = { color = colors.red }, label = { string = "90%" } } },
+  { "time", " 10:42\n", { label = { string = "10:42" } } },
+  { "date", " 30 Sep Wed\n", { label = { string = "30 Sep Wed" } } },
+  { "clock", " Wed 30 Sep 10:42\n", { label = { string = "Wed 30 Sep 10:42" } } },
+}
+for _, name in ipairs({ "slack", "teams" }) do
+  for _, label in ipairs({ "", "•", "3", "unexpected" }) do
+    cases[#cases + 1] = { name, 'pid=123; "label"="' .. label .. '"', {
+      icon = { color = name == "slack" and colors.red or colors.blue },
+      label = { string = label == "unexpected" and "" or label },
+    } }
   end
+end
+for _, case in ipairs(cases) do
+  reset()
+  local item = load_item(case[1])
+  equals(refresh(item, case[2]), case[3], case[1] .. " renders " .. case[2])
+end
 
-  local order = {}
-  for _, call in ipairs(recorded.calls) do
-    if call.kind == "item" and call.value.name:match("^widgets%.") then
-      order[#order + 1] = call.value.name:gsub("^widgets%.", "")
-    end
+local fallbacks = {
+  battery = { icon = { string = icons.battery.empty, color = colors.muted }, label = { string = "" } },
+  cpu = { icon = { color = colors.muted }, label = { string = "" } },
+  memory = { icon = { color = colors.muted }, label = { string = "--%" } },
+  time = { label = { string = "--:--" } }, date = { label = { string = "--" } },
+  clock = { label = { string = "" } },
+  slack = { icon = { color = colors.muted }, label = { string = "" } },
+  teams = { icon = { color = colors.muted }, label = { string = "" } },
+}
+for name, fallback in pairs(fallbacks) do
+  reset()
+  local item = load_item(name)
+  for _, output in ipairs({ "", {}, false }) do
+    equals(refresh(item, output), fallback, name .. " handles missing or malformed output")
   end
-  equals(order, { "battery", "time", "date", "cpu", "memory", "spotify", "teams", "slack" },
-    "the widget insertion order is unchanged")
-
-  local workspace_bracket = recorded.brackets["workspace.bracket.1"]
-  ok(workspace_bracket ~= nil, "aerospace creates a workspace bracket")
-  equals(workspace_bracket.properties, settings.pill,
-    "left and right surfaces share the same pill properties")
-
-  for _, workspace in ipairs({ "1", "2", "3", "4", "5" }) do
-    ok(recorded.items["workspace.1." .. workspace] ~= nil, "workspace " .. workspace .. " is created")
-  end
-
-  local selected = recorded.items["workspace.1.2"].updates
-  equals(selected[#selected].background.color, colors.yellow, "the active workspace keeps its highlight")
-
-  local inactive = recorded.items["workspace.1.3"].updates
-  equals(inactive[#inactive].label.color, colors.muted, "inactive workspaces stay muted")
+  equals(refresh(item, "84%; 90% user, 1% sys; free percentage: 10%; pid=123", 1), fallback,
+    name .. " ignores output from a failed command")
 end
 
 --------------------------------------------------------------------------------
+-- Startup and multi-display AeroSpace lifecycle
+--------------------------------------------------------------------------------
 
+local workspace_command = "'/opt/homebrew/bin/aerospace' list-workspaces --monitor all --visible --json"
+  .. " --format '%{workspace}%{monitor-appkit-nsscreen-screens-id}'"
+local function snapshot(first, second)
+  local records = {}
+  if first then records[#records + 1] = { workspace = first, ["monitor-appkit-nsscreen-screens-id"] = 1 } end
+  if second then records[#records + 1] = { workspace = second, ["monitor-appkit-nsscreen-screens-id"] = 2 } end
+  return records
+end
+local function count_calls(kind)
+  local count = 0
+  for _, call in ipairs(recorded.calls) do if call.kind == kind then count = count + 1 end end
+  return count
+end
+
+reset()
+for name in pairs(package.loaded) do
+  if name == "items" or name:match("^items%.") then package.loaded[name] = nil end
+end
+package.loaded.bar = nil
+sbar.exec_handler = function(command)
+  if command == workspace_command then return snapshot("2", "4"), 0 end
+  return "", 1
+end
+local environment = setmetatable({
+  os = setmetatable({ getenv = function(name)
+    if name == "CONFIG_DIR" then return config_dir end
+    if name == "HOME" then return os.getenv("HOME") or "/tmp" end
+    return os.getenv(name)
+  end }, { __index = os }),
+}, { __index = _G })
+assert(loadfile(config_dir .. "/init.lua", "t", environment))()
+sbar.exec_handler = nil
+
+equals(recorded.defaults, settings.defaults, "startup applies shared defaults")
+equals(recorded.bar, {
+  position = "top", color = colors.transparent, height = 40, padding_left = 8,
+  padding_right = 8, display = "all", font_smoothing = true,
+}, "startup preserves the bar configuration")
+equals(recorded.calls[1].kind, "begin_config", "configuration begins before SbarLua setup")
+equals(recorded.calls[#recorded.calls - 2], { kind = "hotload", value = true }, "hotload remains enabled")
+equals(recorded.calls[#recorded.calls - 1].kind, "end_config", "configuration ends before event loop")
+equals(recorded.calls[#recorded.calls].kind, "event_loop", "event loop starts last")
+equals(recorded.events, { "aerospace_workspace_change" }, "the custom event is registered once")
+equals(recorded.items["widgets.clock"], nil, "the optional combined clock is not loaded")
+local insertion_order = {}
+local default_index, event_index
+for index, call in ipairs(recorded.calls) do
+  if call.kind == "default" then default_index = index end
+  if call.kind == "event" then event_index = index end
+  if call.kind == "item" then
+    ok(default_index and default_index < index, "defaults precede " .. call.value.name)
+    local name = call.value.name:match("^widgets%.(.+)$")
+    if name then insertion_order[#insertion_order + 1] = name end
+  elseif call.kind == "subscribe" and call.value.event == "aerospace_workspace_change" then
+    ok(event_index and event_index < index, "custom event exists before subscription")
+  end
+end
+equals(insertion_order, order, "the visual order is unchanged")
+
+local function check_display(display, selected)
+  local members = { "workspace.logo." .. display, "workspace.separator." .. display }
+  local logo = recorded.items[members[1]]
+  equals(logo.properties, {
+    display = display, position = "left", padding_left = 8, padding_right = 7,
+    icon = { string = "", color = colors.fg, padding_left = 0, padding_right = 0 },
+    label = { drawing = false },
+  }, "Apple keeps its styling on display " .. display)
+  equals(logo.subscriptions, {}, "Apple remains decorative")
+  equals(recorded.items[members[2]].properties, {
+    display = display, position = "left", width = 1, padding_left = 0, padding_right = 5,
+    icon = { drawing = false }, label = { drawing = false },
+    background = { drawing = true, color = colors.separator, height = 16 },
+  }, "the separator keeps its styling")
+  for workspace = 1, 5 do
+    local name = "workspace." .. display .. "." .. workspace
+    members[#members + 1] = name
+    local item = recorded.items[name]
+    equals(item.properties, {
+      display = display, position = "left", padding_left = 1, padding_right = 1,
+      icon = { drawing = false }, label = { string = tostring(workspace), padding_left = 7, padding_right = 7 },
+      background = { drawing = true, color = colors.transparent, corner_radius = 7, height = 22 },
+    }, name .. " keeps its styling")
+    equals(latest(item), {
+      background = { color = workspace == selected and colors.yellow or colors.transparent },
+      label = { color = workspace == selected and colors.bg or colors.muted },
+    }, name .. " reflects the active workspace for its display")
+    item.subscriptions["mouse.clicked"]()
+    equals(recorded.execs[#recorded.execs].command, "'/opt/homebrew/bin/aerospace' workspace '" .. workspace .. "'",
+      name .. " keeps its workspace command")
+  end
+  local bracket = recorded.brackets["workspace.bracket." .. display]
+  equals(bracket.members, members, "Apple, separator, and workspaces share one bracket")
+  equals(bracket.properties, settings.pill, "workspace surface stays unchanged")
+end
+check_display(1, 2)
+check_display(2, 4)
+
+local observer = recorded.items["aerospace.observer"]
+equals(observer.properties, { drawing = false, update_freq = 10, updates = true }, "observer keeps its fallback interval")
+equals(keys(observer.subscriptions), { "aerospace_workspace_change", "display_change", "forced", "routine", "system_woke" },
+  "observer keeps its refresh events")
+local creations = count_calls("item") + count_calls("bracket")
+for _, event in ipairs(keys(observer.subscriptions)) do
+  refresh(observer, snapshot("3", "5"), 0, event)
+  equals(recorded.execs[#recorded.execs].command, workspace_command, event .. " queries visible workspaces")
+end
+equals(count_calls("item") + count_calls("bracket"), creations, "repeated refreshes do not recreate items")
+check_display(1, 3)
+check_display(2, 5)
+
+local sets = count_calls("set")
+local removes = count_calls("remove")
+for _, result in ipairs({ "invalid", { false }, { { workspace = "1" } }, {
+  { workspace = "2", ["monitor-appkit-nsscreen-screens-id"] = 1 },
+  { workspace = 3, ["monitor-appkit-nsscreen-screens-id"] = 2 },
+} }) do
+  refresh(observer, result)
+end
+refresh(observer, snapshot("1"), 1)
+equals(count_calls("set"), sets, "failed and malformed snapshots do not change highlights")
+equals(count_calls("remove"), removes, "failed and malformed snapshots do not remove displays")
+
+refresh(observer, snapshot("1"), 0, "display_change")
+equals(count_calls("remove") - removes, 8, "disconnect removes five buttons, logo, separator, and bracket")
+equals(recorded.brackets["workspace.bracket.2"], nil, "disconnected bracket is removed")
+check_display(1, 1)
+refresh(observer, snapshot("1", "4"), 0, "display_change")
+equals(count_calls("item") + count_calls("bracket"), creations + 8, "reconnect recreates only the missing display")
+check_display(2, 4)
+
+-- While a query is in flight, repeated events queue just one follow-up. The
+-- stale result is discarded; only the latest response changes the display.
+local before = #recorded.execs
+observer.subscriptions.forced()
+local first_callback = recorded.execs[#recorded.execs].callback
+observer.subscriptions.system_woke()
+observer.subscriptions.aerospace_workspace_change()
+equals(#recorded.execs, before + 1, "overlapping events do not start concurrent queries")
+sets = count_calls("set")
+first_callback(snapshot("2", "3"), 0)
+equals(#recorded.execs, before + 2, "one pending query runs after completion")
+equals(count_calls("set"), sets, "superseded snapshot is discarded")
+recorded.execs[#recorded.execs].callback(snapshot("5", "1"), 0)
+check_display(1, 5)
+check_display(2, 1)
+refresh(observer, {})
+equals(keys(recorded.brackets), { "pill.battery", "pill.cpu", "pill.date", "pill.memory", "pill.slack", "pill.spotify", "pill.teams", "pill.time" },
+  "an empty display snapshot removes all workspace brackets")
+
+--------------------------------------------------------------------------------
 if failures == 0 then
   io.write(string.format("ok - %d checks passed\n", checks))
   os.exit(0)
 end
-
 io.write(string.format("FAILED - %d of %d checks failed\n", failures, checks))
 os.exit(1)

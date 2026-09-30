@@ -28,8 +28,8 @@ return {
     },
   },
 
-  -- Shared properties for ordinary widgets under `widgets/`. Applied after the
-  -- inherited defaults and before a widget module's own `item` table.
+  -- Shared properties for right-side items under `items/`. Applied after the
+  -- inherited defaults and before each item's own properties.
   widgets = {
     padding_left = 8,
     padding_right = 0,
