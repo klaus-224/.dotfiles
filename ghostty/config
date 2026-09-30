@@ -9,12 +9,10 @@ font-size = 16
 cursor-opacity = 1
 cursor-color= "#f8ce9d"
 bold-is-bright = true
-background-opacity = 0.76
-background-blur-radius = 30
 
 # background = #252530
-# background-opacity = 0.76
-# background-blur = macos-glass-clear
+background-opacity = 0.78
+background-blur = macos-glass-regular
 background-opacity-cells = true
 
 selection-background = "#0a385c"
@@ -53,7 +51,6 @@ keybind = super+digit_7=text:\x01\x37
 keybind = super+digit_8=text:\x01\x38
 keybind = super+digit_9=text:\x01\x39
 
-keybind = super+p=text:\x01\x50
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
 keybind = super+x=text:\x01\x78
