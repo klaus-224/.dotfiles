@@ -24,7 +24,7 @@ path=("$HOME/.local/share/mise/shims" "${path[@]}")
 export PATH
 
 if [[ $USER == "klaus224" ]]; then
-    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.personal.jsonc"
+    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/personal/opencode.jsonc"
   else
-    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/opencode.work.jsonc"
+    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/work/opencode.jsonc"
 fi

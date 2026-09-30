@@ -9,12 +9,21 @@ in
     nvim.source = link "nvim";
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
+
     opencode.source = link "opencode";
     mise.source = link "mise";
     aerospace.source = link "aerospace";
     borders.source = link "borders";
     sketchybar.source = link "sketchybar";
     "gh/config.yml".source = link "gh/config.yml";
+    # manually link everything till env vars work https://github.com/anomalyco/opencode/issues/36990)
+    "opencode/agents".source = link "${dotfiles}/opencode/agents";
+    "opencode/commands".source = link "${dotfiles}/opencode/commands";
+    "opencode/skills".source = link "${dotfiles}/opencode/skills";
+    "opencode/tools".source = link "${dotfiles}/opencode/tools";
+
+    "opencode/opencode.jsonc".source =
+      link "${dotfiles}/opencode/personal/opencode.jsonc";
   };
 
   home.file = {
