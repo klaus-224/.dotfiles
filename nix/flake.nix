@@ -3,7 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-opencode.url = "github:NixOS/nixpkgs/5dbaca36ed1e5ce78fc33775124a54b3906dd585";
+
+    # opencode.url = "github:anomalyco/opencode/v2.0.18";
 
     darwin = {
       url = "github:nix-darwin/nix-darwin";
@@ -36,9 +37,7 @@
 
           specialArgs = {
             inherit inputs username system;
-            opencodePkgs = import inputs.nixpkgs-opencode {
-              inherit system;
-            };
+            # opencodePkgs = inputs.opencode.packages.${system};
           };
 
           modules = [
