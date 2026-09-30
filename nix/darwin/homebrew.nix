@@ -12,7 +12,14 @@
 
     global.brewfile = true;
 
+    taps = [
+     "anomalyco/tap"
+    ];
+
     brews = [
+      {
+        name = "anomalyco/tap/opencode-v2";
+      }
       {
         name = "lua";
       }

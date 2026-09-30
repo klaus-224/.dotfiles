@@ -1,6 +1,6 @@
 {
   pkgs,
-  opencodePkgs,
+  # opencodePkgs,
   ...
 }:
 
@@ -19,9 +19,8 @@
     awscli2
     duckdb
 
-    opencodePkgs.opencode
-    # 2.3.1 broken right now
-    # devenv
+    # opencode v2 broken 
+    # opencodePkgs.opencode
   ];
 
   programs.fzf.enable = true;
