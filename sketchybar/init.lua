@@ -27,8 +27,6 @@ if not loaded then
   )
 end
 
-local settings = require("settings")
-
 -- Bound to a local on purpose. Since Lua 5.4 a first `require` of a module
 -- returns the module *and* its loader data, so `sbar.bar(require("bar"))` would
 -- pass two arguments. SbarLua rejects that call and the bar silently keeps its
@@ -38,8 +36,7 @@ local bar = require("bar")
 sbar.begin_config()
 
 sbar.bar(bar)
-sbar.default(settings.defaults)
-
+require("default")
 require("items")
 
 sbar.hotload(true)

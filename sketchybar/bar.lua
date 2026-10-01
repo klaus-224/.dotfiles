@@ -1,13 +1,12 @@
 local colors = require("colors")
-local settings = require("settings")
 
 -- Bar appearance only; `init.lua` applies it through SbarLua.
 return {
   position = "top",
   color = colors.transparent,
-  height = settings.bar.height,
-  padding_left = settings.bar.padding_left,
-  padding_right = settings.bar.padding_right,
+  height = 40,
+  padding_left = 8,
+  padding_right = 8,
   display = "all",
   font_smoothing = true,
 }

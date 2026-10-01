@@ -1,6 +1,5 @@
 local sbar = require("sketchybar")
 local settings = require("settings")
-local style = require("helpers.style")
 local colors = require("colors")
 local icons = require("icons")
 
@@ -26,15 +25,20 @@ local function render(usage)
   return { icon = { color = color }, label = { string = usage .. "%" } }
 end
 
-local item = sbar.add("item", "widgets.cpu", style.resolve({
+sbar.add("item", "spacer.cpu", {
   position = "right",
-  icon = { string = "" },
-  label = { string = "" },
-}, settings.widgets, {
+  width = settings.group_paddings,
+  icon = { drawing = false },
+  label = { drawing = false },
+  background = { drawing = false },
+})
+
+local item = sbar.add("item", "widgets.cpu", {
+  position = "right",
   icon = { string = icons.cpu },
   label = { width = 36 },
   update_freq = 3,
-}))
+})
 
 local function refresh()
   sbar.exec("/usr/bin/top -l 2 -n 0 -s 1 | /usr/bin/grep 'CPU usage' | /usr/bin/tail -1", function(output, exit_code)
@@ -50,6 +54,8 @@ end
 item:subscribe({ "routine", "forced" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.cpu", { "widgets.cpu" }, style.resolve(settings.pill))
+sbar.add("bracket", "pill.cpu", { "widgets.cpu" }, {
+  background = { color = colors.pill_bg },
+})
 
 return item

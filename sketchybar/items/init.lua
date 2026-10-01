@@ -11,5 +11,7 @@ require("items.date")
 require("items.cpu")
 require("items.memory")
 require("items.spotify")
-require("items.teams")
-require("items.slack")
+if os.getenv("USER") == "rohineshram" then
+  require("items.teams")
+  require("items.slack")
+end

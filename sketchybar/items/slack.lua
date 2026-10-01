@@ -1,6 +1,5 @@
 local sbar = require("sketchybar")
 local settings = require("settings")
-local style = require("helpers.style")
 local colors = require("colors")
 local icons = require("icons")
 
@@ -20,14 +19,19 @@ local function render(label)
   }
 end
 
-local item = sbar.add("item", "widgets.slack", style.resolve({
+sbar.add("item", "spacer.slack", {
   position = "right",
-  icon = { string = "" },
-  label = { string = "" },
-}, settings.widgets, {
+  width = settings.group_paddings,
+  icon = { drawing = false },
+  label = { drawing = false },
+  background = { drawing = false },
+})
+
+local item = sbar.add("item", "widgets.slack", {
+  position = "right",
   icon = { string = icons.slack },
   update_freq = 10,
-}))
+})
 
 local function refresh()
   sbar.exec('/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
@@ -47,6 +51,8 @@ item:subscribe("mouse.clicked", function()
 end)
 refresh()
 
-sbar.add("bracket", "pill.slack", { "widgets.slack" }, style.resolve(settings.pill))
+sbar.add("bracket", "pill.slack", { "widgets.slack" }, {
+  background = { color = colors.pill_bg },
+})
 
 return item

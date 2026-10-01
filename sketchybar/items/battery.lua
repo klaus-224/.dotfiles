@@ -1,6 +1,4 @@
 local sbar = require("sketchybar")
-local settings = require("settings")
-local style = require("helpers.style")
 local colors = require("colors")
 local icons = require("icons").battery
 
@@ -45,15 +43,12 @@ local function render(state)
   }
 end
 
-local item = sbar.add("item", "widgets.battery", style.resolve({
+local item = sbar.add("item", "widgets.battery", {
   position = "right",
-  icon = { string = "" },
-  label = { string = "" },
-}, settings.widgets, {
   icon = { string = icons.empty },
   label = { width = 36 },
   update_freq = 120,
-}))
+})
 
 local function refresh()
   sbar.exec("/usr/bin/pmset -g batt", function(output, exit_code)
@@ -69,6 +64,8 @@ end
 item:subscribe({ "routine", "forced", "power_source_change", "system_woke" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.battery", { "widgets.battery" }, style.resolve(settings.pill))
+sbar.add("bracket", "pill.battery", { "widgets.battery" }, {
+  background = { color = colors.pill_bg },
+})
 
 return item
