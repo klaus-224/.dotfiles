@@ -43,23 +43,39 @@ macos-non-native-fullscreen = true
 # keybind = ctrl+6=unbind                     
 keybind = super+t=unbind
 keybind = super+,=unbind
+keybind = super+h=unbind
+keybind = super+j=unbind
+keybind = super+k=unbind
+keybind = super+l=unbind
 
+keybind = super+5=text:\x01\x25
 keybind = super+7=text:\x01\x37
 keybind = super+8=text:\x01\x38
 keybind = super+9=text:\x01\x39
+
+keybind = super+digit_5=text:\x01\x25
 keybind = super+digit_7=text:\x01\x37
 keybind = super+digit_8=text:\x01\x38
 keybind = super+digit_9=text:\x01\x39
 
+# vim bindings to switch between tmux panes
+keybind = super+h=text:\x01\x68
+keybind = super+j=text:\x01\x6a
+keybind = super+k=text:\x01\x6b
+keybind = super+l=text:\x01\x6c
+
+# open work spaces
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
+
 keybind = super+x=text:\x01\x78
 keybind = super+e=text:\x01\x65
 keybind = super+w=text:\x01\x77
 keybind = super+m=text:\x01\x6d
 keybind = super+o=text:\x01\x4f
-keybind = super+r=text:\x01\x52
+
 keybind = super+\=text:\x01\x7C
 keybind = super+.=text:\x01\x3E
+
 keybind = super+[=text:\x01\x5B
 keybind = super+]=text:\x01\x5D
