@@ -1,6 +1,6 @@
 local sbar = require("sketchybar")
 local settings = require("settings")
-local style = require("helpers.style")
+local colors = require("colors")
 
 local function parse(output)
   if type(output) ~= "string" then return nil end
@@ -12,13 +12,20 @@ local function render(value)
   return { label = { string = value or "" } }
 end
 
-local item = sbar.add("item", "widgets.clock", style.resolve({
+sbar.add("item", "spacer.clock", {
   position = "right",
-  icon = { string = "" },
-  label = { string = "" },
-}, settings.widgets, {
+  width = settings.group_paddings,
+  icon = { drawing = false },
+  label = { drawing = false },
+  background = { drawing = false },
+})
+
+local item = sbar.add("item", "widgets.clock", {
+  position = "right",
+  icon = { drawing = false },
+  label = { padding_left = 2 * settings.paddings },
   update_freq = 30,
-}))
+})
 
 local function refresh()
   sbar.exec("/bin/date '+%a %d %b %H:%M'", function(output, exit_code)
@@ -34,6 +41,8 @@ end
 item:subscribe({ "routine", "forced" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.clock", { "widgets.clock" }, style.resolve(settings.pill))
+sbar.add("bracket", "pill.clock", { "widgets.clock" }, {
+  background = { color = colors.pill_bg },
+})
 
 return item
