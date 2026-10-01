@@ -1,7 +1,5 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
-local settings = require("settings")
-local style = require("helpers.style")
 local apple = require("items.apple")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
@@ -34,6 +32,7 @@ local function add_display(display)
       drawing = true,
       color = colors.separator,
       height = 16,
+      corner_radius = 0,
     },
   })
   members[#members + 1] = "workspace.separator." .. display
@@ -42,19 +41,19 @@ local function add_display(display)
     local item = sbar.add("item", "workspace." .. display .. "." .. workspace, {
       display = display,
       position = "left",
-      padding_left = settings.groups.item_padding_left,
-      padding_right = settings.groups.item_padding_right,
+      padding_left = 1,
+      padding_right = 1,
       icon = { drawing = false },
       label = {
         string = workspace,
-        padding_left = settings.groups.label_padding_left,
-        padding_right = settings.groups.label_padding_right,
+        padding_left = 7,
+        padding_right = 7,
       },
       background = {
         drawing = true,
         color = colors.transparent,
-        corner_radius = settings.groups.background_corner_radius,
-        height = settings.groups.background_height,
+        corner_radius = 7,
+        height = 22,
       },
     })
 
@@ -70,7 +69,7 @@ local function add_display(display)
     "bracket",
     "workspace.bracket." .. display,
     members,
-    style.resolve(settings.pill)
+    { background = { color = colors.pill_bg } }
   )
 
   return {

@@ -19,6 +19,8 @@
 
   nixpkgs.hostPlatform = system;
 
+  fonts.packages = [ pkgs.nerd-fonts.hack ];
+
   programs.zsh.enable = true;
 
   environment = {
