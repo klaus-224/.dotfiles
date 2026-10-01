@@ -1,6 +1,7 @@
 export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 export CODE_DIR="$HOME/code"
 export EDITOR="nvim"
+export TODO_FILE="$CODE_DIR/todo.md"
 
 export STARSHIP_CONFIG="$DOTFILES_HOME/starship/starship.toml"
 
