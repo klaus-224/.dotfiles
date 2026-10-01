@@ -2,3 +2,9 @@ node_modules
 bun.lock
 !.gitignore
 !package.json
+
+# Machine-local OpenCode service credentials and runtime files.
+service.json
+service.json.*
+service-*.json
+cli.json.tmp
