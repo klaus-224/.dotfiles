@@ -23,8 +23,11 @@ typeset -U path PATH
 path=("$HOME/.local/share/mise/shims" "${path[@]}")
 export PATH
 
+# V2 uses this directory as its global config root, including cli.json.
+# Clear the old file override so profiles cannot be merged accidentally.
+unset OPENCODE_CONFIG
 if [[ $USER == "klaus224" ]]; then
-    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/personal/opencode.jsonc"
-  else
-    export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/work/opencode.jsonc"
+  export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode/personal"
+else
+  export OPENCODE_CONFIG_DIR="$DOTFILES_HOME/opencode/work"
 fi

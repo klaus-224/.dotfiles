@@ -1,38 +1,19 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "snapshot": false,
-  "autoupdate": true,
   "default_agent": "chat",
-  "enabled_providers": [
-    "openai",
-    "opencode"
-  ],
-  "skills": {
-    "paths": [
-      "./skills"
-    ]
-  },
-  "shell": "zsh",
-  // use builtin opencode formatter 
+  "shell": "/bin/zsh",
   "formatter": true,
-  // use builtin opencode lsp 
   "lsp": {
-    "typescript": {
-      "command": [
-        "tsc",
-        "--no-emit"
-      ]
-    },
     "lua": {
       "command": [
         "lua-language-server"
-      ],
+      ]
     },
     "nix": {
       "command": [
         "nixd"
-      ],
-    },
+      ]
+    }
   },
   "references": {
     "nvim-config": {
@@ -46,250 +27,200 @@
     "zsh": {
       "path": "~/.dotfiles/zsh",
       "description": "My personal zsh config. Use when asked about zsh"
-    },
+    }
   },
-  "plugin": [
-    [
-      "@plannotator/opencode@0.27.12",
-      {
-        "workflow": [
-          "plan-agent"
-        ],
+  "snapshots": false,
+  "update": "disable",
+  "experimental": {
+    "policies": [
+      { "action": "provider.use", "resource": "*", "effect": "deny" },
+      { "action": "provider.use", "resource": "openai", "effect": "allow" },
+      { "action": "provider.use", "resource": "opencode", "effect": "allow" }
+    ]
+  },
+  "plugins": [
+    {
+      "package": "@plannotator/opencode@0.27.22",
+      "options": {
+        "workflow": "plan-agent",
         "planningAgents": [
-          "planner",
+          "planner"
         ]
       }
-    ],
+    }
   ],
-  "agent": {
+  "agents": {
     "chat": {
       "description": "Chat and collaboration agent.",
       "mode": "primary",
-      "model": "openai/gpt-6-astra",
-      "variant": "high",
+      "model": "openai/gpt-6-astra#high",
       "steps": 3,
-      "prompt": "{file:./prompts/chat.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "task": {
-          "*": "deny",
-          "explorer": "allow"
-        },
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "simple-coding": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow"
-        }
-      }
+      "system": "{file:./prompts/chat.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "explorer", "effect": "allow" },
+        { "action": "skill", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "find-docs", "effect": "allow" },
+        { "action": "skill", "resource": "simple-coding", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "ask" },
+        { "action": "shell", "resource": "ctx7 library *", "effect": "allow" },
+        { "action": "shell", "resource": "ctx7 docs *", "effect": "allow" }
+      ]
     },
     "planner": {
       "description": "Produces evidence-backed implementation plans and submits them for human approval before code changes begin.",
-      "model": "openai/gpt-6-astra",
-      "variant": "high",
+      "model": "openai/gpt-6-astra#high",
       "mode": "primary",
-      "prompt": "{file:./prompts/planner.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "question": "allow",
-        "edit": "deny",
-        "write": "deny",
-        "webfetch": "allow",
-        "task": {
-          "*": "deny",
-          "explorer": "allow"
-        },
-        "skill": {
-          "plannotator-annotate": "allow",
-        },
-        "bash": "deny",
-        "external_directory": "ask"
-      }
+      "system": "{file:./prompts/planner.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "question", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "explorer", "effect": "allow" },
+        { "action": "skill", "resource": "plannotator-annotate", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "ask" },
+        { "action": "submit_plan", "resource": "*", "effect": "allow" }
+      ]
     },
     "explorer": {
       "mode": "subagent",
-      "hidden": true,
-      "model": "openai/gpt-5.6-sol",
-      "variant": "medium",
-      "prompt": "{file:./prompts/explorer.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "webfetch": "allow",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow"
-        },
-        "bash": {
-          "*": "deny",
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow"
-        },
-        "task": "deny",
-        "edit": "deny",
-        "write": "deny",
-        "apply_patch": "deny",
-        "external_directory": "deny"
-      }
+      "model": "openai/gpt-5.6-sol#medium",
+      "system": "{file:./prompts/explorer.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "find-docs", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "ctx7 library *", "effect": "allow" },
+        { "action": "shell", "resource": "ctx7 docs *", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" }
+      ],
+      "description": "Read-only repository and documentation research for the caller."
     },
     "builder": {
-      "prompt": "{file:./prompts/builder.md}",
-      "model": "openai/gpt-5.6-sol",
-      "variant": "medium",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "question": "allow",
-        "edit": "allow",
-        "write": "allow",
-        "task": "deny",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "plannotator-review": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git show*": "allow",
-          "git rev-parse*": "allow",
-          "git add *": "allow",
-          "git commit *": "allow",
-          "git add -A*": "deny",
-          "git add --all*": "deny",
-          "git add .*": "deny",
-          "git commit*--amend*": "deny",
-          "git commit*--no-verify*": "deny",
-          "just*": "allow",
-          "ctx7 *": "allow",
-          "plannotator review *": "allow",
-        }
-      },
+      "model": "openai/gpt-5.6-sol#medium",
+      "system": "{file:./prompts/builder.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "question", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "find-docs", "effect": "allow" },
+        { "action": "skill", "resource": "plannotator-review", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "ask" },
+        { "action": "shell", "resource": "git status*", "effect": "allow" },
+        { "action": "shell", "resource": "git diff*", "effect": "allow" },
+        { "action": "shell", "resource": "git log*", "effect": "allow" },
+        { "action": "shell", "resource": "git show*", "effect": "allow" },
+        { "action": "shell", "resource": "git rev-parse*", "effect": "allow" },
+        { "action": "shell", "resource": "git add *", "effect": "allow" },
+        { "action": "shell", "resource": "git commit *", "effect": "allow" },
+        { "action": "shell", "resource": "git add -A*", "effect": "deny" },
+        { "action": "shell", "resource": "git add --all*", "effect": "deny" },
+        { "action": "shell", "resource": "git add .*", "effect": "deny" },
+        { "action": "shell", "resource": "git commit*--amend*", "effect": "deny" },
+        { "action": "shell", "resource": "git commit*--no-verify*", "effect": "deny" },
+        { "action": "shell", "resource": "just*", "effect": "allow" },
+        { "action": "shell", "resource": "ctx7 *", "effect": "allow" },
+        { "action": "shell", "resource": "plannotator review *", "effect": "allow" }
+      ],
+      "mode": "primary",
+      "description": "Implements the human-approved plan and reviews its changes."
     },
     "audit-orchestrator": {
       "description": "Coordinates approved configuration audits in isolated worktrees.",
       "mode": "primary",
-      "model": "openai/gpt-6-astra",
-      "reasoning": "high",
-      "prompt": "{file:./prompts/audit-orchestrator.md}",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "question": "allow",
-        "webfetch": "allow",
-        "doom_loop": "ask",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "simple-coding": "allow"
-        },
-        "task": {
-          "*": "deny",
-          "audit-worker": "allow"
-        },
-        "external_directory": {
-          "*": "deny",
-          "~/.dotfiles/**": "allow",
-          "~/code/dotfiles-audit": "allow",
-          "~/code/dotfiles-audit/**": "allow"
-        },
-        "bash": {
-          "*": "ask",
-          "mkdir": "allow",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git worktree list*": "allow",
-          "git commit*": "deny",
-          "git * commit*": "deny",
-          "git push*": "deny",
-          "git * push*": "deny",
-          "git reset*": "deny",
-          "git * reset*": "deny",
-          "git clean*": "deny",
-          "git * clean*": "deny"
-        }
-      }
+      "model": "openai/gpt-6-astra#high",
+      "system": "{file:./prompts/audit-orchestrator.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "question", "resource": "*", "effect": "allow" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "find-docs", "effect": "allow" },
+        { "action": "skill", "resource": "simple-coding", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "audit-worker", "effect": "allow" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" },
+        { "action": "external_directory", "resource": "~/.dotfiles/**", "effect": "allow" },
+        { "action": "external_directory", "resource": "~/code/dotfiles-audit", "effect": "allow" },
+        { "action": "external_directory", "resource": "~/code/dotfiles-audit/**", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "ask" },
+        { "action": "shell", "resource": "mkdir", "effect": "allow" },
+        { "action": "shell", "resource": "git status*", "effect": "allow" },
+        { "action": "shell", "resource": "git diff*", "effect": "allow" },
+        { "action": "shell", "resource": "git log*", "effect": "allow" },
+        { "action": "shell", "resource": "git worktree list*", "effect": "allow" },
+        { "action": "shell", "resource": "git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git * commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git push*", "effect": "deny" },
+        { "action": "shell", "resource": "git * push*", "effect": "deny" },
+        { "action": "shell", "resource": "git reset*", "effect": "deny" },
+        { "action": "shell", "resource": "git * reset*", "effect": "deny" },
+        { "action": "shell", "resource": "git clean*", "effect": "deny" },
+        { "action": "shell", "resource": "git * clean*", "effect": "deny" }
+      ]
     },
     "audit-worker": {
       "description": "Implements only assigned audit checkpoints without further delegation.",
       "mode": "subagent",
-      "hidden": true,
-      "prompt": "{file:./prompts/audit-worker.md}",
-      "model": "openai/gpt-5.6-sol",
-      "variant": "medium",
-      "permission": {
-        "*": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "edit": "allow",
-        "lsp": "allow",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "doom_loop": "ask",
-        "task": "deny",
-        "skill": {
-          "*": "deny",
-          "find-docs": "allow",
-          "simple-coding": "allow"
-        },
-        "external_directory": {
-          "*": "deny",
-        },
-        "bash": {
-          "*": "ask",
-          "mkdir": "allow",
-          "git status*": "allow",
-          "git diff*": "allow",
-          "git log*": "allow",
-          "git commit*": "deny",
-          "git * commit*": "deny",
-          "git push*": "deny",
-          "git * push*": "deny",
-          "git reset*": "deny",
-          "git * reset*": "deny",
-          "git clean*": "deny",
-          "git * clean*": "deny",
-          "ctx7 library *": "allow",
-          "ctx7 docs *": "allow",
-          "plannotator review --commit *": "allow",
-          "plannotator review --branch *": "allow"
-        }
-      }
+      "model": "openai/gpt-5.6-sol#medium",
+      "system": "{file:./prompts/audit-worker.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "find-docs", "effect": "allow" },
+        { "action": "skill", "resource": "simple-coding", "effect": "allow" },
+        { "action": "external_directory", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "*", "effect": "ask" },
+        { "action": "shell", "resource": "mkdir", "effect": "allow" },
+        { "action": "shell", "resource": "git status*", "effect": "allow" },
+        { "action": "shell", "resource": "git diff*", "effect": "allow" },
+        { "action": "shell", "resource": "git log*", "effect": "allow" },
+        { "action": "shell", "resource": "git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git * commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git push*", "effect": "deny" },
+        { "action": "shell", "resource": "git * push*", "effect": "deny" },
+        { "action": "shell", "resource": "git reset*", "effect": "deny" },
+        { "action": "shell", "resource": "git * reset*", "effect": "deny" },
+        { "action": "shell", "resource": "git clean*", "effect": "deny" },
+        { "action": "shell", "resource": "git * clean*", "effect": "deny" },
+        { "action": "shell", "resource": "ctx7 library *", "effect": "allow" },
+        { "action": "shell", "resource": "ctx7 docs *", "effect": "allow" },
+        { "action": "shell", "resource": "plannotator review --commit *", "effect": "allow" },
+        { "action": "shell", "resource": "plannotator review --branch *", "effect": "allow" }
+      ]
     },
     "general": {
       "hidden": true
@@ -300,5 +231,5 @@
     "plan": {
       "hidden": true
     }
-  },
+  }
 }

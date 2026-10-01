@@ -3,7 +3,6 @@
   pkgs,
   username,
   system,
-  opencodePkgs,
   ...
 }:
 
@@ -53,7 +52,7 @@
     useUserPackages = true;
     backupFileExtension = "backup";
     extraSpecialArgs = {
-      inherit username opencodePkgs;
+      inherit username;
     };
     users.${username} = {
       imports = [ ../home ];
