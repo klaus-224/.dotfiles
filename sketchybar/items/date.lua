@@ -23,8 +23,12 @@ sbar.add("item", "spacer.date", {
 
 local item = sbar.add("item", "widgets.date", {
   position = "right",
-  icon = { string = icons.date },
-  label = { width = 78 },
+  padding_left = 8,
+  padding_right = 8,
+  icon = {
+    string = icons.date,
+    padding_right = 4,
+  },
   update_freq = 60,
 })
 

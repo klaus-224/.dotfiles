@@ -14,7 +14,7 @@ local function parse(output)
   local wired = tonumber(output:match("Pages wired down:%s*(%d+)"))
   local compressed = tonumber(output:match("Pages occupied by compressor:%s*(%d+)"))
   if not total or total <= 0 or not page_size or page_size <= 0
-    or not anonymous or not purgeable or not wired or not compressed then
+      or not anonymous or not purgeable or not wired or not compressed then
     return nil
   end
 

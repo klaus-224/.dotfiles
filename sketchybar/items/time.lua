@@ -23,8 +23,10 @@ sbar.add("item", "spacer.time", {
 
 local item = sbar.add("item", "widgets.time", {
   position = "right",
-  icon = { string = icons.time },
-  label = { width = 42 },
+  padding_left = 8,
+  padding_right = 8,
+  icon = { string = icons.time, padding_right = 4 },
+  -- label = { width = 42 },
   update_freq = 30,
 })
 
