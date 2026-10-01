@@ -11,8 +11,8 @@ cursor-color= "#f8ce9d"
 bold-is-bright = true
 
 # background = #252530
-background-opacity = 0.78
-background-blur = macos-glass-regular
+background-opacity = 0.76
+background-blur = macos-glass-clear
 background-opacity-cells = true
 
 selection-background = "#0a385c"
@@ -64,9 +64,9 @@ keybind = super+j=text:\x01\x6a
 keybind = super+k=text:\x01\x6b
 keybind = super+l=text:\x01\x6c
 
-# open work spaces
 keybind = super+c=text:\x01\x43
 keybind = super+d=text:\x01\x44
+keybind = super+t=text:\x01\x54
 
 keybind = super+x=text:\x01\x78
 keybind = super+e=text:\x01\x65
