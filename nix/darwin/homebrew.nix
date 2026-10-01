@@ -29,6 +29,11 @@
         start_service = true;
       }
       {
+        name = "FelixKratz/formulae/borders";
+        trusted = true;
+        start_service = true;
+      }
+      {
         name = "rtk";
       }
     ];

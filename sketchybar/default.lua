@@ -30,7 +30,7 @@ sbar.default({
   background = {
     border_color = colors.pill_border,
     border_width = 0,
-    corner_radius = 12,
+    corner_radius = 16,
     height = 28,
   },
 })
