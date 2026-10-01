@@ -1,71 +1,98 @@
-# OpenCode configuration
+# OpenCode v2 configuration
 
-Work and personal profiles intentionally have different workflows. Nix manages
-the OpenCode executable; both profiles disable application auto-update.
+These profiles target OpenCode 2.0.20. Homebrew manages the executable; OpenCode
+self-updating is disabled.
 
-| Profile | Default | Providers | Plugins |
-|---|---|---|---|
-| `opencode.work.jsonc` | `chat` | GitHub Copilot; Atlassian MCP | None |
-| `opencode.personal.jsonc` | `pair-programmer` | OpenAI and OpenCode | Plannotator `0.27.12` |
+| Profile | Machine user | Providers | Additional agents |
+| --- | --- | --- | --- |
+| `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
+| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `jira-operator` |
 
-The shell selects `OPENCODE_CONFIG`; Home Manager links this directory to
-`~/.config/opencode`. Relative `{file:...}` references resolve from the profile directory.
-No OMO installation or configuration is required. The obsolete OMO registration
-and tests have been retired; personal's user-managed Plannotator workflow remains.
+Both start with `chat` and include `planner`, `explorer`, and `builder`. Models
+and variants remain profile-specific. Availability depends on your provider
+account; configuration validation does not authenticate or run a model.
 
-## Agents and commands
+## Loading and shared files
 
-- Work `chat` can read/search and discuss code, but cannot edit. Shell commands
-  require approval. Database exploration is relevant-task-only, authorized, and
-  read-only, never a prerequisite for ordinary chat.
-- Work `audit-orchestrator` is a primary agent and delegates only to the
-  `audit-worker` subagent. The worker cannot delegate further. Their supplied
-  prompts and worktree permissions are preserved.
-- Work `/summarize-jira-ticket` targets `jira-operator`. Only named Atlassian
-  reads and `gh pr list/view/diff` shell calls are exposed and require approval.
-  Unknown MCP tool names fail closed until explicitly reviewed.
-- Personal `pair-programmer` is read-only and denies shell access. `build` remains
-  the explicit implementation agent.
-- Personal `planner` and `/test-plan` retain user-managed plan review.
-  `/test-plan` targets `orchestrator`, which delegates only to read-only `explorer`
-  and `oracle`. Discovery alone runs in parallel, review uses a fresh oracle,
-  and at most one correction pass precedes `submit_plan` and stopping.
+Home Manager links `~/.config/opencode` to the selected profile directory. Zsh
+sets `OPENCODE_CONFIG_DIR` to the same directory and clears the old
+`OPENCODE_CONFIG` file override. This avoids merging personal configuration into
+work configuration. As before, users other than `klaus224` select work.
 
-Profile-specific commands are registered in JSON, with their bodies under
-`prompts/`, so work does not advertise personal-only planning agents and personal
-does not reference an unavailable Jira agent. Shared Plannotator skill commands
-remain under `commands/`; they require their documented local CLI prerequisites.
-`prompts/back/` is a preserved archive, not an agent registration directory.
-The deleted `agent-defs/` files are not required.
+Each profile links `prompts`, `skills`, and `cli.json` to shared files. File
+references resolve from the profile directory, including when reached through
+Home Manager's symlink. Agent registrations live only in profile JSONC. Prompt
+Markdown and `prompts/back/` are not auto-discovered agents.
 
-Permissions are guardrails, not a shell sandbox. In particular, do not approve
-write operations for read-only roles or use auto-approval to bypass review.
-Provider/model availability and MCP authentication require a separate live check.
+The four legacy custom tools remain under `tools/` and are inactive. Their v1
+SDK manifest, lockfiles, and historical tests remain for a future migration.
+`command-archive/` preserves old Plannotator command bodies; the v2 plugin
+registers the active commands. The Jira template lives under `prompts/` and is
+registered only as work's `/test-plan`.
 
-## Verification without runtime activation
+`cli.json` is the active v2 terminal configuration. `tui.json` is a historical
+v1 file and is not linked into either active profile.
 
-From this directory, with locked development dependencies installed:
+## Workflows and permissions
 
-```sh
-npm test
-npm run typecheck
-```
+Permissions use v2 ordered rules: broad defaults precede specific exceptions,
+and the last matching rule wins. Shell and delegation actions are `shell` and
+`subagent`. Planning and review agents retain their read-only restrictions.
+Delegated workers are discoverable subagents; `hidden` would remove them from
+v2's delegation catalog. The original built-in build/plan/general agents remain
+hidden in favor of the configured roles.
 
-Tests parse JSONC, verify file and agent references, check profile-specific
-permissions/workflows, and exercise pure custom-tool input parsers.
-They do not start OpenCode or install plugins. The SDK dependency is pinned to
-`1.18.30`. `npm test` is offline; `npm run test:schema` is an explicit network
-check of the current official schema, not a runtime compatibility test.
+Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
+`pr-review`, and passes its findings to `test-planner`. It returns manual test
+steps without implementing tests or triggering an implementation handoff.
+Only the named read operations are allowed through Atlassian MCP; unknown tool
+names require a configuration update. Code Mode is enabled for the two Jira
+readers so they can access MCP tools; nested calls retain their own permissions.
 
-For dependency provisioning, the manifest selects pnpm and the existing
-`pnpm-lock.yaml` passed a frozen install in the audit worktree. The legacy
-`package-lock.json` is stale: `npm ci` failed there. Neither lockfile was changed
-in this audit; reconcile the redundant npm lock before relying on npm installs.
-Running npm test scripts against already provisioned dependencies remains valid.
+Both profiles pin `@plannotator/opencode@0.27.22`, use `plan-agent` workflow,
+and allow `planner` to call `submit_plan`. In the approval UI, select `builder`
+as the destination. Plannotator switches the session to that agent on approval;
+rejected plans remain with the planner. The builder keeps its existing approved
+plan, commit, and review instructions. Approval does not trigger a separate
+synthetic model request. Plannotator CLI commands additionally require the
+`plannotator` executable supplied by mise.
 
-Do not treat `opencode debug config` as a harmless static parser: loading a
-runtime configuration can load plugins, custom tools and MCP configuration.
-Only run a resolved-runtime check in an explicitly approved isolated environment.
-Current configuration semantics: [agents](https://opencode.ai/docs/agents/),
-[permissions](https://opencode.ai/docs/permissions/), and
-[commands](https://opencode.ai/docs/commands/).
+TypeScript uses built-in language-server discovery, not `tsc --no-emit`.
+Lua and Nix retain `lua-language-server` and `nixd` overrides. These executables
+must be available on PATH. Built-in formatting remains enabled.
+
+## Activation and verification
+
+After integrating these changes into `~/.dotfiles`, apply the appropriate
+existing nix-darwin host configuration (`klaus-macbook` or `work-macbook`), open a
+new shell, then restart OpenCode's service. This repair does not activate Nix or
+restart your live service automatically.
+
+`service.json` is machine-local runtime state and must not be tracked. Preserve
+any existing local copy privately before applying its repository deletion;
+retain it in the selected profile directory if keeping the same service
+credentials. Do not copy it between work and personal machines. The active
+profile directories ignore generated service metadata.
+
+Use `zsh -n zsh/.zshenv`, evaluate both Nix host configurations without activation,
+and inspect each profile with OpenCode v2 in isolated temporary data/config
+folders. Check resolved prompts, agent permissions, commands, skills, and plugin
+activation. Runtime inspection can load plugins and connect MCP servers: disable
+Atlassian in validation copies and use temporary data directories without
+credentials. Do not use `debug config` as a purely static JSON parser.
+
+Verified with OpenCode 2.0.20: both Nix host evaluations, shell profile selection,
+all prompt references, shared-directory symlinks, effective agent permissions,
+profile-specific commands, and activation of the published Plannotator package.
+Disposable sessions switched from `planner` to `builder` through the same host
+API used by the plugin. Browser approval, live model/Jira authentication, and
+language-server connections were not exercised. No model requests were sent.
+
+No tests were added or updated for this repair. Existing tests describe obsolete
+v1 filenames and workflows; they are not a v2 acceptance check. Do not install
+the legacy custom-tool dependencies merely to validate the active profiles.
+
+References: [v2 config](https://opencode.ai/v2/docs/config/),
+[agents](https://opencode.ai/v2/docs/agents/),
+[permissions](https://opencode.ai/v2/docs/permissions/), and
+[Plannotator](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin).

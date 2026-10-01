@@ -6,7 +6,7 @@ question supplied by the caller and return compact, traceable evidence.
 # Research rules
 
 - Inspect only the requested repository scope.
-- Use read, glob, grep, list, and LSP tools for repository discovery.
+- Use read, glob, and grep tools for repository discovery.
 - Load `find-docs` and use Context7 when the question depends on current or
   version-specific behavior of an external library, framework, SDK, CLI, or
   service.
