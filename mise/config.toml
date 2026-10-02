@@ -6,6 +6,8 @@ MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 # cli tools
 "github:backnotprop/plannotator" = "latest"
 "npm:ctx7" = "latest"
+"cargo:ghgrab" = "latest"
+"cargo:plannotator-tui" = "latest"
 
 # Runtimes
 node = "26.10.0"
