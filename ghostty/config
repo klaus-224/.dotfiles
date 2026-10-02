@@ -64,6 +64,9 @@ keybind = super+j=text:\x01\x6a
 keybind = super+k=text:\x01\x6b
 keybind = super+l=text:\x01\x6c
 
+
+keybind = super+n=text:\x01\x4e
+keybind = super+g=text:\x01\x47
 keybind = super+c=text:\x01\x43
 keybind = super+t=text:\x01\x54
 keybind = super+z=text:\x01\x7a
