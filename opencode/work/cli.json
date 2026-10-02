@@ -1,1 +1,72 @@
-../cli.json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "rosepine",
+    "mode": "system"
+  },
+  "keybinds": {
+    "leader": "ctrl+s",
+    "app.exit": "ctrl+c,ctrl+d,<leader>q",
+    "prompt.editor": "<leader>e",
+    "theme.switch": "<leader>t",
+    "session.sidebar.toggle": "<leader>b",
+    "opencode.status": "<leader>s",
+    "session.export": "<leader>x",
+    "session.new": "<leader>n",
+    "session.list": "<leader>l",
+    "session.timeline": "<leader>g",
+    "session.rename": "none",
+    "session.interrupt": "escape",
+    "session.compact": "<leader>c",
+    "session.child.first": "<leader>j",
+    "session.parent": "k"
+  },
+  "diffs": {
+    "wrap": "word",
+    "single": true,
+    "view": "split"
+  },
+  "session": {
+    "sidebar": "auto",
+    "scrollbar": false,
+    "thinking": "hide",
+    "markdown": "rendered",
+    "grouping": "auto",
+    "verbosity": "low",
+    "image_preview": false,
+    "new_location": "launch",
+    "permissions": "prompt"
+  },
+  "animations": false,
+  "tabs": {
+    "indicators": "status",
+    "mode": "on",
+    "scope": "cwd",
+    "layout": "vertical"
+  },
+  "scroll": {
+    "speed": 4,
+    "acceleration": false
+  },
+  "prompt": {
+    "editor": true,
+    "paste": "compact",
+    "image_preview": true
+  },
+  "leader": {
+    "timeout": 2000
+  },
+  "attention": {
+    "notifications": true,
+    "sound": true,
+    "volume": 0.5
+  },
+  "terminal": {
+    "title": true,
+    "copy": "select"
+  },
+  "debug": {
+    "devtools": true,
+    "turn_tokens": "verbose"
+  }
+}
