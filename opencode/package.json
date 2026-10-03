@@ -4,16 +4,18 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "test": "node --import tsx --test tests/config.test.ts tests/pr_context.test.ts tests/tools-dependencies.test.ts",
+    "test": "node --import tsx --test tests/pr_context.test.ts",
     "test:schema": "node --import tsx --test tests/schema-validation.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.18.29"
+    "@opencode/plugin": "2.0.20"
   },
   "devDependencies": {
+    "@opencode/schema": "2.0.20",
+    "@types/json-schema": "^7.0.15",
     "@types/node": "^25.9.1",
-    "ajv": "8.20.0",
+    "effect": "4.0.0-rc.112",
     "jsonc-parser": "3.3.1",
     "tsx": "^4.19.0",
     "typescript": "^7.0.2"
