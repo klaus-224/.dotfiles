@@ -40,7 +40,7 @@
   },
   "plugins": [
     "./plugins/rtk",
-    "../plugins/pr-context/index.ts",
+    "./plugins/pr-context",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {
