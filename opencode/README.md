@@ -71,8 +71,9 @@ Chat, explorer, builder, and the personal audit agents can load it. Explorer
 can list remote trees; downloads retain its existing shell denial. Other agents
 retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
 
-Both profiles explicitly load `../plugins/rtk`, a dependency-free OpenCode v2
-adapter for [RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode).
+Both profiles explicitly load a dependency-free OpenCode v2 adapter for
+[RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode)
+through `./plugins/rtk` and their shared `plugins` symlink.
 It checks every shell invocation through `rtk rewrite` before execution,
 including commands from subagents. RTK owns the rewrite rules: supported commands
 use its filters, unsupported commands and explicit `rtk` calls pass through.

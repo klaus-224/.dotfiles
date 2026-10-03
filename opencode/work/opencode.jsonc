@@ -51,7 +51,7 @@
     { "action": "external_directory", "resource": "*", "effect": "deny" }
   ],
   "plugins": [
-    "../plugins/rtk",
+    "./plugins/rtk",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {
