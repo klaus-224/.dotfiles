@@ -36,6 +36,7 @@
   rs = restore --staged
   dt = difftool
   dts = difftool --staged
+  dtm = difftool main...HEAD
   lg = log --graph --decorate --oneline --all
   last = log -1 --stat
 [include]
