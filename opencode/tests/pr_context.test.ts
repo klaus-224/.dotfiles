@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseSource, parseTestTypes } from "../tools/pr_context.js";
+import { parseSource, parseTestTypes } from "../plugins/pr-context/index.js";
 
 test("parseTestTypes accepts, normalizes, and deduplicates allowed types", () => {
   assert.deepEqual(parseTestTypes("unit, playwright,unit"), [

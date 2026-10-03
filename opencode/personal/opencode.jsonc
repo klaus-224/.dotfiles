@@ -39,6 +39,7 @@
     ]
   },
   "plugins": [
+    "../plugins/pr-context/index.ts",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {
@@ -87,6 +88,7 @@
         { "action": "webfetch", "resource": "*", "effect": "allow" },
         { "action": "subagent", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "explorer", "effect": "allow" },
+        { "action": "pr_context_get", "resource": "*", "effect": "allow" },
         { "action": "skill", "resource": "plannotator-annotate", "effect": "allow" },
         { "action": "shell", "resource": "*", "effect": "deny" },
         { "action": "external_directory", "resource": "*", "effect": "ask" },
