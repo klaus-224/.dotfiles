@@ -2,24 +2,28 @@
 custom-shader = shaders/cursor_tail.glsl
 
 theme = Vague
-background = black
+# background = black
+background = #09090a
+
 font-family = Iosevka Term
 font-thicken = true
 font-size = 16
-cursor-opacity = 1
-cursor-color= "#f8ce9d"
 bold-is-bright = true
 
-# background = #252530
-background-opacity = 0.76
-background-blur = macos-glass-clear
+cursor-opacity = 1
+cursor-color= "#f8ce9d"
+
+background-opacity = 0.72
+background-blur = 30
 background-opacity-cells = true
 
 selection-background = "#0a385c"
-window-padding-x = 1
-window-padding-y = 0,0
+window-padding-x = 5
+window-padding-y = 5
+
 window-padding-color = extend
 window-padding-balance = false
+
 window-vsync = true
 shell-integration = zsh
 mouse-hide-while-typing = true
