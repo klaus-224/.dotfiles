@@ -1,98 +1,75 @@
 # OpenCode v2 configuration
 
-These profiles target OpenCode 2.0.20. Homebrew manages the executable; OpenCode
-self-updating is disabled.
+These profiles target OpenCode 2.0.20. Homebrew manages the executable and
+OpenCode self-updating is disabled.
 
 | Profile | Machine user | Providers | Additional agents |
 | --- | --- | --- | --- |
 | `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
 | `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `jira-operator` |
 
-Both start with `chat` and include `planner`, `explorer`, and `builder`. Models
-and variants remain profile-specific. Availability depends on your provider
-account; configuration validation does not authenticate or run a model.
+Both profiles start with `chat` and include `planner`, `explorer`, and `builder`.
+Models and variants remain profile-specific. Availability depends on the
+provider account; validation does not authenticate or run a model.
 
-## Loading and shared files
+## Loading and retained resources
 
-Home Manager links `~/.config/opencode` to the selected profile directory. Zsh
-sets `OPENCODE_CONFIG_DIR` to the same directory and clears the old
-`OPENCODE_CONFIG` file override. This avoids merging personal configuration into
-work configuration. As before, users other than `klaus224` select work.
+Home Manager links `~/.config/opencode` to the profile selected by username in
+`nix/home/files.nix`: `personal` for `klaus224`, `work` for other users. Zsh
+does not override OpenCode's config path, so the Home Manager link is the single
+profile selector.
 
-Each profile links `prompts`, `skills`, and `cli.json` to shared files. File
-references resolve from the profile directory, including when reached through
-Home Manager's symlink. Agent registrations live only in profile JSONC. Prompt
-Markdown and `prompts/back/` are not auto-discovered agents.
+Each profile owns its active `opencode.jsonc` and `cli.json`, while the shared
+`prompts` and `skills` directories are linked into both profiles. File
+references resolve from the profile directory. Agent registrations live in the
+profile JSONC; retained prompt and skill libraries may include resources that
+are not currently enabled for an agent.
 
-The four legacy custom tools remain under `tools/` and are inactive. Their v1
-SDK manifest, lockfiles, and historical tests remain for a future migration.
-`command-archive/` preserves old Plannotator command bodies; the v2 plugin
-registers the active commands. The Jira template lives under `prompts/` and is
-registered only as work's `/test-plan`.
+The personal profile loads the local V2 `pr-context` plugin and exposes the
+read-only `pr_context_get` tool only to `planner`. It accepts a PR number or
+canonical GitHub PR URL plus the requested `manual`, `unit`, and/or `playwright`
+test types. Its result includes PR revisions, changed files, bounded patches,
+and explicit completeness markers.
 
-`cli.json` is the active v2 terminal configuration. `tui.json` is a historical
-v1 file and is not linked into either active profile.
+The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
+files include the Jira, orchestration, and test-plan workflows; all existing
+skill directories remain available. V1 tools, archived commands, the old
+terminal client configuration, and `prompts/back/` were removed.
 
 ## Workflows and permissions
 
-Permissions use v2 ordered rules: broad defaults precede specific exceptions,
+Permissions use V2 ordered rules: broad defaults precede specific exceptions,
 and the last matching rule wins. Shell and delegation actions are `shell` and
 `subagent`. Planning and review agents retain their read-only restrictions.
-Delegated workers are discoverable subagents; `hidden` would remove them from
-v2's delegation catalog. The original built-in build/plan/general agents remain
-hidden in favor of the configured roles.
 
 Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
-`pr-review`, and passes its findings to `test-planner`. It returns manual test
-steps without implementing tests or triggering an implementation handoff.
-Only the named read operations are allowed through Atlassian MCP; unknown tool
-names require a configuration update. Code Mode is enabled for the two Jira
-readers so they can access MCP tools; nested calls retain their own permissions.
+`pr-review`, and passes findings to `test-planner`. It returns manual test steps
+without implementing tests or triggering an implementation handoff. Only the
+named read operations are allowed through Atlassian MCP.
 
-Both profiles pin `@plannotator/opencode@0.27.22`, use `plan-agent` workflow,
-and allow `planner` to call `submit_plan`. In the approval UI, select `builder`
-as the destination. Plannotator switches the session to that agent on approval;
-rejected plans remain with the planner. The builder keeps its existing approved
-plan, commit, and review instructions. Approval does not trigger a separate
-synthetic model request. Plannotator CLI commands additionally require the
-`plannotator` executable supplied by mise.
+Both profiles use the `plan-agent` Plannotator workflow and allow `planner` to
+call `submit_plan`. Plannotator CLI commands require the `plannotator`
+executable supplied by mise.
 
-TypeScript uses built-in language-server discovery, not `tsc --no-emit`.
-Lua and Nix retain `lua-language-server` and `nixd` overrides. These executables
-must be available on PATH. Built-in formatting remains enabled.
+TypeScript uses built-in language-server discovery. Lua and Nix retain
+`lua-language-server` and `nixd` overrides. Built-in formatting remains enabled.
 
-## Activation and verification
+## Verification and activation
 
-After integrating these changes into `~/.dotfiles`, apply the appropriate
-existing nix-darwin host configuration (`klaus-macbook` or `work-macbook`), open a
-new shell, then restart OpenCode's service. This repair does not activate Nix or
-restart your live service automatically.
+Use `zsh -n zsh/.zshenv`, official-schema validation, TypeScript checks, and
+offline Nix evaluation for both hosts. Runtime checks should use isolated
+temporary data/config directories, disable Atlassian in validation copies, and
+never send model requests or use live credentials.
 
-`service.json` is machine-local runtime state and must not be tracked. Preserve
-any existing local copy privately before applying its repository deletion;
-retain it in the selected profile directory if keeping the same service
-credentials. Do not copy it between work and personal machines. The active
-profile directories ignore generated service metadata.
+After integrating changes into `~/.dotfiles`, apply the existing nix-darwin
+host configuration and restart OpenCode's service separately. This repository
+change does not activate Nix or restart services automatically.
 
-Use `zsh -n zsh/.zshenv`, evaluate both Nix host configurations without activation,
-and inspect each profile with OpenCode v2 in isolated temporary data/config
-folders. Check resolved prompts, agent permissions, commands, skills, and plugin
-activation. Runtime inspection can load plugins and connect MCP servers: disable
-Atlassian in validation copies and use temporary data directories without
-credentials. Do not use `debug config` as a purely static JSON parser.
+`service.json` is machine-local runtime state and remains ignored. Do not copy
+it between personal and work profiles.
 
-Verified with OpenCode 2.0.20: both Nix host evaluations, shell profile selection,
-all prompt references, shared-directory symlinks, effective agent permissions,
-profile-specific commands, and activation of the published Plannotator package.
-Disposable sessions switched from `planner` to `builder` through the same host
-API used by the plugin. Browser approval, live model/Jira authentication, and
-language-server connections were not exercised. No model requests were sent.
-
-No tests were added or updated for this repair. Existing tests describe obsolete
-v1 filenames and workflows; they are not a v2 acceptance check. Do not install
-the legacy custom-tool dependencies merely to validate the active profiles.
-
-References: [v2 config](https://opencode.ai/v2/docs/config/),
+References: [V2 config](https://opencode.ai/v2/docs/config/),
+[migration guide](https://opencode.ai/v2/docs/migrate-v1/),
 [agents](https://opencode.ai/v2/docs/agents/),
 [permissions](https://opencode.ai/v2/docs/permissions/), and
-[Plannotator](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin).
+[V2 plugins](https://opencode.ai/v2/docs/build/plugins/).
