@@ -63,7 +63,7 @@ must be available on PATH. Built-in formatting remains enabled.
 
 ## Repository downloads and RTK
 
-The shared `gh-grab` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
+The shared `ghgrab-fetch` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
 non-interactive `agent tree` and `agent download` commands. It references the
 [video's ghgrab chapter](https://youtu.be/II17TPAb4AQ?t=455) and covers selected
 paths, explicit destinations, JSON results, authentication, and release assets.
