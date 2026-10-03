@@ -3,6 +3,11 @@
 These profiles target OpenCode 2.0.20. Homebrew manages the executable and
 OpenCode self-updating is disabled.
 
+Each profile points `$schema` at its local `opencode.schema.json` for editor
+completion. These files are generated from the pinned `@opencode/schema@2.0.20`
+package with `pnpm schema:generate`, because the published
+`https://opencode.ai/config.json` currently omits V2 configuration fields.
+
 | Profile | Machine user | Providers | Additional agents |
 | --- | --- | --- | --- |
 | `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
@@ -57,7 +62,7 @@ TypeScript uses built-in language-server discovery. Lua and Nix retain
 
 ## Verification and activation
 
-Use `zsh -n zsh/.zshenv`, official-schema validation, TypeScript checks, and
+Use `zsh -n zsh/.zshenv`, pinned V2 schema validation, TypeScript checks, and
 offline Nix evaluation for both hosts. Runtime checks should use isolated
 temporary data/config directories, disable Atlassian in validation copies, and
 never send model requests or use live credentials.
