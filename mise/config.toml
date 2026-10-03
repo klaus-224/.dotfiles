@@ -9,6 +9,8 @@ MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 "cargo:ghgrab" = "latest"
 "cargo:plannotator-tui" = "latest"
 "cargo:rainfrog" = "latest"
+"cargo:tmuxcc" = "latest"
+
 
 # Runtimes
 node = "26.10.0"
