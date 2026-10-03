@@ -14,8 +14,8 @@ in
     opencode.source = link "opencode/${opencodeProfile}";
     mise.source = link "mise";
     aerospace.source = link "aerospace";
-    borders.source = link "borders";
     sketchybar.source = link "sketchybar";
+    borders.source = link "borders";
     "gh/config.yml".source = link "gh/config.yml";
   };
 
