@@ -9,5 +9,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["./tools/**/*.ts", "./tests/**/*.ts"]
+  "include": ["./plugins/**/*.ts", "./scripts/**/*.ts", "./tests/**/*.ts"]
 }
