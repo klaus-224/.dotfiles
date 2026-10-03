@@ -25,15 +25,18 @@ does not override OpenCode's config path, so the Home Manager link is the single
 profile selector.
 
 Each profile owns its active `opencode.jsonc` and `cli.json`, while the shared
-`prompts` and `skills` directories are linked into both profiles. File
-references resolve from the profile directory. Agent registrations live in the
-profile JSONC; retained prompt and skill libraries may include resources that
+`prompts` and `skills` directories are linked into both profiles. Each profile
+also has its own `plugins` directory: both link `rtk`, and only personal links
+`pr-context`. Both profile JSONC files load `./plugins/rtk`; personal also
+loads `./plugins/pr-context`. File references resolve from the profile
+directory. Agent registrations live in the profile JSONC; retained prompt and
+skill libraries may include resources that
 are not currently enabled for an agent.
 
-The personal profile loads the local V2 `pr-context` plugin and exposes the
-read-only `pr_context_get` tool only to `planner`. It accepts a PR number or
-canonical GitHub PR URL plus the requested `manual`, `unit`, and/or `playwright`
-test types. Its result includes PR revisions, changed files, bounded patches,
+The personal profile exposes the read-only `pr_context_get` tool only to
+`planner`. It accepts a PR number or canonical GitHub PR URL plus the requested
+`manual`, `unit`, and/or `playwright` test types. Its result includes PR
+revisions, changed files, bounded patches,
 and explicit completeness markers.
 
 The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
@@ -60,7 +63,6 @@ executable supplied by mise.
 TypeScript uses built-in language-server discovery. Lua and Nix retain
 `lua-language-server` and `nixd` overrides. Built-in formatting remains enabled.
 
-<<<<<<< HEAD
 ## Repository downloads and RTK
 
 The shared `ghgrab-fetch` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
@@ -73,7 +75,7 @@ retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
 
 Both profiles explicitly load a dependency-free OpenCode v2 adapter for
 [RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode)
-through `./plugins/rtk` and their shared `plugins` symlink.
+through `./plugins/rtk` and each profile's own `plugins` directory.
 It checks every shell invocation through `rtk rewrite` before execution,
 including commands from subagents. RTK owns the rewrite rules: supported commands
 use its filters, unsupported commands and explicit `rtk` calls pass through.
@@ -96,22 +98,18 @@ version 0.23.0 or newer. This adapter targets OpenCode 2.0.20's
 Configured local plugins use a package directory for compatibility with 2.0.20.
 Do not run `rtk init -g --opencode` over these managed profiles.
 
-After integrating into the active dotfiles checkout, restart OpenCode's service.
 `rtk gain` reports savings; `rtk proxy <command>` preserves raw output when needed.
 
-## Activation and verification
-=======
 ## Verification and activation
->>>>>>> main
 
 Use `zsh -n zsh/.zshenv`, pinned V2 schema validation, TypeScript checks, and
 offline Nix evaluation for both hosts. Runtime checks should use isolated
 temporary data/config directories, disable Atlassian in validation copies, and
 never send model requests or use live credentials.
 
-After integrating changes into `~/.dotfiles`, apply the existing nix-darwin
-host configuration and restart OpenCode's service separately. This repository
-change does not activate Nix or restart services automatically.
+After merging these changes into `~/.dotfiles`, apply the existing nix-darwin
+host configuration and run `opencode service restart`. This selects the new
+profile plugin directory and reloads local plugins.
 
 `service.json` is machine-local runtime state and remains ignored. Do not copy
 it between personal and work profiles.

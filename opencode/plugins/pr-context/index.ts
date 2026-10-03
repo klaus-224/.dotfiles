@@ -1,4 +1,4 @@
-import { Plugin } from "@opencode/plugin";
+import type { Plugin } from "@opencode/plugin";
 import { spawn } from "node:child_process";
 
 type PullRequest = {
@@ -312,7 +312,7 @@ async function resolvePullRequest(
   };
 }
 
-export default Plugin.define({
+export default {
   id: "pr-context",
   async setup(ctx) {
     await ctx.tool.transform((editor) => {
@@ -357,4 +357,4 @@ export default Plugin.define({
       });
     });
   },
-});
+} satisfies Plugin.Plugin;
