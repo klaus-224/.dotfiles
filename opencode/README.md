@@ -32,9 +32,10 @@ test types. Its result includes PR revisions, changed files, bounded patches,
 and explicit completeness markers.
 
 The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
-files include the Jira, orchestration, and test-plan workflows; all existing
-skill directories remain available. V1 tools, archived commands, the old
-terminal client configuration, and `prompts/back/` were removed.
+files include the Jira, orchestration, and test-plan workflows. The work
+profile also retains the six prompts in `prompts/back/` for its existing
+workflows. All existing skill directories remain available. V1 tools,
+archived commands, and the old root terminal client configuration were removed.
 
 ## Workflows and permissions
 
