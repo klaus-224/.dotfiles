@@ -1,0 +1,6 @@
+{
+  "name": "dotfiles-opencode-rtk",
+  "private": true,
+  "type": "module",
+  "exports": "./index.js"
+}
