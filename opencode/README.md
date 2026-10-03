@@ -61,6 +61,43 @@ TypeScript uses built-in language-server discovery, not `tsc --no-emit`.
 Lua and Nix retain `lua-language-server` and `nixd` overrides. These executables
 must be available on PATH. Built-in formatting remains enabled.
 
+## Repository downloads and RTK
+
+The shared `gh-grab` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
+non-interactive `agent tree` and `agent download` commands. It references the
+[video's ghgrab chapter](https://youtu.be/II17TPAb4AQ?t=455) and covers selected
+paths, explicit destinations, JSON results, authentication, and release assets.
+Chat, explorer, builder, and the personal audit agents can load it. Explorer
+can list remote trees; downloads retain its existing shell denial. Other agents
+retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
+
+Both profiles explicitly load `../plugins/rtk`, a dependency-free OpenCode v2
+adapter for [RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode).
+It checks every shell invocation through `rtk rewrite` before execution,
+including commands from subagents. RTK owns the rewrite rules: supported commands
+use its filters, unsupported commands and explicit `rtk` calls pass through.
+Rewrite errors fall back to the original command, with one warning per plugin
+instance for an unavailable or broken binary. The rewrite subprocess uses argv,
+the invocation's working directory and environment, and a two-second timeout.
+Valid rewrites from RTK exit codes 0 and 3 both use OpenCode's normal permission
+checks. Codes 1 and 2 with no output leave the original command for OpenCode to
+evaluate; the adapter never auto-approves a command from RTK's exit status.
+
+OpenCode evaluates permissions after this hook. Each profile mirrors its ordered
+Git/GitHub CLI permission rule to its `rtk` equivalent, including denials such as
+`git add -A` and audit-agent commit/push restrictions. Other rewrites retain the
+normal ask/deny fallback; there is no blanket `rtk *` allowance. Dedicated read,
+grep, and glob tools do not execute a shell and do not pass through RTK.
+
+RTK is already declared in `nix/darwin/homebrew.nix`; `rtk rewrite` requires
+version 0.23.0 or newer. This adapter targets OpenCode 2.0.20's
+`ctx.shell.hook("create.before", ...)` API, rather than the upstream v1 hook.
+Configured local plugins use a package directory for compatibility with 2.0.20.
+Do not run `rtk init -g --opencode` over these managed profiles.
+
+After integrating into the active dotfiles checkout, restart OpenCode's service.
+`rtk gain` reports savings; `rtk proxy <command>` preserves raw output when needed.
+
 ## Activation and verification
 
 After integrating these changes into `~/.dotfiles`, apply the appropriate
