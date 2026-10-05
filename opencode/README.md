@@ -11,7 +11,7 @@ package with `pnpm schema:generate`, because the published
 | Profile | Machine user | Providers | Additional agents |
 | --- | --- | --- | --- |
 | `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
-| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `jira-operator` |
+| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `Jira` |
 
 Both profiles start with `chat` and include `planner`, `explorer`, and `builder`.
 Models and variants remain profile-specific. Availability depends on the
@@ -55,6 +55,20 @@ Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
 `pr-review`, and passes findings to `test-planner`. It returns manual test steps
 without implementing tests or triggering an implementation handoff. Only the
 named read operations are allowed through Atlassian MCP.
+
+Work's `/bug [project key and initial details]` runs as `Jira` and opens a
+Plannotator interview form with the bug template fields, project, and summary.
+It resolves the Bug type and required Jira fields, presents the completed ticket
+for Plannotator approval, creates it through Atlassian MCP, and returns a clickable
+issue link. Blank optional links are omitted and reproduction steps are numbered.
+Drafts and form/review results are kept under `work/jira-bugs/<draft-id>/` in the
+current project; review these artifacts before committing project files.
+The agent can create issues and read Jira metadata, with local writes limited to
+those workflow artifacts. Existing issue mutations remain denied.
+This uses the mise-managed CLI's `setup-goal interview` and `annotate --gate --json`
+commands, without calling `submit_plan` or triggering the builder handoff. The
+CLI must support those commands and Atlassian MCP must be authenticated with
+permission to create Bugs in the selected project.
 
 Both profiles use the `plan-agent` Plannotator workflow and allow `planner` to
 call `submit_plan`. Plannotator CLI commands require the `plannotator`
