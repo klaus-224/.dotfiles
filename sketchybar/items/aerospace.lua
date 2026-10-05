@@ -54,6 +54,7 @@ local function add_display(display)
         color = colors.transparent,
         corner_radius = 7,
         height = 22,
+        border_width = 0,
       },
     })
 
@@ -107,11 +108,8 @@ local function apply_snapshot(records)
       local highlighted = workspace == selected
 
       item:set({
-        background = {
-          color = highlighted and colors.yellow or colors.transparent,
-        },
         label = {
-          color = highlighted and colors.bg or colors.muted,
+          color = highlighted and colors.purple or colors.bg,
         },
       })
     end
@@ -130,8 +128,8 @@ refresh = function()
 
   sbar.exec(
     quote(aerospace)
-      .. " list-workspaces --monitor all --visible --json"
-      .. " --format '%{workspace}%{monitor-appkit-nsscreen-screens-id}'",
+    .. " list-workspaces --monitor all --visible --json"
+    .. " --format '%{workspace}%{monitor-appkit-nsscreen-screens-id}'",
     function(result, exit_code)
       in_flight = false
 
