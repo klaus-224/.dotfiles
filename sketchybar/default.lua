@@ -28,8 +28,8 @@ sbar.default({
     align = "center",
   },
   background = {
-    border_color = colors.pill_border,
-    border_width = 0,
+    border_color = colors.purple,
+    border_width = 2,
     corner_radius = 16,
     height = 28,
   },
