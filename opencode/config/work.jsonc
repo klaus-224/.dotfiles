@@ -1,0 +1,72 @@
+{
+  "settings": {
+    "mcp": {
+      "servers": {
+        "atlassian": {
+          "type": "remote",
+          "url": "https://mcp.atlassian.com/v2/mcp?tools=all",
+          "disabled": false
+        }
+      }
+    },
+    "experimental": {
+      "policies": [
+        { "action": "provider.use", "resource": "*", "effect": "deny" },
+        { "action": "provider.use", "resource": "github-copilot", "effect": "allow" }
+      ]
+    },
+    "permissions": [
+      { "action": "webfetch", "resource": "*", "effect": "deny" },
+      { "action": "external_directory", "resource": "*", "effect": "deny" }
+    ],
+    "default_agent": "ticket-review"
+  },
+  "agents": {
+    "ticket-review": {
+      "model": "github-copilot/gpt-6-astra"
+    },
+    "pr-review": {
+      "model": "github-copilot/claude-opus-5#default"
+    },
+    "test-planner": {
+      "model": "github-copilot/gpt-6-astra"
+    },
+    "playwright-user": {
+      "model": "github-copilot/gpt-6-astra"
+    },
+    "pw-test-writer": {
+      "model": "github-copilot/claude-opus-5#default"
+    },
+    "Jira": {
+      "model": "github-copilot/gpt-6-astra"
+    }
+  },
+  "builtin_agents": {
+    "general": {
+      "disabled": true
+    },
+    "build": {
+      "disabled": true
+    },
+    "plan": {
+      "disabled": true
+    }
+  },
+  "commands": {
+    "bug": {
+      "description": "Create a Jira bug using the Plannotator form and bug template",
+      "agent": "Jira",
+      "template": "{file:commands/jira-bug.md}"
+    },
+    "test-plan": {
+      "description": "Create a manual test plan from a Jira ticket and linked PRs",
+      "agent": "ticket-review",
+      "template": "{file:commands/jira-test-plan.md}"
+    }
+  },
+  "skills": [
+    "find-docs",
+    "manual-test-plan",
+    "playwright-cli"
+  ]
+}

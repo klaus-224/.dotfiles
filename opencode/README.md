@@ -1,135 +1,127 @@
-# OpenCode v2 configuration
+# OpenCode profiles
 
 These profiles target OpenCode 2.0.20. Homebrew manages the executable and
-OpenCode self-updating is disabled.
+OpenCode self-updating is disabled. The local editor schemas are generated from
+`@opencode/schema@2.0.20` with `pnpm schema:generate`.
 
-Each profile points `$schema` at its local `opencode.schema.json` for editor
-completion. These files are generated from the pinned `@opencode/schema@2.0.20`
-package with `pnpm schema:generate`, because the published
-`https://opencode.ai/config.json` currently omits V2 configuration fields.
+## Edit sources, then generate
 
-| Profile | Machine user | Providers | Additional agents |
+OpenCode 2.0.20 has no configuration `extends` field. A small offline generator
+composes the shared library and each profile's explicit selections into native
+OpenCode configuration:
+
+```text
+opencode/
+  config/
+    shared.jsonc       Common settings and reusable agent definitions/permissions
+    personal.jsonc     Personal selections, models, settings, commands, and skills
+    work.jsonc         Jira/Playwright selections and Copilot models
+  agents/
+    *.md               Agent system instructions
+    archive/           Inactive agent instructions, never selected automatically
+  commands/
+    jira-test-plan.md   Work /test-plan command template
+    jira-bug.md         Work /bug command template
+    archive/           Inactive PR-test-plan and Jira-summary command templates
+  skills/              Canonical skill library
+  personal/            Generated opencode.jsonc, cli.json, selected skill links/plugins
+  work/                Generated opencode.jsonc, cli.json, selected skill links/plugins
+```
+
+Edit `config/shared.jsonc` to change a reusable agent or a common setting. Select
+that agent in `config/personal.jsonc` or `config/work.jsonc`, with its model and any
+profile-specific overrides. An agent's presence in the shared library does not
+activate it. Edit its Markdown in `agents/`; command templates belong in `commands/`.
+
+Run from this directory:
+
+```sh
+pnpm config:generate
+pnpm config:check
+pnpm test
+pnpm typecheck
+```
+
+Both generated `opencode.jsonc` files and the profile skill symlinks are committed.
+Do not edit generated files directly. Regenerate after changing agent or command
+Markdown as well as configuration sources. `cli.json` remains hand-edited per
+profile, and schema regeneration is separate.
+
+Composition is explicit: profile settings replace shared settings at the top
+level; plugin lists append in shared-then-profile order; only selected agents
+are included. Agent overrides replace entire fields, including ordered permission
+arrays. Commands are selected per profile and must target a selected agent.
+
+The generator embeds selected Markdown as native `system` and `template` strings.
+It does not expose the whole agent/command library to runtime directory discovery,
+so archived and personal-only definitions cannot leak into the work profile.
+Skill directories contain only links selected by each profile. Generation removes
+unselected skill symlinks but refuses to delete unexpected real files/directories.
+
+## Profile scope
+
+| Profile | Default | Active custom agents | Providers |
 | --- | --- | --- | --- |
-| `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
-| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `Jira` |
+| Personal | `chat` | `chat`, `planner`, `explorer`, `builder`, `audit-orchestrator`, `audit-worker` | OpenAI, OpenCode |
+| Work | `ticket-review` | `ticket-review`, `pr-review`, `test-planner`, `Jira`, `playwright-user`, `pw-test-writer` | GitHub Copilot |
 
-Both profiles start with `chat` and include `planner`, `explorer`, and `builder`.
-Models and variants remain profile-specific. Availability depends on the
-provider account; validation does not authenticate or run a model.
+Personal retains its existing planning/building, audit, Plannotator, local
+references, Lua/Nix LSP overrides, and PR-context plugin. Its planner alone can
+use `pr_context_get`. The inactive PR test-plan command still depends on an
+unregistered oracle workflow and remains archived.
 
-## Loading and retained resources
+Work contains only Jira and Playwright workflows plus their supporting research
+and PR inspection. General built-in `general`, `build`, and `plan` agents are
+**disabled**, not merely hidden. Personal references, Lua/Nix overrides, general
+chat/planning/building agents, audit agents, and Plannotator are not included.
+Work exposes only `find-docs`, `manual-test-plan`, and `playwright-cli` skills.
 
-Home Manager links `~/.config/opencode` to the profile selected by username in
-`nix/home/files.nix`: `personal` for `klaus224`, `work` for other users. Zsh
-does not override OpenCode's config path, so the Home Manager link is the single
-profile selector.
+- `/test-plan <Jira key or URL>`: `ticket-review` retrieves Jira requirements,
+  delegates implementation analysis to `pr-review`, and forwards the completed
+  evidence to `test-planner`. It returns manual test steps without running them.
+- `Jira`: Jira and linked-PR summaries, plus `/bug` creation through the existing
+  Plannotator form and review gate. The exact reviewed bug is created only after
+  approval. Existing issues, comments, and transitions are not modified. This
+  workflow uses the mise-managed Plannotator CLI, not the OpenCode plan plugin.
+- `playwright-user`: browser-based verification using Playwright CLI, with an
+  explicit environment and an approved test plan. It consumes Jira evidence from
+  `/test-plan`; it does not update Jira or edit application code.
+- `pw-test-writer`: writes and verifies Playwright tests, fixtures, and page objects.
+  Shell execution and file edits require approval; it does not implement app changes.
 
-Each profile owns its active `opencode.jsonc` and `cli.json`, while the shared
-`prompts` and `skills` directories are linked into both profiles. Each profile
-also has its own `plugins` directory: both link `rtk`, and only personal links
-`pr-context`. Both profile JSONC files load `./plugins/rtk`; personal also
-loads `./plugins/pr-context`. File references resolve from the profile
-directory. Agent registrations live in the profile JSONC; retained prompt and
-skill libraries may include resources that
-are not currently enabled for an agent.
+Playwright CLI is declared in `mise/config.toml`. Browser binaries, test-project
+dependencies, and authentication state still follow each repository's setup.
+Model availability and Jira access depend on the connected account; offline
+validation does not authenticate or send model requests.
 
-The personal profile exposes the read-only `pr_context_get` tool only to
-`planner`. It accepts a PR number or canonical GitHub PR URL plus the requested
-`manual`, `unit`, and/or `playwright` test types. Its result includes PR
-revisions, changed files, bounded patches,
-and explicit completeness markers.
+## Runtime selection and plugins
 
-The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
-files include the Jira, orchestration, and test-plan workflows. The work
-profile also retains the six prompts in `prompts/back/` for its existing
-workflows. All existing skill directories remain available. V1 tools,
-archived commands, and the old root terminal client configuration were removed.
+Home Manager links `~/.config/opencode` to `personal` for `klaus224` and `work` for
+other users, via `nix/home/files.nix`. Zsh does not override the config path.
+Generation preserves these runtime paths and requires no Nix selector changes.
 
-## Workflows and permissions
+Both profiles load `./plugins/rtk`. This dependency-free V2 adapter uses
+`ctx.shell.hook("create.before", ...)` and `rtk rewrite` with a two-second timeout.
+Unsupported commands and failures fall back to the original command. Rewrites
+still undergo OpenCode's permission checks; there is no blanket `rtk *` allowance.
+RTK is installed by Homebrew and requires 0.23.0 or newer. Do not run
+`rtk init -g --opencode` over these managed profiles. Use `rtk gain` for savings.
 
-Permissions use V2 ordered rules: broad defaults precede specific exceptions,
-and the last matching rule wins. Shell and delegation actions are `shell` and
-`subagent`. Planning and review agents retain their read-only restrictions.
+Personal additionally loads `./plugins/pr-context` and
+`@plannotator/opencode@0.27.22`. Its `planner` uses `submit_plan`; select `builder`
+as the implementation agent in Plannotator when handing off an approved plan.
+The Plannotator CLI is supplied by mise.
 
-Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
-`pr-review`, and passes findings to `test-planner`. It returns manual test steps
-without implementing tests or triggering an implementation handoff. Only the
-named read operations are allowed through Atlassian MCP.
+After generating and syncing these dotfiles to a machine, run
+`opencode service restart` to reload the profile. Apply the existing nix-darwin
+configuration if the Home Manager link has not yet been installed. No activation
+or service restart is performed by the generator.
 
-Work's `/bug [project key and initial details]` runs as `Jira` and opens a
-Plannotator interview form with the bug template fields, project, and summary.
-It resolves the Bug type and required Jira fields, presents the completed ticket
-for Plannotator approval, creates it through Atlassian MCP, and returns a clickable
-issue link. Blank optional links are omitted and reproduction steps are numbered.
-Drafts and form/review results are kept under `work/jira-bugs/<draft-id>/` in the
-current project; review these artifacts before committing project files.
-The agent can create issues and read Jira metadata, with local writes limited to
-those workflow artifacts. Existing issue mutations remain denied.
-This uses the mise-managed CLI's `setup-goal interview` and `annotate --gate --json`
-commands, without calling `submit_plan` or triggering the builder handoff. The
-CLI must support those commands and Atlassian MCP must be authenticated with
-permission to create Bugs in the selected project.
-
-Both profiles use the `plan-agent` Plannotator workflow and allow `planner` to
-call `submit_plan`. Plannotator CLI commands require the `plannotator`
-executable supplied by mise.
-
-TypeScript uses built-in language-server discovery. Lua and Nix retain
-`lua-language-server` and `nixd` overrides. Built-in formatting remains enabled.
-
-## Repository downloads and RTK
-
-The shared `ghgrab-fetch` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
-non-interactive `agent tree` and `agent download` commands. It references the
-[video's ghgrab chapter](https://youtu.be/II17TPAb4AQ?t=455) and covers selected
-paths, explicit destinations, JSON results, authentication, and release assets.
-Chat, explorer, builder, and the personal audit agents can load it. Explorer
-can list remote trees; downloads retain its existing shell denial. Other agents
-retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
-
-Both profiles explicitly load a dependency-free OpenCode v2 adapter for
-[RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode)
-through `./plugins/rtk` and each profile's own `plugins` directory.
-It checks every shell invocation through `rtk rewrite` before execution,
-including commands from subagents. RTK owns the rewrite rules: supported commands
-use its filters, unsupported commands and explicit `rtk` calls pass through.
-Rewrite errors fall back to the original command, with one warning per plugin
-instance for an unavailable or broken binary. The rewrite subprocess uses argv,
-the invocation's working directory and environment, and a two-second timeout.
-Valid rewrites from RTK exit codes 0 and 3 both use OpenCode's normal permission
-checks. Codes 1 and 2 with no output leave the original command for OpenCode to
-evaluate; the adapter never auto-approves a command from RTK's exit status.
-
-OpenCode evaluates permissions after this hook. Each profile mirrors its ordered
-Git/GitHub CLI permission rule to its `rtk` equivalent, including denials such as
-`git add -A` and audit-agent commit/push restrictions. Other rewrites retain the
-normal ask/deny fallback; there is no blanket `rtk *` allowance. Dedicated read,
-grep, and glob tools do not execute a shell and do not pass through RTK.
-
-RTK is already declared in `nix/darwin/homebrew.nix`; `rtk rewrite` requires
-version 0.23.0 or newer. This adapter targets OpenCode 2.0.20's
-`ctx.shell.hook("create.before", ...)` API, rather than the upstream v1 hook.
-Configured local plugins use a package directory for compatibility with 2.0.20.
-Do not run `rtk init -g --opencode` over these managed profiles.
-
-`rtk gain` reports savings; `rtk proxy <command>` preserves raw output when needed.
-
-## Verification and activation
-
-Use `zsh -n zsh/.zshenv`, pinned V2 schema validation, TypeScript checks, and
-offline Nix evaluation for both hosts. Runtime checks should use isolated
-temporary data/config directories, disable Atlassian in validation copies, and
-never send model requests or use live credentials.
-
-After merging these changes into `~/.dotfiles`, apply the existing nix-darwin
-host configuration and run `opencode service restart`. This selects the new
-profile plugin directory and reloads local plugins.
-
-`service.json` is machine-local runtime state and remains ignored. Do not copy
-it between personal and work profiles.
+`service.json` is ignored machine-local runtime state. Never copy it between
+profiles. For runtime smoke checks, use isolated temporary data/config directories,
+disable Atlassian in validation copies, and avoid live credentials/model requests.
 
 References: [V2 config](https://opencode.ai/v2/docs/config/),
-[migration guide](https://opencode.ai/v2/docs/migrate-v1/),
 [agents](https://opencode.ai/v2/docs/agents/),
 [permissions](https://opencode.ai/v2/docs/permissions/), and
 [V2 plugins](https://opencode.ai/v2/docs/build/plugins/).

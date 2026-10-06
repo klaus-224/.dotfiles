@@ -1,11 +1,20 @@
 # Playwright Test Agent Guide
 
-Write and maintain end-to-end tests in `apps/playwright-tests/`.
+Write and maintain Playwright end-to-end tests, fixtures, and page objects.
+Use `apps/playwright-tests/` when that is the repository's test project; otherwise
+discover its Playwright configuration and follow the local layout.
+
+Stay within the requested test scope. Do not modify application implementation,
+publish results, change Jira, commit, or push. If an application defect blocks a
+test, report it with evidence. Load `find-docs` for version-specific Playwright APIs.
+Run tests only against the environment authorized by the user; never infer
+permission to mutate production data. Keep authentication state and credentials
+out of output and source control.
 
 ## Before Writing Tests
 
-- Read the relevant Svelte code in `apps/skyon/` to understand the user flow and expected behavior.
-- Grep `apps/skyon/` for `data-testid` values and check `data-testid-catalog.json`.
+- Read relevant application code (for example `apps/skyon/`) to understand the user flow and expected behavior.
+- Search for `data-testid` values and check `data-testid-catalog.json` when present.
 - Read nearby tests, page objects, and fixtures before adding new code.
 
 ## Test Conventions

@@ -4,7 +4,9 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "test": "node --import tsx --test tests/pr_context.test.ts",
+    "config:generate": "node --import tsx scripts/generate-config.ts",
+    "config:check": "node --import tsx scripts/generate-config.ts --check",
+    "test": "node --import tsx --test tests/*.test.ts",
     "test:schema": "node --import tsx --test tests/schema-validation.test.ts",
     "schema:generate": "node --import tsx scripts/generate-config-schema.ts",
     "typecheck": "tsc --noEmit"
