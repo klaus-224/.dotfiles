@@ -57,7 +57,7 @@
       "mode": "primary",
       "model": "openai/gpt-6-astra#high",
       "steps": 3,
-      "system": "{file:./prompts/chat.md}",
+      "system": "{file:./agents/chat.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },
@@ -79,7 +79,7 @@
       "description": "Produces evidence-backed implementation plans and submits them for human approval before code changes begin.",
       "model": "openai/gpt-6-astra#high",
       "mode": "primary",
-      "system": "{file:./prompts/planner.md}",
+      "system": "{file:./agents/planner.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },
@@ -100,7 +100,7 @@
     "explorer": {
       "mode": "subagent",
       "model": "openai/gpt-5.6-sol#medium",
-      "system": "{file:./prompts/explorer.md}",
+      "system": "{file:./agents/explorer.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },
@@ -122,7 +122,7 @@
     },
     "builder": {
       "model": "openai/gpt-5.6-sol#medium",
-      "system": "{file:./prompts/builder.md}",
+      "system": "{file:./agents/builder.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },
@@ -171,7 +171,7 @@
       "description": "Coordinates approved configuration audits in isolated worktrees.",
       "mode": "primary",
       "model": "openai/gpt-6-astra#high",
-      "system": "{file:./prompts/audit-orchestrator.md}",
+      "system": "{file:./agents/audit-orchestrator.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },
@@ -222,7 +222,7 @@
       "description": "Implements only assigned audit checkpoints without further delegation.",
       "mode": "subagent",
       "model": "openai/gpt-5.6-sol#medium",
-      "system": "{file:./prompts/audit-worker.md}",
+      "system": "{file:./agents/audit-worker.md}",
       "permissions": [
         { "action": "*", "resource": "*", "effect": "deny" },
         { "action": "read", "resource": "*", "effect": "allow" },

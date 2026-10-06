@@ -255,13 +255,12 @@ brew services restart sketchybar
 
 - `ctrl-a + r`: reload tmux
 
-## Opencode Plugins
+## OpenCode
 
-- Work intentionally has no plugins.
-- Personal uses [plannotator](https://github.com/backnotprop/plannotator) for
-  user-managed plans.
-- See [profile configuration and safe checks](opencode/README.md).
-- OpenCode updates are Nix-managed, not application-managed.
+- The global config uses RTK, PR context, and [Plannotator](https://github.com/backnotprop/plannotator).
+- Work-only assets are staged in `opencode/work-migration/` for manual transfer.
+- See [configuration and migration notes](opencode/README.md).
+- Homebrew manages the OpenCode executable; application updates are disabled.
 
 ## TODO
 - [ ] configure plannotator [plannotator config](https://docs.plannotator.ai/open-source/reference/configuration)
