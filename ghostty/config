@@ -33,7 +33,7 @@ bell-features = border
 desktop-notifications = false
 
 fullscreen = false
-window-decoration = false
+window-decoration = true
 macos-titlebar-style = hidden
 macos-non-native-fullscreen = true
 macos-window-shadow = false

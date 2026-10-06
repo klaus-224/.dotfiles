@@ -36,7 +36,7 @@ The company migration bundle is inactive under `work-migration/`.
 | `ticket-review` | Work migration | Coordinates Jira, PR review, and manual test planning. |
 | `pr-review` | Work migration | Reviews linked PRs for test scenarios. |
 | `test-planner` | Work migration | Produces manual tests from Jira and PR evidence. |
-| `jira-operator` | Work migration | Summarizes requested Jira tickets and linked PRs. |
+| `Jira` | Work migration | Reads Jira tickets and creates reviewed bugs. |
 
 The four core agents have personal models in the global config. The work overlay
 changes their models and the permissions that differ. It also changes `chat` to
@@ -48,13 +48,13 @@ two steps. The global config hides OpenCode's built-in `general`, `build`, and
 | Command | Location | Purpose |
 | --- | --- | --- |
 | `/test-plan` | Work migration | Creates a manual test plan from a Jira ticket and linked PRs. |
+| `/bug` | Work migration | Collects, reviews, and creates one Jira bug. |
 | `test-plan.md` | Retained, inactive | Earlier PR test-plan command prompt. |
 
 The previous `prompts/` directory is split between `agents/` and `commands/`.
 Inactive prompts live in `work-migration/retained/` so they are not lost or
-accidentally enabled. This includes all six former `prompts/back/` agents,
-`orchestrator.md`, and `jira-operator.md`. The `jira-operator` registration
-uses an inline system prompt.
+accidentally enabled. This includes all six former `prompts/back/` agents and
+`orchestrator.md`. The active `Jira` agent uses the former `jira-operator.md`.
 
 ## Workflows
 
@@ -76,6 +76,10 @@ flowchart LR
     PR --> Planner[test-planner]
     Jira --> Planner
     Planner --> Plan[manual test plan]
+    Bug[work /bug] --> Agent[Jira agent]
+    Agent --> Form[Plannotator interview]
+    Form --> Review[Plannotator approval]
+    Review --> Create[Atlassian issue creation]
 ```
 
 ## Manual company migration
