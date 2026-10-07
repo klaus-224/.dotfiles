@@ -107,6 +107,16 @@ M.setup = function()
 
   -- blink
   vim.api.nvim_set_hl(0, 'BlinkCmpMenuBorder', { fg = colors.border })
+
+  -- diff
+
+
+  -- Subtle pastel/flat color palette for diffs
+  vim.api.nvim_set_hl(0, "DiffAdd", { bg = "#2e3f32", fg = "#a6e22e" })               -- Subtle green background, bright green text
+  vim.api.nvim_set_hl(0, "DiffDelete", { bg = "#402d31", fg = "#f92672" })            -- Subtle red background, bright red text
+  vim.api.nvim_set_hl(0, "DiffChange", { bg = "#2b3447", fg = "#66d9ef" })            -- Subtle blue background for changed lines
+  vim.api.nvim_set_hl(0, "DiffText", { bg = "#3e4b68", fg = "#e6db74", bold = true }) -- Exact inner-word changes (yellow)
+
   setup_alpha()
 end
 

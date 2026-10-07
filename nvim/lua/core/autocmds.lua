@@ -69,3 +69,15 @@ vim.api.nvim_create_autocmd('InsertEnter', {
     })
   end,
 })
+
+-- clear diff clutter
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  pattern = "*",
+  callback = function()
+    if vim.wo.diff then
+      vim.wo.foldlevel = 20    -- Stop folding unchanged code blocks automatically
+      vim.wo.signcolumn = "no" -- Remove the sign column to maximize code screen real estate
+      vim.wo.number = true     -- Keep line numbers visible for clean reference
+    end
+  end,
+})
