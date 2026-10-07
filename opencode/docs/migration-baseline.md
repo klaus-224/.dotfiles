@@ -30,16 +30,16 @@ No unrelated local changes were present.
 | Existing provider policies and per-profile models | Keep |
 | RTK V2 shell adapter and personal PR context plugin | Keep; preserve permission checks |
 | Home Manager profile selector, local schemas, cli.json | Keep |
-| chat / builder / explorer prompts | Migrate to discovered chat / builder / explore agents |
+| chat / builder / explorer prompts | Migrate to discovered chat / builder / explore agents; add reviewer |
 | PR review research and manual-test-plan skill | Reuse in skills |
 | Jira bug interview and exact team template from main | Migrate to jira-bug skill and adjacent references |
 | Atlassian MCP | Keep in work; metadata and tool availability checked at invocation |
 | Mandatory planner handoff and unconditional code review | Retire |
 | planner / ticket-review / pr-review / test-planner / Jira IDs | Retire after skill migration |
 | Personal audit agents | Retire active registrations; retain prompt library |
-| Built-in plan | Keep available for optional planning |
+| Built-in plan | Disable; builder owns its optional planning phase, per the user's revised workflow |
 | Built-in build | Disable using V2 `disabled`, after discovered builder validation |
-| Plannotator package | Remove from automatic loading until V2 compatibility can be confirmed; CLI skills remain optional |
+| Plannotator package | Keep pinned package at user request; user-managed flow, V2 export/API verified from the package and pinned host API; interactive behavior unverified |
 | Oh My OpenAgent | No active package/config found |
 | Existing simple-coding, find-docs, ghgrab-fetch and CLI/Plannotator skills | Keep as reusable library |
 | Project-local overrides and saved approvals on laptops | Unverified; inspect during activation |
@@ -48,3 +48,13 @@ The requested migration targets V2 names (`agents`, `permissions`, `shell`,
 `subagent`, `mcp.servers`). Local schema validation does not establish runtime
 discovery, login, or saved-approval behavior. No live Jira/browser workflow tests
 are performed, per the user's instruction.
+
+## Final workflow decisions
+
+The user revised the attached plan during implementation: builder is the default
+primary and optionally plans through Plannotator before resuming its own approved
+implementation. Chat also remains visible as a read-only primary. Explore and
+reviewer remain read-only subagents. Planning is required only when requested.
+These decisions supersede the attachment's chat default and separate plan-agent
+handoff. Plannotator uses `user-managed` so it does not inject a mandatory
+planning workflow; native permissions expose `submit_plan` only to builder.
