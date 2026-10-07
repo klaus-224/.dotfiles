@@ -8,10 +8,19 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
+vim.opt.diffopt = {
+  "internal",
+  "filler",
+  "closeoff",
+  "hiddenoff",
+  "algorithm:histogram",
+  "linematch:60",
+}
+
 vim.g.no_python_maps = 1
 vim.opt.fillchars = { eob = ' ' }
 vim.opt.wrap = false
-vim.opt.pumborder= 'bold'
+vim.opt.pumborder = 'bold'
 
 -- local/project config
 vim.opt.exrc = true

@@ -1,27 +1,84 @@
 # yaml-language-server: $schema=https://gh-dash.dev/schema.json
-
-pager:
-  diff: delta
-
 prSections:
-  - title: "My Pull Requests"
+  - title: By Me
     filters: "is:open author:@me"
-  - title: "All"
-    filters: "is:open"
-  - title: "Needs My Review"
+    type: null
+  - title: For Me
     filters: "is:open review-requested:@me"
+    type: null
+
+repo:
+  branchesRefetchIntervalSeconds: 30
+  prsRefetchIntervalSeconds: 60
+
+defaults:
+  preview:
+    open: true
+    width: 0.5
+  prsLimit: 20
+  issuesLimit: 20
+  view: prs
+  layout:
+    prs:
+      updatedAt:
+        width: 5
+      createdAt:
+        width: 5
+      repo:
+        width: 20
+      author:
+        width: 15
+      assignees:
+        width: 20
+        hidden: true
+      base:
+        width: 15
+        hidden: true
+      lines:
+        width: 15
+  refetchIntervalMinutes: 30
+
 keybindings:
   prs:
     - key: T
       name: github workflow
       command: >
         tmux new-window 'gh enhance -R {{.RepoName}} {{.PrNumber}}'
-    # - key: C
-    #   name: code review
+    # - key: D
+    #   name: difftool
     #   command: >
-    #     tmux new-window -c {{.RepoPath}} "git fetch origin pull/{{.PrNumber}}/head:pr-{{.PrNumber}} && nvim"
-    - key: C
-      name: code review
-      command: gh pr diff {{.PrNumber}} --repo {{.RepoName}} | nvim -
+    #     cd {{.RepoPath}} && 
+    #     BRANCH=$(gh pr view {{.PrNumber}} --json headRefName --jq .headRefName) && 
+    #     git fetch origin $BRANCH:refs/remotes/origin/$BRANCH && 
+    #     git difftool --no-prompt main...origin/$BRANCH
+    - key: enter
+      name: open in browser
+      command: open https://github.com/{{.RepoName}}/pull/{{.PrNumber}}
+
 repoPaths:
   orennia/*: ~/code/*
+  klaus-224/.dotfiles: ~/.dotfiles
+
+theme:
+  ui:
+    sectionsShowCount: true
+    table:
+      showSeparators: true
+      compact: false
+  colors:
+    text:
+      primary: "#cdcdcd"
+      secondary: "#90a0b5"
+      inverted: "#141415"
+      faint: "#606079"
+      warning: "#f3be7c"
+      success: "#7fa563"
+      actor: "#bb9dbd"
+    background:
+      selected: "#333738"
+    border:
+      primary: "#f3be7c"
+      secondary: "#252530"
+      faint: "#1c1c24"
+
+confirmQuit: false
