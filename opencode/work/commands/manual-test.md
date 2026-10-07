@@ -1,0 +1,1 @@
+../../commands/manual-test.md
