@@ -4,5 +4,6 @@ branches=(
 )
 
 for branch in "${branches[@]}"; do
-  git push origin --delete "${branch#origin/}"
+  # git push origin --delete "${branch#origin/}"
+  git branch -D "${branch}"
 done
