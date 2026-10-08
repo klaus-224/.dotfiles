@@ -4,10 +4,8 @@ require("items.apple")
 -- Register the custom event before Slack and Teams subscribe to it.
 require("items.aerospace")
 
-if os.getenv("USER") == "rohineshram" then
-  require("items.slack")
-  require("items.teams")
-end
+require("items.slack")
+require("items.teams")
 require("items.spotify")
 
 -- SketchyBar inserts right-side items from right to left, so this is the

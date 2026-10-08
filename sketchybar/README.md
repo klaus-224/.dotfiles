@@ -4,13 +4,13 @@ Home Manager links this directory to `~/.config/sketchybar`. The executable
 `sketchybarrc` loads `init.lua` using SketchyBar's `CONFIG_DIR`.
 
 The transparent bar places the Apple logo, separator, and five AeroSpace
-workspaces in one pill per display on the left. Right-side pills appear as:
+workspaces in one pill per display. The layout, from left to right, is:
 
-- Personal: `[Spotify] [memory] [CPU] [date] [time] [battery]`
-- Work (`USER=rohineshram`): `[Slack] [Teams] [Spotify] [memory] [CPU] [date] [time] [battery]`
+- Left: `[Apple | 1 2 3 4 5] [Slack] [Teams] [Spotify]`
+- Right: `[memory] [CPU] [date] [time] [battery]`
 
-Slack and Teams are imported only for the work account, so other accounts do
-not create their items, spacers, subscriptions, or polling commands.
+Slack and Teams are available on every account; their icons are muted when
+those apps are not running.
 
 ## Configuration
 
@@ -33,11 +33,15 @@ require("items")
   Lua property-merging layer.
 - `items/aerospace.lua` owns workspace geometry, per-display creation and
   removal, active-workspace highlighting, and the workspace-change event.
+  It creates the groups from SketchyBar\'s display list before loading app
+  items. AeroSpace only supplies highlighting, so a delayed, failed, or empty
+  AeroSpace response cannot hide the groups. Newly connected display groups
+  are moved before the hidden `workspace.anchor` to preserve the left order.
   `items/apple.lua` supplies the decorative logo for each display.
 - `items/clock.lua` is an optional combined clock; it is not loaded by default.
 
-Pill backgrounds inherit a height of 28 and corner radius of 12 from native
-defaults. Explicit 8-point spacers sit between right-side pills, outside their
+Pill backgrounds inherit a height of 32 and corner radius of 16 from native
+defaults. Explicit 8-point spacers sit between pills, outside their
 brackets. Item padding cannot substitute for these spacers because bracket
 backgrounds include their members' outer padding.
 
@@ -67,7 +71,13 @@ Syntax-check the Lua sources and executable entrypoint:
 for file in sketchybar/*.lua sketchybar/items/*.lua sketchybar/sketchybarrc; do
   luac -p "$file" || exit 1
 done
+lua sketchybar/tests/layout.lua
 ```
+
+The regression test mocks SketchyBar and covers layout before AeroSpace responds,
+failed/empty/malformed snapshots, per-display highlighting, monitor disconnects
+and reconnects, and overlapping workspace events. It does not verify native
+macOS rendering or the installed SbarLua module.
 
 Home Manager points at `~/.dotfiles/sketchybar`. Changes in another worktree
 are not active until integrated into that checkout. Once active, hotload
@@ -81,7 +91,7 @@ sketchybar --query pill.memory
 ```
 
 Check icons, pill gaps, memory-label fit, work-app visibility, clicks, and
-workspace highlighting on each display. Inspect configuration errors with:
+workspace highlighting on each display. If the entire bar is still missing, inspect startup errors with:
 
 ```sh
 tail /opt/homebrew/var/log/sketchybar/sketchybar.err.log
