@@ -16,4 +16,5 @@ return {
   spotify = "󰓇",
   slack = "󰒱",
   teams = "󰊻",
+  size = 20,
 }

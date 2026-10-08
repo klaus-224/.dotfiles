@@ -1,5 +1,4 @@
 local sbar = require("sketchybar")
-local settings = require("settings")
 local colors = require("colors")
 local icons = require("icons")
 
@@ -19,30 +18,22 @@ local function render(label)
   }
 end
 
-sbar.add("item", "spacer.slack", {
-  position = "right",
-  width = settings.group_paddings,
-  icon = { drawing = false },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-
 local item = sbar.add("item", "widgets.slack", {
-  position = "right",
-  icon = { string = icons.slack },
+  position = "left",
+  icon = { string = icons.slack, padding_right = 0 },
   update_freq = 10,
 })
 
 local function refresh()
   sbar.exec('/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
     .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ "Slack"', function(output, exit_code)
-    local label
-    if exit_code == 0 then
-      local ok, parsed = pcall(parse, output)
-      if ok then label = parsed end
-    end
-    item:set(render(label))
-  end)
+      local label
+      if exit_code == 0 then
+        local ok, parsed = pcall(parse, output)
+        if ok then label = parsed end
+      end
+      item:set(render(label))
+    end)
 end
 
 item:subscribe({ "routine", "forced", "aerospace_workspace_change" }, refresh)
@@ -50,9 +41,5 @@ item:subscribe("mouse.clicked", function()
   sbar.exec('/usr/bin/open -a "Slack"')
 end)
 refresh()
-
-sbar.add("bracket", "pill.slack", { "widgets.slack" }, {
-  background = { color = colors.pill_bg },
-})
 
 return item

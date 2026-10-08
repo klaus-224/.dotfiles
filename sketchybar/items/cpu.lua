@@ -54,8 +54,14 @@ end
 item:subscribe({ "routine", "forced" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.cpu", { "widgets.cpu" }, {
-  background = { color = colors.pill_bg },
-})
+sbar.add("bracket", "pill.cpu", { "widgets.cpu" },
+  {
+    blur_radius = settings.blur_radius,
+    background = {
+      drawing = true,
+      color = colors.pill_bg,
+    },
+  }
+)
 
 return item
