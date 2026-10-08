@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# Only process merge messages.
+[ "${2-}" = "merge" ] || exit 0
+
+message_file=$1
+
+if [ ! -f "$message_file" ] ||
+   [ ! -r "$message_file" ] ||
+   [ ! -w "$message_file" ]; then
+  printf '%s\n' 'Expected a readable, writable commit-message file.' >&2
+  exit 1
+fi
+
+subject=
+IFS= read -r subject < "$message_file" || :
+
+# Only rewrite subjects matching Git's usual "Merge ..." wording.
+case "$subject" in
+  "Merge "*)
+    subject="merge: merge ${subject#Merge }"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+
+# Git sometimes omits the destination branch from its subject.
+case "$subject" in
+  *" into "*)
+    ;;
+  *)
+    target=$(git symbolic-ref --quiet --short HEAD) || target=
+    if [ -n "$target" ]; then
+      subject="$subject into $target"
+    fi
+    ;;
+esac
+
+# Construct the replacement before touching the original message.
+tmp=$(mktemp "${message_file}.XXXXXX") || exit 1
+trap 'rm -f -- "$tmp"' 0
+trap 'exit 1' HUP INT TERM
+
+{
+  printf '%s\n' "$subject" &&
+    tail -n +2 < "$message_file"
+} > "$tmp" || exit 1
+
+# Preserve the original file's permissions and identity.
+cat "$tmp" > "$message_file"

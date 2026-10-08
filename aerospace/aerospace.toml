@@ -11,7 +11,6 @@ on-focused-monitor-changed = ["move-mouse monitor-lazy-center"]
 automatically-unhide-macos-hidden-apps = true
 focus-follows-mouse.enabled = false
 
-
 persistent-workspaces = [
   "1",
   "2",
@@ -41,6 +40,9 @@ cmd-h = []  # Disable Hide App
 alt-tab = "focus-monitor --wrap-around next"
 alt-slash = "layout tiles horizontal vertical"
 alt-comma = "layout accordion horizontal vertical"
+alt-space = "layout floating tiling"
+alt-backtick = "flatten-workspace-tree"
+alt-equal = "balance-sizes"
 
 alt-h = "focus left"
 alt-j = "focus down"
@@ -64,11 +66,14 @@ alt-shift-3 = "move-node-to-workspace 3"
 alt-shift-4 = "move-node-to-workspace 4"
 alt-shift-5 = "move-node-to-workspace 5"
 
-# Vim-like resizing
+# vim-like resizing
 alt-cmd-h = "resize width -25"
 alt-cmd-j = "resize height +25"
 alt-cmd-k = "resize height -25"
 alt-cmd-l = "resize width +25"
+
+[mode.service.binding]
+esc = ["reload-config", "mode main"]
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"

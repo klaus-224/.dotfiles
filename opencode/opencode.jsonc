@@ -1,0 +1,99 @@
+{
+  "$schema": "./opencode.schema.json",
+  "default_agent": "builder",
+  "shell": "/bin/zsh",
+  "formatter": true,
+  "lsp": {
+    "lua": {
+      "command": [
+        "lua-language-server"
+      ]
+    },
+    "nix": {
+      "command": [
+        "nixd"
+      ]
+    }
+  },
+  "references": {
+    "nvim-config": {
+      "path": "~/.dotfiles/nvim",
+      "description": "My personal neovim config. Use when asked about neovim or nvim"
+    },
+    "nix": {
+      "path": "~/.dotfiles/nix",
+      "description": "My personal nix config. Use when asked about nix"
+    },
+    "zsh": {
+      "path": "~/.dotfiles/zsh",
+      "description": "My personal zsh config. Use when asked about zsh"
+    }
+  },
+  "mcp": {
+    "servers": {
+      "atlassian": {
+        "type": "remote",
+        "url": "https://mcp.atlassian.com/v2/mcp?tools=all",
+        "disabled": false
+      },
+      "playwright": {
+        "type": "local",
+        "command": [
+          "pnpm",
+          "dlx",
+          "@playwright/mcp@0.0.68"
+        ],
+        "disabled": true
+      }
+    }
+  },
+  "snapshots": false,
+  "update": "disable",
+  "experimental": {
+    "policies": [
+      {
+        "action": "provider.use",
+        "resource": "*",
+        "effect": "deny"
+      },
+      {
+        "action": "provider.use",
+        "resource": "@primary-provider@",
+        "effect": "allow"
+      },
+      {
+        "action": "provider.use",
+        "resource": "@secondary-provider@",
+        "effect": "allow"
+      }
+    ]
+  },
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "deny"
+    }
+  ],
+  "plugins": [
+    "./plugins/rtk",
+    "./plugins/pr-context",
+    {
+      "package": "@plannotator/opencode@0.27.22",
+      "options": {
+        "workflow": "user-managed"
+      }
+    }
+  ],
+  "agents": {
+    "plan": {
+      "disabled": true
+    },
+    "build": {
+      "disabled": true
+    },
+    "general": {
+      "hidden": true
+    }
+  }
+}
