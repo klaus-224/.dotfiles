@@ -9,4 +9,5 @@ return {
       Bold = "Bold",
     },
   },
+  blur_radius = 20
 }

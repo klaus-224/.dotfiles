@@ -20,7 +20,7 @@ local function render(label)
 end
 
 sbar.add("item", "spacer.teams", {
-  position = "right",
+  position = "left",
   width = settings.group_paddings,
   icon = { drawing = false },
   label = { drawing = false },
@@ -28,7 +28,7 @@ sbar.add("item", "spacer.teams", {
 })
 
 local item = sbar.add("item", "widgets.teams", {
-  position = "right",
+  position = "left",
   icon = { string = icons.teams },
   update_freq = 10,
 })

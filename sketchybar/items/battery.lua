@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
 local icons = require("icons").battery
+local settings = require("settings")
 
 local function parse(output)
   if type(output) ~= "string" then return nil end
@@ -9,7 +10,7 @@ local function parse(output)
   return {
     percentage = percentage,
     charging = output:find("AC Power", 1, true) ~= nil
-      or output:find("charging", 1, true) ~= nil,
+        or output:find("charging", 1, true) ~= nil,
   }
 end
 
@@ -64,8 +65,14 @@ end
 item:subscribe({ "routine", "forced", "power_source_change", "system_woke" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.battery", { "widgets.battery" }, {
-  background = { color = colors.pill_bg },
-})
+sbar.add("bracket", "pill.battery", { "widgets.battery" },
+  {
+    blur_radius = settings.blur_radius,
+    background = {
+      drawing = true,
+      color = colors.pill_bg,
+    },
+  }
+)
 
 return item

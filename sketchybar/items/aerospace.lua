@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
 local apple = require("items.apple")
+local settings = require("settings")
 
 local aerospace = "/opt/homebrew/bin/aerospace"
 local workspaces = { "1", "2", "3", "4", "5" }
@@ -70,7 +71,13 @@ local function add_display(display)
     "bracket",
     "workspace.bracket." .. display,
     members,
-    { background = { color = colors.pill_bg } }
+    {
+      blur_radius = settings.blur_radius,
+      background = {
+        drawing = true,
+        color = colors.pill_bg,
+      },
+    }
   )
 
   return {
@@ -109,7 +116,7 @@ local function apply_snapshot(records)
 
       item:set({
         label = {
-          color = highlighted and colors.purple or colors.muted,
+          color = highlighted and colors.purple or colors.fg,
         },
       })
     end

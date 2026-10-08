@@ -20,7 +20,7 @@ local function render(label)
 end
 
 sbar.add("item", "spacer.slack", {
-  position = "right",
+  position = "left",
   width = settings.group_paddings,
   icon = { drawing = false },
   label = { drawing = false },
@@ -28,7 +28,7 @@ sbar.add("item", "spacer.slack", {
 })
 
 local item = sbar.add("item", "widgets.slack", {
-  position = "right",
+  position = "left",
   icon = { string = icons.slack },
   update_freq = 10,
 })
@@ -36,13 +36,13 @@ local item = sbar.add("item", "widgets.slack", {
 local function refresh()
   sbar.exec('/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
     .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ "Slack"', function(output, exit_code)
-    local label
-    if exit_code == 0 then
-      local ok, parsed = pcall(parse, output)
-      if ok then label = parsed end
-    end
-    item:set(render(label))
-  end)
+      local label
+      if exit_code == 0 then
+        local ok, parsed = pcall(parse, output)
+        if ok then label = parsed end
+      end
+      item:set(render(label))
+    end)
 end
 
 item:subscribe({ "routine", "forced", "aerospace_workspace_change" }, refresh)
@@ -51,8 +51,14 @@ item:subscribe("mouse.clicked", function()
 end)
 refresh()
 
-sbar.add("bracket", "pill.slack", { "widgets.slack" }, {
-  background = { color = colors.pill_bg },
-})
+sbar.add("bracket", "pill.slack", { "widgets.slack" },
+  {
+    blur_radius = settings.blur_radius,
+    background = {
+      drawing = true,
+      color = colors.pill_bg,
+    },
+  }
+)
 
 return item
