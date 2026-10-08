@@ -9,6 +9,8 @@ local workspaces = { "1", "2", "3", "4", "5" }
 local displays = {}
 local in_flight = false
 local pending = false
+local layout_ready = false
+local anchor = "workspace.anchor"
 
 local function quote(value)
   return "'" .. value:gsub("'", "'\"'\"'") .. "'"
@@ -86,6 +88,54 @@ local function add_display(display)
   }
 end
 
+local function sync_displays()
+  -- Build the layout from SketchyBar, even while AeroSpace is unavailable.
+  local records = sbar.query("displays")
+  if type(records) ~= "table" or #records == 0 then return end
+
+  local active = {}
+  local order = {}
+  for _, record in ipairs(records) do
+    if type(record) ~= "table" then return end
+    local display = tonumber(record["arrangement-id"])
+    if not display or display < 1 or display % 1 ~= 0 then return end
+    if not active[display] then order[#order + 1] = display end
+    active[display] = true
+  end
+  table.sort(order)
+
+  for display, group in pairs(displays) do
+    if not active[display] then
+      for _, item in pairs(group.workspaces) do sbar.remove(item) end
+      for _, item in ipairs(group.decorations) do sbar.remove(item) end
+      displays[display] = nil
+    end
+  end
+
+  local moves = {}
+  for _, display in ipairs(order) do
+    if not displays[display] then
+      displays[display] = add_display(display)
+      if layout_ready then
+        -- New items append after the app pills; move the group before them.
+        local names = { "workspace.logo." .. display, "workspace.separator." .. display }
+        for _, workspace in ipairs(workspaces) do
+          names[#names + 1] = "workspace." .. display .. "." .. workspace
+        end
+        for _, name in ipairs(names) do
+          moves[#moves + 1] = "--move " .. quote(name) .. " before " .. quote(anchor)
+        end
+      end
+    end
+  end
+
+  if #moves > 0 then
+    -- Commit new items before a separate CLI process tries to move them.
+    sbar.end_config()
+    sbar.exec("sketchybar " .. table.concat(moves, " "))
+  end
+end
+
 local function apply_snapshot(records)
   local active = {}
 
@@ -99,19 +149,8 @@ local function apply_snapshot(records)
   end
 
   for display, group in pairs(displays) do
-    if active[display] == nil then
-      for _, item in pairs(group.workspaces) do
-        sbar.remove(item)
-      end
-      for _, item in ipairs(group.decorations) do sbar.remove(item) end
-      displays[display] = nil
-    end
-  end
-
-  for display, selected in pairs(active) do
-    displays[display] = displays[display] or add_display(display)
-
-    for workspace, item in pairs(displays[display].workspaces) do
+    local selected = active[display]
+    for workspace, item in pairs(group.workspaces) do
       local highlighted = workspace == selected
 
       item:set({
@@ -132,6 +171,7 @@ refresh = function()
   end
 
   in_flight = true
+  sync_displays()
 
   sbar.exec(
     quote(aerospace)
@@ -152,6 +192,15 @@ refresh = function()
     end
   )
 end
+
+-- Create workspace pills synchronously, before items/init.lua loads the apps.
+sync_displays()
+sbar.add("item", anchor, {
+  position = "left",
+  drawing = false,
+  width = 0,
+})
+layout_ready = true
 
 sbar.add("event", "aerospace_workspace_change")
 

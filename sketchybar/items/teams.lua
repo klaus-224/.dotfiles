@@ -52,7 +52,8 @@ end)
 refresh()
 
 sbar.add("bracket", "pill.teams", { "widgets.teams" }, {
-  background = { color = colors.pill_bg },
+  blur_radius = settings.blur_radius,
+  background = { drawing = true, color = colors.pill_bg },
 })
 
 return item
