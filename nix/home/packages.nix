@@ -7,6 +7,7 @@
 {
   home.packages = with pkgs; [
     pkg-config
+    python3 # SketchyBar notification plists and connectivity status (stdlib only).
     ripgrep
     just
     gnumake
