@@ -47,7 +47,7 @@ local function add_display(display)
       label = {
         string = workspace,
         padding_left = 7,
-        padding_right = 7,
+        padding_right = 10,
       },
       background = {
         drawing = true,
@@ -109,7 +109,7 @@ local function apply_snapshot(records)
 
       item:set({
         label = {
-          color = highlighted and colors.purple or colors.bg,
+          color = highlighted and colors.purple or colors.muted,
         },
       })
     end
