@@ -73,8 +73,15 @@ end
 item:subscribe({ "routine", "forced", "system_woke" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.memory", { "widgets.memory" }, {
-  background = { color = colors.pill_bg },
-})
+sbar.add("bracket", "pill.memory", { "widgets.memory" },
+  {
+    blur_radius = 50,
+    background = {
+      drawing = true,
+      color = colors.pill_bg,
+      height = 32,
+    },
+  }
+)
 
 return item
