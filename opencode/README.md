@@ -1,5 +1,13 @@
 # OpenCode workflows
 
+| Machine user | Allowed providers |
+| --- | --- |
+| klaus224 | OpenAI, OpenCode |
+| rohineshram | GitHub Copilot |
+
+Both machines use the same agents, permissions, skills, commands, and plugins.
+Select a model from an allowed provider.
+
 ## Agents
 
 | Agent | Mode | Purpose |
@@ -44,7 +52,7 @@ flowchart LR
 
 ### Jira bug creation
 
-Use `/bug <context>` in the work profile.
+Use `/bug <context>` with an authenticated Jira connection.
 
 ```mermaid
 flowchart TD
@@ -97,7 +105,7 @@ flowchart TD
 | --- | --- | --- |
 | `/build-plan <outcome>` | builder | Plannotator plan followed by approved implementation |
 | `/manual-test-plan <ticket-or-context>` | builder | Requirement-linked manual cases |
-| `/bug <context>` | builder | Work Jira bug draft and issue link after authorized creation |
+| `/bug <context>` | builder | Jira bug draft and issue link after authorized creation |
 | `/manual-test <plan-or-ticket> <environment>` | builder | PASS, FAIL, or BLOCKED for each case, with evidence |
 | `/pw-test <ticket-or-scope>` | builder | Added tests and execution results |
 | `/pw-review <PR-or-diff>` | reviewer | Prioritized findings and coverage gaps |
@@ -127,4 +135,4 @@ flowchart TD
 | --- | --- |
 | Plannotator | Review optional implementation plans, code, and artifacts |
 | RTK | Reduce shell output and report token savings |
-| PR context (personal) | Retrieve PR changes and evidence for selected test types |
+| PR context | Retrieve PR changes and evidence for selected test types |

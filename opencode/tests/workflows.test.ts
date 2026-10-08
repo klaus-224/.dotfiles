@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync, realpathSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -24,18 +24,16 @@ function effect(rules: Rule[], action: string, resource: string) {
   return [...rules].reverse().find(r => match(action, r.action) && match(resource, r.resource))?.effect ?? "ask";
 }
 
-for (const profile of ["personal", "work"]) {
-  const directory = join(root, profile);
+{
+  const directory = root;
   const config = parse(readFileSync(join(directory, "opencode.jsonc"), "utf8"));
   const rules = (agent: string, globals = config.permissions) => {
     const md = matter(readFileSync(join(directory, "agents", `${agent}.md`), "utf8"));
-    return [...globals, ...config.agents[agent].permissions, ...(md.data.permissions ?? [])] as Rule[];
+    return [...globals, ...(md.data.permissions ?? [])] as Rule[];
   };
 
-  test(`${profile}: discovered agents retain models and have no stale primary`, () => {
+  test(`shared: discovered agents have shared permissions and no stale primary`, () => {
     assert.equal(config.default_agent, "builder");
-    assert.equal(realpathSync(join(directory, "agents")), join(root, "agents"));
-    assert.equal(realpathSync(join(directory, "AGENTS.md")), join(root, "AGENTS.md"));
     assert.deepEqual(readdirSync(join(directory, "agents")).sort(),
       ["builder.md", "chat.md", "explore.md", "reviewer.md"]);
     for (const id of ["builder", "chat", "explore", "reviewer"]) {
@@ -45,7 +43,9 @@ for (const profile of ["personal", "work"]) {
       assert.equal(entry.mode, ["builder", "chat"].includes(id) ? "primary" : "subagent");
       assert.equal(entry.hidden ?? false, false);
       assert.ok(entry.system.length > 100);
-      assert.ok(entry.model.startsWith(profile === "work" ? "github-copilot/" : "openai/"));
+      assert.equal(entry.model, undefined);
+      assert.ok(md.data.permissions.length > 0);
+      assert.equal(config.agents[id], undefined);
     }
     assert.equal(config.agents.build.disabled, true);
     assert.equal(config.agents.plan.disabled, true);
@@ -62,7 +62,25 @@ for (const profile of ["personal", "work"]) {
     assert.equal(effect(rules("builder"), "subagent", "reviewer"), "allow");
   });
 
-  test(`${profile}: readonly agents resist a global edit allow and deny mutation routes`, () => {
+  test("provider allowlists are the only machine-specific settings", () => {
+    const configs = [["github-copilot", "github-copilot"], ["openai", "opencode"]].map(providers =>
+      parse(readFileSync(join(root, "opencode.jsonc"), "utf8")
+        .replaceAll("@primary-provider@", providers[0])
+        .replaceAll("@secondary-provider@", providers[1])));
+    for (const provider of ["openai", "opencode", "github-copilot", "anthropic"]) {
+      assert.equal(effect(configs[0].experimental.policies, "provider.use", provider),
+        provider === "github-copilot" ? "allow" : "deny");
+      assert.equal(effect(configs[1].experimental.policies, "provider.use", provider),
+        ["openai", "opencode"].includes(provider) ? "allow" : "deny");
+    }
+    delete configs[0].experimental;
+    delete configs[1].experimental;
+    assert.deepEqual(configs[0], configs[1]);
+    assert.ok(!readdirSync(root).includes("personal"));
+    assert.ok(!readdirSync(root).includes("work"));
+  });
+
+  test(`shared: readonly agents resist a global edit allow and deny mutation routes`, () => {
     for (const id of ["chat", "explore", "reviewer"]) {
       const policy = rules(id, [...config.permissions, { action: "edit", resource: "*", effect: "allow" }]);
       for (const path of ["src/app.ts", ".env.example", "work/report.md"])
@@ -82,7 +100,7 @@ for (const profile of ["personal", "work"]) {
     }
   });
 
-  test(`${profile}: builder allows routine work while keeping external and credential gates`, () => {
+  test(`shared: builder allows routine work while keeping external and credential gates`, () => {
     const policy = rules("builder");
     for (const command of ["pnpm test", "pnpm test:schema", "pnpm build", "pnpm typecheck", "git add src/app.ts", "git commit -m fix", "rtk git status"])
       assert.equal(effect(policy, "shell", command), "allow", command);
@@ -97,12 +115,12 @@ for (const profile of ["personal", "work"]) {
         assert.equal(effect(rules(id), "read", path), "deny", `${id}: ${path}`);
       assert.equal(effect(rules(id), "read", ".env.example"), "allow");
     }
-    const expected = profile === "work" ? "ask" : "deny";
+    const expected = "ask";
     assert.equal(effect(policy, "atlassian_createJiraIssue", "*"), expected);
     assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), expected);
   });
 
-  test(`${profile}: commands select capable agents and load discoverable exact skill IDs`, () => {
+  test(`shared: commands select capable agents and load discoverable exact skill IDs`, () => {
     const commands = readdirSync(join(directory, "commands")).filter(f => f.endsWith(".md"));
     for (const file of commands) {
       const md = matter(readFileSync(join(directory, "commands", file), "utf8"));
@@ -114,7 +132,6 @@ for (const profile of ["personal", "work"]) {
       const skillIDs = [...md.content.matchAll(/`([a-z][a-z-]+)`/g)].map(m => m[1]);
       for (const id of skillIDs) {
         if (["builder", "reviewer"].includes(id)) continue;
-        if (profile === "personal" && id === "jira-ticket") continue;
         const skill = matter(readFileSync(join(directory, "skills", id, "SKILL.md"), "utf8"));
         assert.equal(typeof skill.data.description, "string");
         assert.ok(skill.content.trim());
@@ -122,11 +139,11 @@ for (const profile of ["personal", "work"]) {
       }
     }
     for (const id of ["jira-ticket", "jira-bug"]) {
-      assert.equal(readdirSync(join(directory, "skills")).includes(id), profile === "work");
+      assert.equal(readdirSync(join(directory, "skills")).includes(id), true);
     }
-    assert.equal(commands.includes("bug.md"), profile === "work");
-    assert.equal(!!config.mcp?.servers?.atlassian, profile === "work");
-    if (profile === "work") assert.equal(config.mcp.servers.playwright.disabled, true);
-    else assert.ok(config.plugins.includes("./plugins/pr-context"));
+    assert.equal(commands.includes("bug.md"), true);
+    assert.equal(!!config.mcp?.servers?.atlassian, true);
+    assert.equal(config.mcp.servers.playwright.disabled, true);
+    assert.ok(config.plugins.includes("./plugins/pr-context"));
   });
 }

@@ -1,1 +1,0 @@
-../../commands/plannotator-annotate.md
