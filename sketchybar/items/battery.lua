@@ -47,8 +47,8 @@ end
 local item = sbar.add("item", "widgets.battery", {
   position = "right",
   icon = { string = icons.empty },
-  label = { width = 36 },
   update_freq = 120,
+  padding_right = 2
 })
 
 local function refresh()

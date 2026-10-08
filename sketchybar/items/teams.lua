@@ -1,5 +1,4 @@
 local sbar = require("sketchybar")
-local settings = require("settings")
 local colors = require("colors")
 local icons = require("icons")
 
@@ -19,17 +18,9 @@ local function render(label)
   }
 end
 
-sbar.add("item", "spacer.teams", {
-  position = "left",
-  width = settings.group_paddings,
-  icon = { drawing = false },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-
 local item = sbar.add("item", "widgets.teams", {
   position = "left",
-  icon = { string = icons.teams },
+  icon = { string = icons.teams, padding_right = 2 },
   update_freq = 10,
 })
 
@@ -50,10 +41,5 @@ item:subscribe("mouse.clicked", function()
   sbar.exec('/usr/bin/open -a "Microsoft Teams"')
 end)
 refresh()
-
-sbar.add("bracket", "pill.teams", { "widgets.teams" }, {
-  blur_radius = settings.blur_radius,
-  background = { drawing = true, color = colors.pill_bg },
-})
 
 return item
