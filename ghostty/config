@@ -13,7 +13,7 @@ bold-is-bright = true
 cursor-opacity = 1
 cursor-color= "#f8ce9d"
 
-background-opacity = 0.72
+background-opacity = 0.70
 background-blur = 30
 background-opacity-cells = true
 

@@ -6,18 +6,28 @@ import { Schema } from "effect";
 import { parse, type ParseError } from "jsonc-parser";
 import { Config } from "@opencode/schema";
 
-test("profiles validate against the OpenCode 2.0.20 schema", () => {
+test("shared config and provider allowlists validate against the OpenCode 2.0.20 schema", () => {
   const document = Schema.toJsonSchemaDocument(Config.Info);
   const ajv = new Ajv2020({ strict: false, allErrors: true, validateFormats: false });
-  for (const profile of ["work", "personal"]) {
+  const template = readFileSync(new URL("../opencode.jsonc", import.meta.url), "utf8");
+  for (const [profile, providers] of [
+    ["work", ["github-copilot", "github-copilot"]],
+    ["personal", ["openai", "opencode"]],
+  ] as const) {
     const errors: ParseError[] = [];
-    const config = parse(readFileSync(new URL(`../${profile}/opencode.jsonc`, import.meta.url), "utf8"), errors, {
+    const config = parse(template
+      .replaceAll("@primary-provider@", providers[0])
+      .replaceAll("@secondary-provider@", providers[1]), errors, {
       allowTrailingComma: true,
     });
     assert.deepEqual(errors, []);
     assert.equal(config.$schema, "./opencode.schema.json");
+    assert.deepEqual(config.experimental.policies, [
+      { action: "provider.use", resource: "*", effect: "deny" },
+      ...providers.map(resource => ({ action: "provider.use", resource, effect: "allow" })),
+    ]);
     const editorSchema = JSON.parse(
-      readFileSync(new URL(`../${profile}/opencode.schema.json`, import.meta.url), "utf8"),
+      readFileSync(new URL("../opencode.schema.json", import.meta.url), "utf8"),
     );
     assert.deepEqual(editorSchema.$defs, document.definitions);
     assert.equal(editorSchema.$ref, document.schema.$ref);

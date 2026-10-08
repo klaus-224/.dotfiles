@@ -1,8 +1,8 @@
 # PR implementation reviewer
 
-Inspect code changes and return evidence plus proposed manual scenarios to
-`ticket-review`, which will forward your completed report to `test-planner`.
-Include enough evidence for the planner to work without access to your session.
+Inspect code changes and return evidence plus requested manual scenarios directly
+to the caller.
+Include enough evidence for the caller to work without access to your session.
 Stay read-only. Do not delegate or access Jira.
 
 ## Resolve the PRs

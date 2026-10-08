@@ -1,135 +1,138 @@
-# OpenCode v2 configuration
+# OpenCode workflows
 
-These profiles target OpenCode 2.0.20. Homebrew manages the executable and
-OpenCode self-updating is disabled.
+| Machine user | Allowed providers |
+| --- | --- |
+| klaus224 | OpenAI, OpenCode |
+| rohineshram | GitHub Copilot |
 
-Each profile points `$schema` at its local `opencode.schema.json` for editor
-completion. These files are generated from the pinned `@opencode/schema@2.0.20`
-package with `pnpm schema:generate`, because the published
-`https://opencode.ai/config.json` currently omits V2 configuration fields.
+Both machines use the same agents, permissions, skills, commands, and plugins.
+Select a model from an allowed provider.
 
-| Profile | Machine user | Providers | Additional agents |
-| --- | --- | --- | --- |
-| `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
-| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `Jira` |
+## Agents
 
-Both profiles start with `chat` and include `planner`, `explorer`, and `builder`.
-Models and variants remain profile-specific. Availability depends on the
-provider account; validation does not authenticate or run a model.
+| Agent | Mode | Purpose |
+| --- | --- | --- |
+| builder | Primary, default | Answer questions, implement changes, verify results, and finish tasks |
+| chat | Primary, visible | Discuss and investigate without changing files |
+| explore | Subagent | Investigate a bounded repository or documentation question |
+| reviewer | Subagent | Review correctness and coverage and return actionable findings |
 
-## Loading and retained resources
+## Workflows
 
-Home Manager links `~/.config/opencode` to the profile selected by username in
-`nix/home/files.nix`: `personal` for `klaus224`, `work` for other users. Zsh
-does not override OpenCode's config path, so the Home Manager link is the single
-profile selector.
+### Implementation and optional planning
 
-Each profile owns its active `opencode.jsonc` and `cli.json`, while the shared
-`prompts` and `skills` directories are linked into both profiles. Each profile
-also has its own `plugins` directory: both link `rtk`, and only personal links
-`pr-context`. Both profile JSONC files load `./plugins/rtk`; personal also
-loads `./plugins/pr-context`. File references resolve from the profile
-directory. Agent registrations live in the profile JSONC; retained prompt and
-skill libraries may include resources that
-are not currently enabled for an agent.
+Ask builder to implement directly, or use `/build-plan <outcome>` to plan through
+Plannotator first. Select builder as the approval target when you want implementation.
 
-The personal profile exposes the read-only `pr_context_get` tool only to
-`planner`. It accepts a PR number or canonical GitHub PR URL plus the requested
-`manual`, `unit`, and/or `playwright` test types. Its result includes PR
-revisions, changed files, bounded patches,
-and explicit completeness markers.
+```mermaid
+flowchart TD
+    Request[Task for builder] --> Planning{Plannotator planning requested?}
+    Planning -- No --> Implement[Builder implements]
+    Planning -- Yes --> Plan[Builder prepares a plan without editing]
+    Plan --> Review[Review in Plannotator]
+    Review --> Decision{Review decision}
+    Decision -- Request changes --> Plan
+    Decision -- Approve implementation --> Implement
+    Decision -- Planning only --> PlanDone[Return approved plan]
+    Decision -- Dismiss --> Stop[Stop without implementation]
+    Implement --> Verify[Run relevant checks and review the diff]
+    Verify --> Result[Report changes, results, and blockers]
+```
 
-The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
-files include the Jira, orchestration, and test-plan workflows. The work
-profile also retains the six prompts in `prompts/back/` for its existing
-workflows. All existing skill directories remain available. V1 tools,
-archived commands, and the old root terminal client configuration were removed.
+### Manual test planning
 
-## Workflows and permissions
+Use `/manual-test-plan <ticket-or-context>` to prepare cases without running them.
 
-Permissions use V2 ordered rules: broad defaults precede specific exceptions,
-and the last matching rule wins. Shell and delegation actions are `shell` and
-`subagent`. Planning and review agents retain their read-only restrictions.
+```mermaid
+flowchart LR
+    Context[Ticket or supplied requirements] --> Evidence[Read requirements and associated PRs]
+    Evidence --> Cases[Builder creates requirement-linked cases]
+    Cases --> Plan[Return steps, expected results, and evidence gaps]
+```
 
-Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
-`pr-review`, and passes findings to `test-planner`. It returns manual test steps
-without implementing tests or triggering an implementation handoff. Only the
-named read operations are allowed through Atlassian MCP.
+### Jira bug creation
 
-Work's `/bug [project key and initial details]` runs as `Jira` and opens a
-Plannotator interview form with the bug template fields, project, and summary.
-It resolves the Bug type and required Jira fields, presents the completed ticket
-for Plannotator approval, creates it through Atlassian MCP, and returns a clickable
-issue link. Blank optional links are omitted and reproduction steps are numbered.
-Drafts and form/review results are kept under `work/jira-bugs/<draft-id>/` in the
-current project; review these artifacts before committing project files.
-The agent can create issues and read Jira metadata, with local writes limited to
-those workflow artifacts. Existing issue mutations remain denied.
-This uses the mise-managed CLI's `setup-goal interview` and `annotate --gate --json`
-commands, without calling `submit_plan` or triggering the builder handoff. The
-CLI must support those commands and Atlassian MCP must be authenticated with
-permission to create Bugs in the selected project.
+Use `/bug <context>` with an authenticated Jira connection.
 
-Both profiles use the `plan-agent` Plannotator workflow and allow `planner` to
-call `submit_plan`. Plannotator CLI commands require the `plannotator`
-executable supplied by mise.
+```mermaid
+flowchart TD
+    Context[Bug context] --> Intake[Collect details in the Plannotator form]
+    Intake --> Draft[Prepare the team-template bug draft]
+    Draft --> Authorized{Creation already authorized?}
+    Authorized -- Yes --> Create[Create the Jira bug]
+    Authorized -- No --> Review[Review the completed draft in Plannotator]
+    Review --> Decision{Review decision}
+    Decision -- Request changes --> Draft
+    Decision -- Approve --> Create
+    Decision -- Dismiss --> Stop[Keep draft without creating an issue]
+    Create --> Link[Return the issue link]
+```
 
-TypeScript uses built-in language-server discovery. Lua and Nix retain
-`lua-language-server` and `nixd` overrides. Built-in formatting remains enabled.
+### Manual test execution
 
-## Repository downloads and RTK
+Use `/manual-test <plan-or-ticket> <environment>` with an authorized test environment.
 
-The shared `ghgrab-fetch` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
-non-interactive `agent tree` and `agent download` commands. It references the
-[video's ghgrab chapter](https://youtu.be/II17TPAb4AQ?t=455) and covers selected
-paths, explicit destinations, JSON results, authentication, and release assets.
-Chat, explorer, builder, and the personal audit agents can load it. Explorer
-can list remote trees; downloads retain its existing shell denial. Other agents
-retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
+```mermaid
+flowchart TD
+    Input[Plan and test environment] --> Ready{Prerequisites available?}
+    Ready -- No --> Blocked[Report BLOCKED and the missing prerequisite]
+    Ready -- Yes --> Execute[Builder executes cases and captures evidence]
+    Execute --> Outcome{Observed result}
+    Outcome -- Matches expected --> Pass[Report PASS with evidence]
+    Outcome -- Differs from expected --> Fail[Report FAIL with expected and actual results]
+    Outcome -- Cannot complete --> Blocked
+    Fail --> Draft[Prepare bug drafts for review]
+```
 
-Both profiles explicitly load a dependency-free OpenCode v2 adapter for
-[RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode)
-through `./plugins/rtk` and each profile's own `plugins` directory.
-It checks every shell invocation through `rtk rewrite` before execution,
-including commands from subagents. RTK owns the rewrite rules: supported commands
-use its filters, unsupported commands and explicit `rtk` calls pass through.
-Rewrite errors fall back to the original command, with one warning per plugin
-instance for an unavailable or broken binary. The rewrite subprocess uses argv,
-the invocation's working directory and environment, and a two-second timeout.
-Valid rewrites from RTK exit codes 0 and 3 both use OpenCode's normal permission
-checks. Codes 1 and 2 with no output leave the original command for OpenCode to
-evaluate; the adapter never auto-approves a command from RTK's exit status.
+### Playwright writing and review
 
-OpenCode evaluates permissions after this hook. Each profile mirrors its ordered
-Git/GitHub CLI permission rule to its `rtk` equivalent, including denials such as
-`git add -A` and audit-agent commit/push restrictions. Other rewrites retain the
-normal ask/deny fallback; there is no blanket `rtk *` allowance. Dedicated read,
-grep, and glob tools do not execute a shell and do not pass through RTK.
+Use `/pw-test <ticket-or-scope>` to add and run tests, or `/pw-review <PR-or-diff>`
+for a read-only review.
 
-RTK is already declared in `nix/darwin/homebrew.nix`; `rtk rewrite` requires
-version 0.23.0 or newer. This adapter targets OpenCode 2.0.20's
-`ctx.shell.hook("create.before", ...)` API, rather than the upstream v1 hook.
-Configured local plugins use a package directory for compatibility with 2.0.20.
-Do not run `rtk init -g --opencode` over these managed profiles.
+```mermaid
+flowchart TD
+    Request[Playwright request] --> Mode{Write or review?}
+    Mode -- Write --> Write[Builder adds tests using project fixtures]
+    Write --> Run[Run targeted checks]
+    Run --> Results[Report results, coverage gaps, and blockers]
+    Mode -- Review --> Inspect[Reviewer inspects the PR or diff]
+    Inspect --> Findings[Return prioritized correctness, coverage, and flakiness findings]
+```
 
-`rtk gain` reports savings; `rtk proxy <command>` preserves raw output when needed.
+## Commands
 
-## Verification and activation
+| Command | Agent | Result |
+| --- | --- | --- |
+| `/build-plan <outcome>` | builder | Plannotator plan followed by approved implementation |
+| `/manual-test-plan <ticket-or-context>` | builder | Requirement-linked manual cases |
+| `/bug <context>` | builder | Jira bug draft and issue link after authorized creation |
+| `/manual-test <plan-or-ticket> <environment>` | builder | PASS, FAIL, or BLOCKED for each case, with evidence |
+| `/pw-test <ticket-or-scope>` | builder | Added tests and execution results |
+| `/pw-review <PR-or-diff>` | reviewer | Prioritized findings and coverage gaps |
+| `/plannotator-review` | builder | Interactive code review |
+| `/plannotator-annotate <target>` | builder | Artifact annotations |
+| `/plannotator-last` | builder | Annotations on the last response |
 
-Use `zsh -n zsh/.zshenv`, pinned V2 schema validation, TypeScript checks, and
-offline Nix evaluation for both hosts. Runtime checks should use isolated
-temporary data/config directories, disable Atlassian in validation copies, and
-never send model requests or use live credentials.
+## Permissions
 
-After merging these changes into `~/.dotfiles`, apply the existing nix-darwin
-host configuration and run `opencode service restart`. This selects the new
-profile plugin directory and reloads local plugins.
+| Agent | Reads and lookup | File edits | Tests and evidence capture | Delegation | External writes | Unknown commands, installs, external directories |
+| --- | --- | --- | --- | --- | --- | --- |
+| builder | Allow | Allow | Allow configured checks; browser actions ask | explore, reviewer | Jira writes ask | Ask |
+| chat | Allow | Deny | Deny | explore only | Deny | Deny |
+| explore | Allow | Deny | Deny | Deny | Deny | Deny |
+| reviewer | Allow | Deny | Deny | Deny | Deny | Deny |
 
-`service.json` is machine-local runtime state and remains ignored. Do not copy
-it between personal and work profiles.
+| Boundary | All agents |
+| --- | --- |
+| Credential files | Deny; safe example files can be read |
+| Pushes, destructive Git, history rewriting, blanket staging, hook bypasses | Deny |
+| Jira deletion | Deny |
+| Launching builder as a subagent | Deny |
 
-References: [V2 config](https://opencode.ai/v2/docs/config/),
-[migration guide](https://opencode.ai/v2/docs/migrate-v1/),
-[agents](https://opencode.ai/v2/docs/agents/),
-[permissions](https://opencode.ai/v2/docs/permissions/), and
-[V2 plugins](https://opencode.ai/v2/docs/build/plugins/).
+## Plugins
+
+| Plugin | Purpose |
+| --- | --- |
+| Plannotator | Review optional implementation plans, code, and artifacts |
+| RTK | Reduce shell output and report token savings |
+| PR context | Retrieve PR changes and evidence for selected test types |
