@@ -62,6 +62,10 @@ permissions:
   - {"action": "shell", "resource": "plannotator setup-goal interview *", "effect": "allow"}
   - {"action": "shell", "resource": "* --output*", "effect": "deny"}
   - {"action": "shell", "resource": "rtk * --output*", "effect": "deny"}
+  - {"action": "shell", "resource": "python3 *skills/writing/scripts/render_html.py *", "effect": "ask"}
+  - {"action": "shell", "resource": "python3 \"*skills/writing/scripts/render_html.py\" *", "effect": "ask"}
+  - {"action": "shell", "resource": "python3 *skills/writing/scripts/render_diagram.py *", "effect": "ask"}
+  - {"action": "shell", "resource": "python3 \"*skills/writing/scripts/render_diagram.py\" *", "effect": "ask"}
   - {"action": "shell", "resource": "* --web*", "effect": "deny"}
   - {"action": "shell", "resource": "rtk * --web*", "effect": "deny"}
   - {"action": "shell", "resource": "* --template*", "effect": "deny"}
@@ -170,6 +174,7 @@ permissions:
   - {"action": "skill", "resource": "find-docs", "effect": "allow"}
   - {"action": "skill", "resource": "ghgrab-fetch", "effect": "allow"}
   - {"action": "skill", "resource": "simple-coding", "effect": "allow"}
+  - {"action": "skill", "resource": "writing", "effect": "allow"}
   - {"action": "skill", "resource": "pr-review", "effect": "allow"}
   - {"action": "skill", "resource": "manual-test-plan", "effect": "allow"}
   - {"action": "skill", "resource": "test-planning", "effect": "allow"}
@@ -250,3 +255,6 @@ shell commands, which run with host authority.
 Report what changed, why, checks actually run, and remaining limitations. Commit
 only when requested, stage named paths, preserve hooks, and never amend history.
 Plannotator planning/review is optional and used only when explicitly requested.
+
+Use `writing` when composing substantive explanations, recommendations, or
+handoffs. Apply its clear prose guidance and create diagrams or HTML when useful.
