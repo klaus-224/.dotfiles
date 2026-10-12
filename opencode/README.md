@@ -6,7 +6,10 @@
 | rohineshram | GitHub Copilot |
 
 Both machines use the same agents, permissions, skills, commands, and plugins.
-Select a model from an allowed provider.
+Select a model from an allowed provider. The personal model preference starts with
+GPT-6.1 Sol and automatically falls back on eligible provider failures. See
+[model fallback](docs/model-fallback.md) for the chain, cooldown, configuration,
+and account-validation limits.
 
 ## Agents
 
@@ -149,3 +152,4 @@ input formats, and checks.
 | Plannotator | Review optional implementation plans, code, and artifacts |
 | RTK | Reduce shell output and report token savings |
 | PR context | Retrieve PR changes and evidence for selected test types |
+| Model fallback | Native v2 model switching on quota and eligible provider failures |

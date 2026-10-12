@@ -2,29 +2,7 @@
 set -euo pipefail
 (( $# <= 1 )) || { printf '%s\n' 'Usage: tmux-session-dispensary.sh [directory]' >&2; exit 1; }
 
-DIRS=(
-    "$HOME"
-    "$HOME/code"
-    "$HOME/code/sandbox/"
-    "$HOME/documents"
-)
-
-if (( $# == 1 )); then
-    selected="$1"
-else
-    selected=$(
-        fd . "${DIRS[@]}" \
-            --type directory \
-            --max-depth 1 \
-            --absolute-path |
-        fzf
-    ) || {
-        status=$?
-        # fzf uses 1 for no match and 130 for cancellation.
-        [[ "$status" == 1 || "$status" == 130 ]] && exit 0
-        exit "$status"
-    }
-fi
+selected="$1"
 
 [[ -n "$selected" ]] || exit 0
 [[ -d "$selected" ]] || { printf 'Not a directory: %s\n' "$selected" >&2; exit 1; }

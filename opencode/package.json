@@ -4,7 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "test": "node --import tsx --test tests/pr_context.test.ts",
+    "test": "node --import tsx --test tests/pr_context.test.ts tests/model-fallback.test.ts",
+    "test:fallback:runtime": "node scripts/check-fallback-runtime.mjs",
     "test:schema": "node --import tsx --test tests/schema-validation.test.ts",
     "test:workflows": "node --import tsx --test tests/workflows.test.ts",
     "schema:generate": "node --import tsx scripts/generate-config-schema.ts",

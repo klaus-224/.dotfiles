@@ -3,6 +3,16 @@
   "default_agent": "builder",
   "shell": "/bin/zsh",
   "formatter": true,
+  "model": "opencode/kimi-k3",
+  "providers": {
+    "opencode": {
+      "models": {
+        "default": {
+          "modelID": "opencode/claude-fable-5-1"
+        },
+      },
+    }
+  },
   "lsp": {
     "lua": {
       "command": [
@@ -78,6 +88,7 @@
   "plugins": [
     "./plugins/rtk",
     "./plugins/pr-context",
+    "./plugins/model-fallback",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {
