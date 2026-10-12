@@ -16,6 +16,7 @@ in
       [ "@primary-provider@" "@secondary-provider@" ]
       opencodeProviders
       (builtins.readFile ../../opencode/opencode.jsonc);
+    "opencode/opencode-fallback.jsonc".source = link "opencode/opencode-fallback.jsonc";
     "opencode/opencode.schema.json".source = link "opencode/opencode.schema.json";
     "opencode/cli.json".source = link "opencode/cli.json";
     "opencode/AGENTS.md".source = link "opencode/AGENTS.md";

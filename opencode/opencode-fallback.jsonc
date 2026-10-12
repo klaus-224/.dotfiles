@@ -1,0 +1,15 @@
+{
+  // Applies only to models available under this machine's provider policy.
+  "enabled": true,
+  "primary_model": "openai/gpt-6.1-sol",
+  "fallback_models": [
+    "opencode/claude-opus-5-5",
+    "opencode/kimi-k3",
+    "opencode/glm-5.3",
+    "opencode/glm-5.3-flash"
+  ],
+  "cooldown_seconds": 300,
+  "max_fallback_attempts": 4,
+  "timeout_seconds": 0,
+  "notify_on_fallback": true
+}
