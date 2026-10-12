@@ -3,6 +3,16 @@
   "default_agent": "builder",
   "shell": "/bin/zsh",
   "formatter": true,
+  "model": "opencode/kimi-k3",
+  "providers": {
+    "opencode": {
+      "models": {
+        "default": {
+          "modelID": "opencode/claude-fable-5-1"
+        },
+      },
+    }
+  },
   "lsp": {
     "lua": {
       "command": [
