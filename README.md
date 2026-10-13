@@ -257,11 +257,12 @@ brew services restart sketchybar
 
 ## Opencode Plugins
 
-- Work intentionally has no plugins.
-- Personal uses [plannotator](https://github.com/backnotprop/plannotator) for
-  user-managed plans.
+- Both OpenCode profiles share RTK, PR context, and
+  [plannotator](https://github.com/backnotprop/plannotator) for user-managed plans.
+- Select a provider profile explicitly with `opencode-profile work` or
+  `opencode-profile personal`; zsh owns the configuration links.
 - See [profile configuration and safe checks](opencode/README.md).
-- OpenCode updates are Nix-managed, not application-managed.
+- Homebrew manages the OpenCode executable; application self-updating is disabled.
 
 ## TODO
 - [ ] configure plannotator [plannotator config](https://docs.plannotator.ai/open-source/reference/configuration)

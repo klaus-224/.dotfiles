@@ -1,0 +1,41 @@
+{
+  "$schema": "./opencode.schema.json",
+  "model": "github-copilot/gpt-6.1-sol",
+  "agents": {
+    "builder": {
+      "model": "github-copilot/gpt-6.1-sol"
+    },
+    "chat": {
+      "model": "github-copilot/claude-sonnet-5.5"
+    },
+    "explorer": {
+      "model": "github-copilot/claude-haiku-5.5"
+    },
+    "reviewer": {
+      "model": "github-copilot/gpt-6.1-sol"
+    },
+    "planner": {
+      "model": "github-copilot/gpt-6.1-sol"
+    },
+    "audit-orchestrator": {
+      "model": "github-copilot/gpt-6.1-sol"
+    },
+    "audit-worker": {
+      "model": "github-copilot/gpt-6.1-sol"
+    }
+  },
+  "experimental": {
+    "policies": [
+      {
+        "action": "provider.use",
+        "resource": "*",
+        "effect": "deny"
+      },
+      {
+        "action": "provider.use",
+        "resource": "github-copilot",
+        "effect": "allow"
+      }
+    ]
+  }
+}

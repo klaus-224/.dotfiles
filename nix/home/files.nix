@@ -1,7 +1,6 @@
-{ config, username, ... }:
+{ config, ... }:
 
 let
-  opencodeProfile = if username == "klaus224" then "personal" else "work";
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
 in
@@ -11,7 +10,6 @@ in
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
 
-    opencode.source = link "opencode/${opencodeProfile}";
     mise.source = link "mise";
     aerospace.source = link "aerospace";
     sketchybar.source = link "sketchybar";

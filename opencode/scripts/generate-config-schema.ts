@@ -11,9 +11,7 @@ const schema = {
   $defs: document.definitions,
 };
 
-for (const profile of ["personal", "work"]) {
-  writeFileSync(
-    new URL(`../${profile}/opencode.schema.json`, import.meta.url),
-    `${JSON.stringify(schema, null, 2)}\n`,
-  );
-}
+writeFileSync(
+  new URL("../opencode.schema.json", import.meta.url),
+  `${JSON.stringify(schema, null, 2)}\n`,
+);

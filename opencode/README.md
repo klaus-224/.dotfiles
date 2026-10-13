@@ -1,121 +1,190 @@
 # OpenCode v2 configuration
 
-These profiles target OpenCode 2.0.20. Homebrew manages the executable and
-OpenCode self-updating is disabled.
+The active layout targets OpenCode 2.0.20. Homebrew still installs the executable;
+application self-updating remains disabled. Zsh owns configuration links and
+profile selection. Home Manager owns neither.
 
-Each profile points `$schema` at its local `opencode.schema.json` for editor
-completion. These files are generated from the pinned `@opencode/schema@2.0.20`
-package with `pnpm schema:generate`, because the published
-`https://opencode.ai/config.json` currently omits V2 configuration fields.
+| Source under `~/.dotfiles/opencode` | Installed entry | Purpose |
+| --- | --- | --- |
+| `opencode.json` | `opencode.json` | Shared agent metadata, permissions, plugins, and general settings |
+| `work.jsonc` or `personal.jsonc` | `opencode.jsonc` | Selected provider policy and model defaults |
+| `agents/` | `agents/` | Shared Markdown system prompts, without configuration frontmatter |
+| `commands/` | `commands/` | Shared command templates; currently empty |
+| `shared-skills/` | `skills/` | Curated links to the existing shared skill libraries |
+| `plugins/` | `plugins/` | Shared RTK and PR context plugins |
+| `cli.json` | `cli.json` | Shared v2 terminal settings |
+| `opencode.schema.json` | `opencode.schema.json` | Editor schema generated from `@opencode/schema@2.0.20` |
 
-| Profile | Machine user | Providers | Additional agents |
-| --- | --- | --- | --- |
-| `personal/opencode.jsonc` | `klaus224` | OpenAI, OpenCode | `audit-orchestrator`, `audit-worker` |
-| `work/opencode.jsonc` | `rohineshram` | GitHub Copilot | `ticket-review`, `pr-review`, `test-planner`, `jira-operator` |
+The destination `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` is a real directory.
+Its managed entries link into the canonical dotfiles source. Credentials,
+service configuration, databases, and unrelated entries stay machine-local.
 
-Both profiles start with `chat` and include `planner`, `explorer`, and `builder`.
-Models and variants remain profile-specific. Availability depends on the
-provider account; validation does not authenticate or run a model.
+## Profiles and shared agents
 
-## Loading and retained resources
+`work.jsonc` allows only `github-copilot`. Its root default, builder, reviewer,
+planner, and audit agents use `github-copilot/gpt-6.1-sol`; chat uses
+`github-copilot/claude-sonnet-5.5`, and explorer uses
+`github-copilot/claude-haiku-5.5`. The existing `explorer` ID is retained because
+shared chat and planner prompts refer to it.
 
-Home Manager links `~/.config/opencode` to the profile selected by username in
-`nix/home/files.nix`: `personal` for `klaus224`, `work` for other users. Zsh
-does not override OpenCode's config path, so the Home Manager link is the single
-profile selector.
+`personal.jsonc` allows exactly `opencode` and `openai`. It deliberately leaves
+model defaults unset until availability is confirmed with the model picker on
+the personal machine. Then add a verified root `model` and optional
+`agents.<id>.model` overrides to that file. Existing sessions retain their
+selected models; validate new sessions and subagents when changing defaults.
+Policies restrict providers; they do not authenticate an account.
 
-Each profile owns its active `opencode.jsonc` and `cli.json`, while the shared
-`prompts` and `skills` directories are linked into both profiles. Each profile
-also has its own `plugins` directory: both link `rtk`, and only personal links
-`pr-context`. Both profile JSONC files load `./plugins/rtk`; personal also
-loads `./plugins/pr-context`. File references resolve from the profile
-directory. Agent registrations live in the profile JSONC; retained prompt and
-skill libraries may include resources that
-are not currently enabled for an agent.
+Shared agents include chat, planner, explorer, builder, reviewer, and the two
+existing audit agents. Existing prompt bodies are preserved byte-for-byte in
+`agents/`; the new reviewer has a provider-neutral read-only prompt. Descriptions,
+modes, ordered permission rules, and hidden built-in overrides live in
+`opencode.json`. JSON agent definitions omit `system` so Markdown discovery
+supplies it. The shared chat step limit and terminal settings come from the old
+work profile. Permission rules retain both profiles' provider-neutral exceptions;
+where permissions differed, existing allows from either profile remain available.
 
-The personal profile exposes the read-only `pr_context_get` tool only to
-`planner`. It accepts a PR number or canonical GitHub PR URL plus the requested
-`manual`, `unit`, and/or `playwright` test types. Its result includes PR
-revisions, changed files, bounded patches,
-and explicit completeness markers.
+The shared Plannotator package remains `@plannotator/opencode@0.27.22`, using
+`plan-agent` with `planner`. PR context is now shared and remains allowed only
+for planner. The RTK adapter rewrites shell commands before normal permission
+checks, retaining the existing ordered Git/RTK restrictions. No blanket RTK
+allow is added. `rtk rewrite` requires RTK 0.23.0 or newer. Do not run
+`rtk init -g --opencode` over this configuration.
 
-The active package plugin is `@plannotator/opencode@0.27.22`. Retained prompt
-files include the Jira, orchestration, and test-plan workflows. The work
-profile also retains the six prompts in `prompts/back/` for its existing
-workflows. All existing skill directories remain available. V1 tools,
-archived commands, and the old root terminal client configuration were removed.
+## Excluded assets are retained
 
-## Workflows and permissions
+Jira, Atlassian MCP, work test-plan commands and agents, Playwright skills, and
+related permissions are absent from the active configuration. Their existing
+files remain untouched in `work/`, `prompts/`, and `skills/`; relocation into a
+work repository is separate work. `shared-skills/` omits `playwright-cli`,
+`manual-test-plan`, and `test-planning` so those originals are preserved without
+being discovered globally. Add only provider-neutral assets to this curated
+library. Skill frontmatter and supporting resources remain intact.
 
-Permissions use V2 ordered rules: broad defaults precede specific exceptions,
-and the last matching rule wins. Shell and delegation actions are `shell` and
-`subagent`. Planning and review agents retain their read-only restrictions.
+The old `personal/` and `work/` trees are retained for recovery and excluded
+workflows. They are no longer selected or linked by Nix or zsh. Do not create
+new installed profiles inside those directories.
 
-Work's `/test-plan` retrieves Jira requirements, delegates PR inspection to
-`pr-review`, and passes findings to `test-planner`. It returns manual test steps
-without implementing tests or triggering an implementation handoff. Only the
-named read operations are allowed through Atlassian MCP.
+## One-time activation
 
-Both profiles use the `plan-agent` Plannotator workflow and allow `planner` to
-call `submit_plan`. Plannotator CLI commands require the `plannotator`
-executable supplied by mise.
+First apply the normal nix-darwin configuration once to release Home Manager's
+old whole-directory link. Choose the command for the machine:
 
-TypeScript uses built-in language-server discovery. Lua and Nix retain
-`lua-language-server` and `nixd` overrides. Built-in formatting remains enabled.
+```sh
+sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
+# Personal machine: use ~/.dotfiles/nix#klaus-macbook instead.
+```
 
-## Repository downloads and RTK
+Open a fresh zsh session after activation, or source the new function explicitly:
 
-The shared `ghgrab-fetch` skill uses [ghgrab](https://github.com/abhixdd/ghgrab)'s
-non-interactive `agent tree` and `agent download` commands. It references the
-[video's ghgrab chapter](https://youtu.be/II17TPAb4AQ?t=455) and covers selected
-paths, explicit destinations, JSON results, authentication, and release assets.
-Chat, explorer, builder, and the personal audit agents can load it. Explorer
-can list remote trees; downloads retain its existing shell denial. Other agents
-retain their normal shell approval rules. Mise already declares `cargo:ghgrab`.
+```zsh
+source "${DOTFILES_HOME:-$HOME/.dotfiles}/zsh/.zshrc.d/opencode-profile.zsh"
+```
 
-Both profiles explicitly load a dependency-free OpenCode v2 adapter for
-[RTK's OpenCode hook](https://github.com/rtk-ai/rtk/tree/master/hooks/opencode)
-through `./plugins/rtk` and each profile's own `plugins` directory.
-It checks every shell invocation through `rtk rewrite` before execution,
-including commands from subagents. RTK owns the rewrite rules: supported commands
-use its filters, unsupported commands and explicit `rtk` calls pass through.
-Rewrite errors fall back to the original command, with one warning per plugin
-instance for an unavailable or broken binary. The rewrite subprocess uses argv,
-the invocation's working directory and environment, and a two-second timeout.
-Valid rewrites from RTK exit codes 0 and 3 both use OpenCode's normal permission
-checks. Codes 1 and 2 with no output leave the original command for OpenCode to
-evaluate; the adapter never auto-approves a command from RTK's exit status.
+Inspect the destination before setup. If the old whole-directory link remains,
+move the link itself to a unique backup name; do not follow it or write inside
+its target:
 
-OpenCode evaluates permissions after this hook. Each profile mirrors its ordered
-Git/GitHub CLI permission rule to its `rtk` equivalent, including denials such as
-`git add -A` and audit-agent commit/push restrictions. Other rewrites retain the
-normal ask/deny fallback; there is no blanket `rtk *` allowance. Dedicated read,
-grep, and glob tools do not execute a shell and do not pass through RTK.
+```zsh
+opencode_destination="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+if [[ -L "$opencode_destination" ]]; then
+  opencode_backup="${opencode_destination}.before-zsh-$(date +%Y%m%d-%H%M%S)"
+  [[ ! -e "$opencode_backup" && ! -L "$opencode_backup" ]] || return 1
+  mv "$opencode_destination" "$opencode_backup"
+fi
+opencode-profile work
+# Or: opencode-profile personal
+opencode service restart
+```
 
-RTK is already declared in `nix/darwin/homebrew.nix`; `rtk rewrite` requires
-version 0.23.0 or newer. This adapter targets OpenCode 2.0.20's
-`ctx.shell.hook("create.before", ...)` API, rather than the upstream v1 hook.
-Configured local plugins use a package directory for compatibility with 2.0.20.
-Do not run `rtk init -g --opencode` over these managed profiles.
+The function refuses to overwrite regular files or directories. If it reports
+an entry conflict, inspect and move that entry to a unique backup outside the
+managed destination, then retry. Preserve application-managed entries. A root
+symlink is always rejected by the function; backup is a deliberate one-time
+operation after Nix activation.
 
-`rtk gain` reports savings; `rtk proxy <command>` preserves raw output when needed.
+Profile selection persists through the `opencode.jsonc` link. Startup only
+defines the function; it does not choose or change a profile:
 
-## Verification and activation
+```zsh
+opencode-profile work
+opencode-profile personal
+```
 
-Use `zsh -n zsh/.zshenv`, pinned V2 schema validation, TypeScript checks, and
-offline Nix evaluation for both hosts. Runtime checks should use isolated
-temporary data/config directories, disable Atlassian in validation copies, and
-never send model requests or use live credentials.
+The function uses `DOTFILES_HOME`, falling back to `$HOME/.dotfiles`, and the
+existing Node runtime to strictly resolve links on macOS and Linux. It rejects
+symlinked source roots and managed source entries, overlapping canonical roots,
+nested links escaping the source (including intermediate hops), dangling links,
+resolution loops, directory cycles, and regular destination conflicts before
+writing. It leaves identical shared links in place, verifies all links after
+installation, and unsets `OPENCODE_CONFIG` and `OPENCODE_CONFIG_CONTENT` in the
+calling shell after success. No obsolete configuration exports were found in
+the repository's startup or mise files. `OPENCODE_SESH_DB` remains unrelated
+session tooling configuration.
 
-After merging these changes into `~/.dotfiles`, apply the existing nix-darwin
-host configuration and run `opencode service restart`. This selects the new
-profile plugin directory and reloads local plugins.
+## Repository builder permissions
 
-`service.json` is machine-local runtime state and remains ignored. Do not copy
-it between personal and work profiles.
+Use the same builder ID in a repository's `.opencode/opencode.jsonc`:
 
-References: [V2 config](https://opencode.ai/v2/docs/config/),
-[migration guide](https://opencode.ai/v2/docs/migrate-v1/),
-[agents](https://opencode.ai/v2/docs/agents/),
-[permissions](https://opencode.ai/v2/docs/permissions/), and
-[V2 plugins](https://opencode.ai/v2/docs/build/plugins/).
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "builder": {
+      "permissions": [
+        { "action": "shell", "resource": "pnpm test *", "effect": "allow" }
+      ]
+    }
+  }
+}
+```
+
+Permission arrays append while omitted metadata and the shared Markdown prompt
+remain inherited. Ordinary rules use the last match; avoid late blanket allows.
+Use global `experimental.policies` with action `permission` for prohibitions
+that repository rules must never relax. Provider policies stay exclusively in
+the profile files.
+
+## Verification
+
+From `opencode/`, run:
+
+```sh
+pnpm test:schema
+pnpm test:profiles
+pnpm test
+pnpm typecheck
+pnpm schema:generate
+```
+
+Also check zsh syntax from the repository root:
+
+```sh
+zsh -n zsh/.zshenv
+zsh -n zsh/.zshrc
+zsh -n zsh/.zshrc.d/opencode-profile.zsh
+```
+
+Schema generation writes the single root editor schema. The profile-switch
+suite exercises switching, unrelated state preservation, whole-directory
+links, aliases and overlaps, escaping and cyclic source links, dangling links,
+regular conflicts, and inherited override removal using isolated fixtures.
+
+OpenCode 2.0.20 runtime checks used isolated XDG config/data/cache/state and npm
+cache directories with model catalog fetching disabled and no account credentials.
+They confirmed both recognized config files load, all shared Markdown prompts
+are discovered, both profiles share skills/plugins, and a repository builder
+allow appends while an unrelated shared deny remains effective. The shared
+`cli.json` validated against the CLI schema from the 2.0.20 source.
+
+On each actual machine, complete Nix activation, restart the service, confirm
+Copilot-only work and OpenCode/OpenAI-only personal availability with `opencode
+models`, select a verified personal default, and check fresh sessions. Nix tools
+and authenticated Copilot/OpenAI accounts were unavailable in the Linux test
+workspace. No model requests were sent.
+
+References: [v2 configuration](https://opencode.ai/v2/docs/config),
+[2.0.20 loader](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/config.ts),
+[agents](https://opencode.ai/v2/docs/agents),
+[skills](https://opencode.ai/v2/docs/skills),
+[permissions](https://opencode.ai/v2/docs/permissions),
+and [policies](https://opencode.ai/v2/docs/policies).
