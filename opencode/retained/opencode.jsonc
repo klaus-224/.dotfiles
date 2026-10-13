@@ -1,0 +1,87 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "builder",
+  "providers": {},
+  "shell": "/bin/zsh",
+  "formatter": true,
+  "lsp": {
+    "lua": {
+      "command": [
+        "lua-language-server"
+      ]
+    },
+    "nix": {
+      "command": [
+        "nixd"
+      ]
+    }
+  },
+  "references": {
+    "nvim-config": {
+      "path": "~/.dotfiles/nvim",
+      "description": "Personal neovim config. Use when asked about neovim or nvim"
+    },
+    "nix": {
+      "path": "~/.dotfiles/nix",
+      "description": "Personal nix config. Use when asked about nix"
+    },
+    "zsh": {
+      "path": "~/.dotfiles/zsh",
+      "description": "Personal zsh config. Use when asked about zsh"
+    }
+  },
+  "mcp": {
+    "servers": {
+      "atlassian": {
+        "type": "remote",
+        "url": "https://mcp.atlassian.com/v2/mcp?tools=all",
+        "disabled": false
+      },
+      "playwright": {
+        "type": "local",
+        "command": [
+          "pnpm",
+          "dlx",
+          "@playwright/mcp@0.0.68"
+        ],
+        "disabled": true
+      }
+    }
+  },
+  "experimental": {
+    "policies": [
+      {
+        "action": "provider.use",
+        "resource": "*",
+        "effect": "deny"
+      },
+      {
+        "action": "provider.use",
+        "resource": "github-copilot",
+        "effect": "allow"
+      },
+    ]
+  },
+  "plugins": [
+    "./plugins/rtk",
+    "./plugins/pr-context",
+    {
+      "package": "@plannotator/opencode@0.27.22",
+      "options": {
+        "workflow": "user-managed"
+      }
+    }
+  ],
+  "agents": {
+    "builder": {},
+    "plan": {
+      "disabled": true
+    },
+    "build": {
+      "disabled": true
+    },
+    "general": {
+      "hidden": true
+    }
+  }
+}

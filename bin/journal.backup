@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-typeset -r JIRA_SYNC_AGENT_CMD="opencode run --agent=jira-operator"
+typeset -r JIRA_SYNC_AGENT_CMD="opencode run --agent=Jira"
 typeset -r JOURNAL_SYNC_AGENT_CMD="opencode run --agent=build"
 
 # --------------------------------------------------

@@ -16,4 +16,7 @@ return {
   spotify = "󰓇",
   slack = "󰒱",
   teams = "󰊻",
+  wifi = "󰖩",
+  bluetooth = "󰂯",
+  size = 20,
 }

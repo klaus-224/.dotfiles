@@ -8,19 +8,10 @@
     "chat": {
       "model": "github-copilot/claude-sonnet-5.5"
     },
-    "explorer": {
+    "explore": {
       "model": "github-copilot/claude-haiku-5.5"
     },
     "reviewer": {
-      "model": "github-copilot/gpt-6.1-sol"
-    },
-    "planner": {
-      "model": "github-copilot/gpt-6.1-sol"
-    },
-    "audit-orchestrator": {
-      "model": "github-copilot/gpt-6.1-sol"
-    },
-    "audit-worker": {
       "model": "github-copilot/gpt-6.1-sol"
     }
   },

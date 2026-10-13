@@ -1,12 +1,18 @@
 ---
 name: manual-test-plan
-description: Create evidence-backed manual test plans from Jira requirements and PR implementation reports. Use when ticket-review combines acceptance criteria, code changes, regression risks, and unresolved evidence into actionable manual checks.
+description: Create evidence-backed manual cases from supplied requirements or Jira and associated PR evidence.
 ---
 
 # Manual test plan
 
 Use Jira intent and a PR evidence report together. Preserve requirements when
 implementation disagrees. Label inferred intent and unresolved expected behavior.
+
+Required inputs: ticket or supplied requirements, associated PRs/revisions,
+requested scope, and known environment/data. Load work `jira-ticket` when available
+and `pr-review` for related implementation and tests. If sources are unavailable,
+produce an explicitly incomplete draft and list the missing evidence. Return it
+directly to the caller; do not launch a planner just to display the result.
 
 ## Build actionable checks
 

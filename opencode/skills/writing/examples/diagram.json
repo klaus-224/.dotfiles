@@ -1,0 +1,14 @@
+{
+  "type": "flow",
+  "title": "A useful explanation",
+  "description": "State the answer, show how it works, then explain the next action.",
+  "nodes": [
+    {"id": "answer", "label": "State the answer"},
+    {"id": "mechanism", "label": "Show how it works"},
+    {"id": "action", "label": "Explain the next action"}
+  ],
+  "edges": [
+    {"from": "answer", "to": "mechanism", "label": "Explain why"},
+    {"from": "mechanism", "to": "action", "label": "Make it useful"}
+  ]
+}

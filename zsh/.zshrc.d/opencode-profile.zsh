@@ -47,11 +47,12 @@ try {
   const planned = new Map([
     ['opencode.json', path.join(source, 'opencode.json')],
     ['agents', path.join(source, 'agents')],
-    ['commands', path.join(source, 'commands')],
+    ['commands', path.join(source, 'shared-commands')],
     // Originals include excluded Jira/PW assets; install only the curated library.
     ['skills', path.join(source, 'shared-skills')],
   ]);
-  for (const name of ['plugins', 'cli.json', 'opencode.schema.json']) {
+  if (stat(path.join(source, 'shared-plugins'))) planned.set('plugins', path.join(source, 'shared-plugins'));
+  for (const name of ['cli.json', 'opencode.schema.json', 'AGENTS.md']) {
     if (stat(path.join(source, name))) planned.set(name, path.join(source, name));
   }
   planned.set('opencode.jsonc', path.join(source, `${profile}.jsonc`));

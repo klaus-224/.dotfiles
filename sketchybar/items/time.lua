@@ -44,8 +44,14 @@ end
 item:subscribe({ "routine", "forced" }, refresh)
 refresh()
 
-sbar.add("bracket", "pill.time", { "widgets.time" }, {
-  background = { color = colors.pill_bg },
-})
+sbar.add("bracket", "pill.time", { "widgets.time" },
+  {
+    blur_radius = settings.blur_radius,
+    background = {
+      drawing = true,
+      color = colors.pill_bg,
+    },
+  }
+)
 
 return item

@@ -9,8 +9,8 @@ sbar.default({
     color = colors.cyan,
     font = {
       family = settings.font.text,
-      style = settings.font.style_map.Bold,
-      size = settings.font.size,
+      -- style = settings.font.style_map.Bold,
+      size = 18,
     },
     padding_left = 2 * settings.paddings,
     padding_right = settings.paddings,
@@ -28,9 +28,9 @@ sbar.default({
     align = "center",
   },
   background = {
-    border_color = colors.purple,
+    border_color = colors.pill_border,
     border_width = 2,
-    corner_radius = 16,
-    height = 28,
-  },
+    corner_radius = 8,
+    height = 32,
+  }
 })

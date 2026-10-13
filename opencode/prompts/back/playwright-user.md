@@ -25,7 +25,7 @@ do not continue until you identify the code-backed trigger for that state.
 
 # Workflow
 
-- Dispatch `jira-operator `(Task tool) to fetch ticket details
+- Dispatch `Jira` (Task tool) to fetch ticket details
 - Get PR  the diff for the ticket via `gh pr diff ` and `gh pr view` **AFTER**
   the JIRA ticket returns. (use `git fetch` if you cannot find the `pr diff`)
 - Generate a test plan incorporating ticket + repo + PR context
@@ -34,7 +34,7 @@ do not continue until you identify the code-backed trigger for that state.
 - attach the auth context to the browse before launching it. the context is in
   `./apps/playwright-test/data/.auth/`
 - Use the `playwright-cli` to interact with skyon and execute the test steps
-- Dispatch the `jira-operator` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user 
+- Dispatch `Jira` if all tests pass, else use the `plannotator-annotate` skill to present failures to the user
 
 # Auth help
 run `playwright-cli state-load data/.auth/dev.json`

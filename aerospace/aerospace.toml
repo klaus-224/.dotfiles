@@ -2,7 +2,7 @@ config-version = 2
 start-at-login = true
 auto-reload-config = true
 
-after-startup-command = ["exec-and-forget borders"]
+after-startup-command = ["exec-and-forget borders", "exec-and-forget sketchybar"]
 exec-on-workspace-change = ["/bin/bash", "-c", "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\""]
 
 default-root-container-layout = "tiles"
@@ -10,7 +10,6 @@ default-root-container-orientation = "auto"
 on-focused-monitor-changed = ["move-mouse monitor-lazy-center"]
 automatically-unhide-macos-hidden-apps = true
 focus-follows-mouse.enabled = false
-
 
 persistent-workspaces = [
   "1",
@@ -30,7 +29,7 @@ persistent-workspaces = [
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.top = [{ monitor."built-in" = 15 }, { monitor."main" = 50 }, 50]
+outer.top = [{ monitor."built-in" = 25 }, { monitor."main" = 50 }, 50]
 outer.bottom = [{ monitor."built-in" = 15 }, { monitor."main" = 24 }, 24]
 outer.right = 16
 outer.left = 16
@@ -41,6 +40,9 @@ cmd-h = []  # Disable Hide App
 alt-tab = "focus-monitor --wrap-around next"
 alt-slash = "layout tiles horizontal vertical"
 alt-comma = "layout accordion horizontal vertical"
+alt-space = "layout floating tiling"
+alt-backtick = "flatten-workspace-tree"
+alt-equal = "balance-sizes"
 
 alt-h = "focus left"
 alt-j = "focus down"
@@ -64,11 +66,14 @@ alt-shift-3 = "move-node-to-workspace 3"
 alt-shift-4 = "move-node-to-workspace 4"
 alt-shift-5 = "move-node-to-workspace 5"
 
-# Vim-like resizing
+# vim-like resizing
 alt-cmd-h = "resize width -25"
 alt-cmd-j = "resize height +25"
 alt-cmd-k = "resize height -25"
 alt-cmd-l = "resize width +25"
+
+[mode.service.binding]
+esc = ["reload-config", "mode main"]
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"

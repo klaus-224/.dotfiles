@@ -39,6 +39,7 @@
   dtm = difftool main...HEAD
   lg = log --graph --decorate --oneline --all
   last = log -1 --stat
+  cleanup = "!git fetch --prune && git branch --merged origin/main | grep -vE '^\\*|main$|master$|develop$' | xargs -n 1 git branch -d"
 [include]
 	path = ~/.dotfiles/git/.gitconfig.local
 [credential "https://github.com"]

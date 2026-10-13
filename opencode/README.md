@@ -9,10 +9,11 @@ profile selection. Home Manager owns neither.
 | `opencode.json` | `opencode.json` | Shared agent metadata, permissions, plugins, and general settings |
 | `work.jsonc` or `personal.jsonc` | `opencode.jsonc` | Selected provider policy and model defaults |
 | `agents/` | `agents/` | Shared Markdown system prompts, without configuration frontmatter |
-| `commands/` | `commands/` | Shared command templates; currently empty |
+| `shared-commands/` | `commands/` | Curated links to the shared command templates |
 | `shared-skills/` | `skills/` | Curated links to the existing shared skill libraries |
-| `plugins/` | `plugins/` | Shared RTK and PR context plugins |
+| `shared-plugins/` | `plugins/` | Curated v2 RTK and PR context plugins |
 | `cli.json` | `cli.json` | Shared v2 terminal settings |
+| `AGENTS.md` | `AGENTS.md` | Shared working preferences |
 | `opencode.schema.json` | `opencode.schema.json` | Editor schema generated from `@opencode/schema@2.0.20` |
 
 The destination `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` is a real directory.
@@ -21,48 +22,55 @@ service configuration, databases, and unrelated entries stay machine-local.
 
 ## Profiles and shared agents
 
-`work.jsonc` allows only `github-copilot`. Its root default, builder, reviewer,
-planner, and audit agents use `github-copilot/gpt-6.1-sol`; chat uses
-`github-copilot/claude-sonnet-5.5`, and explorer uses
-`github-copilot/claude-haiku-5.5`. The existing `explorer` ID is retained because
-shared chat and planner prompts refer to it.
+`work.jsonc` allows only `github-copilot`. Its root default, builder, and reviewer
+use `github-copilot/gpt-6.1-sol`; chat uses `github-copilot/claude-sonnet-5.5`,
+and explore uses `github-copilot/claude-haiku-5.5`.
 
-`personal.jsonc` allows exactly `opencode` and `openai`. It deliberately leaves
-model defaults unset until availability is confirmed with the model picker on
-the personal machine. Then add a verified root `model` and optional
-`agents.<id>.model` overrides to that file. Existing sessions retain their
-selected models; validate new sessions and subagents when changing defaults.
-Policies restrict providers; they do not authenticate an account.
+`personal.jsonc` allows exactly `opencode` and `openai`. It leaves model defaults
+unset until availability is confirmed with the model picker on the personal
+machine. Then add a verified root `model` and optional `agents.<id>.model`
+overrides to that file. Existing sessions retain their selected models;
+validate new sessions and subagents when changing defaults. Policies restrict
+providers; they do not authenticate an account.
 
-Shared agents include chat, planner, explorer, builder, reviewer, and the two
-existing audit agents. Existing prompt bodies are preserved byte-for-byte in
-`agents/`; the new reviewer has a provider-neutral read-only prompt. Descriptions,
-modes, ordered permission rules, and hidden built-in overrides live in
-`opencode.json`. JSON agent definitions omit `system` so Markdown discovery
-supplies it. The shared chat step limit and terminal settings come from the old
-work profile. Permission rules retain both profiles' provider-neutral exceptions;
-where permissions differed, existing allows from either profile remain available.
+Builder remains the default primary agent. Chat provides read-only discussion;
+explore performs bounded research, and reviewer provides independent review.
+The latest shared Markdown bodies are preserved completely in `agents/`, with
+configuration frontmatter removed. Descriptions, modes, ordered provider-neutral
+permission rules, and built-in overrides now live in `opencode.json`. JSON agent
+definitions omit `system` so Markdown discovery supplies it. Credential gates,
+read-only agent restrictions, and Git safety rules remain effective. The shared
+terminal settings are preserved from the current `cli.json`.
 
-The shared Plannotator package remains `@plannotator/opencode@0.27.22`, using
-`plan-agent` with `planner`. PR context is now shared and remains allowed only
-for planner. The RTK adapter rewrites shell commands before normal permission
-checks, retaining the existing ordered Git/RTK restrictions. No blanket RTK
-allow is added. `rtk rewrite` requires RTK 0.23.0 or newer. Do not run
-`rtk init -g --opencode` over this configuration.
+The shared Plannotator package remains `@plannotator/opencode@0.27.22`, with its
+current `user-managed` workflow. `/build-plan` prepares an optional plan for
+builder; `/plannotator-review`, `/plannotator-annotate`, and `/plannotator-last`
+provide their existing shared workflows. The new writing skill and its HTML
+and diagram helpers remain available. Skill frontmatter and command templates
+are preserved.
+
+The v2 RTK adapter rewrites shell commands before normal permission checks,
+retaining the existing ordered Git/RTK restrictions. No blanket RTK allow is
+added. `rtk rewrite` requires RTK 0.23.0 or newer. Do not run
+`rtk init -g --opencode` over this configuration. `shared-plugins/` includes the
+v2 package adapters and omits the retained legacy `plugins/rtk.ts`; TypeScript
+checks exclude that inactive v1 file.
 
 ## Excluded assets are retained
 
-Jira, Atlassian MCP, work test-plan commands and agents, Playwright skills, and
-related permissions are absent from the active configuration. Their existing
-files remain untouched in `work/`, `prompts/`, and `skills/`; relocation into a
-work repository is separate work. `shared-skills/` omits `playwright-cli`,
-`manual-test-plan`, and `test-planning` so those originals are preserved without
-being discovered globally. Add only provider-neutral assets to this curated
-library. Skill frontmatter and supporting resources remain intact.
+Jira, Atlassian MCP, work test-plan commands, Playwright skills, and related
+permissions are absent from the installed configuration. Original command and
+skill files remain untouched in `commands/` and `skills/`; relocation into a
+work repository is separate work. Curated directories omit `jira-ticket`,
+`jira-bug`, `playwright`, `playwright-cli`, `manual-test-plan`, `manual-testing`,
+and `test-planning`, along with commands that depend on them. The previous mixed
+configuration is retained intact as `retained/opencode.jsonc`, outside automatic
+configuration discovery. Shared prompt bodies retain their complete wording;
+work-specific workflows require definitions supplied by the work repository.
 
-The old `personal/` and `work/` trees are retained for recovery and excluded
-workflows. They are no longer selected or linked by Nix or zsh. Do not create
-new installed profiles inside those directories.
+The old personal/work directory profiles were already retired on `main`.
+No obsolete planner, explorer, or audit agent is reintroduced by this migration.
+Do not install separate profile directories.
 
 ## One-time activation
 
@@ -151,9 +159,9 @@ From `opencode/`, run:
 ```sh
 pnpm test:schema
 pnpm test:profiles
+pnpm test:workflows
 pnpm test
 pnpm typecheck
-pnpm schema:generate
 ```
 
 Also check zsh syntax from the repository root:
@@ -164,7 +172,8 @@ zsh -n zsh/.zshrc
 zsh -n zsh/.zshrc.d/opencode-profile.zsh
 ```
 
-Schema generation writes the single root editor schema. The profile-switch
+The existing generated 2.0.20 schema from the earlier profiles is retained
+unchanged at the root. Regenerate it only when the pinned schema package changes. The profile-switch
 suite exercises switching, unrelated state preservation, whole-directory
 links, aliases and overlaps, escaping and cyclic source links, dangling links,
 regular conflicts, and inherited override removal using isolated fixtures.

@@ -9,7 +9,7 @@ fi
 message=
 IFS= read -r message < "$1" || :
 
-pattern='^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9._-]+\))?!?: .*[^[:space:]].*$'
+pattern='^(feat|fix|docs|style|refactor|test|chore|merge)(\([a-z0-9._-]+\))?!?: .*[^[:space:]].*$'
 
 if ! printf '%s\n' "$message" | grep -Eq "$pattern"; then
   printf 'Invalid commit message:\n  %s\n\n' "$message" >&2

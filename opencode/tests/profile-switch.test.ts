@@ -15,7 +15,7 @@ function fixture() {
   const destination = path.join(config, "opencode");
   mkdirSync(source, { recursive: true });
   for (const name of ["opencode.json", "work.jsonc", "personal.jsonc"]) writeFileSync(path.join(source, name), "{}\n");
-  for (const name of ["agents", "commands", "shared-skills"]) mkdirSync(path.join(source, name));
+  for (const name of ["agents", "shared-commands", "shared-skills"]) mkdirSync(path.join(source, name));
   const environment = { ...process.env };
   delete environment.NODE_TEST_CONTEXT;
   const run = (args = ["work"], extraEnv: Record<string, string> = {}, suffix = "") => spawnSync("zsh", ["-f", "-c", 'source "$1"; shift; opencode-profile "$@"' + suffix, "test", switcher, ...args], {
@@ -30,7 +30,7 @@ test("work/personal/work changes only the profile link and preserves unrelated s
   try {
     mkdirSync(f.destination, { recursive: true });
     writeFileSync(path.join(f.destination, "service.json"), "runtime state");
-    mkdirSync(path.join(f.source, "plugins"));
+    mkdirSync(path.join(f.source, "shared-plugins"));
     writeFileSync(path.join(f.source, "cli.json"), "{}");
     assert.equal(f.run().status, 0);
     const first = f.snapshot();
@@ -55,7 +55,7 @@ test("rejects invalid arguments before touching the destination", () => {
 
 const failures: Array<[string, (f: ReturnType<typeof fixture>) => void]> = [
   ["missing unselected profile", f => rmSync(path.join(f.source, "personal.jsonc"))],
-  ["symlinked shared source directory", f => { rmSync(path.join(f.source, "agents"), { recursive: true }); symlinkSync("commands", path.join(f.source, "agents")); }],
+  ["symlinked shared source directory", f => { rmSync(path.join(f.source, "agents"), { recursive: true }); symlinkSync("shared-commands", path.join(f.source, "agents")); }],
   ["symlinked optional CLI source", f => symlinkSync("work.jsonc", path.join(f.source, "cli.json"))],
   ["source profile linked back to the installed profile", f => { rmSync(path.join(f.source, "work.jsonc")); symlinkSync(path.join(f.destination, "opencode.jsonc"), path.join(f.source, "work.jsonc")); }],
   ["nested dangling source link", f => symlinkSync("missing", path.join(f.source, "agents", "bad.md"))],
@@ -64,7 +64,7 @@ const failures: Array<[string, (f: ReturnType<typeof fixture>) => void]> = [
   ["nested directory cross cycle", f => { symlinkSync("../shared-skills", path.join(f.source, "agents", "skills")); symlinkSync("../agents", path.join(f.source, "shared-skills", "agents")); }],
   ["nested link outside source", f => symlinkSync(f.root, path.join(f.source, "agents", "outside"))],
   ["nested link through an installed link back to source", f => symlinkSync(path.join(f.destination, "agents"), path.join(f.source, "agents", "installed"))],
-  ["intermediate source link outside the root", f => { symlinkSync(f.source, path.join(f.root, "alias")); symlinkSync(path.join(f.root, "alias", "commands"), path.join(f.source, "agents", "alias")); }],
+  ["intermediate source link outside the root", f => { symlinkSync(f.source, path.join(f.root, "alias")); symlinkSync(path.join(f.root, "alias", "shared-commands"), path.join(f.source, "agents", "alias")); }],
   ["regular destination file", f => { rmSync(path.join(f.destination, "opencode.jsonc")); writeFileSync(path.join(f.destination, "opencode.jsonc"), "local config"); }],
   ["regular destination directory", f => { rmSync(path.join(f.destination, "agents")); mkdirSync(path.join(f.destination, "agents")); }],
 ];
@@ -108,7 +108,7 @@ test("a late optional entry conflict leaves all installed entries untouched", ()
   const f = fixture();
   try {
     mkdirSync(f.destination, { recursive: true });
-    mkdirSync(path.join(f.source, "plugins"));
+    mkdirSync(path.join(f.source, "shared-plugins"));
     mkdirSync(path.join(f.destination, "plugins"));
     const before = f.snapshot();
     assert.equal(f.run().status, 1);
