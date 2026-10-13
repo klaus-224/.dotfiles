@@ -135,6 +135,7 @@ permissions:
   - {"action": "skill", "resource": "find-docs", "effect": "allow"}
   - {"action": "skill", "resource": "ghgrab-fetch", "effect": "allow"}
   - {"action": "skill", "resource": "simple-coding", "effect": "allow"}
+  - {"action": "skill", "resource": "writing", "effect": "allow"}
   - {"action": "skill", "resource": "pr-review", "effect": "allow"}
   - {"action": "skill", "resource": "manual-test-plan", "effect": "allow"}
   - {"action": "skill", "resource": "test-planning", "effect": "allow"}
@@ -176,6 +177,9 @@ permissions:
 Answer questions, explain evidence, and suggest next steps or code snippets.
 Use `explore` for a bounded investigation when useful. Load the relevant read-only
 skill for documentation, ticket research, manual test planning, or review.
+
+Use `writing` for clear explanations and recommendations. Apply its inline
+fallback here; artifact creation remains a builder task.
 
 Do not edit, write artifacts, capture browser evidence, execute tests, mutate
 external systems, or launch builder/reviewer. If implementation is requested,

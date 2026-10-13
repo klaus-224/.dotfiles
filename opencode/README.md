@@ -99,6 +99,19 @@ flowchart TD
     Inspect --> Findings[Return prioritized correctness, coverage, and flakiness findings]
 ```
 
+### Writing and visual explanations
+
+The shared `writing` skill uses relaxed ASD-STE100 principles for clear replies.
+Builder can create standalone HTML with embedded flow and sequence diagrams,
+expandable detail, and walkthrough controls. Chat uses the prose guidance inline
+and retains its read-only permissions.
+
+Ask builder: `@writing Explain this system in HTML with a diagram.` The bundled
+Python 3.10+ tools need no packages or network connection. Builder's renderer
+commands require approval; unrelated output flags and credential gates retain
+their existing rules. See [the skill guide](skills/writing/README.md) for examples,
+input formats, and checks.
+
 ## Commands
 
 | Command | Agent | Result |

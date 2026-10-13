@@ -120,6 +120,30 @@ function effect(rules: Rule[], action: string, resource: string) {
     assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), expected);
   });
 
+  test("shared: writing is available while renderer commands retain approval and read-only boundaries", () => {
+    const skill = matter(readFileSync(join(directory, "skills/writing/SKILL.md"), "utf8"));
+    assert.equal(skill.data.name, "writing");
+    assert.equal(typeof skill.data.description, "string");
+    for (const id of ["builder", "chat"])
+      assert.equal(effect(rules(id), "skill", "writing"), "allow");
+    for (const script of ["render_html.py", "render_diagram.py"]) {
+      const path = `/users/person/.config/opencode/skills/writing/scripts/${script}`;
+      for (const command of [
+        `python3 ${path} work/input.json --output output/result`,
+        `python3 "${path}" "work/input.json" --output "output/result"`,
+      ]) {
+        assert.equal(effect(rules("builder"), "shell", command), "ask", command);
+        for (const id of ["chat", "explore", "reviewer"])
+          assert.equal(effect(rules(id), "shell", command), "deny", `${id}: ${command}`);
+      }
+      assert.equal(effect(rules("builder"), "shell", `python3 ${path} input.json --output /users/person/.aws/credentials`), "deny");
+    }
+    for (const command of [
+      "git diff --output=output/diff.patch",
+      "python3 other_script.py input.json --output result.html",
+    ]) assert.equal(effect(rules("builder"), "shell", command), "deny", command);
+  });
+
   test(`shared: commands select capable agents and load discoverable exact skill IDs`, () => {
     const commands = readdirSync(join(directory, "commands")).filter(f => f.endsWith(".md"));
     for (const file of commands) {

@@ -1,0 +1,81 @@
+{
+  "eyebrow": "Writing · A guide for agents",
+  "title": "Make the answer easier to understand.",
+  "summary": "Start with clear prose. Add a diagram when relationships matter. Build an interactive page when the user needs to explore an explanation.",
+  "sections": [
+    {
+      "title": "Choose the format for the question",
+      "blocks": [
+        {"type": "p", "text": "The goal is to reduce the reader's effort. A short answer may be enough. A complex decision may need a page that combines prose, a diagram, and evidence."},
+        {"type": "diagram", "caption": "Choose the format that helps the user understand this particular question. More elaborate output is useful only when it adds clarity.", "data": {
+          "type": "flow",
+          "title": "Match the format to the question",
+          "description": "Start with the user's question. Use prose for a brief answer, a diagram for relationships, or an HTML page for exploration. Check whether the result is easy to understand.",
+          "nodes": [
+            {"id": "question", "label": "What does the user need to understand?"},
+            {"id": "prose", "label": "A clear, short answer"},
+            {"id": "diagram", "label": "A labeled diagram"},
+            {"id": "page", "label": "An interactive HTML page"},
+            {"id": "check", "label": "Check the result with the user's question in mind"}
+          ],
+          "edges": [
+            {"from": "question", "to": "prose", "label": "A simple fact"},
+            {"from": "question", "to": "diagram", "label": "A relationship"},
+            {"from": "question", "to": "page", "label": "An exploration"},
+            {"from": "prose", "to": "check", "label": "Read it"},
+            {"from": "diagram", "to": "check", "label": "Trace it"},
+            {"from": "page", "to": "check", "label": "Try it"}
+          ]
+        }}
+      ]
+    },
+    {
+      "title": "Explain one idea at a time",
+      "blocks": [
+        {"type": "steps", "title": "From a result to an explanation", "items": [
+          {"title": "State the answer", "text": "Lead with the conclusion the user needs. Example: use a queue to absorb short bursts of work."},
+          {"title": "Show the mechanism", "text": "A producer adds work to the queue. A worker takes one task when it has capacity. A sequence diagram can show this exchange."},
+          {"title": "Name the limit", "text": "A queue delays work when demand exceeds capacity. It does not create capacity. State the expected load before recommending a queue size."}
+        ]},
+        {"type": "details", "summary": "What does relaxed ASD-STE100 mean here?", "blocks": [
+          {"type": "p", "text": "Use short sentences, stable terms, active verbs, and one main idea at a time. Keep technical precision. This skill borrows writing principles; it does not certify compliance with the standard."},
+          {"type": "p", "text": "Instead of: The implementation leverages asynchronous orchestration. Write: The worker runs several tasks at once."}
+        ]}
+      ]
+    },
+    {
+      "title": "Make the exchange visible",
+      "blocks": [
+        {"type": "diagram", "caption": "This simplified queue example shows the order of messages. It omits retries and failures so the basic exchange is easy to see.", "data": {
+          "type": "sequence",
+          "title": "A producer, queue, and worker",
+          "description": "The producer submits a task to the queue. The worker requests a task. The queue returns one task, and the worker reports completion.",
+          "nodes": [{"id": "producer", "label": "Producer"}, {"id": "queue", "label": "Queue"}, {"id": "worker", "label": "Worker"}],
+          "edges": [
+            {"from": "producer", "to": "queue", "label": "Submit task"},
+            {"from": "worker", "to": "queue", "label": "Request task"},
+            {"from": "queue", "to": "worker", "label": "Return task"},
+            {"from": "worker", "to": "queue", "label": "Acknowledge completion"}
+          ]
+        }}
+      ]
+    },
+    {
+      "title": "Keep the tools close to the skill",
+      "blocks": [
+        {"type": "p", "text": "Install the writing directory under an OpenCode skills directory. The agent loads the skill, reads the tool reference, and runs the bundled scripts through shell.", "cite": [1, 2]},
+        {"type": "table", "caption": "Three tools, one local workflow", "headers": ["Tool", "Use it to", "Result"], "rows": [
+          ["render_html.py", "Turn structured text into an explanation", "One HTML file"],
+          ["render_diagram.py", "Draw a flow or message sequence", "One SVG file"],
+          ["check_html.py", "Check structure and local references", "A pass or a list of issues"]
+        ]},
+        {"type": "code", "text": "python3 scripts/render_html.py examples/explanation.json --output demo.html\npython3 scripts/check_html.py demo.html"},
+        {"type": "p", "text": "All page assets are embedded. Open the file in a browser, use the walkthrough controls, or print it. The source links require a connection only when you follow them."}
+      ]
+    }
+  ],
+  "sources": [
+    {"label": "OpenCode v2: Skills", "url": "https://opencode.ai/v2/docs/skills/#create"},
+    {"label": "OpenCode v2: Tools", "url": "https://opencode.ai/v2/docs/tools/"}
+  ]
+}
