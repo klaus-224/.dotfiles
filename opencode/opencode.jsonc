@@ -1,6 +1,7 @@
 {
-  "$schema": "./opencode.schema.json",
+  "$schema": "https://opencode.ai/config.json",
   "default_agent": "builder",
+  "providers": {},
   "shell": "/bin/zsh",
   "formatter": true,
   "lsp": {
@@ -18,15 +19,15 @@
   "references": {
     "nvim-config": {
       "path": "~/.dotfiles/nvim",
-      "description": "My personal neovim config. Use when asked about neovim or nvim"
+      "description": "Personal neovim config. Use when asked about neovim or nvim"
     },
     "nix": {
       "path": "~/.dotfiles/nix",
-      "description": "My personal nix config. Use when asked about nix"
+      "description": "Personal nix config. Use when asked about nix"
     },
     "zsh": {
       "path": "~/.dotfiles/zsh",
-      "description": "My personal zsh config. Use when asked about zsh"
+      "description": "Personal zsh config. Use when asked about zsh"
     }
   },
   "mcp": {
@@ -47,8 +48,6 @@
       }
     }
   },
-  "snapshots": false,
-  "update": "disable",
   "experimental": {
     "policies": [
       {
@@ -58,23 +57,11 @@
       },
       {
         "action": "provider.use",
-        "resource": "@primary-provider@",
+        "resource": "github-copilot",
         "effect": "allow"
       },
-      {
-        "action": "provider.use",
-        "resource": "@secondary-provider@",
-        "effect": "allow"
-      }
     ]
   },
-  "permissions": [
-    {
-      "action": "*",
-      "resource": "*",
-      "effect": "deny"
-    }
-  ],
   "plugins": [
     "./plugins/rtk",
     "./plugins/pr-context",
@@ -86,6 +73,7 @@
     }
   ],
   "agents": {
+    "builder": {},
     "plan": {
       "disabled": true
     },
