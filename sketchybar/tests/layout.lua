@@ -1,4 +1,4 @@
--- Run from the repository root: lua sketchybar/tests/layout.lua
+-- Run from the repository root: CONFIG_DIR="$PWD/sketchybar" lua sketchybar/tests/layout.lua
 local root = os.getenv("SKETCHYBAR_TEST_CONFIG") or "sketchybar"
 package.path = root .. "/?.lua;" .. root .. "/?/init.lua;" .. package.path
 
@@ -85,9 +85,9 @@ local function check_layout(display)
   end
   local expected = { "workspace.logo." .. display, "workspace.separator." .. display }
   for i = 1, 5 do expected[#expected + 1] = "workspace." .. display .. "." .. i end
-  for _, app in ipairs({ "slack", "teams", "spotify" }) do expected[#expected + 1] = "widgets." .. app end
+  for _, app in ipairs({ "spotify", "slack", "teams" }) do expected[#expected + 1] = "widgets." .. app end
   assert(table.concat(left, ",") == table.concat(expected, ","), "unexpected left layout: " .. table.concat(left, ","))
-  assert(table.concat(right, ",") == "widgets.memory,widgets.cpu,widgets.date,widgets.time,widgets.battery", "unexpected right layout")
+  assert(table.concat(right, ",") == "widgets.wifi,widgets.bluetooth,widgets.memory,widgets.cpu,widgets.date,widgets.time,widgets.battery", "unexpected right layout")
 end
 local function complete(result, code)
   assert(#callbacks > 0, "missing pending AeroSpace request")
@@ -146,5 +146,5 @@ assert(items["workspace.1.2"].properties.label.color == colors.purple)
 complete({ snapshot(1, "3"), snapshot(3, "5") }, 0)
 assert(items["workspace.1.3"].properties.label.color == colors.purple)
 assert(#callbacks == 0)
-assert(items["pill.teams"].properties.background.drawing == true)
+assert(items["pill.apps"].properties.background.drawing == true)
 print("PASS: startup, failed/empty/malformed snapshots, highlighting, reconnect order, event coalescing, and right-side layout")
