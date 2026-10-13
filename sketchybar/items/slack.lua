@@ -1,45 +1,5 @@
-local sbar = require("sketchybar")
-local colors = require("colors")
+local notifications = require("helpers.notifications")
 local icons = require("icons")
+local colors = require("colors")
 
-local function parse(output)
-  if type(output) ~= "string" then return nil end
-  if not output:match("pid%s*=%s*%d+") then return nil end
-
-  local label = output:match('"label"%s*=%s*"([^"]*)"') or ""
-  if label == "" or label == "•" or label:match("^%d+$") then return label end
-  return ""
-end
-
-local function render(label)
-  return {
-    icon = { color = label ~= nil and colors.red or colors.muted },
-    label = { string = label or "" },
-  }
-end
-
-local item = sbar.add("item", "widgets.slack", {
-  position = "left",
-  icon = { string = icons.slack, padding_right = 0 },
-  update_freq = 10,
-})
-
-local function refresh()
-  sbar.exec('/bin/sh -c \'app="$1"; /usr/bin/lsappinfo info -only pid "$app"; '
-    .. '/usr/bin/lsappinfo info -only StatusLabel "$app"\' _ "Slack"', function(output, exit_code)
-      local label
-      if exit_code == 0 then
-        local ok, parsed = pcall(parse, output)
-        if ok then label = parsed end
-      end
-      item:set(render(label))
-    end)
-end
-
-item:subscribe({ "routine", "forced", "aerospace_workspace_change" }, refresh)
-item:subscribe("mouse.clicked", function()
-  sbar.exec('/usr/bin/open -a "Slack"')
-end)
-refresh()
-
-return item
+return notifications.add("slack", "Slack", icons.slack, colors.red)
