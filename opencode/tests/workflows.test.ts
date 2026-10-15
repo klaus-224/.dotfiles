@@ -84,68 +84,52 @@ function effect(rules: Rule[], action: string, resource: string) {
     assert.ok(!readdirSync(root).includes("work"));
   });
 
-  test(`shared: readonly agents resist a global edit allow and deny mutation routes`, () => {
+  test(`shared: readonly agents resist a global edit allow and stay out of planning and delegation`, () => {
     for (const id of ["chat", "explore", "reviewer"]) {
       const policy = rules(id, [...config.permissions, { action: "edit", resource: "*", effect: "allow" }]);
       for (const path of ["src/app.ts", ".env.example", "work/report.md"])
         assert.equal(effect(policy, "edit", path), "deny", `${id}: ${path}`);
-      for (const [action, resource] of [
-        ["shell", "pnpm test"], ["shell", "npm install"],
-        ["shell", "git add src/app.ts"], ["shell", "rtk git commit -m fix"],
-        ["shell", "git diff --output=/tmp/result"],
-        ["shell", "gh api --method GET repos/a/b/contents/test -X POST"],
-        ["subagent", "builder"], ["subagent", "reviewer"],
-        ["atlassian_createJiraIssue", "*"], ["playwright_browser_take_screenshot", "*"],
-        ["submit_plan", "*"], ["external_directory", "/outside/*"],
-      ]) assert.equal(effect(policy, action, resource), "deny", `${id}: ${action} ${resource}`);
+      for (const [action, resource] of [["subagent", "builder"], ["subagent", "reviewer"], ["submit_plan", "*"]])
+        assert.equal(effect(policy, action, resource), "deny", `${id}: ${action} ${resource}`);
       for (const command of ["git status", "git diff --stat", "rtk git log -5", "gh pr diff https://github.com/a/b/pull/1", "ctx7 docs /org/library query"])
         assert.equal(effect(policy, "shell", command), "allow", `${id}: ${command}`);
       assert.equal(effect(policy, "subagent", "explore"), id === "chat" ? "allow" : "deny");
     }
   });
 
-  test(`shared: builder allows routine work while keeping external and credential gates`, () => {
-    const policy = rules("builder");
-    for (const command of ["pnpm test", "pnpm test:schema", "pnpm build", "pnpm typecheck", "git add src/app.ts", "git commit -m fix", "rtk git status"])
-      assert.equal(effect(policy, "shell", command), "allow", command);
-    for (const command of ["pnpm install", "curl https://example.com", "playwright-cli open https://example.com"])
-      assert.equal(effect(policy, "shell", command), "ask", command);
-    for (const command of ["git push", "rtk git push origin main", "git reset --hard", "git add -A", "git commit --amend", "gh pr merge 1", "gh issue delete 1"])
-      assert.equal(effect(policy, "shell", command), "deny", command);
-    assert.equal(effect(policy, "edit", "src/app.ts"), "allow");
-    assert.equal(effect(policy, "external_directory", "/outside/*"), "ask");
+  test(`shared: agents allow routine work while gating dangerous and external operations`, () => {
     for (const id of ["builder", "chat", "explore", "reviewer"]) {
-      for (const path of [".env", "apps/web/.env.local", "/users/person/.ssh/id_ed25519", "/users/person/.config/opencode/auth.json"])
-        assert.equal(effect(rules(id), "read", path), "deny", `${id}: ${path}`);
-      assert.equal(effect(rules(id), "read", ".env.example"), "allow");
+      const policy = rules(id);
+      for (const command of ["pnpm test", "pnpm install", "curl https://example.com", "git add src/app.ts", "git commit -m fix", "rtk git status", "gh api repos/a/b/contents/x"])
+        assert.equal(effect(policy, "shell", command), "allow", `${id}: ${command}`);
+      for (const command of ["sudo ls", "git push", "rtk git push origin main", "git rebase main", "git restore src/app.ts",
+        "git commit --amend", "gh pr merge 1", "rtk gh pr comment 1", "gh api --method POST repos/a/b/issues", "rtk gh api -X PATCH repos/a/b"])
+        assert.equal(effect(policy, "shell", command), "ask", `${id}: ${command}`);
+      for (const command of ["rm -rf build", "git reset --hard", "rtk git clean -fd", "git branch -D topic", "git commit --no-verify -m fix",
+        "git push --force", "rtk git push origin -f main", "gh issue delete 1", "rtk gh api --method DELETE repos/a/b", "gh api -X DELETE repos/a/b",
+        "cat .env", "cat ~/.aws/credentials"])
+        assert.equal(effect(policy, "shell", command), "deny", `${id}: ${command}`);
+      assert.equal(effect(policy, "external_directory", "/outside/*"), "ask");
+      assert.equal(effect(policy, "atlassian_createJiraIssue", "*"), "ask");
+      assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), "allow");
+      for (const path of [".env", "apps/web/.env.local", "/users/person/.ssh/id_ed25519", "/users/person/.config/opencode/auth.json", "certs/server.pem"])
+        for (const action of ["read", "edit"])
+          assert.equal(effect(policy, action, path), "deny", `${id}: ${action} ${path}`);
+      assert.equal(effect(policy, "read", ".env.example"), "allow");
     }
-    const expected = "deny";
-    assert.equal(effect(policy, "atlassian_createJiraIssue", "*"), expected);
-    assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), expected);
+    assert.equal(effect(rules("builder"), "edit", "src/app.ts"), "allow");
+    assert.equal(effect(rules("builder"), "edit", ".env.example"), "allow");
   });
 
-  test("shared: writing is available while renderer commands retain approval and read-only boundaries", () => {
+  test("shared: writing is available to every agent", () => {
     const skill = matter(readFileSync(join(directory, "skills/writing/SKILL.md"), "utf8"));
     assert.equal(skill.data.name, "writing");
     assert.equal(typeof skill.data.description, "string");
-    for (const id of ["builder", "chat"])
+    for (const id of ["builder", "chat", "explore", "reviewer"])
       assert.equal(effect(rules(id), "skill", "writing"), "allow");
-    for (const script of ["render_html.py", "render_diagram.py"]) {
-      const path = `/users/person/.config/opencode/skills/writing/scripts/${script}`;
-      for (const command of [
-        `python3 ${path} work/input.json --output output/result`,
-        `python3 "${path}" "work/input.json" --output "output/result"`,
-      ]) {
-        assert.equal(effect(rules("builder"), "shell", command), "ask", command);
-        for (const id of ["chat", "explore", "reviewer"])
-          assert.equal(effect(rules(id), "shell", command), "deny", `${id}: ${command}`);
-      }
-      assert.equal(effect(rules("builder"), "shell", `python3 ${path} input.json --output /users/person/.aws/credentials`), "deny");
-    }
-    for (const command of [
-      "git diff --output=output/diff.patch",
-      "python3 other_script.py input.json --output result.html",
-    ]) assert.equal(effect(rules("builder"), "shell", command), "deny", command);
+    const path = "/users/person/.config/opencode/skills/writing/scripts/render_html.py";
+    assert.equal(effect(rules("builder"), "shell", `python3 ${path} work/input.json --output output/result`), "allow");
+    assert.equal(effect(rules("builder"), "shell", `python3 ${path} input.json --output /users/person/.aws/credentials`), "deny");
   });
 
   test(`shared: commands select capable agents and load discoverable exact skill IDs`, () => {

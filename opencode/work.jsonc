@@ -1,5 +1,4 @@
 {
-  "$schema": "./opencode.schema.json",
   "model": "github-copilot/gpt-6.1-sol",
   "agents": {
     "builder": {
