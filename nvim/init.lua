@@ -39,9 +39,6 @@ vim.lsp.enable({
   'yamlls',
   'tombi',
   'nixd',
-  'svelte',
-  'sqlls',
-  'postgres_lsp',
   -- 'tailwindcss',
   -- 'prismals',
   -- 'ruff',
@@ -52,6 +49,17 @@ vim.lsp.enable({
   -- 'dockerls',
   -- 'html_ls',
 })
+
+-- Only enable these when their server binary is installed, otherwise every matching buffer logs an invalid config error
+for name, bin in pairs({
+  svelte = 'svelteserver',
+  sqlls = 'sqls',
+  postgres_lsp = 'postgres-language-server',
+}) do
+  if vim.fn.executable(bin) == 1 then
+    vim.lsp.enable(name)
+  end
+end
 
 require('luasnip.loaders.from_vscode').lazy_load()
 local cmp = require('blink.cmp')
