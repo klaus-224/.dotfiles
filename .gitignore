@@ -16,3 +16,4 @@ devenv.local.yaml
 # direnv
 .direnv
 stars-before-*
+*claude*
