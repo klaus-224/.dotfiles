@@ -1,151 +1,199 @@
-# OpenCode workflows
+# OpenCode v2 configuration
 
-| Machine user | Allowed providers |
-| --- | --- |
-| klaus224 | OpenAI, OpenCode |
-| rohineshram | GitHub Copilot |
+The active layout targets OpenCode 2.0.20. Homebrew still installs the executable;
+application self-updating remains disabled. Zsh owns configuration links and
+profile selection. Home Manager owns neither.
 
-Both machines use the same agents, permissions, skills, commands, and plugins.
-Select a model from an allowed provider.
-
-## Agents
-
-| Agent | Mode | Purpose |
+| Source under `~/.dotfiles/opencode` | Installed entry | Purpose |
 | --- | --- | --- |
-| builder | Primary, default | Answer questions, implement changes, verify results, and finish tasks |
-| chat | Primary, visible | Discuss and investigate without changing files |
-| explore | Subagent | Investigate a bounded repository or documentation question |
-| reviewer | Subagent | Review correctness and coverage and return actionable findings |
+| `opencode.json` | `opencode.json` | Shared agent metadata, permissions, plugins, and general settings |
+| `work.jsonc` or `personal.jsonc` | `opencode.jsonc` | Selected provider policy and model defaults |
+| `agents/` | `agents/` | Shared Markdown system prompts, without configuration frontmatter |
+| `shared-commands/` | `commands/` | Curated links to the shared command templates |
+| `shared-skills/` | `skills/` | Curated links to the existing shared skill libraries |
+| `shared-plugins/` | `plugins/` | Curated v2 RTK and PR context plugins |
+| `cli.json` | `cli.json` | Shared v2 terminal settings |
+| `AGENTS.md` | `AGENTS.md` | Shared working preferences |
+| `opencode.schema.json` | `opencode.schema.json` | Editor schema generated from `@opencode/schema@2.0.20` |
 
-## Workflows
+The destination `${XDG_CONFIG_HOME:-$HOME/.config}/opencode` is a real directory.
+Its managed entries link into the canonical dotfiles source. Credentials,
+service configuration, databases, and unrelated entries stay machine-local.
 
-### Implementation and optional planning
+## Profiles and shared agents
 
-Ask builder to implement directly, or use `/build-plan <outcome>` to plan through
-Plannotator first. Select builder as the approval target when you want implementation.
+`work.jsonc` allows only `github-copilot`. Its root default, builder, and reviewer
+use `github-copilot/gpt-6.1-sol`; chat uses `github-copilot/claude-sonnet-5.5`,
+and explore uses `github-copilot/claude-haiku-5.5`.
 
-```mermaid
-flowchart TD
-    Request[Task for builder] --> Planning{Plannotator planning requested?}
-    Planning -- No --> Implement[Builder implements]
-    Planning -- Yes --> Plan[Builder prepares a plan without editing]
-    Plan --> Review[Review in Plannotator]
-    Review --> Decision{Review decision}
-    Decision -- Request changes --> Plan
-    Decision -- Approve implementation --> Implement
-    Decision -- Planning only --> PlanDone[Return approved plan]
-    Decision -- Dismiss --> Stop[Stop without implementation]
-    Implement --> Verify[Run relevant checks and review the diff]
-    Verify --> Result[Report changes, results, and blockers]
+`personal.jsonc` allows exactly `opencode` and `openai`. It leaves model defaults
+unset until availability is confirmed with the model picker on the personal
+machine. Then add a verified root `model` and optional `agents.<id>.model`
+overrides to that file. Existing sessions retain their selected models;
+validate new sessions and subagents when changing defaults. Policies restrict
+providers; they do not authenticate an account.
+
+Builder remains the default primary agent. Chat provides read-only discussion;
+explore performs bounded research, and reviewer provides independent review.
+The latest shared Markdown bodies are preserved completely in `agents/`, with
+configuration frontmatter removed. Descriptions, modes, ordered provider-neutral
+permission rules, and built-in overrides now live in `opencode.json`. JSON agent
+definitions omit `system` so Markdown discovery supplies it. Credential gates,
+read-only agent restrictions, and Git safety rules remain effective. The shared
+terminal settings are preserved from the current `cli.json`.
+
+The shared Plannotator package remains `@plannotator/opencode@0.27.22`, with its
+current `user-managed` workflow. `/build-plan` prepares an optional plan for
+builder; `/plannotator-review`, `/plannotator-annotate`, and `/plannotator-last`
+provide their existing shared workflows. The new writing skill and its HTML
+and diagram helpers remain available. Skill frontmatter and command templates
+are preserved.
+
+The v2 RTK adapter rewrites shell commands before normal permission checks,
+retaining the existing ordered Git/RTK restrictions. No blanket RTK allow is
+added. `rtk rewrite` requires RTK 0.23.0 or newer. Do not run
+`rtk init -g --opencode` over this configuration. `shared-plugins/` includes the
+v2 package adapters and omits the retained legacy `plugins/rtk.ts`; TypeScript
+checks exclude that inactive v1 file.
+
+## Excluded assets are retained
+
+Jira, Atlassian MCP, work test-plan commands, Playwright skills, and related
+permissions are absent from the installed configuration. Original command and
+skill files remain untouched in `commands/` and `skills/`; relocation into a
+work repository is separate work. Curated directories omit `jira-ticket`,
+`jira-bug`, `playwright`, `playwright-cli`, `manual-test-plan`, `manual-testing`,
+and `test-planning`, along with commands that depend on them. The previous mixed
+configuration is retained intact as `retained/opencode.jsonc`, outside automatic
+configuration discovery. Shared prompt bodies retain their complete wording;
+work-specific workflows require definitions supplied by the work repository.
+
+The old personal/work directory profiles were already retired on `main`.
+No obsolete planner, explorer, or audit agent is reintroduced by this migration.
+Do not install separate profile directories.
+
+## One-time activation
+
+First apply the normal nix-darwin configuration once to release Home Manager's
+old whole-directory link. Choose the command for the machine:
+
+```sh
+sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
+# Personal machine: use ~/.dotfiles/nix#klaus-macbook instead.
 ```
 
-### Manual test planning
+Open a fresh zsh session after activation, or source the new function explicitly:
 
-Use `/manual-test-plan <ticket-or-context>` to prepare cases without running them.
-
-```mermaid
-flowchart LR
-    Context[Ticket or supplied requirements] --> Evidence[Read requirements and associated PRs]
-    Evidence --> Cases[Builder creates requirement-linked cases]
-    Cases --> Plan[Return steps, expected results, and evidence gaps]
+```zsh
+source "${DOTFILES_HOME:-$HOME/.dotfiles}/zsh/.zshrc.d/opencode-profile.zsh"
 ```
 
-### Jira bug creation
+Inspect the destination before setup. If the old whole-directory link remains,
+move the link itself to a unique backup name; do not follow it or write inside
+its target:
 
-Use `/bug <context>` with an authenticated Jira connection.
-
-```mermaid
-flowchart TD
-    Context[Bug context] --> Intake[Collect details in the Plannotator form]
-    Intake --> Draft[Prepare the team-template bug draft]
-    Draft --> Authorized{Creation already authorized?}
-    Authorized -- Yes --> Create[Create the Jira bug]
-    Authorized -- No --> Review[Review the completed draft in Plannotator]
-    Review --> Decision{Review decision}
-    Decision -- Request changes --> Draft
-    Decision -- Approve --> Create
-    Decision -- Dismiss --> Stop[Keep draft without creating an issue]
-    Create --> Link[Return the issue link]
+```zsh
+opencode_destination="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+if [[ -L "$opencode_destination" ]]; then
+  opencode_backup="${opencode_destination}.before-zsh-$(date +%Y%m%d-%H%M%S)"
+  [[ ! -e "$opencode_backup" && ! -L "$opencode_backup" ]] || return 1
+  mv "$opencode_destination" "$opencode_backup"
+fi
+opencode-profile work
+# Or: opencode-profile personal
+opencode service restart
 ```
 
-### Manual test execution
+The function refuses to overwrite regular files or directories. If it reports
+an entry conflict, inspect and move that entry to a unique backup outside the
+managed destination, then retry. Preserve application-managed entries. A root
+symlink is always rejected by the function; backup is a deliberate one-time
+operation after Nix activation.
 
-Use `/manual-test <plan-or-ticket> <environment>` with an authorized test environment.
+Profile selection persists through the `opencode.jsonc` link. Startup only
+defines the function; it does not choose or change a profile:
 
-```mermaid
-flowchart TD
-    Input[Plan and test environment] --> Ready{Prerequisites available?}
-    Ready -- No --> Blocked[Report BLOCKED and the missing prerequisite]
-    Ready -- Yes --> Execute[Builder executes cases and captures evidence]
-    Execute --> Outcome{Observed result}
-    Outcome -- Matches expected --> Pass[Report PASS with evidence]
-    Outcome -- Differs from expected --> Fail[Report FAIL with expected and actual results]
-    Outcome -- Cannot complete --> Blocked
-    Fail --> Draft[Prepare bug drafts for review]
+```zsh
+opencode-profile work
+opencode-profile personal
 ```
 
-### Playwright writing and review
+The function uses `DOTFILES_HOME`, falling back to `$HOME/.dotfiles`, and the
+existing Node runtime to strictly resolve links on macOS and Linux. It rejects
+symlinked source roots and managed source entries, overlapping canonical roots,
+nested links escaping the source (including intermediate hops), dangling links,
+resolution loops, directory cycles, and regular destination conflicts before
+writing. It leaves identical shared links in place, verifies all links after
+installation, and unsets `OPENCODE_CONFIG` and `OPENCODE_CONFIG_CONTENT` in the
+calling shell after success. No obsolete configuration exports were found in
+the repository's startup or mise files. `OPENCODE_SESH_DB` remains unrelated
+session tooling configuration.
 
-Use `/pw-test <ticket-or-scope>` to add and run tests, or `/pw-review <PR-or-diff>`
-for a read-only review.
+## Repository builder permissions
 
-```mermaid
-flowchart TD
-    Request[Playwright request] --> Mode{Write or review?}
-    Mode -- Write --> Write[Builder adds tests using project fixtures]
-    Write --> Run[Run targeted checks]
-    Run --> Results[Report results, coverage gaps, and blockers]
-    Mode -- Review --> Inspect[Reviewer inspects the PR or diff]
-    Inspect --> Findings[Return prioritized correctness, coverage, and flakiness findings]
+Use the same builder ID in a repository's `.opencode/opencode.jsonc`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "builder": {
+      "permissions": [
+        { "action": "shell", "resource": "pnpm test *", "effect": "allow" }
+      ]
+    }
+  }
+}
 ```
 
-### Writing and visual explanations
+Permission arrays append while omitted metadata and the shared Markdown prompt
+remain inherited. Ordinary rules use the last match; avoid late blanket allows.
+Use global `experimental.policies` with action `permission` for prohibitions
+that repository rules must never relax. Provider policies stay exclusively in
+the profile files.
 
-The shared `writing` skill uses relaxed ASD-STE100 principles for clear replies.
-Builder can create standalone HTML with embedded flow and sequence diagrams,
-expandable detail, and walkthrough controls. Chat uses the prose guidance inline
-and retains its read-only permissions.
+## Verification
 
-Ask builder: `@writing Explain this system in HTML with a diagram.` The bundled
-Python 3.10+ tools need no packages or network connection. Builder's renderer
-commands require approval; unrelated output flags and credential gates retain
-their existing rules. See [the skill guide](skills/writing/README.md) for examples,
-input formats, and checks.
+From `opencode/`, run:
 
-## Commands
+```sh
+pnpm test:schema
+pnpm test:profiles
+pnpm test:workflows
+pnpm test
+pnpm typecheck
+```
 
-| Command | Agent | Result |
-| --- | --- | --- |
-| `/build-plan <outcome>` | builder | Plannotator plan followed by approved implementation |
-| `/manual-test-plan <ticket-or-context>` | builder | Requirement-linked manual cases |
-| `/bug <context>` | builder | Jira bug draft and issue link after authorized creation |
-| `/manual-test <plan-or-ticket> <environment>` | builder | PASS, FAIL, or BLOCKED for each case, with evidence |
-| `/pw-test <ticket-or-scope>` | builder | Added tests and execution results |
-| `/pw-review <PR-or-diff>` | reviewer | Prioritized findings and coverage gaps |
-| `/plannotator-review` | builder | Interactive code review |
-| `/plannotator-annotate <target>` | builder | Artifact annotations |
-| `/plannotator-last` | builder | Annotations on the last response |
+Also check zsh syntax from the repository root:
 
-## Permissions
+```sh
+zsh -n zsh/.zshenv
+zsh -n zsh/.zshrc
+zsh -n zsh/.zshrc.d/opencode-profile.zsh
+```
 
-| Agent | Reads and lookup | File edits | Tests and evidence capture | Delegation | External writes | Unknown commands, installs, external directories |
-| --- | --- | --- | --- | --- | --- | --- |
-| builder | Allow | Allow | Allow configured checks; browser actions ask | explore, reviewer | Jira writes ask | Ask |
-| chat | Allow | Deny | Deny | explore only | Deny | Deny |
-| explore | Allow | Deny | Deny | Deny | Deny | Deny |
-| reviewer | Allow | Deny | Deny | Deny | Deny | Deny |
+The existing generated 2.0.20 schema from the earlier profiles is retained
+unchanged at the root. Regenerate it only when the pinned schema package changes. The profile-switch
+suite exercises switching, unrelated state preservation, whole-directory
+links, aliases and overlaps, escaping and cyclic source links, dangling links,
+regular conflicts, and inherited override removal using isolated fixtures.
 
-| Boundary | All agents |
-| --- | --- |
-| Credential files | Deny; safe example files can be read |
-| Pushes, destructive Git, history rewriting, blanket staging, hook bypasses | Deny |
-| Jira deletion | Deny |
-| Launching builder as a subagent | Deny |
+OpenCode 2.0.20 runtime checks used isolated XDG config/data/cache/state and npm
+cache directories with model catalog fetching disabled and no account credentials.
+They confirmed both recognized config files load, all shared Markdown prompts
+are discovered, both profiles share skills/plugins, and a repository builder
+allow appends while an unrelated shared deny remains effective. The shared
+`cli.json` validated against the CLI schema from the 2.0.20 source.
 
-## Plugins
+On each actual machine, complete Nix activation, restart the service, confirm
+Copilot-only work and OpenCode/OpenAI-only personal availability with `opencode
+models`, select a verified personal default, and check fresh sessions. Nix tools
+and authenticated Copilot/OpenAI accounts were unavailable in the Linux test
+workspace. No model requests were sent.
 
-| Plugin | Purpose |
-| --- | --- |
-| Plannotator | Review optional implementation plans, code, and artifacts |
-| RTK | Reduce shell output and report token savings |
-| PR context | Retrieve PR changes and evidence for selected test types |
+References: [v2 configuration](https://opencode.ai/v2/docs/config),
+[2.0.20 loader](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/config.ts),
+[agents](https://opencode.ai/v2/docs/agents),
+[skills](https://opencode.ai/v2/docs/skills),
+[permissions](https://opencode.ai/v2/docs/permissions),
+and [policies](https://opencode.ai/v2/docs/policies).

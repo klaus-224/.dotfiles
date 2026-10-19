@@ -1,0 +1,21 @@
+{
+  "experimental": {
+    "policies": [
+      {
+        "action": "provider.use",
+        "resource": "*",
+        "effect": "deny"
+      },
+      {
+        "action": "provider.use",
+        "resource": "openai",
+        "effect": "allow"
+      },
+      {
+        "action": "provider.use",
+        "resource": "opencode",
+        "effect": "allow"
+      }
+    ]
+  }
+}

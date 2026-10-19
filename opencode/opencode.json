@@ -1,0 +1,156 @@
+{
+  "default_agent": "builder",
+  "providers": {},
+  "shell": "/bin/zsh",
+  "formatter": true,
+  "lsp": {
+    "lua": {
+      "command": [
+        "lua-language-server"
+      ]
+    },
+    "nix": {
+      "command": [
+        "nixd"
+      ]
+    }
+  },
+  "references": {
+    "nvim-config": {
+      "path": "~/.dotfiles/nvim",
+      "description": "Personal neovim config. Use when asked about neovim or nvim"
+    },
+    "nix": {
+      "path": "~/.dotfiles/nix",
+      "description": "Personal nix config. Use when asked about nix"
+    },
+    "zsh": {
+      "path": "~/.dotfiles/zsh",
+      "description": "Personal zsh config. Use when asked about zsh"
+    }
+  },
+  "plugins": [
+    "./plugins/rtk",
+    "./plugins/pr-context",
+    {
+      "package": "@plannotator/opencode@0.27.22",
+      "options": {
+        "workflow": "user-managed"
+      }
+    }
+  ],
+  "agents": {
+    "builder": {
+      "description": "Implement requested changes, verify them, and complete the task",
+      "mode": "primary",
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "explore", "effect": "allow" },
+        { "action": "subagent", "resource": "reviewer", "effect": "allow" }
+      ]
+    },
+    "plan": {
+      "disabled": true
+    },
+    "build": {
+      "disabled": true
+    },
+    "general": {
+      "hidden": true
+    },
+    "chat": {
+      "description": "Read-only discussion and proportionate investigation",
+      "mode": "primary",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "submit_plan", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "explore", "effect": "allow" }
+      ]
+    },
+    "explore": {
+      "description": "Investigate a bounded repository or documentation question without editing",
+      "mode": "subagent",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "submit_plan", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
+    },
+    "reviewer": {
+      "description": "Review correctness and coverage with actionable evidence",
+      "mode": "subagent",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "submit_plan", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
+    }
+  },
+  "permissions": [
+    { "action": "*", "resource": "*", "effect": "allow" },
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    { "action": "*", "resource": "*.env", "effect": "deny" },
+    { "action": "*", "resource": "*.env.*", "effect": "deny" },
+    { "action": "*", "resource": "**/.ssh/*", "effect": "deny" },
+    { "action": "*", "resource": "**/.aws/*", "effect": "deny" },
+    { "action": "*", "resource": "**/.config/gh/hosts.yml", "effect": "deny" },
+    { "action": "*", "resource": "**/opencode/auth.json", "effect": "deny" },
+    { "action": "*", "resource": "**/opencode/service.json", "effect": "deny" },
+    { "action": "*", "resource": "**/credentials*", "effect": "deny" },
+    { "action": "*", "resource": "**/*.pem", "effect": "deny" },
+    { "action": "*", "resource": "**/*.key", "effect": "deny" },
+    { "action": "*", "resource": "*.env.example", "effect": "allow" },
+    { "action": "*", "resource": "*.env.sample", "effect": "allow" },
+    { "action": "shell", "resource": "sudo *", "effect": "ask" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
+    { "action": "shell", "resource": "rm -fr *", "effect": "deny" },
+    { "action": "shell", "resource": "git reset --hard *", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git reset --hard *", "effect": "deny" },
+    { "action": "shell", "resource": "git clean -f*", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git clean -f*", "effect": "deny" },
+    { "action": "shell", "resource": "git branch -D *", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git branch -D *", "effect": "deny" },
+    { "action": "shell", "resource": "git commit*--no-verify*", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git commit*--no-verify*", "effect": "deny" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk git push *", "effect": "ask" },
+    { "action": "shell", "resource": "git push *--force*", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git push *--force*", "effect": "deny" },
+    { "action": "shell", "resource": "git push *-f *", "effect": "deny" },
+    { "action": "shell", "resource": "rtk git push *-f *", "effect": "deny" },
+    { "action": "shell", "resource": "git restore *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk git restore *", "effect": "ask" },
+    { "action": "shell", "resource": "git rebase *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk git rebase *", "effect": "ask" },
+    { "action": "shell", "resource": "git commit*--amend*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk git commit*--amend*", "effect": "ask" },
+    { "action": "shell", "resource": "gh pr merge *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh pr merge *", "effect": "ask" },
+    { "action": "shell", "resource": "gh pr review *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh pr review *", "effect": "ask" },
+    { "action": "shell", "resource": "gh pr comment *", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh pr comment *", "effect": "ask" },
+    { "action": "shell", "resource": "gh issue delete *", "effect": "deny" },
+    { "action": "shell", "resource": "rtk gh issue delete *", "effect": "deny" },
+    { "action": "shell", "resource": "gh api *--method POST*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *--method POST*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *--method PATCH*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *--method PATCH*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *--method PUT*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *--method PUT*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *--method DELETE*", "effect": "deny" },
+    { "action": "shell", "resource": "rtk gh api *--method DELETE*", "effect": "deny" },
+    { "action": "shell", "resource": "gh api *-X POST*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *-X POST*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *-X PATCH*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *-X PATCH*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *-X PUT*", "effect": "ask" },
+    { "action": "shell", "resource": "rtk gh api *-X PUT*", "effect": "ask" },
+    { "action": "shell", "resource": "gh api *-X DELETE*", "effect": "deny" },
+    { "action": "shell", "resource": "rtk gh api *-X DELETE*", "effect": "deny" },
+    { "action": "atlassian_createJiraIssue", "resource": "*", "effect": "ask" },
+    { "action": "atlassian_editJiraIssue", "resource": "*", "effect": "ask" },
+    { "action": "atlassian_addCommentToJiraIssue", "resource": "*", "effect": "ask" }
+  ]
+}
