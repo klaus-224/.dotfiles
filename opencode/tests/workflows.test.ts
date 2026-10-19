@@ -26,10 +26,10 @@ function effect(rules: Rule[], action: string, resource: string) {
 
 {
   const directory = root;
-  const config = parse(readFileSync(join(directory, "opencode.jsonc"), "utf8"));
+  const config = parse(readFileSync(join(directory, "opencode.json"), "utf8"));
   const rules = (agent: string, globals = config.permissions) => {
     const md = matter(readFileSync(join(directory, "agents", `${agent}.md`), "utf8"));
-    return [...globals, ...(md.data.permissions ?? [])] as Rule[];
+    return [...(globals ?? []), ...(config.agents[agent]?.permissions ?? []), ...(md.data.permissions ?? [])] as Rule[];
   };
 
   test(`shared: discovered agents have shared permissions and no stale primary`, () => {
@@ -44,8 +44,10 @@ function effect(rules: Rule[], action: string, resource: string) {
       assert.equal(entry.hidden ?? false, false);
       assert.ok(entry.system.length > 100);
       assert.equal(entry.model, undefined);
-      assert.ok(md.data.permissions.length > 0);
-      assert.equal(config.agents[id], undefined);
+      assert.deepEqual(md.data, {});
+      assert.ok(config.agents[id].permissions.length > 0);
+      assert.equal(typeof config.agents[id].description, "string");
+      assert.equal(config.agents[id].system, undefined);
     }
     assert.equal(config.agents.build.disabled, true);
     assert.equal(config.agents.plan.disabled, true);
@@ -62,90 +64,76 @@ function effect(rules: Rule[], action: string, resource: string) {
     assert.equal(effect(rules("builder"), "subagent", "reviewer"), "allow");
   });
 
-  test("provider allowlists are the only machine-specific settings", () => {
-    const configs = [["github-copilot", "github-copilot"], ["openai", "opencode"]].map(providers =>
-      parse(readFileSync(join(root, "opencode.jsonc"), "utf8")
-        .replaceAll("@primary-provider@", providers[0])
-        .replaceAll("@secondary-provider@", providers[1])));
+  test("provider allowlists and work model defaults live only in root profiles", () => {
+    const work = parse(readFileSync(join(root, "work.jsonc"), "utf8"));
+    const personal = parse(readFileSync(join(root, "personal.jsonc"), "utf8"));
     for (const provider of ["openai", "opencode", "github-copilot", "anthropic"]) {
-      assert.equal(effect(configs[0].experimental.policies, "provider.use", provider),
+      assert.equal(effect(work.experimental.policies, "provider.use", provider),
         provider === "github-copilot" ? "allow" : "deny");
-      assert.equal(effect(configs[1].experimental.policies, "provider.use", provider),
+      assert.equal(effect(personal.experimental.policies, "provider.use", provider),
         ["openai", "opencode"].includes(provider) ? "allow" : "deny");
     }
-    delete configs[0].experimental;
-    delete configs[1].experimental;
-    assert.deepEqual(configs[0], configs[1]);
+    assert.equal(config.experimental, undefined);
+    assert.equal(config.model, undefined);
+    assert.equal(work.model, "github-copilot/gpt-6.1-sol");
+    assert.equal(work.agents.chat.model, "github-copilot/claude-sonnet-5.5");
+    assert.equal(work.agents.explore.model, "github-copilot/claude-haiku-5.5");
+    assert.equal(work.agents.reviewer.model, "github-copilot/gpt-6.1-sol");
+    assert.equal(personal.model, undefined);
     assert.ok(!readdirSync(root).includes("personal"));
     assert.ok(!readdirSync(root).includes("work"));
   });
 
-  test(`shared: readonly agents resist a global edit allow and deny mutation routes`, () => {
+  test(`shared: readonly agents resist a global edit allow and stay out of planning and delegation`, () => {
     for (const id of ["chat", "explore", "reviewer"]) {
       const policy = rules(id, [...config.permissions, { action: "edit", resource: "*", effect: "allow" }]);
       for (const path of ["src/app.ts", ".env.example", "work/report.md"])
         assert.equal(effect(policy, "edit", path), "deny", `${id}: ${path}`);
-      for (const [action, resource] of [
-        ["shell", "pnpm test"], ["shell", "npm install"],
-        ["shell", "git add src/app.ts"], ["shell", "rtk git commit -m fix"],
-        ["shell", "git diff --output=/tmp/result"],
-        ["shell", "gh api --method GET repos/a/b/contents/test -X POST"],
-        ["subagent", "builder"], ["subagent", "reviewer"],
-        ["atlassian_createJiraIssue", "*"], ["playwright_browser_take_screenshot", "*"],
-        ["submit_plan", "*"], ["external_directory", "/outside/*"],
-      ]) assert.equal(effect(policy, action, resource), "deny", `${id}: ${action} ${resource}`);
+      for (const [action, resource] of [["subagent", "builder"], ["subagent", "reviewer"], ["submit_plan", "*"]])
+        assert.equal(effect(policy, action, resource), "deny", `${id}: ${action} ${resource}`);
       for (const command of ["git status", "git diff --stat", "rtk git log -5", "gh pr diff https://github.com/a/b/pull/1", "ctx7 docs /org/library query"])
         assert.equal(effect(policy, "shell", command), "allow", `${id}: ${command}`);
       assert.equal(effect(policy, "subagent", "explore"), id === "chat" ? "allow" : "deny");
     }
   });
 
-  test(`shared: builder allows routine work while keeping external and credential gates`, () => {
-    const policy = rules("builder");
-    for (const command of ["pnpm test", "pnpm test:schema", "pnpm build", "pnpm typecheck", "git add src/app.ts", "git commit -m fix", "rtk git status"])
-      assert.equal(effect(policy, "shell", command), "allow", command);
-    for (const command of ["pnpm install", "curl https://example.com", "playwright-cli open https://example.com"])
-      assert.equal(effect(policy, "shell", command), "ask", command);
-    for (const command of ["git push", "rtk git push origin main", "git reset --hard", "git add -A", "git commit --amend", "gh pr merge 1", "gh issue delete 1"])
-      assert.equal(effect(policy, "shell", command), "deny", command);
-    assert.equal(effect(policy, "edit", "src/app.ts"), "allow");
-    assert.equal(effect(policy, "external_directory", "/outside/*"), "ask");
+  test(`shared: agents allow routine work while gating dangerous and external operations`, () => {
     for (const id of ["builder", "chat", "explore", "reviewer"]) {
-      for (const path of [".env", "apps/web/.env.local", "/users/person/.ssh/id_ed25519", "/users/person/.config/opencode/auth.json"])
-        assert.equal(effect(rules(id), "read", path), "deny", `${id}: ${path}`);
-      assert.equal(effect(rules(id), "read", ".env.example"), "allow");
+      const policy = rules(id);
+      for (const command of ["pnpm test", "pnpm install", "curl https://example.com", "git add src/app.ts", "git commit -m fix", "rtk git status", "gh api repos/a/b/contents/x"])
+        assert.equal(effect(policy, "shell", command), "allow", `${id}: ${command}`);
+      for (const command of ["sudo ls", "git push", "rtk git push origin main", "git rebase main", "git restore src/app.ts",
+        "git commit --amend", "gh pr merge 1", "rtk gh pr comment 1", "gh api --method POST repos/a/b/issues", "rtk gh api -X PATCH repos/a/b"])
+        assert.equal(effect(policy, "shell", command), "ask", `${id}: ${command}`);
+      for (const command of ["rm -rf build", "git reset --hard", "rtk git clean -fd", "git branch -D topic", "git commit --no-verify -m fix",
+        "git push --force", "rtk git push origin -f main", "gh issue delete 1", "rtk gh api --method DELETE repos/a/b", "gh api -X DELETE repos/a/b",
+        "cat .env", "cat ~/.aws/credentials"])
+        assert.equal(effect(policy, "shell", command), "deny", `${id}: ${command}`);
+      assert.equal(effect(policy, "external_directory", "/outside/*"), "ask");
+      assert.equal(effect(policy, "atlassian_createJiraIssue", "*"), "ask");
+      assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), "allow");
+      for (const path of [".env", "apps/web/.env.local", "/users/person/.ssh/id_ed25519", "/users/person/.config/opencode/auth.json", "certs/server.pem"])
+        for (const action of ["read", "edit"])
+          assert.equal(effect(policy, action, path), "deny", `${id}: ${action} ${path}`);
+      assert.equal(effect(policy, "read", ".env.example"), "allow");
     }
-    const expected = "ask";
-    assert.equal(effect(policy, "atlassian_createJiraIssue", "*"), expected);
-    assert.equal(effect(policy, "playwright_browser_take_screenshot", "*"), expected);
+    assert.equal(effect(rules("builder"), "edit", "src/app.ts"), "allow");
+    assert.equal(effect(rules("builder"), "edit", ".env.example"), "allow");
   });
 
-  test("shared: writing is available while renderer commands retain approval and read-only boundaries", () => {
+  test("shared: writing is available to every agent", () => {
     const skill = matter(readFileSync(join(directory, "skills/writing/SKILL.md"), "utf8"));
     assert.equal(skill.data.name, "writing");
     assert.equal(typeof skill.data.description, "string");
-    for (const id of ["builder", "chat"])
+    for (const id of ["builder", "chat", "explore", "reviewer"])
       assert.equal(effect(rules(id), "skill", "writing"), "allow");
-    for (const script of ["render_html.py", "render_diagram.py"]) {
-      const path = `/users/person/.config/opencode/skills/writing/scripts/${script}`;
-      for (const command of [
-        `python3 ${path} work/input.json --output output/result`,
-        `python3 "${path}" "work/input.json" --output "output/result"`,
-      ]) {
-        assert.equal(effect(rules("builder"), "shell", command), "ask", command);
-        for (const id of ["chat", "explore", "reviewer"])
-          assert.equal(effect(rules(id), "shell", command), "deny", `${id}: ${command}`);
-      }
-      assert.equal(effect(rules("builder"), "shell", `python3 ${path} input.json --output /users/person/.aws/credentials`), "deny");
-    }
-    for (const command of [
-      "git diff --output=output/diff.patch",
-      "python3 other_script.py input.json --output result.html",
-    ]) assert.equal(effect(rules("builder"), "shell", command), "deny", command);
+    const path = "/users/person/.config/opencode/skills/writing/scripts/render_html.py";
+    assert.equal(effect(rules("builder"), "shell", `python3 ${path} work/input.json --output output/result`), "allow");
+    assert.equal(effect(rules("builder"), "shell", `python3 ${path} input.json --output /users/person/.aws/credentials`), "deny");
   });
 
   test(`shared: commands select capable agents and load discoverable exact skill IDs`, () => {
-    const commands = readdirSync(join(directory, "commands")).filter(f => f.endsWith(".md"));
+    const commands = readdirSync(join(directory, "shared-commands")).filter(f => f.endsWith(".md"));
     for (const file of commands) {
       const md = matter(readFileSync(join(directory, "commands", file), "utf8"));
       assert.doesNotThrow(() => Schema.decodeUnknownSync(ConfigCommand.Info)({ ...md.data, template: md.content.trim() }));
@@ -165,9 +153,15 @@ function effect(rules: Rule[], action: string, resource: string) {
     for (const id of ["jira-ticket", "jira-bug"]) {
       assert.equal(readdirSync(join(directory, "skills")).includes(id), true);
     }
-    assert.equal(commands.includes("bug.md"), true);
-    assert.equal(!!config.mcp?.servers?.atlassian, true);
-    assert.equal(config.mcp.servers.playwright.disabled, true);
+    assert.equal(commands.includes("bug.md"), false);
+    assert.equal(commands.includes("pw-test.md"), false);
+    assert.equal(commands.includes("manual-test-plan.md"), false);
+    assert.equal(config.mcp, undefined);
+    const installedSkills = readdirSync(join(directory, "shared-skills"));
+    for (const excluded of ["jira-ticket", "jira-bug", "playwright", "playwright-cli", "manual-test-plan", "manual-testing", "test-planning"])
+      assert.equal(installedSkills.includes(excluded), false);
+    for (const shared of ["writing", "implementation-plan", "pr-review", "git-workflow", "nix-check"])
+      assert.equal(installedSkills.includes(shared), true);
     assert.ok(config.plugins.includes("./plugins/pr-context"));
   });
 }

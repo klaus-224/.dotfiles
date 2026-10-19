@@ -12,3 +12,5 @@ devenv.local.yaml
 #mise
 mise.local.toml
 mise.local.local
+
+**/.claude/settings.local.json

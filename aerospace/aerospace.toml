@@ -29,7 +29,7 @@ persistent-workspaces = [
 [gaps]
 inner.horizontal = 8
 inner.vertical = 8
-outer.top = [{ monitor."built-in" = 25 }, { monitor."main" = 50 }, 50]
+outer.top = [{ monitor."built-in" = 15 }, { monitor."main" = 50 }, 50]
 outer.bottom = [{ monitor."built-in" = 15 }, { monitor."main" = 24 }, 24]
 outer.right = 16
 outer.left = 16

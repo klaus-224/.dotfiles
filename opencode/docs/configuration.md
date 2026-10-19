@@ -1,38 +1,32 @@
 # Configuration
 
-OpenCode targets the pinned 2.0.20 schema. `opencode/opencode.jsonc` is the
-single source configuration. Home Manager renders its two provider placeholders
-in `nix/home/files.nix`: OpenAI and OpenCode for `klaus224`, GitHub Copilot for
-other users. Unlisted providers are denied. Loading the source template directly
-does not allow real providers; use the Home Manager configuration.
+OpenCode targets the pinned 2.0.20 schema. `opencode.json` contains shared
+provider-neutral settings and agent metadata; `work.jsonc` and `personal.jsonc`
+contain provider policies and optional model defaults. Agent Markdown files
+supply prompts without frontmatter. Commands and skills retain discovery metadata.
 
-Home Manager links the shared agents, commands, skills, plugins, preferences,
-CLI settings, and editor schema under `~/.config/opencode`. Agent permissions
-live in each definition's front matter. Agents inherit the session's selected
-model rather than pinning a provider. Jira requires authentication; the browser
-MCP remains disabled until configured for an authorized test session.
+Zsh's `opencode-profile work|personal` installs individual links into the real
+`${XDG_CONFIG_HOME:-$HOME/.config}/opencode` directory. It uses `DOTFILES_HOME`
+with a `$HOME/.dotfiles` fallback, validates roots and source links before
+writing, rejects conflicts, and clears inherited configuration overrides.
+Startup defines the function without silently selecting a profile.
 
-Run the checks from `opencode/`:
+The installed skills, commands, and plugins use curated source directories.
+Jira/PW originals remain retained, and the previous mixed config lives in
+`retained/opencode.jsonc`. Home Manager no longer renders OpenCode placeholders
+or manages its files. Package installation is unchanged.
 
-```sh
-pnpm test
-pnpm test:schema
-pnpm test:workflows
-pnpm typecheck
-```
+See [activation and verification](../README.md) for one-time Nix activation,
+conflict backup, profile switching, pinned schema and workflow checks, and
+machine-specific account/model verification.
 
-Schema and workflow fixtures validate both rendered provider allowlists, shared
-agent discovery metadata, command skill IDs, and permission boundaries. They
-do not authenticate services, run model requests, or exercise saved approvals.
-
-Evaluate both hosts from `nix/` before applying Home Manager changes:
+When Nix is available, evaluate both hosts before applying the configuration:
 
 ```sh
 nix eval --offline .#darwinConfigurations.klaus-macbook.system.drvPath
 nix eval --offline .#darwinConfigurations.work-macbook.system.drvPath
 ```
 
-Apply the existing nix-darwin host configuration after updating the checkout,
-then run `opencode service restart`. Changes to the source JSONC require another
-Home Manager application; linked Markdown and plugin sources remain shared.
-Keep credentials, OAuth sessions, and machine-local `service.json` out of Git.
+Keep credentials, OAuth sessions, runtime service files, and private test
+evidence out of Git. Existing sessions retain their selected model; verify
+fresh sessions and subagents when updating profile defaults.

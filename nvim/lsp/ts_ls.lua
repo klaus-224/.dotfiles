@@ -77,6 +77,19 @@ return {
       ".git",
     }) or vim.fn.getcwd()
 
+    -- In monorepos (e.g. pnpm) typescript may only be installed in the package, not the lockfile root
+    if vim.fn.isdirectory(vim.fs.joinpath(root, 'node_modules', 'typescript')) ~= 1 then
+      local ts_dir = vim.fs.find('node_modules/typescript', {
+        path = vim.fs.dirname(vim.api.nvim_buf_get_name(bufnr)),
+        upward = true,
+        type = 'directory',
+        stop = vim.fs.dirname(root),
+      })[1]
+      if ts_dir then
+        root = vim.fs.dirname(vim.fs.dirname(ts_dir))
+      end
+    end
+
     local local_cmd = vim.fs.joinpath(
       root,
       "node_modules",

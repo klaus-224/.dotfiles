@@ -9,5 +9,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["./plugins/**/*.ts", "./scripts/**/*.ts", "./tests/**/*.ts"]
+  "include": ["./plugins/**/*.ts", "./scripts/**/*.ts", "./tests/**/*.ts"],
+  "exclude": ["./plugins/rtk.ts"]
 }

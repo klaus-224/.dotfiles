@@ -4,11 +4,6 @@
 ---
 --- A collection of language tools and a Language Server Protocol (LSP) implementation for Postgres, focusing on developer experience and reliable SQL tooling.
 
--- return if postgres-language-server is not installed
-if vim.fn.executable("postgres-language-server") ~= 1 then
-  return {}
-end
-
 ---@type vim.lsp.Config
 return {
   cmd = { 'postgres-language-server', 'lsp-proxy' },
