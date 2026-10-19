@@ -266,7 +266,7 @@ brew services restart sketchybar
 
 ## TODO
 - [ ] configure plannotator [plannotator config](https://docs.plannotator.ai/open-source/reference/configuration)
-- [ ] setup devenv and direnv
+- [ ] configure btm
 - [ ] tools to look at
     - [age](https://github.com/FiloSottile/age): file encryption/decryption
     - [e1s](https://github.com/keidarcy/e1s): TUI to manage ECS
@@ -276,22 +276,16 @@ brew services restart sketchybar
     - ttyd
     - zsh suffix alias
     - hammerspoon
-    - aerospace
     - [phlmn/nix-darwin-config: My config for nix-darwin with home-manager](https://github.com/phlmn/nix-darwin-config)
     - [evermeer/CodingAgentOrchestration: Quick start for using an AI Coding Agent - OpenCode Setup Guide / Orchestration](https://github.com/evermeer/CodingAgentOrchestration)
     - [arnavpisces/opencode-sidebar: A sidebar for opencode. Multiple sessions in the terminal powered by tmux](https://github.com/arnavpisces/opencode-sidebar)
     - [saqibameen/agent-dotfiles: Write AI coding rules once, sync to every agent. Claude, CommandCode, Cursor, Copilot, Codex. https://x.com/saqibameen](https://github.com/saqibameen/agent-dotfiles)
-    - [Ainsley0917/opencode-token-monitor: OpenCode plugin for monitoring token usage, estimating costs, and tracking analytics across AI coding sessions](https://github.com/Ainsley0917/opencode-token-monitor)
     - [numman-ali/openskills: Universal skills loader for AI coding agents - npm i -g openskills](https://github.com/numman-ali/openskills)
-    - [sun-praise/opencode-review: OpenCode automatic review agent plugin](https://github.com/sun-praise/opencode-review)
-    - [malhashemi/opencode-sessions: Session management plugin for OpenCode with multi-agent collaboration support](https://github.com/malhashemi/opencode-sessions)
     - [tickernelz/opencode-mem: OpenCode plugin that gives coding agents persistent memory using local vector database](https://github.com/tickernelz/opencode-mem)
     - [AnganSamadder/opentmux](https://github.com/AnganSamadder/opentmux)
     - [Mark1708/opencode-agents-sidebar: Universal OpenCode TUI sidebar for browsing provider agents and subagents](https://github.com/Mark1708/opencode-agents-sidebar)
     - [Randroids-Dojo/ManageSkills](https://github.com/Randroids-Dojo/ManageSkills)
     - [Opencode-DCP/opencode-dynamic-context-pruning: Dynamic context pruning plugin for OpenCode - intelligently manages conversation context to optimize token usage](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning)
-    - [simonwjackson/opencode-direnv: OpenCode plugin that automatically loads direnv environment variables at session start](https://github.com/simonwjackson/opencode-direnv)
-    - [abhixdd/ghgrab: A simple, pretty terminal tool that lets you browse and download files from GitHub, GitLab, Codeberg, Gitea, and Forgejo without leaving your CLI.](https://github.com/abhixdd/ghgrab)
     - [mksglu/context-mode: Context window optimization for AI coding agents. Sandboxes tool output (98% reduction), persists session memory, and enforces routing across 17 platforms via MCP + hooks.](https://github.com/mksglu/context-mode)
     - [darrenhinde/OpenAgentsControl: AI agent framework for plan-first development workflows with approval-based execution. Multi-language support (TypeScript, Python, Go, Rust) with automatic testing, code review, and validation built for OpenCode](https://github.com/darrenhinde/OpenAgentsControl)
     - [nektos/act: Run your GitHub Actions locally 🚀](https://github.com/nektos/act)
