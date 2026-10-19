@@ -31,3 +31,4 @@ alias svmex="smolvm machine exec"
 # alias -s {js,json,env,html,css,toml,ts,tsx,rs}="bat"
 alias -s md="glow -t"
 alias -s {mov,png,mp4,pdf}="open"
+alias man='MANPAGER="nvim +Man!" command man'
