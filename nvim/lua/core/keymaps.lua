@@ -39,5 +39,3 @@ vim.keymap.set('n', '<C-j>', function() vim.cmd('silent! 2argument') end)
 vim.keymap.set('n', '<C-k>', function() vim.cmd('silent! 3argument') end)
 vim.keymap.set('n', '<C-n>', function() vim.cmd('silent! 4argument') end)
 vim.keymap.set('n', '<C-m>', function() vim.cmd('silent! 5argument') end)
-
-vim.keymap.set('n', '<leader>md', '<cmd>term leaf -w %<CR>')

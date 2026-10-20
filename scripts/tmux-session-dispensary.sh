@@ -38,8 +38,7 @@ session_name=$(printf '%s' "$relative" | tr '/. :' '____')
 if ! tmux has-session -t "=$session_name" 2>/dev/null; then
     tmux new-session -d \
         -s "$session_name" \
-        -c "$selected" \
-        nvim
+        -c "$selected"
 fi
 
 tmux switch-client -t "=$session_name"

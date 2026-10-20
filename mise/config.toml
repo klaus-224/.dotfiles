@@ -12,7 +12,6 @@ MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 "cargo:tmuxcc" = "latest"
 "cargo:abtop" = "latest"
 "cargo:mandible" = "latest"
-"cargo:leaf-markdown-viewer" = "latest"
 
 
 # Runtimes
