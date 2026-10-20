@@ -17,3 +17,6 @@ devenv.local.yaml
 .direnv
 stars-before-*
 *claude*
+
+# third-party binaries
+bin/plannotator
