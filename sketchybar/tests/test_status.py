@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
 import plistlib
 import sqlite3
@@ -152,6 +153,66 @@ class ConnectivityTests(unittest.TestCase):
     def test_bluetooth_unknown_schema(self):
         with patch.object(status, "run", return_value=result('{}')):
             self.assertIn("error", status.bluetooth())
+
+
+def field(number, value):
+    def varint(value):
+        out = bytearray()
+        while value > 0x7F:
+            out.append(value & 0x7F | 0x80)
+            value >>= 7
+        return bytes(out + bytes([value]))
+    if isinstance(value, int):
+        return varint(number << 3) + varint(value)
+    return varint(number << 3 | 2) + varint(len(value)) + value
+
+
+def frecency(*entries):
+    return b"".join(field(1, field(1, uri.encode()) + field(2, field(2, 1) + field(4, used)))
+                    for uri, used in entries)
+
+
+class SpotifyTests(unittest.TestCase):
+    def test_now_playing_paused_stopped_and_closed(self):
+        with patch.object(status, "run", return_value=result("playing\nSong — Live\nBand\n")):
+            self.assertEqual(status.spotify(), {"running": True, "state": "playing",
+                                                "track": "Song — Live", "artist": "Band"})
+        with patch.object(status, "run", return_value=result("stopped\n")):
+            self.assertEqual(status.spotify()["track"], "")
+        with patch.object(status, "run", return_value=result("__NOT_RUNNING__\n")):
+            self.assertEqual(status.spotify(), {"running": False})
+        with patch.object(status, "run", return_value=result(code=1)):
+            self.assertIn("error", status.spotify())
+
+    def test_frecency_playlists_newest_first(self):
+        data = frecency(("spotify:playlist:old", 100), ("spotify:album:skip", 900),
+                        ("spotify:playlist:new", 500), ("spotify:playlist:bad\"uri", 999),
+                        ("spotify:playlist:old", 300))
+        self.assertEqual(status.read_frecency(data), ["spotify:playlist:new", "spotify:playlist:old"])
+        with self.assertRaises((ValueError, IndexError)):
+            status.read_frecency(field(1, b"\x0a\x7f"))
+
+    def test_playlists_use_newest_profile_and_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            users = Path(directory) / "Users"
+            for name, uri, mtime in [("a-user", "spotify:playlist:aaa", 1), ("b-user", "spotify:playlist:bbb", 2)]:
+                (users / name).mkdir(parents=True)
+                path = users / name / "frecency.pb"
+                path.write_bytes(frecency((uri, 1)))
+                os.utime(path, (mtime, mtime))
+            cache = Path(directory) / "cache/names.json"
+            with patch.object(status, "SPOTIFY_USERS", users), patch.object(status, "SPOTIFY_NAMES", cache), \
+                    patch.object(status, "playlist_name", side_effect=lambda uri, names: names.setdefault(uri, "Mix")):
+                self.assertEqual(status.spotify_playlists(),
+                                 {"playlists": [{"uri": "spotify:playlist:bbb", "name": "Mix"}]})
+            self.assertEqual(json.loads(cache.read_text()), {"spotify:playlist:bbb": "Mix"})
+            with patch.object(status, "SPOTIFY_USERS", Path(directory) / "missing"):
+                self.assertIn("error", status.spotify_playlists())
+
+    def test_playlist_name_offline_falls_back(self):
+        with patch.object(status.urllib.request, "urlopen", side_effect=OSError):
+            self.assertEqual(status.playlist_name("spotify:playlist:abc", {}), "")
+        self.assertEqual(status.playlist_name("spotify:playlist:abc", {"spotify:playlist:abc": "Cached"}), "Cached")
 
 
 if __name__ == "__main__":

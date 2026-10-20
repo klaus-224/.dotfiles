@@ -14,7 +14,7 @@ those apps are not running.
 
 ## Notifications and connectivity menus
 
-Click Slack, Teams, Wi-Fi, or Bluetooth to toggle its popup. Only one of these
+Click Spotify, Slack, Teams, Wi-Fi, or Bluetooth to toggle its popup. Only one of these
 menus opens at a time. Leaving the bar and popup, switching apps, or choosing
 an action closes it. Menus use the existing palette and pill spacing.
 
@@ -50,6 +50,24 @@ On your Mac, permissions may be needed for the service that runs SketchyBar:
   to Full Disk Access settings. A blocked database displays an access error.
 - Message text must be supplied by Slack/Teams. Missing text is shown as
   “Preview not supplied by the app”; the helper cannot recover hidden content.
+
+Spotify's icon is green while playing, light when paused, and muted when the
+app is closed. It refreshes every 10 seconds, on wake, and on Spotify's
+`PlaybackStateChanged` notification. Its menu shows the current track and
+artist, Play/Pause and Next, and your five most recently played playlists.
+Clicking a playlist plays it; clicking the track opens Spotify. The status query
+checks whether Spotify is running first, so it never launches the app. Allow
+**Automation → Spotify** if macOS prompts.
+
+Recent playlists come from Spotify's private `frecency.pb` (its local
+"Recents" ranking) in the most recently updated profile under
+`~/Library/Application Support/Spotify/Users`, sorted by last-used time. The
+file stores no titles, so the helper looks them up from Spotify's public
+oEmbed endpoint (no account or token) and caches them in
+`~/Library/Caches/sketchybar/spotify-playlists.json`. Offline or private
+playlists that oEmbed cannot resolve show as “Playlist”. Like the notification
+database, this is an undocumented format that future Spotify versions may
+change.
 
 Wi-Fi shows radio/connection state, network name when available, and the IPv4
 address. Bluetooth shows radio state and up to eight connected device names.
@@ -143,6 +161,7 @@ sketchybar --reload
 sketchybar --query defaults
 sketchybar --query widgets.memory
 sketchybar --query pill.memory
+sketchybar --query widgets.spotify
 sketchybar --query widgets.slack
 sketchybar --query widgets.teams
 sketchybar --query widgets.wifi

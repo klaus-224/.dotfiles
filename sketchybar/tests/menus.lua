@@ -8,6 +8,8 @@ local responses = {
   ["notifications:teams"] = { messages = {} },
   wifi = { enabled = true, connected = true, ssid = "Office", ip = "192.168.1.2" },
   bluetooth = { enabled = true, devices = { "Keyboard" } },
+  spotify = { running = true, state = "playing", track = "Song", artist = "Band" },
+  ["spotify-playlists"] = { playlists = { { uri = "spotify:playlist:abc", name = "Focus" } } },
 }
 local function merge(target, values)
   for key, value in pairs(values) do
@@ -19,6 +21,7 @@ local function merge(target, values)
 end
 package.loaded.sketchybar = {
   add = function(kind, name, properties, bracket_properties)
+    if kind == "event" then return end
     if kind == "bracket" then properties = bracket_properties end
     assert(not items[name], "Duplicate item: " .. name)
     local item = { props = properties, events = {} }
@@ -38,7 +41,7 @@ command.run = function(args, callback)
   callback(assert(responses[table.concat(args, ":")]))
 end
 
-for _, name in ipairs({ "slack", "teams", "wifi", "bluetooth" }) do require("items." .. name) end
+for _, name in ipairs({ "slack", "teams", "wifi", "bluetooth", "spotify" }) do require("items." .. name) end
 local function event(name, kind) items["widgets." .. name].events[kind]() end
 local function props(name) return items["widgets." .. name].props end
 assert(props("slack").label.string == "4")
@@ -81,4 +84,18 @@ assert(not props("slack").popup.drawing)
 responses.bluetooth = { error = "Unavailable" }
 event("bluetooth", "routine")
 assert(not props("bluetooth.device.1").drawing)
+assert(props("spotify").position == "left" and props("spotify").popup.align == "left")
+event("spotify", "mouse.clicked")
+assert(props("spotify").popup.drawing and not props("bluetooth").popup.drawing)
+assert(props("spotify.track").label.string == "Song" and props("spotify.artist").label.string == "Band")
+assert(props("spotify.toggle").label.string == "Pause")
+assert(props("spotify.playlist.1").drawing and props("spotify.playlist.1").label.string:find("Focus", 1, true))
+assert(not props("spotify.playlist.2").drawing)
+event("spotify.playlist.1", "mouse.clicked")
+assert(not props("spotify").popup.drawing)
+assert(commands[#commands]:find('play track "spotify:playlist:abc"', 1, true))
+responses.spotify = { running = false }
+event("spotify", "routine")
+assert(props("spotify.status").label.string == "Spotify is not running" and not props("spotify.track").drawing)
+assert(not props("spotify.toggle").drawing)
 print("Popup lifecycle, badges, previews, actions, and failure recovery passed")
