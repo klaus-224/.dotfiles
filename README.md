@@ -265,6 +265,11 @@ brew services restart sketchybar
 - Homebrew manages the OpenCode executable; application self-updating is disabled.
 
 ## TODO
+- [ ] remove binaries from dotfiles
+- [ ] build a better opencode harness
+    - memory
+    - cloud env
+    - secretes management
 - [ ] configure plannotator [plannotator config](https://docs.plannotator.ai/open-source/reference/configuration)
 - [ ] configure btm
 - [ ] tools to look at
