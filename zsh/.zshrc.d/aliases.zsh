@@ -26,9 +26,8 @@ alias svmls="smolvm machine ls"
 alias svmstart="smolvm machine start"
 alias svmstop="smolvm machine stop"
 alias svmex="smolvm machine exec"
+alias man='MANPAGER="nvim +Man!" command man'
 
 # suffix alias
-# alias -s {js,json,env,html,css,toml,ts,tsx,rs}="bat"
-alias -s md="glow -t"
+alias -s md="leaf -t"
 alias -s {mov,png,mp4,pdf}="open"
-alias man='MANPAGER="nvim +Man!" command man'
