@@ -83,6 +83,7 @@ keybind = super+o=text:\x01\x4f
 
 keybind = super+\=text:\x01\x7C
 keybind = super+.=text:\x01\x3E
+keybind = super+,=text:\x01\x3C
 
 keybind = super+[=text:\x01\x5B
 keybind = super+]=text:\x01\x5D
