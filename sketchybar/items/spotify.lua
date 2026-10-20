@@ -3,6 +3,7 @@ local colors = require("colors")
 local icons = require("icons")
 local popup = require("helpers.popup")
 local command = require("helpers.command")
+local spotify = require("helpers.spotify")
 
 local item = sbar.add("item", "widgets.spotify", {
   position = "left",
@@ -25,7 +26,7 @@ local busy, playlists_busy = false, false
 local function refresh_playlists()
   if playlists_busy then return end
   playlists_busy = true
-  command.run({ "spotify-playlists" }, function(result)
+  spotify.playlists(function(result)
     playlists_busy = false
     playlists = result.playlists or {}
     playlist_status:set({ label = { string = result.error
@@ -39,7 +40,7 @@ end
 local function refresh()
   if busy then return end
   busy = true
-  command.run({ "spotify" }, function(result)
+  spotify.player(function(result)
     busy = false
     local playing = result.state == "playing"
     local has_track = result.running and result.state ~= "stopped" and (result.track or "") ~= ""

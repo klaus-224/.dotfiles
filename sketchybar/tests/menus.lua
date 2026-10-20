@@ -1,6 +1,6 @@
 -- Run from the repository root: lua sketchybar/tests/menus.lua
 package.path = "sketchybar/?.lua;sketchybar/?/init.lua;" .. package.path
-local items, commands = {}, {}
+local items, commands, callbacks = {}, {}, {}
 local responses = {
   ["badge:slack"] = { running = true, badge = "4" },
   ["badge:teams"] = { running = true, badge = "•" },
@@ -30,15 +30,41 @@ package.loaded.sketchybar = {
       if type(events) == "string" then events = { events } end
       for _, event in ipairs(events) do self.events[event] = callback end
     end
+    local count = 0
+    for _ in pairs(items) do count = count + 1 end
+    item.origin = { count * 20, 0 }
     items[name] = item
     return item
   end,
-  exec = function(command) commands[#commands + 1] = command end,
+  exec = function(command, callback)
+    commands[#commands + 1] = command
+    callbacks[command] = callback
+  end,
+  -- Every item sits at a distinct 10x10 cell so clicks can target it.
+  query = function(name)
+    local item = assert(items[name], "Unknown item: " .. name)
+    local children = {}
+    for child, value in pairs(items) do
+      if value.props.position == "popup." .. name then children[#children + 1] = child end
+    end
+    return { bounding_rects = { ["display-1"] = { origin = item.origin, size = { 10, 10 } } },
+      popup = { items = children } }
+  end,
 }
 local command = require("helpers.command")
 assert(command.quote("a'b $(no)") == "'a'\\''b $(no)'")
 command.run = function(args, callback)
   callback(assert(responses[table.concat(args, ":")]))
+end
+local spotify = require("helpers.spotify")
+spotify.player = function(callback) callback(responses.spotify) end
+spotify.playlists = function(callback) callback(responses["spotify-playlists"]) end
+local popup = require("helpers.popup")
+local function click(name)
+  local watcher = assert(callbacks[popup.click_watcher], "No click watcher running")
+  callbacks[popup.click_watcher] = nil
+  local origin = name and items[name].origin or { -50, -50 }
+  watcher(string.format("%d %d\n", origin[1] + 5, origin[2] + 5))
 end
 
 for _, name in ipairs({ "slack", "teams", "wifi", "bluetooth", "spotify" }) do require("items." .. name) end
@@ -98,4 +124,15 @@ responses.spotify = { running = false }
 event("spotify", "routine")
 assert(props("spotify.status").label.string == "Spotify is not running" and not props("spotify.track").drawing)
 assert(not props("spotify.toggle").drawing)
+event("wifi", "mouse.clicked")
+click("widgets.wifi.status")
+assert(props("wifi").popup.drawing)
+click("widgets.wifi")
+assert(props("wifi").popup.drawing)
+click("widgets.slack")
+assert(not props("wifi").popup.drawing)
+assert(callbacks[popup.click_watcher] == nil)
+event("spotify", "mouse.clicked")
+click()
+assert(not props("spotify").popup.drawing)
 print("Popup lifecycle, badges, previews, actions, and failure recovery passed")

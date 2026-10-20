@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only macOS status for SketchyBar; stdout is always a JSON object.
-
-The only write is a cache of public Spotify playlist titles.
-"""
+"""Read-only macOS status for SketchyBar; stdout is always a JSON object."""
 
 import json
 import os
@@ -13,8 +10,6 @@ import sqlite3
 import subprocess
 import sys
 import time
-import urllib.parse
-import urllib.request
 from contextlib import closing
 
 
@@ -208,122 +203,6 @@ def bluetooth():
         return {"error": "Bluetooth status unavailable"}
 
 
-SPOTIFY_USERS = Path.home() / "Library/Application Support/Spotify/Users"
-SPOTIFY_NAMES = Path.home() / "Library/Caches/sketchybar/spotify-playlists.json"
-
-
-def spotify():
-    # Checking `is running` first keeps the query from launching Spotify.
-    script = '''if application "Spotify" is running then
-  tell application "Spotify"
-    set playerState to player state as text
-    if playerState is "stopped" then return playerState
-    return playerState & linefeed & (name of current track) & linefeed & (artist of current track)
-  end tell
-end if
-return "__NOT_RUNNING__"'''
-    result = run("/usr/bin/osascript", "-e", script)
-    if result.returncode:
-        return {"error": "Spotify unavailable — check Automation access"}
-    lines = result.stdout.rstrip("\n").split("\n")
-    if lines[0] == "__NOT_RUNNING__":
-        return {"running": False}
-    if lines[0] not in ("playing", "paused", "stopped"):
-        return {"error": "Spotify status unavailable"}
-    track = clean(lines[1]) if len(lines) > 1 else ""
-    artist = clean(lines[2]) if len(lines) > 2 else ""
-    return {"running": True, "state": lines[0], "track": track, "artist": artist}
-
-
-def varint(data, index):
-    shift = value = 0
-    while True:
-        byte = data[index]
-        index += 1
-        value |= (byte & 0x7F) << shift
-        shift += 7
-        if byte < 0x80:
-            return value, index
-
-
-def protobuf_fields(data):
-    index = 0
-    while index < len(data):
-        key, index = varint(data, index)
-        field, wire = key >> 3, key & 7
-        if wire == 0:
-            value, index = varint(data, index)
-        elif wire == 1:
-            value, index = data[index:index + 8], index + 8
-        elif wire == 2:
-            length, index = varint(data, index)
-            value, index = data[index:index + length], index + length
-        elif wire == 5:
-            value, index = data[index:index + 4], index + 4
-        else:
-            raise ValueError("Unsupported protobuf wire type")
-        if index > len(data):
-            raise ValueError("Truncated protobuf")
-        yield field, value
-
-
-def read_frecency(data):
-    """Return playlist URIs from Spotify's private frecency.pb, newest first."""
-    used = {}
-    for field, entry in protobuf_fields(data):
-        if field != 1 or not isinstance(entry, bytes):
-            continue
-        uri, last_used = "", 0
-        for key, value in protobuf_fields(entry):
-            if key == 1 and isinstance(value, bytes):
-                uri = value.decode("utf-8", "replace")
-            elif key == 2 and isinstance(value, bytes):
-                for stat, number in protobuf_fields(value):
-                    if stat == 4 and isinstance(number, int):
-                        last_used = number
-        if re.fullmatch(r"spotify:playlist:[A-Za-z0-9]+", uri):
-            used[uri] = max(last_used, used.get(uri, 0))
-    return sorted(used, key=used.get, reverse=True)
-
-
-def playlist_name(uri, names):
-    if uri in names:
-        return names[uri]
-    url = "https://open.spotify.com/playlist/" + uri.rsplit(":", 1)[1]
-    try:
-        with urllib.request.urlopen("https://open.spotify.com/oembed?url=" + urllib.parse.quote(url, safe=""),
-                                    timeout=3) as response:
-            name = clean(json.load(response).get("title"), 80)
-    except (OSError, ValueError, AttributeError):
-        return ""
-    if name:
-        names[uri] = name
-    return name
-
-
-def spotify_playlists(limit=5):
-    paths = sorted(SPOTIFY_USERS.glob("*/frecency.pb"), key=lambda path: path.stat().st_mtime, reverse=True)
-    if not paths:
-        return {"error": "No Spotify listening history found", "playlists": []}
-    try:
-        uris = read_frecency(paths[0].read_bytes())[:limit]
-    except (OSError, ValueError, IndexError):
-        return {"error": "Spotify history unreadable", "playlists": []}
-    try:
-        names = json.loads(SPOTIFY_NAMES.read_text())
-    except (OSError, ValueError):
-        names = {}
-    known = len(names)
-    playlists = [{"uri": uri, "name": playlist_name(uri, names) or "Playlist"} for uri in uris]
-    if len(names) != known:
-        try:
-            SPOTIFY_NAMES.parent.mkdir(parents=True, exist_ok=True)
-            SPOTIFY_NAMES.write_text(json.dumps(names, ensure_ascii=False))
-        except OSError:
-            pass
-    return {"playlists": playlists}
-
-
 def main():
     try:
         action = sys.argv[1]
@@ -335,10 +214,6 @@ def main():
             result = wifi()
         elif action == "bluetooth":
             result = bluetooth()
-        elif action == "spotify":
-            result = spotify()
-        elif action == "spotify-playlists":
-            result = spotify_playlists()
         else:
             result = {"error": "Unknown status request"}
     except (OSError, subprocess.TimeoutExpired, ValueError, KeyError, IndexError):

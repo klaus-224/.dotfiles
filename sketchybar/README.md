@@ -15,8 +15,11 @@ those apps are not running.
 ## Notifications and connectivity menus
 
 Click Spotify, Slack, Teams, Wi-Fi, or Bluetooth to toggle its popup. Only one of these
-menus opens at a time. Leaving the bar and popup, switching apps, or choosing
-an action closes it. Menus use the existing palette and pill spacing.
+menus opens at a time. Clicking anywhere outside the open menu and its icon,
+leaving the bar and popup, switching apps, or choosing an action closes it.
+Lua cannot read the mouse, so while a menu is open `helpers/popup.lua` runs a
+single `osascript` (JXA) watcher that reports the next click's position; the
+menu closes when that point is outside the item's and rows' `bounding_rects`. Menus use the existing palette and pill spacing.
 
 Slack and Teams keep their icons visible. Their badges refresh every 10 seconds,
 on wake, and on workspace changes. A yellow count (or `•` for activity without
@@ -61,13 +64,12 @@ checks whether Spotify is running first, so it never launches the app. Allow
 
 Recent playlists come from Spotify's private `frecency.pb` (its local
 "Recents" ranking) in the most recently updated profile under
-`~/Library/Application Support/Spotify/Users`, sorted by last-used time. The
-file stores no titles, so the helper looks them up from Spotify's public
-oEmbed endpoint (no account or token) and caches them in
-`~/Library/Caches/sketchybar/spotify-playlists.json`. Offline or private
-playlists that oEmbed cannot resolve show as “Playlist”. Like the notification
-database, this is an undocumented format that future Spotify versions may
-change.
+`~/Library/Application Support/Spotify/Users`, sorted by last-used time.
+`helpers/spotify.lua` parses it in Lua. The file stores no titles, so the
+helper looks them up with `curl` from Spotify's public oEmbed endpoint (no
+account or token) and keeps them in memory until SketchyBar restarts. Offline
+or private playlists that oEmbed cannot resolve show as “Playlist”. This is an
+undocumented format that future Spotify versions may change.
 
 Wi-Fi shows radio/connection state, network name when available, and the IPv4
 address. Bluetooth shows radio state and up to eight connected device names.
@@ -144,6 +146,7 @@ for file in sketchybar/*.lua sketchybar/items/*.lua sketchybar/helpers/*.lua ske
 done
 python3 -B -m unittest discover -s sketchybar/tests -p 'test_*.py'
 lua sketchybar/tests/menus.lua
+lua sketchybar/tests/spotify.lua
 CONFIG_DIR="$PWD/sketchybar" lua sketchybar/tests/layout.lua
 ```
 
