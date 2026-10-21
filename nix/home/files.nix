@@ -9,6 +9,7 @@ in
     nvim.source = link "nvim";
     ghostty.source = link "ghostty";
     gh-dash.source = link "git/gh-dash";
+    leaf.source = link "leaf";
 
     mise.source = link "mise";
     aerospace.source = link "aerospace";
