@@ -57,7 +57,8 @@ return {
         cmd = local_cmd
       end
     end
-    return vim.lsp.rpc.start({ cmd, '--stdio' }, dispatchers)
+    -- Spawn from the root so version-manager shims (e.g. mise) resolve the project's version
+    return vim.lsp.rpc.start({ cmd, '--stdio' }, dispatchers, { cwd = (config or {}).root_dir })
   end,
   filetypes = {
     'javascript',
