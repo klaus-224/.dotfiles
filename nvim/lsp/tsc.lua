@@ -53,14 +53,16 @@
 local bin_cache = {} ---@type table<string, string>
 
 --- Checks if the given tsc/tsgo cmd supports the "--lsp" arg.
+--- Runs from `cwd` so version-manager shims (e.g. mise) resolve the project's version.
 ---@param bin string
+---@param cwd string
 ---@return boolean
-local function supports_lsp(bin)
+local function supports_lsp(bin, cwd)
   if vim.fn.executable(bin) ~= 1 then
     return false
   end
 
-  local out = vim.system({ bin, '--version' }, { text = true }):wait()
+  local out = vim.system({ bin, '--version' }, { text = true, cwd = cwd }):wait()
   local version = vim.version.parse(out.stdout or '')
 
   return out.code == 0 and version ~= nil and version.major >= 7
@@ -93,8 +95,9 @@ return {
     },
   },
   cmd = function(dispatchers, config)
-    local cmd = bin_cache[(config or {}).root_dir] or 'tsc'
-    return vim.lsp.rpc.start({ cmd, '--lsp', '--stdio' }, dispatchers)
+    local root_dir = (config or {}).root_dir
+    local cmd = bin_cache[root_dir] or 'tsc'
+    return vim.lsp.rpc.start({ cmd, '--lsp', '--stdio' }, dispatchers, { cwd = root_dir })
   end,
   filetypes = {
     'javascript',
@@ -139,7 +142,7 @@ return {
     }
 
     for _, bin in ipairs(bins) do
-      if supports_lsp(bin) then
+      if supports_lsp(bin, root) then
         bin_cache[root] = bin
         return on_dir(root)
       end

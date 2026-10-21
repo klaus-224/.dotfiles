@@ -11,7 +11,10 @@
 
 ---@type vim.lsp.Config
 return {
-  cmd = { 'svelteserver', '--stdio' },
+  cmd = function(dispatchers, config)
+    -- Spawn from the root so version-manager shims (e.g. mise) resolve the project's version
+    return vim.lsp.rpc.start({ 'svelteserver', '--stdio' }, dispatchers, { cwd = (config or {}).root_dir })
+  end,
   filetypes = { 'svelte' },
   settings = {
     typescript = {
