@@ -41,10 +41,10 @@ vim.keymap.set('n', '<leader>tt', function()
 end, {})
 
 -- Rerun make/test/lint command through quickfix
-vim.keymap.set('n', '<leader>m', function()
-  vim.cmd('silent make')
-  vim.cmd('copen')
-end, {})
+-- vim.keymap.set('n', '<leader>m', function()
+--   vim.cmd('silent make')
+--   vim.cmd('copen')
+-- end, {})
 
 -- remove unused `vim.pack.del( { 'plugin' })`packs
 vim.api.nvim_create_user_command('PackClean', function()
