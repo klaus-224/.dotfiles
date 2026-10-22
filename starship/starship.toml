@@ -60,24 +60,24 @@ diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 behind = "⇣${count}"
 
 [nodejs]
-symbol = ""
+symbol = " "
 style = "bold green"
-format = "[node:$version]($style) "
+format = "[$symbol$version]($style) "
 
 [rust]
-symbol = ""
+symbol = " "
 style = "bold red"
-format = "[rust:$version]($style) "
+format = "[$symbol$version]($style) "
 
 [python]
-symbol = ""
+symbol = " "
 style = "bold yellow"
-format = "[py:$version]($style) "
+format = "[$symbol$version]($style) "
 
 [aws]
-symbol = ""
+symbol = " "
 style = "bold orange"
-format = "[aws:$profile]($style) "
+format = "[$symbol$profile]($style) "
 
 [aws.profile_aliases]
 Enterprise_Naming_Scheme-voidstars = "void**"
