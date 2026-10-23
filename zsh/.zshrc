@@ -5,8 +5,7 @@ export DOTFILES_HOME="${DOTFILES_HOME:-$HOME/.dotfiles}"
 typeset -U path PATH
 
 path=(
-	"${DOTFILES_HOME:-$HOME/.dotfiles}/bin"
-	"$HOME/.local/bin"  
+	"$HOME/.local/bin"
 	"${path[@]}"
 )
 export PATH

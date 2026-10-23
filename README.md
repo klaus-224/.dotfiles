@@ -129,9 +129,17 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
 - `~/.tmux.conf` from `tmux/`
 - `~/.zshenv`, `~/.zshrc`, and `~/.zshrc.d` from `zsh/`
 - `~/.gitconfig` from `git/`
-- Individual `~/.local/bin/<helper>` links from `bin/`; unmanaged names remain yours.
 
 - Keep the checkout at `~/.dotfiles`; the links use that path.
+
+## Helper scripts
+
+- Helpers such as `cwt`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
+  shared process helpers live in `scripts/src/lib.rs`.
+- Add a helper by creating `scripts/src/bin/<name>.rs`.
+- `just install-scripts` compiles them into `~/.local/bin`, which Home Manager
+  adds to `PATH` but does not manage. Rerun it after changing a helper.
+- `just check-scripts` runs rustfmt, clippy, and the unit tests.
 
 ## Homebrew migration safety
 
