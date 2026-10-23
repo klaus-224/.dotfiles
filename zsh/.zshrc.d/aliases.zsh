@@ -3,7 +3,7 @@ alias cdh="cd ~"
 alias cdd="cd ~/.dotfiles"
 alias cdc="cd ~/code"
 
-# ctx is an executable wrapper in bin/, also available to noninteractive tools.
+# ctx is a compiled helper from scripts/, also available to noninteractive tools.
 alias oc="opencode"
 alias tkw="tmux killw"
 alias tkp="tmux killp"
