@@ -17,6 +17,7 @@ devenv.local.yaml
 .direnv
 stars-before-*
 *claude*
+!scripts/src/bin/claude-tmux.rs
 
 # third-party binaries
 bin/plannotator
