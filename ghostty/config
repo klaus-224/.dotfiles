@@ -80,6 +80,7 @@ keybind = super+e=text:\x01\x65
 keybind = super+w=text:\x01\x77
 keybind = super+m=text:\x01\x6d
 keybind = super+o=text:\x01\x4f
+keybind = super+shift+o=text:\x01\x6f
 
 keybind = super+\=text:\x01\x7C
 keybind = super+.=text:\x01\x3E
