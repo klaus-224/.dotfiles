@@ -141,6 +141,54 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
   adds to `PATH` but does not manage. Rerun it after changing a helper.
 - `just check-scripts` runs rustfmt, clippy, and the unit tests.
 
+## Claude worktree workflow
+
+Create a task worktree, optionally dispatch Claude into it, then open it in tmux:
+
+```sh
+cwt current feat/auth-refresh                     # from this checkout's HEAD
+cwt main fix/login-timeout "Fix login timeouts"   # from fetched origin/main, plus `claude --bg`
+```
+
+- Worktrees live beside the main checkout: `~/code/app` → `~/code/app-worktrees/<branch>`.
+- `current` starts from committed HEAD; uncommitted changes stay behind.
+- An ignored `.env.local` is copied once as an independent snapshot; later edits
+  do not sync. Install dependencies and adjust ports in the worktree yourself.
+- `ctrl-a + o` (Ghostty `cmd+shift+o`) runs `claude-tmux` in a popup. It lists
+  `claude agents --json --all` background sessions, including finished ones, and
+  opens a new window in the calling session: `nvim .` left, a shell top right,
+  and `claude attach <id>` bottom right. It works over Agent View, but picks from
+  its own list rather than Agent View's highlighted row. If attach fails, for
+  example because the session is open elsewhere, the error stays above a shell.
+
+Review from the task worktree against its integration base: the parent branch
+for `current` tasks (use it as the PR base for stacked work), usually `main` for
+`main` tasks. Ask Claude to review the diff (`/code-review` where installed).
+
+```sh
+git diff main...HEAD
+git status --short
+git diff && git diff --cached
+git diff --check && git diff --cached --check
+```
+
+Merge from the destination checkout without switching it to the task branch:
+`git merge feat/auth-refresh`. Merging brings commits, not uncommitted files; a
+branch checked out in one worktree cannot be checked out in another, and a
+worktree lock only guards removal, not merges.
+
+Clean up manually once the work is committed and integrated:
+
+1. `claude stop <id>` for the session. `claude rm <id>` deletes it and may also
+   remove its worktree, so run it only after the work is integrated.
+2. Close tmux panes and dev processes still using the worktree.
+3. Check `git worktree list --porcelain` and `git -C <path> status`.
+4. `git worktree unlock <path>` only for a stale lock nothing needs.
+5. `git worktree remove <path>`, then `git branch -d <branch>`.
+
+Worktrees created by `claude --worktree` belong to Claude; `claude rm <id>` removes
+them when it is safe. `cwt` worktrees are yours to remove.
+
 ## Homebrew migration safety
 
 Activation has destructive cleanup settings:
@@ -262,6 +310,7 @@ brew services restart sketchybar
 ## Tmux Commands
 
 - `ctrl-a + r`: reload tmux
+- `ctrl-a + o`: open a Claude background session in a new window (`claude-tmux`)
 
 ## Opencode Plugins
 
