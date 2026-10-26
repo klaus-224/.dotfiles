@@ -25,6 +25,8 @@
   environment = {
     systemPackages = with pkgs; [
       git
+      # Apple's /usr/bin/curl still trusts the eMudhra AAA cross-sign (CVE-2026-111943).
+      curl
       mise
       starship
       zsh-autosuggestions

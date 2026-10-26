@@ -23,6 +23,9 @@
 	ff = only
 [push]
 	autoSetupRemote = true
+[http]
+  # Apple's /usr/bin/git reads the stale /etc/ssl/cert.pem; use the nix bundle.
+  sslCAInfo = /etc/ssl/certs/ca-certificates.crt
 [alias]
   s = status --short --branch
   d = diff
