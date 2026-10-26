@@ -187,6 +187,7 @@ fn open_window(target: &str, session: &Session) {
         "nvim",
         ".",
     ]));
+
     let Some((window, code)) = ids.trim().split_once(' ') else {
         die(format!("claude-tmux: unexpected new-window output: {ids}"));
     };
@@ -195,7 +196,7 @@ fn open_window(target: &str, session: &Session) {
         "split-window",
         "-h",
         "-l",
-        "55%",
+        "33%",
         "-t",
         code,
         "-c",
@@ -209,6 +210,7 @@ fn open_window(target: &str, session: &Session) {
         "claude-tmux",
         &session.id,
     ]));
+
     let claude = claude.trim();
 
     run(&mut tmux(&[
@@ -216,12 +218,14 @@ fn open_window(target: &str, session: &Session) {
         "-v",
         "-b",
         "-l",
-        "30%",
+        "20%",
         "-t",
         claude,
         "-c",
         &dir,
     ]));
+
+
     run(&mut tmux(&["select-window", "-t", window]));
     run(&mut tmux(&["select-pane", "-t", claude]));
 }
