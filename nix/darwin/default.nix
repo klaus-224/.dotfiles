@@ -38,6 +38,11 @@
       ZSH_AUTOSUGGESTIONS = "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh";
       ZSH_SYNTAX_HIGHLIGHTING = "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh";
       ZSH_COMPLETIONS = "${pkgs.zsh-completions}/share/zsh/site-functions";
+
+      # Apple's /etc/ssl/cert.pem is stale; point Apple curl and OpenSSL-based
+      # tools (mise Python) at the nix-darwin bundle that Nix git already uses.
+      SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
+      CURL_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt";
     };
   };
 
