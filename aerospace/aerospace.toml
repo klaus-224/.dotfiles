@@ -86,17 +86,24 @@ f = ["flatten-workspace-tree", "mode main"]
 r = ["reload-config", "mode main"]
 esc = "mode main"
 
+# terminal -  1
+# browsers -  2 and 3
+# socials  -  4 
+# music    -  5 
 [[on-window-detected]]
 if = "test %{app-bundle-id} = com.mitchellh.ghostty"
 run = "move-node-to-workspace 1"
 
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.mitchellh.ghostty"
-run = "move-node-to-workspace 1"
-
+if = "test %{app-bundle-id} = company.thebrowser.Browser"
+run = "move-node-to-workspace 2"
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.team2"
+if = "test %{app-bundle-id} = com.google.Chrome"
 run = "move-node-to-workspace 3"
+
+[[on-window-detected]]
+if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.team2 || test %{app-bundle-id} = com.microsoft.Outlook"
+run = "move-node-to-workspace 4"
 
 [[on-window-detected]]
 if = "test %{app-bundle-id} = com.spotify.client"
