@@ -4,7 +4,9 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "test": "node --import tsx --test tests/pr_context.test.ts",
+    "test": "node --import tsx --test tests/pr_context.test.ts tests/claude-harness.test.ts",
+    "test:harness": "node --import tsx --test tests/claude-harness.test.ts",
+    "test:harness:runtime": "node scripts/test-harness-runtime.mjs",
     "test:schema": "node --import tsx --test tests/schema-validation.test.ts",
     "test:workflows": "node --import tsx --test tests/workflows.test.ts",
     "schema:generate": "node --import tsx scripts/generate-config-schema.ts",
