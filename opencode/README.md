@@ -35,6 +35,10 @@ providers; they do not authenticate an account.
 
 Builder remains the default primary agent. Chat provides read-only discussion;
 explore performs bounded research, and reviewer provides independent review.
+The [Claude-style harness](docs/claude-harness.md) adds persistent task checkpoints,
+compaction guidance, bounded retries, repeated-failure handling, and a `worker`
+subagent for bounded implementation. Builder keeps responsibility for integration
+and verification. It runs inside OpenCode with either existing provider profile.
 The latest shared Markdown bodies are preserved completely in `agents/`, with
 configuration frontmatter removed. Descriptions, modes, ordered provider-neutral
 permission rules, and built-in overrides now live in `opencode.json`. JSON agent

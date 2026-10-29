@@ -3,6 +3,9 @@
   "providers": {},
   "shell": "/bin/zsh",
   "formatter": true,
+  "compaction": {
+    "auto": true
+  },
   "lsp": {
     "lua": {
       "command": [
@@ -32,6 +35,7 @@
   "plugins": [
     "./plugins/rtk",
     "./plugins/pr-context",
+    "./plugins/claude-harness",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {
@@ -43,9 +47,11 @@
     "builder": {
       "description": "Implement requested changes, verify them, and complete the task",
       "mode": "primary",
+      "steps": 80,
       "permissions": [
         { "action": "subagent", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "explore", "effect": "allow" },
+        { "action": "subagent", "resource": "worker", "effect": "allow" },
         { "action": "subagent", "resource": "reviewer", "effect": "allow" }
       ]
     },
@@ -84,6 +90,19 @@
         { "action": "edit", "resource": "*", "effect": "deny" },
         { "action": "submit_plan", "resource": "*", "effect": "deny" },
         { "action": "subagent", "resource": "*", "effect": "deny" }
+      ]
+    },
+    "worker": {
+      "description": "Implement a bounded task and return changes, verification, and remaining issues",
+      "mode": "subagent",
+      "steps": 40,
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "submit_plan", "resource": "*", "effect": "deny" },
+        { "action": "shell", "resource": "git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "rtk git commit*", "effect": "deny" },
+        { "action": "shell", "resource": "git push*", "effect": "deny" },
+        { "action": "shell", "resource": "rtk git push*", "effect": "deny" }
       ]
     }
   },
