@@ -134,12 +134,27 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
 
 ## Helper scripts
 
-- Helpers such as `cwt`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
+- Helpers such as `cwt`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
   shared process helpers live in `scripts/src/lib.rs`.
 - Add a helper by creating `scripts/src/bin/<name>.rs`.
 - `just install-scripts` compiles them into `~/.local/bin`, which Home Manager
   adds to `PATH` but does not manage. Rerun it after changing a helper.
 - `just check-scripts` runs rustfmt, clippy, and the unit tests.
+
+## Merging main into a branch
+
+```sh
+gmm             # fetch origin/main, preview with merge-tree, merge if clean
+gmm --resolve   # on conflicts: start the merge and open `git mergetool`
+gmm develop     # merge origin/develop instead
+```
+
+- Refuses on a detached HEAD or with uncommitted tracked changes.
+- The preview uses `git merge-tree --write-tree`, which merges in memory; a
+  conflicting preview lists the files and exits 1 without touching the worktree.
+- The real merge is a plain `git merge`; `prepare-commit-msg` rewrites its
+  subject to `merge: merge remote-tracking branch 'origin/main' into <branch>`.
+- After `--resolve`, finish with `git merge --continue` or `git merge --abort`.
 
 ## Claude worktree workflow
 
