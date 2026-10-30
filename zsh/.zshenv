@@ -13,6 +13,8 @@ export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
 export GLOBAL_GITIGNORE="$HOME/.gitignore.global"
 export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
 export GLAMOUR_STYLE="$DOTFILES_HOME/glow/vague.json"
+# read only git processes do not create a lock on the repo
+export GIT_OPTIONAL_LOCKS=0
 
 # non-interactive shells can use mise environment and tools
 typeset -U path PATH
