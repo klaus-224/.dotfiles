@@ -1,6 +1,7 @@
 local sbar = require("sketchybar")
 local colors = require("colors")
 local command = require("helpers.command")
+local settings = require("settings")
 
 local popup = {}
 local active
@@ -52,11 +53,11 @@ function popup.attach(item, name, refresh, align)
     drawing = false,
     align = align or "right",
     background = {
-      color = colors.bg,
-      border_color = colors.purple,
-      border_width = 2,
+      color = colors.popup_bg,
+      border_width = 0,
       corner_radius = 12,
     },
+    blur_radius = settings.blur_radius,
   } })
 
   function menu.close()

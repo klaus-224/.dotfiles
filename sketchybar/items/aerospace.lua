@@ -157,6 +157,9 @@ local function apply_snapshot(records)
         label = {
           color = highlighted and colors.purple or colors.fg,
         },
+        background = {
+          color = highlighted and colors.highlight or colors.transparent,
+        },
       })
     end
   end

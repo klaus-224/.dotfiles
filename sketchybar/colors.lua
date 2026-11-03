@@ -14,8 +14,10 @@ return {
   orange = 0xffd99a78,   -- #d99a78
   pink = 0xffc996a5,     -- #c996a5
   purple = 0xffa993bd,   -- #a993bd
-  pill_bg = 0x80252530,
-  pill_border = 0xffa993bd,   -- #a993bd
+  -- Glass: a dark translucent tint over a strong blur, without outlines.
+  pill_bg = 0x4d16161e,       -- #16161e at 30% opacity
+  popup_bg = 0x9916161e,      -- #16161e at 60% opacity
+  highlight = 0x26ffffff,     -- white at 15% opacity
   separator = 0x40606079,   -- #606079 at 25% opacity
   transparent = 0x00000000,
 }

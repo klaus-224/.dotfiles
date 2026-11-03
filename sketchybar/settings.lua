@@ -9,5 +9,5 @@ return {
       Bold = "Bold",
     },
   },
-  blur_radius = 5
+  blur_radius = 30,
 }

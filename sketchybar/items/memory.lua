@@ -75,7 +75,7 @@ refresh()
 
 sbar.add("bracket", "pill.memory", { "widgets.memory" },
   {
-    blur_radius = 50,
+    blur_radius = settings.blur_radius,
     background = {
       drawing = true,
       color = colors.pill_bg,

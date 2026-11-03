@@ -113,8 +113,11 @@ require("items")
   `items/apple.lua` supplies the decorative logo for each display.
 - `items/clock.lua` is an optional combined clock; it is not loaded by default.
 
-Pill backgrounds inherit a height of 32 and corner radius of 16 from native
-defaults. Explicit 8-point spacers sit between pills, outside their
+Pill backgrounds inherit a height of 32 and corner radius of 12 from native
+defaults. The style is glass: pills and popups have no borders, a dark
+translucent tint (`colors.pill_bg`, `colors.popup_bg`), and
+`settings.blur_radius` behind them. The active workspace gets a faint
+`colors.highlight` background. Explicit 8-point spacers sit between pills, outside their
 brackets. Item padding cannot substitute for these spacers because bracket
 backgrounds include their members' outer padding.
 
