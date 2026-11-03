@@ -14,15 +14,18 @@ bold-is-bright = true
 cursor-color = #f8ce9d
 cursor-opacity = 1
 
-background-opacity = 0.60
-background-blur = 30
+# Glass: native macOS 26+ material with a translucent tint over it. Cells with
+# their own background (tmux, Neovim) stay translucent too.
+background-opacity = 0.55
+background-blur = macos-glass-regular
 background-opacity-cells = true
+unfocused-split-opacity = 0.85
 
 selection-background = #0a385c
 
 # ---- Window ----
-window-padding-x = 5
-window-padding-y = 5
+window-padding-x = 8
+window-padding-y = 8
 window-padding-color = extend
 window-padding-balance = equal
 window-vsync = true
