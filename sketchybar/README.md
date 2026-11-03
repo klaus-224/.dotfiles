@@ -7,7 +7,7 @@ The transparent bar places the Apple logo, separator, and five AeroSpace
 workspaces in one pill per display. The layout, from left to right, is:
 
 - Left: `[Apple | 1 2 3 4 5] [Spotify Slack Teams]`
-- Right: `[Wi-Fi] [Bluetooth] [memory] [CPU] [date] [time] [battery]`
+- Right: `[agents] [Wi-Fi] [Bluetooth] [memory] [CPU] [date] [time] [battery]`
 
 Slack and Teams are available on every account; their icons are muted when
 those apps are not running.
@@ -124,6 +124,38 @@ backgrounds include their members' outer padding.
 Runtime names remain `widgets.<name>`, `pill.<name>`, and
 `workspace.<display>.<name>`. Gap items are named `spacer.<name>`.
 
+## Coding agents
+
+The agents pill shows every running coding agent at a glance, polling every
+5 seconds and on the `agents_changed` event:
+
+- yellow `N waiting`: an agent needs input or a permission decision;
+- green `N done`: an agent went from working to idle since you last looked;
+- blue `N working`: agents are still running;
+- a muted icon with no label: nothing is running.
+
+Opening its menu lists each agent and its state and clears the `done` alert.
+An agent that starts working again also clears its own alert. Agents that are
+idle when SketchyBar starts are not reported as done.
+
+`helpers/status.py agents` reads two sources and drops records whose `pid` is
+no longer alive:
+
+- Claude Code's own per-process files in `~/.claude/sessions/*.json`
+  (`$CLAUDE_CONFIG_DIR` if set). No hook is needed.
+- A generic directory, `${XDG_STATE_HOME:-~/.local/state}/agents/*.json`, that
+  any agent can write. OpenCode does this through
+  `opencode/plugins/agent-status`. One file per session:
+
+  ```json
+  {"agent": "codex", "id": "session-id", "pid": 1234, "name": "repo", "status": "busy"}
+  ```
+
+  `status` is `busy`, `idle`, or `waiting`. Write the file atomically (write a
+  temporary file, then rename it), remove it when the session ends, and run
+  `sketchybar --trigger agents_changed` to update immediately instead of on
+  the next poll.
+
 ## Memory and fonts
 
 Memory displays used / total physical RAM, for example `12.4 GB / 16 GB`.
@@ -172,6 +204,7 @@ sketchybar --query widgets.slack
 sketchybar --query widgets.teams
 sketchybar --query widgets.wifi
 sketchybar --query widgets.bluetooth
+sketchybar --query widgets.agents
 ```
 
 Check icons, pill gaps, memory-label fit, work-app visibility, clicks, and

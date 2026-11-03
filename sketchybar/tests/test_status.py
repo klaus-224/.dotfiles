@@ -154,5 +154,49 @@ class ConnectivityTests(unittest.TestCase):
             self.assertIn("error", status.bluetooth())
 
 
+class AgentTests(unittest.TestCase):
+    def setUp(self):
+        self.root = tempfile.TemporaryDirectory()
+        self.addCleanup(self.root.cleanup)
+        root = Path(self.root.name)
+        (root / "claude/sessions").mkdir(parents=True)
+        (root / "state/agents").mkdir(parents=True)
+        self.env = patch.dict(status.os.environ, {
+            "CLAUDE_CONFIG_DIR": str(root / "claude"), "XDG_STATE_HOME": str(root / "state"),
+        })
+        self.env.start()
+        self.addCleanup(self.env.stop)
+        self.root_path = root
+
+    def write(self, relative, data):
+        path = self.root_path / relative
+        path.write_text(data if isinstance(data, str) else json.dumps(data))
+
+    def test_claude_and_generic_sources(self):
+        self.write("claude/sessions/10.json", {"pid": 10, "sessionId": "a", "cwd": "/x/repo", "status": "busy"})
+        self.write("claude/sessions/11.json", {"pid": 11, "sessionId": "b", "name": "job", "status": "waiting"})
+        self.write("state/agents/oc-1.json", {"agent": "opencode", "id": "s1", "pid": 12, "name": "site", "status": "idle"})
+        with patch.object(status, "process_alive", return_value=True):
+            self.assertEqual(status.agents()["agents"], [
+                {"key": "claude:a", "agent": "claude", "name": "repo", "state": "working"},
+                {"key": "claude:b", "agent": "claude", "name": "job", "state": "waiting"},
+                {"key": "opencode:s1", "agent": "opencode", "name": "site", "state": "idle"},
+            ])
+
+    def test_dead_unknown_and_malformed_records_are_skipped(self):
+        self.write("claude/sessions/1.json", {"pid": 1, "sessionId": "dead", "status": "busy"})
+        self.write("claude/sessions/2.json", {"pid": 2, "sessionId": "odd", "status": "exploding"})
+        self.write("state/agents/bad.json", "{not json")
+        self.write("state/agents/list.json", "[]")
+        self.write("state/agents/nopid.json", {"agent": "x", "status": "busy"})
+        with patch.object(status, "process_alive", side_effect=lambda pid: pid == 2):
+            self.assertEqual(status.agents(), {"agents": []})
+
+    def test_process_alive(self):
+        self.assertTrue(status.process_alive(status.os.getpid()))
+        for pid in (None, 0, -1, True, "12"):
+            self.assertFalse(status.process_alive(pid))
+
+
 if __name__ == "__main__":
     unittest.main()

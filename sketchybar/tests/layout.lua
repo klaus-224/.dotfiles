@@ -87,7 +87,7 @@ local function check_layout(display)
   for i = 1, 5 do expected[#expected + 1] = "workspace." .. display .. "." .. i end
   for _, app in ipairs({ "spotify", "slack", "teams" }) do expected[#expected + 1] = "widgets." .. app end
   assert(table.concat(left, ",") == table.concat(expected, ","), "unexpected left layout: " .. table.concat(left, ","))
-  assert(table.concat(right, ",") == "widgets.wifi,widgets.bluetooth,widgets.memory,widgets.cpu,widgets.date,widgets.time,widgets.battery", "unexpected right layout")
+  assert(table.concat(right, ",") == "widgets.agents,widgets.wifi,widgets.bluetooth,widgets.memory,widgets.cpu,widgets.date,widgets.time,widgets.battery", "unexpected right layout")
 end
 local function complete(result, code)
   assert(#callbacks > 0, "missing pending AeroSpace request")

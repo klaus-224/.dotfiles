@@ -9,6 +9,10 @@ local responses = {
   wifi = { enabled = true, connected = true, ssid = "Office", ip = "192.168.1.2" },
   bluetooth = { enabled = true, devices = { "Keyboard" } },
   spotify = { running = true, state = "playing", track = "Song", artist = "Band" },
+  agents = { agents = {
+    { key = "claude:a", agent = "claude", name = "repo", state = "working" },
+    { key = "opencode:b", agent = "opencode", name = "site", state = "idle" },
+  } },
   ["spotify-playlists"] = { playlists = { { uri = "spotify:playlist:abc", name = "Focus" } } },
 }
 local function merge(target, values)
@@ -67,7 +71,7 @@ local function click(name)
   watcher(string.format("%d %d\n", origin[1] + 5, origin[2] + 5))
 end
 
-for _, name in ipairs({ "slack", "teams", "wifi", "bluetooth", "spotify" }) do require("items." .. name) end
+for _, name in ipairs({ "slack", "teams", "wifi", "bluetooth", "spotify", "agents" }) do require("items." .. name) end
 local function event(name, kind) items["widgets." .. name].events[kind]() end
 local function props(name) return items["widgets." .. name].props end
 assert(props("slack").label.string == "4")
@@ -135,4 +139,28 @@ assert(callbacks[popup.click_watcher] == nil)
 event("spotify", "mouse.clicked")
 click()
 assert(not props("spotify").popup.drawing)
+
+-- Agents: only a working -> idle transition counts as done; opening acknowledges.
+local colors = require("colors")
+assert(props("agents").label.string == "1 working" and props("agents").icon.color == colors.blue)
+responses.agents = { agents = {
+  { key = "claude:a", agent = "claude", name = "repo", state = "idle" },
+  { key = "opencode:b", agent = "opencode", name = "site", state = "waiting" },
+} }
+event("agents", "agents_changed")
+assert(props("agents").label.string == "1 waiting · 1 done", props("agents").label.string)
+assert(props("agents").icon.color == colors.yellow)
+event("agents", "mouse.clicked")
+assert(props("agents").popup.drawing)
+assert(props("agents.agent.1").label.string == "claude · repo — done")
+assert(props("agents.agent.2").label.string == "opencode · site — needs input")
+assert(not props("agents.agent.3").drawing)
+assert(props("agents").label.string == "1 waiting", "opening the menu did not acknowledge")
+event("agents", "mouse.clicked")
+responses.agents = { agents = {} }
+event("agents", "routine")
+assert(not props("agents").label.drawing and props("agents").icon.color == colors.muted)
+responses.agents = { error = "Helper unavailable" }
+event("agents", "routine")
+assert(props("agents").label.string == "?")
 print("Popup lifecycle, badges, previews, actions, and failure recovery passed")

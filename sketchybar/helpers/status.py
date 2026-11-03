@@ -203,6 +203,66 @@ def bluetooth():
         return {"error": "Bluetooth status unavailable"}
 
 
+# Raw agent states mapped to the widget's three states.
+AGENT_STATES = {
+    "busy": "working", "retry": "working", "working": "working",
+    "idle": "idle", "done": "idle",
+    "waiting": "waiting", "blocked": "waiting",
+}
+
+
+def process_alive(pid):
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def read_json(path):
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def agent_sources():
+    """Yield (agent, id, pid, name, status) from every known status source."""
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+    # Claude Code keeps one file per live CLI process, including its status.
+    for path in sorted((claude / "sessions").glob("*.json")):
+        data = read_json(path)
+        if data:
+            cwd = clean(data.get("cwd"))
+            yield ("claude", clean(data.get("sessionId")) or path.stem, data.get("pid"),
+                   clean(data.get("name"), 40) or os.path.basename(cwd), data.get("status"))
+    # Generic protocol: any agent may write <state>/agents/<id>.json with
+    # {"agent", "id", "pid", "name", "status"}; see sketchybar/README.md.
+    state = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state")
+    for path in sorted((state / "agents").glob("*.json")):
+        data = read_json(path)
+        if data:
+            yield (clean(data.get("agent"), 20) or "agent", clean(data.get("id")) or path.stem,
+                   data.get("pid"), clean(data.get("name"), 40), data.get("status"))
+
+
+def agents():
+    found = {}
+    for agent, ident, pid, name, raw in agent_sources():
+        state = AGENT_STATES.get(raw) if isinstance(raw, str) else None
+        if not state or not process_alive(pid):
+            continue
+        key = agent + ":" + ident
+        found[key] = {"key": key, "agent": agent, "name": name or agent, "state": state}
+    return {"agents": [found[key] for key in sorted(found)][:20]}
+
+
 def main():
     try:
         action = sys.argv[1]
@@ -214,6 +274,8 @@ def main():
             result = wifi()
         elif action == "bluetooth":
             result = bluetooth()
+        elif action == "agents":
+            result = agents()
         else:
             result = {"error": "Unknown status request"}
     except (OSError, subprocess.TimeoutExpired, ValueError, KeyError, IndexError):

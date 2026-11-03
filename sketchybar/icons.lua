@@ -18,5 +18,6 @@ return {
   teams = "󰊻",
   wifi = "󰖩",
   bluetooth = "󰂯",
+  agents = "󰚩",
   size = 20,
 }
