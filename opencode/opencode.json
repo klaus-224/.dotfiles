@@ -32,6 +32,7 @@
   "plugins": [
     "./plugins/rtk",
     "./plugins/pr-context",
+    "./plugins/agent-status",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {

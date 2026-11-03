@@ -11,7 +11,7 @@ profile selection. Home Manager owns neither.
 | `agents/` | `agents/` | Shared Markdown system prompts, without configuration frontmatter |
 | `shared-commands/` | `commands/` | Curated links to the shared command templates |
 | `shared-skills/` | `skills/` | Curated links to the existing shared skill libraries |
-| `shared-plugins/` | `plugins/` | Curated v2 RTK and PR context plugins |
+| `shared-plugins/` | `plugins/` | Curated v2 RTK, PR context, and agent status plugins |
 | `cli.json` | `cli.json` | Shared v2 terminal settings |
 | `AGENTS.md` | `AGENTS.md` | Shared working preferences |
 | `opencode.schema.json` | `opencode.schema.json` | Editor schema generated from `@opencode/schema@2.0.20` |
@@ -55,6 +55,12 @@ added. `rtk rewrite` requires RTK 0.23.0 or newer. Do not run
 `rtk init -g --opencode` over this configuration. `shared-plugins/` includes the
 v2 package adapters and omits the retained legacy `plugins/rtk.ts`; TypeScript
 checks exclude that inactive v1 file.
+
+The agent status plugin writes each session's `busy`, `idle`, or `waiting`
+state to `${XDG_STATE_HOME:-~/.local/state}/agents/opencode-<session>.json` for
+SketchyBar's agents widget, then runs `sketchybar --trigger agents_changed`.
+Files are removed when a session is deleted or OpenCode exits; records whose
+process has died are ignored. See `sketchybar/README.md` for the format.
 
 ## Excluded assets are retained
 
