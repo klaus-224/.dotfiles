@@ -18,6 +18,8 @@ local palette = {
   claude = 0xffd99a78,
   slack = 0xffc48282, -- Slack icon while Slack runs
   teams = 0xff6e94b2, -- Teams icon while Teams runs
+  docker = 0xff9bb4bc, -- Docker icon while Docker Desktop runs
+  rancher = 0xffb4d4cf, -- Rancher icon while Rancher Desktop runs
   transparent = 0x00000000,
 }
 

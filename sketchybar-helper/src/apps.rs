@@ -1,6 +1,9 @@
-//! Slack / Teams: installed and running state, Dock badge count, and recent
-//! Notification Center previews (read-only; nothing is cached).
+//! Slack / Teams / Docker Desktop / Rancher Desktop: installed and running
+//! state, the Dock badge (Slack / Teams) or whether a container runs
+//! (Docker / Rancher), and recent Notification Center previews (read-only;
+//! nothing is cached).
 
+use crate::containers;
 use crate::util::{self, Out};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
@@ -26,6 +29,16 @@ fn app(key: &str) -> Option<App> {
                 "Microsoft Teams (work or school).app",
                 "Microsoft Teams classic.app",
             ],
+        }),
+        "docker" => Some(App {
+            names: &["Docker Desktop", "Docker"],
+            bundles: &["com.docker.docker"],
+            paths: &["Docker.app"],
+        }),
+        "rancher" => Some(App {
+            names: &["Rancher Desktop"],
+            bundles: &["io.rancherdesktop.app"],
+            paths: &["Rancher Desktop.app"],
         }),
         _ => None,
     }
@@ -149,6 +162,11 @@ pub fn status(key: &str) -> Out {
     }
     if !running {
         return Ok(json!({ "installed": true, "running": false, "badge": "" }));
+    }
+    if matches!(key, "docker" | "rancher") {
+        return Ok(json!({
+            "installed": true, "running": true, "badge": "", "active": containers::active(key)
+        }));
     }
     // Recent Teams/Electron builds may only publish their badge to the Dock.
     if label.as_deref().is_none_or(str::is_empty)

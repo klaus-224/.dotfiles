@@ -7,6 +7,7 @@ mod apps;
 mod audio;
 mod calendar;
 mod clickaway;
+mod containers;
 mod pixels;
 mod slack;
 mod spotify;
@@ -18,7 +19,8 @@ mod wifi;
 
 const USAGE: &str = "usage: sbar-helper <command>
   usage | agents | system | procs
-  app <slack|teams> | notifications <slack|teams>
+  app <slack|teams|docker|rancher> | notifications <slack|teams>
+  containers <docker|rancher>
   slack-status [set <emoji> <text> <minutes> | clear]
   wifi [scan | join <ssid>]
   audio [volume <0-100> | mute | output <device id>]
@@ -37,6 +39,7 @@ fn main() {
         ["procs"] => system::procs(5),
         ["app", key] => apps::status(key),
         ["notifications", key] => apps::notifications(key),
+        ["containers", key] => containers::list(key),
         ["slack-status"] => slack::get(),
         ["slack-status", "set", emoji, text, minutes] => {
             slack::set(emoji, text, minutes.parse().unwrap_or(0))

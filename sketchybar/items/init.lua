@@ -16,21 +16,22 @@ require("items.aerospace")
 -- Notch queue: the media island with Spotify and the volume.
 require("items.media")
 
--- Right island: [slack teams · agent … · mem · bat · wifi · date time]
+-- Right island: [agent … · mem · bat · wifi · date time]
 require("items.clock")
 require("items.wifi")
 local battery = require("items.battery")
 require("items.memory")
 local agents = require("items.agents")
--- Slack and Teams open the island (hidden when neither is installed).
-local messaging = require("items.messaging")
 local right = { "agents", "agents.claude", "agents.codex", "agents.opencode",
   "memory", "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5", "wifi", "clock", "clock.edge" }
-for k, name in ipairs(messaging.members) do table.insert(right, k, name) end
 island.bracket("island.right", right)
 -- Underlines after the island so they draw on top of its fill.
 battery.underline()
 agents.underline()
+
+-- Apps island, left of the right island: Slack, Teams, Docker, Rancher
+-- (hidden with its gap when none is installed).
+require("items.apps")
 
 -- Circles, left of the right island.
 island.spacer("gap.cpu", "right", i.gap)
