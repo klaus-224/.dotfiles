@@ -256,8 +256,8 @@ sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 
 - AeroSpace manages tiled windows and workspaces.
 - JankyBorders draws a faint rim on the focused window.
-- SketchyBar draws the island bar: workspaces, media, messaging, agents and
-  system status.
+- SketchyBar draws the island bar: workspaces, media, apps (messaging and
+  containers), agents and system status.
 
 Workspace assignments:
 

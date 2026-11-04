@@ -15,7 +15,7 @@ this directory to `~/.config/sketchybar`; `sketchybarrc` loads `init.lua`.
 | Left island | one per display: AeroSpace workspaces, front app | — |
 | Media | right of the AeroSpace island: Spotify title, progress fill, EQ, controls | cover, title, artist, time, gauge, controls, open Spotify |
 | Volume | speaker glyph + five cells | slider, mute, output devices, Sound Settings |
-| Slack / Teams | start of the right island, shown only when installed; Slack red / Teams blue while running, grey when not; Dock badge count | recent notification previews; Slack also: current status, presets, clear |
+| Apps | own island between the cat and the right island; Slack, Teams, Docker Desktop, Rancher Desktop, each shown only when installed (the island hides when none is); Slack/Teams coloured while running with their Dock badge (● for activity without a count); Docker/Rancher coloured while a container runs, grey when not | Slack/Teams: recent notification previews; Slack also: current status, presets, clear. Docker/Rancher: running containers (name, image, status) |
 | Pilo | face acting out the most urgent agent state | each running agent and its state |
 | Cat | runs faster with CPU load; yellow at high memory | CPU, memory, disk |
 | Agents | Claude / Codex 5-hour usage left, OpenCode tokens today (after the OpenCode mark) | 5h and weekly usage with reset times; OpenCode tokens and cost |
@@ -88,6 +88,10 @@ All local except the Slack status, which calls the Slack Web API.
 - **Slack / Teams**: badges from `lsappinfo` (Dock `AXStatusLabel` as a
   fallback); previews from the last 24 hours of Notification Center records.
   These are delivered notifications, not an unread inbox.
+- **Docker / Rancher**: `GET /containers/json` on each app's own engine
+  socket (`~/.docker/run/docker.sock`, `~/.rd/docker.sock`); Rancher
+  Desktop on containerd falls back to `~/.rd/bin/nerdctl ps`. Containers
+  managed by Kubernetes (Rancher's built-in cluster) are left out.
 - **Slack status**: needs a user token (`xoxp-…`) with
   `users.profile:read` and `users.profile:write`, stored in the login
   Keychain. The helper passes it to curl through stdin and never prints it.

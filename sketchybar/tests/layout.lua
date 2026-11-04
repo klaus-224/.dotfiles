@@ -79,7 +79,13 @@ local fixtures = {
              disk = { total_gb = 995, free_gb = 497, used_gb = 498 }, battery = { percent = 15, ac = false, charging = false, remaining = "1:10" } },
   procs = { processes = { { pid = 1, name = "Arc", bytes = 7e8, mb = 667 } }, at = now },
   ["app slack"] = { installed = true, running = true, badge = "3" },
-  ["app teams"] = { installed = false, running = false, badge = "" },
+  ["app teams"] = { installed = true, running = true, badge = "•" },
+  ["app docker"] = { installed = true, running = true, badge = "", active = true },
+  ["app rancher"] = { installed = true, running = false, badge = "" },
+  ["containers docker"] = { engine = true, containers = {
+    { name = "api", image = "app:dev", status = "Up 2 hours" }, { name = "db", image = "postgres:16", status = "Up 2 hours" },
+    { name = "c3", image = "x", status = "Up" }, { name = "c4", image = "x", status = "Up" }, { name = "c5", image = "x", status = "Up" },
+    { name = "c6", image = "x", status = "Up" }, { name = "c7", image = "x", status = "Up" } } },
   ["notifications slack"] = { messages = { { title = "#general", body = "hello", at = now } } },
   ["slack-status"] = { error = "Add a Slack token to the Keychain item 'sketchybar-slack'" },
   wifi = { interface = "en0", power = true, connected = true, ssid = "home-5G", ip = "192.168.1.24", router = "192.168.1.1", rssi = -51 },
@@ -141,13 +147,13 @@ local left = position_list("left", 1)
 assert(left:find("^bar.start,workspace.logo.1,workspace.1.1,workspace.1.2,workspace.1.3,workspace.1.4,workspace.1.5,front_app.1"),
   "unexpected left layout: " .. left)
 local right = position_list("right")
-assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.pad.r,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
+assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.docker,apps.rancher,apps.pad.r,gap.apps,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
   1, true), "unexpected right layout: " .. right)
 assert(right:find("battery.5,wifi,clock,clock.edge$"), "right island must end with wifi, clock: " .. right)
 assert(left:find("front_app.1,.-media.gap,media.fill,media.eq.1,media.eq.2,media.eq.3,media,media.prev,media.play,media.next,"
   .. "volume.sep,volume,volume.1,volume.2,volume.3,volume.4,volume.5,volume.pad$"), "media island after AeroSpace: " .. left)
 assert(position_list("q") == "", "nothing left of the notch")
-for _, b in ipairs({ "island.left.1", "island.left.2", "island.media", "island.right", "shield" }) do
+for _, b in ipairs({ "island.left.1", "island.left.2", "island.media", "island.right", "island.apps", "shield" }) do
   assert(items[b] and items[b].kind == "bracket", "missing bracket " .. b)
 end
 
@@ -170,14 +176,18 @@ assert(P("wifi").label.string == "home-5G")
 assert(P("clock").icon.string == os.date("%d-%m"), "date is dd-mm")
 assert(P("apps.slack").drawing == true and P("apps.slack").icon.color == c.slack, "Slack red while running")
 assert(P("apps.slack").label.string == "3", "Slack badge")
-assert(P("apps.teams").drawing == false, "Teams hidden when not installed")
+assert(P("apps.teams").label.string == "●" and P("apps.teams").label.font:find(":9.0$"), "activity dot drawn round")
+assert(P("apps.docker").icon.color == c.docker and P("apps.docker").label.drawing == false, "Docker lit, no count")
+assert(P("apps.docker").padding_left > 0 and P("apps.slack").padding_left == 0, "cell gaps")
+assert(P("apps.rancher").drawing == true and P("apps.rancher").icon.color == c.text3, "Rancher grey without containers")
+assert(P("island.apps").background.drawing == true and P("gap.apps").drawing == true, "apps island shown")
 assert(P("workspace.1.2").label.color == c.text and P("workspace.1.1").label.color == c.text3, "active workspace")
 assert(P("cpu").background.image.string:find("cat_%d"), "cat frame")
 assert(P("pilo").background.image.string:find("pilo_waiting_"), "pilo shows the most urgent state")
 
 -- Every menu opens without errors and shows rows --------------------------------
 local owner = { clock = "clock.edge" } -- items whose menu lives on another item
-for _, name in ipairs({ "media", "volume", "clock", "wifi", "battery", "memory", "agents", "cpu", "pilo", "apps.slack" }) do
+for _, name in ipairs({ "media", "volume", "clock", "wifi", "battery", "memory", "agents", "cpu", "pilo", "apps.slack", "apps.docker" }) do
   local handler = items[name].handlers["mouse.clicked"]
   assert(handler, name .. " has no click handler")
   handler({})
@@ -193,6 +203,8 @@ assert(nav == "‹ 10         2026.11          12 ›", "calendar nav row: [" ..
 assert(P("clock.edge.r.event.2").label.string == "Design review")
 assert(P("wifi.r.net.1").label.string:find("✓"), "current network marked")
 assert(P("apps.slack.r.msg.1").label.string == "#general")
+assert(P("apps.docker.r.msg.1").label.string == "api" and P("apps.docker.r.body.2").label.string:find("postgres"), "containers listed")
+assert(P("apps.docker.r.msg.5").label.string == "+3 more" and P("apps.docker.r.body.5").drawing == false, "container overflow")
 assert(P("agents.r.claude.5h").label.string:find("^81%%.*left.*reset$"), "5h row")
 
 -- Opening a second menu closes the first.
