@@ -79,8 +79,8 @@ local fixtures = {
              disk = { total_gb = 995, free_gb = 497, used_gb = 498 }, battery = { percent = 15, ac = false, charging = false, remaining = "1:10" } },
   procs = { processes = { { pid = 1, name = "Arc", bytes = 7e8, mb = 667 } }, at = now },
   ["app slack"] = { installed = true, running = true, badge = "3" },
-  ["app teams"] = { installed = false, running = false, badge = "" },
-  ["app docker"] = { installed = true, running = true, badge = "7" },
+  ["app teams"] = { installed = true, running = true, badge = "•" },
+  ["app docker"] = { installed = true, running = true, badge = "", active = true },
   ["app rancher"] = { installed = true, running = false, badge = "" },
   ["containers docker"] = { engine = true, containers = {
     { name = "api", image = "app:dev", status = "Up 2 hours" }, { name = "db", image = "postgres:16", status = "Up 2 hours" },
@@ -176,10 +176,10 @@ assert(P("wifi").label.string == "home-5G")
 assert(P("clock").icon.string == os.date("%d-%m"), "date is dd-mm")
 assert(P("apps.slack").drawing == true and P("apps.slack").icon.color == c.slack, "Slack red while running")
 assert(P("apps.slack").label.string == "3", "Slack badge")
-assert(P("apps.teams").drawing == false, "Teams hidden when not installed")
-assert(P("apps.docker").icon.color == c.docker and P("apps.docker").label.string == "7", "Docker running containers")
+assert(P("apps.teams").label.string == "●" and P("apps.teams").label.font:find(":9.0$"), "activity dot drawn round")
+assert(P("apps.docker").icon.color == c.docker and P("apps.docker").label.drawing == false, "Docker lit, no count")
 assert(P("apps.docker").padding_left > 0 and P("apps.slack").padding_left == 0, "cell gaps")
-assert(P("apps.rancher").drawing == true and P("apps.rancher").icon.color == c.text3, "Rancher grey when stopped")
+assert(P("apps.rancher").drawing == true and P("apps.rancher").icon.color == c.text3, "Rancher grey without containers")
 assert(P("island.apps").background.drawing == true and P("gap.apps").drawing == true, "apps island shown")
 assert(P("workspace.1.2").label.color == c.text and P("workspace.1.1").label.color == c.text3, "active workspace")
 assert(P("cpu").background.image.string:find("cat_%d"), "cat frame")

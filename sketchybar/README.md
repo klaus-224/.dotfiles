@@ -15,7 +15,7 @@ this directory to `~/.config/sketchybar`; `sketchybarrc` loads `init.lua`.
 | Left island | one per display: AeroSpace workspaces, front app | — |
 | Media | right of the AeroSpace island: Spotify title, progress fill, EQ, controls | cover, title, artist, time, gauge, controls, open Spotify |
 | Volume | speaker glyph + five cells | slider, mute, output devices, Sound Settings |
-| Apps | own island between the cat and the right island; Slack, Teams, Docker Desktop, Rancher Desktop, each shown only when installed (the island hides when none is); coloured while running, grey when not; count = Dock badge (Slack/Teams) or running containers (Docker/Rancher) | Slack/Teams: recent notification previews; Slack also: current status, presets, clear. Docker/Rancher: running containers (name, image, status) |
+| Apps | own island between the cat and the right island; Slack, Teams, Docker Desktop, Rancher Desktop, each shown only when installed (the island hides when none is); Slack/Teams coloured while running with their Dock badge (● for activity without a count); Docker/Rancher coloured while a container runs, grey when not | Slack/Teams: recent notification previews; Slack also: current status, presets, clear. Docker/Rancher: running containers (name, image, status) |
 | Pilo | face acting out the most urgent agent state | each running agent and its state |
 | Cat | runs faster with CPU load; yellow at high memory | CPU, memory, disk |
 | Agents | Claude / Codex 5-hour usage left, OpenCode tokens today (after the OpenCode mark) | 5h and weekly usage with reset times; OpenCode tokens and cost |

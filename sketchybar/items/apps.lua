@@ -1,9 +1,10 @@
 -- Apps island between the CPU cat and the right island:
--- [󰒱 3  󰊻 1  󰡨 2  󰆚].
+-- [󰒱 3  󰊻 ●  󰡨  󰆚].
 -- An app shows only when installed (the island and its gap disappear when
--- none is). The icon is coloured while the app runs, grey when not. The
--- count is the Dock badge for Slack and Teams, and the running containers
--- (Kubernetes pods left out) for Docker Desktop and Rancher Desktop.
+-- none is). Slack and Teams are coloured while running, grey when not, with
+-- their Dock badge (a dot for activity without a count). Docker Desktop and
+-- Rancher Desktop are coloured while a container runs (Kubernetes pods left
+-- out), grey when not.
 -- Menus: recent notification previews (Slack adds its status presets), or
 -- the running containers.
 local sbar = require("sketchybar")
@@ -187,16 +188,22 @@ local function app(spec)
       installed[spec.key] = r.installed == true
       sync_cells()
       local badge = r.badge or ""
+      local lit = r.running == true
+      if containers then lit = r.active == true end
+      -- Hack's "•" renders clipped; a small "●" stays round.
+      local dot = badge == "•"
       item:set({
         drawing = r.installed == true,
-        icon = { color = r.running and spec.color or c.text3 },
-        label = { string = badge, drawing = badge ~= "" },
+        icon = { color = lit and spec.color or c.text3 },
+        label = { string = dot and "●" or badge, drawing = badge ~= "",
+                  font = island.font("Regular", dot and 9 or theme.font.size) },
       })
-      local what = containers and "running" or "unread"
-      local none = containers and "running · no containers" or "running · no unread"
-      status_row:update({ value = not r.running and "not running"
-        or (badge == "" and none or ("running · " .. badge .. " " .. what)),
-        color = r.running and c.text or c.text3 })
+      local value
+      if not r.running then value = "not running"
+      elseif containers then value = lit and "running · containers up" or "running · no containers"
+      elseif dot then value = "running · new activity"
+      else value = badge == "" and "running · no unread" or ("running · " .. badge .. " unread") end
+      status_row:update({ value = value, color = r.running and c.text or c.text3 })
     end)
   end)
   item:subscribe({ "routine", "forced", "system_woke", "front_app_switched" }, refresh)

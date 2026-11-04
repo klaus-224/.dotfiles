@@ -94,12 +94,9 @@ fn running(key: &str) -> Option<Vec<Container>> {
     if key == "rancher" { nerdctl() } else { None }
 }
 
-/// Running-container count for the bar ("" when none or the engine is down).
-pub fn badge(key: &str) -> String {
-    match running(key) {
-        Some(list) if !list.is_empty() => list.len().to_string(),
-        _ => String::new(),
-    }
+/// Whether at least one container runs (false when the engine is down).
+pub fn active(key: &str) -> bool {
+    running(key).is_some_and(|list| !list.is_empty())
 }
 
 /// Running containers for the menu, sorted by name.
