@@ -7,7 +7,6 @@ end
 package.path = table.concat({
   config_dir .. "/?.lua",
   config_dir .. "/?/init.lua",
-  config_dir .. "/?/?.lua",
   package.path,
 }, ";")
 
@@ -27,16 +26,43 @@ if not loaded then
   )
 end
 
--- Bound to a local on purpose. Since Lua 5.4 a first `require` of a module
--- returns the module *and* its loader data, so `sbar.bar(require("bar"))` would
--- pass two arguments. SbarLua rejects that call and the bar silently keeps its
--- built-in defaults.
-local bar = require("bar")
+local theme = require("theme")
+local island = require("helpers.island")
+local c = theme.colors
 
 sbar.begin_config()
 
+-- Bound to locals: since Lua 5.4 a first `require` also returns loader
+-- data, which SbarLua would reject as an extra argument.
+local bar = {
+  position = "top",
+  height = theme.bar.height,
+  margin = theme.bar.margin,
+  y_offset = theme.bar.y_offset,
+  notch_width = theme.bar.notch_width,
+  display = theme.bar.display,
+  topmost = theme.bar.topmost,
+  color = c.transparent,
+  border_width = 0,
+  corner_radius = 0,
+  blur_radius = 0,
+  shadow = false,
+  padding_left = 0,
+  padding_right = 0,
+  font_smoothing = true,
+}
 sbar.bar(bar)
-require("default")
+
+local defaults = {
+  updates = "when_shown",
+  padding_left = 0,
+  padding_right = 0,
+  icon = { font = island.font(), color = c.text3, padding_left = 0, padding_right = 0 },
+  label = { font = island.font(), color = c.text, padding_left = 0, padding_right = 0 },
+  background = { corner_radius = 0, border_width = 0 },
+}
+sbar.default(defaults)
+
 require("items")
 
 sbar.hotload(true)

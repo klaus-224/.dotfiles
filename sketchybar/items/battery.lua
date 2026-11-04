@@ -1,78 +1,54 @@
+-- [bat ▮▮▮▮▯]: five cells, accent on AC power, red at 20% or below on
+-- battery. Hidden on Macs without a battery. Menu BATTERY.
 local sbar = require("sketchybar")
-local colors = require("colors")
-local icons = require("icons").battery
-local settings = require("settings")
+local theme = require("theme")
+local helper = require("helpers.helper")
+local island = require("helpers.island")
+local popup = require("helpers.popup")
+local stats = require("helpers.stats")
 
-local function parse(output)
-  if type(output) ~= "string" then return nil end
-  local percentage = tonumber(output:match("(%d+)%%"))
-  if not percentage then return nil end
-  return {
-    percentage = percentage,
-    charging = output:find("AC Power", 1, true) ~= nil
-        or output:find("charging", 1, true) ~= nil,
-  }
-end
+local c = theme.colors
+local i = theme.island
+local battery = {}
 
-local function render(state)
-  if not state then
-    return { icon = { string = icons.empty, color = colors.muted }, label = { string = "" } }
-  end
-
-  local icon = icons.full
-  local color = colors.fg
-  if state.charging then
-    icon = icons.charging
-    color = colors.green
-  elseif state.percentage <= 10 then
-    icon = icons.empty
-    color = colors.red
-  elseif state.percentage <= 30 then
-    icon = icons.low
-    color = colors.red
-  elseif state.percentage <= 60 then
-    icon = icons.medium
-    color = colors.yellow
-  elseif state.percentage <= 90 then
-    icon = icons.high
-    color = colors.green
-  end
-
-  return {
-    icon = { string = icon, color = color },
-    label = { string = state.percentage .. "%" },
-  }
-end
-
-local item = sbar.add("item", "widgets.battery", {
+-- Right side adds right to left: the cells first, then the tag.
+local menu
+local open = function() if menu then menu:toggle() end end
+local cells = island.gauge_cells("battery", "right", open)
+local item = sbar.add("item", "battery", {
   position = "right",
-  icon = { string = icons.empty },
-  update_freq = 120,
-  padding_right = 2
+  padding_left = i.cell_gap,
+  padding_right = 0,
+  icon = { string = "bat", color = c.text3, padding_left = 0, padding_right = 4 },
+  label = { drawing = false },
 })
+battery.members = { "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5" }
 
-local function refresh()
-  sbar.exec("/usr/bin/pmset -g batt", function(output, exit_code)
-    local state
-    if exit_code == 0 then
-      local ok, parsed = pcall(parse, output)
-      if ok then state = parsed end
-    end
-    item:set(render(state))
-  end)
+menu = popup.new(item, { title = "BATTERY", width = require("helpers.text").menu_width(27), hosts = battery.members })
+local level = menu:row("level", { key = "level", value = "—" })
+local source = menu:row("source", { key = "power", value = "—" })
+local remaining = menu:row("time", { key = "time", value = "—" })
+menu:row("open", { key = "open", value = "Battery Settings ↗", color = c.text2,
+  on_click = function() helper.open("x-apple.systempreferences:com.apple.Battery-Settings.extension") end })
+menu:finish()
+menu:bind({ item })
+
+stats.on(function(s)
+  local b = s.battery
+  local visible = type(b) == "table" and b.percent ~= nil
+  item:set({ drawing = visible })
+  for _, cell in ipairs(cells) do cell:set({ drawing = visible }) end
+  if not visible then return end
+  local low = b.percent <= 20 and not b.ac
+  island.fill_cells(cells, b.percent, b.ac and c.accent or (low and c.err or c.text))
+  level:update({ value = b.percent .. "%", color = low and c.err or c.text })
+  source:update({ value = b.charging and "charging" or (b.ac and "power adapter" or "battery") })
+  local t = b.remaining and b.remaining ~= "0:00" and b.remaining or nil
+  remaining:update({ value = t and (t .. (b.charging and " to full" or " left")) or "—" })
+end)
+
+function battery.underline()
+  menu.opts.underline = island.underline_group("battery.u", battery.members)
 end
 
-item:subscribe({ "routine", "forced", "power_source_change", "system_woke" }, refresh)
-refresh()
-
-sbar.add("bracket", "pill.battery", { "widgets.battery" },
-  {
-    blur_radius = settings.blur_radius,
-    background = {
-      drawing = true,
-      color = colors.pill_bg,
-    },
-  }
-)
-
-return item
+return battery

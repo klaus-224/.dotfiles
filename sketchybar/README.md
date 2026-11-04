@@ -1,236 +1,138 @@
 # SketchyBar
 
-Home Manager links this directory to `~/.config/sketchybar`. The executable
-`sketchybarrc` loads `init.lua` using SketchyBar's `CONFIG_DIR`.
+An island-style bar modelled on
+[garamnohhh/sketchybar-island](https://github.com/garamnohhh/sketchybar-island),
+in the Vague palette. Lua (SbarLua) draws the UI; the Rust helper
+[`sbar-helper`](../sketchybar-helper) supplies the data. Home Manager links
+this directory to `~/.config/sketchybar`; `sketchybarrc` loads `init.lua`.
 
-The transparent bar places the Apple logo, separator, and five AeroSpace
-workspaces in one pill per display. The layout, from left to right, is:
-
-- Left: `[Apple | 1 2 3 4 5] [Spotify Slack Teams]`
-- Right: `[agents] [Wi-Fi] [Bluetooth] [memory] [CPU] [date] [time] [battery]`
-
-Slack and Teams are available on every account; their icons are muted when
-those apps are not running.
-
-## Notifications and connectivity menus
-
-Click Spotify, Slack, Teams, Wi-Fi, or Bluetooth to toggle its popup. Only one of these
-menus opens at a time. Clicking anywhere outside the open menu and its icon,
-leaving the bar and popup, switching apps, or choosing an action closes it.
-Lua cannot read the mouse, so while a menu is open `helpers/popup.lua` runs a
-single `osascript` (JXA) watcher that reports the next click's position; the
-menu closes when that point is outside the item's and rows' `bounding_rects`. Menus use the existing palette and pill spacing.
-
-Slack and Teams keep their icons visible. Their badges refresh every 10 seconds,
-on wake, and on workspace changes. A yellow count (or `•` for activity without
-a count) comes from the app's badge, not from notification history. Zero clears
-the badge; a stopped app is muted. An unavailable badge shows `?`. The reader
-tries `lsappinfo` and then the Dock's Accessibility `AXStatusLabel` for apps
-that do not publish a usable status label, including newer Teams versions.
-Enable app badges in macOS Notifications and in the app's own preferences.
-Counts follow each app's badge semantics (for example, Slack may count mentions
-rather than every unread message).
-
-Each app menu shows up to five recent Notification Center previews from the
-last 24 hours. Clicking a preview opens the app; it does not mark a message read
-or navigate to a particular conversation. These are recent delivered
-notifications, **not an unread inbox**. Preview history may outlive an unread
-badge. Slack must use macOS notifications for those messages to appear here.
-The helper reads only Slack/Teams records from the current user's database,
-opens SQLite read-only (including its live WAL), and does not save a separate
-message cache. It supports the `db2` format in both the older
-`DARWIN_USER_DIR/com.apple.notificationcenter` location and the newer
-`~/Library/Group Containers/group.com.apple.usernoted` location. This is a
-private macOS format, so future OS changes may require updating the reader.
-
-On your Mac, permissions may be needed for the service that runs SketchyBar:
-
-- For Dock badges, allow the responsible app/process in **Privacy & Security →
-  Accessibility**, and allow **Automation → System Events** if prompted.
-- For previews, allow the responsible app/process in **Full Disk Access**,
-  then restart SketchyBar. Running a helper in Terminal and running it from the
-  Homebrew service can have different permission attribution. The popup links
-  to Full Disk Access settings. A blocked database displays an access error.
-- Message text must be supplied by Slack/Teams. Missing text is shown as
-  “Preview not supplied by the app”; the helper cannot recover hidden content.
-
-Spotify's icon is green while playing, light when paused, and muted when the
-app is closed. It refreshes every 10 seconds, on wake, and on Spotify's
-`PlaybackStateChanged` notification. Its menu shows the current track and
-artist, Play/Pause and Next, and your five most recently played playlists.
-Clicking a playlist plays it; clicking the track opens Spotify. The status query
-checks whether Spotify is running first, so it never launches the app. Allow
-**Automation → Spotify** if macOS prompts.
-
-Recent playlists come from Spotify's private `frecency.pb` (its local
-"Recents" ranking) in the most recently updated profile under
-`~/Library/Application Support/Spotify/Users`, sorted by last-used time.
-`helpers/spotify.lua` parses it in Lua. The file stores no titles, so the
-helper looks them up with `curl` from Spotify's public oEmbed endpoint (no
-account or token) and keeps them in memory until SketchyBar restarts. Offline
-or private playlists that oEmbed cannot resolve show as “Playlist”. This is an
-undocumented format that future Spotify versions may change.
-
-Wi-Fi shows radio/connection state, network name when available, and the IPv4
-address. Bluetooth shows radio state and up to eight connected device names.
-Their menus open the corresponding System Settings pane to change networks,
-toggle radios, pair, or disconnect devices. No `sudo`, `blueutil`, or network
-credentials are needed. Wi-Fi polls every 30 seconds and Bluetooth every 60;
-opening a menu or waking refreshes it. macOS may withhold the SSID; an active
-link then shows “Connected · network name unavailable”.
-
-`helpers/status.py` uses Python 3's standard library. Python is declared in
-`nix/home/packages.nix`; activate that package change if Python is not already
-installed. The launcher checks Home Manager and Homebrew paths explicitly so
-the SketchyBar service does not depend on your interactive shell's PATH.
-
-## Configuration
-
-Startup applies bar properties, then loads these modules in order:
-
-```lua
-require("default")
-require("items")
+```text
+[  1 2 3 4 5 app ] [ ▮▮▮ spotify title  󰒮 󰐊 󰒭 | 󰕾 ▮▮▮▯▯ ]      [󰒱 3 󰊻 1] (pilo) (cat) [agent ✳ 81% ▣ 1.2M · mem 69% 48G · bat ▮▮▮▮▯ · wifi home · 04-11 17:30]
 ```
 
-- `settings.lua` holds basic font and spacing values.
-- `default.lua` calls `sbar.default({...})` directly. Native SketchyBar defaults
-  provide shared fonts, colors, content padding, and background geometry.
-- `bar.lua` holds bar placement, height, and edge padding.
-- `colors.lua` holds the palette; `icons.lua` holds glyphs.
-- `items/init.lua` imports items in insertion order. Right-side items insert
-  from right to left, so their imports reverse the visual order.
-- Items pass properties directly to `sbar.add(...)` and create pill brackets.
-  `helpers/notifications.lua` shares the Slack/Teams implementation;
-  `helpers/popup.lua` manages popup rows and dismissal. There is no Lua
-  property-merging layer.
-- `items/aerospace.lua` owns workspace geometry, per-display creation and
-  removal, active-workspace highlighting, and the workspace-change event.
-  It creates the groups from SketchyBar\'s display list before loading app
-  items. AeroSpace only supplies highlighting, so a delayed, failed, or empty
-  AeroSpace response cannot hide the groups. Newly connected display groups
-  are moved before the hidden `workspace.anchor` to preserve the left order.
-  `items/apple.lua` supplies the decorative logo for each display.
-- `items/clock.lua` is an optional combined clock; it is not loaded by default.
+| Cell | Bar | Menu (click; click anywhere else closes it) |
+|---|---|---|
+| Left island | one per display: AeroSpace workspaces, front app | — |
+| Media | right of the AeroSpace island: Spotify title, progress fill, EQ, controls | cover, title, artist, time, gauge, controls, open Spotify |
+| Volume | speaker glyph + five cells | slider, mute, output devices, Sound Settings |
+| Slack / Teams | shown only when installed; Slack red / Teams blue while running, grey when not; Dock badge count | recent notification previews; Slack also: current status, presets, clear |
+| Pilo | face acting out the most urgent agent state | each running agent and its state |
+| Cat | runs faster with CPU load; yellow at high memory | CPU, memory, disk |
+| Agents | Claude / Codex 5-hour usage left, OpenCode tokens today (after the OpenCode mark) | 5h and weekly usage with reset times; OpenCode tokens and cost |
+| Memory | used %, total RAM | used / free, top 5 processes captured when opened |
+| Battery | five cells (hidden without a battery) | level, power source, time left |
+| Wi-Fi | network name, `off` in red | ssid, ip, router, signal, saved networks in range (click to join) |
+| Clock | `dd-mm HH:MM` | month view (click the left / right third of the `‹ 10  2026.11  12 ›` row to page, the middle for this month; scroll too), today's events with times |
 
-Pill backgrounds inherit a height of 32 and corner radius of 12 from native
-defaults. The style is glass: pills and popups have no borders, a dark
-translucent tint (`colors.pill_bg`, `colors.popup_bg`), and
-`settings.blur_radius` behind them. The active workspace gets a faint
-`colors.highlight` background. Explicit 8-point spacers sit between pills, outside their
-brackets. Item padding cannot substitute for these spacers because bracket
-backgrounds include their members' outer padding.
+## Make it yours
 
-Runtime names remain `widgets.<name>`, `pill.<name>`, and
-`workspace.<display>.<name>`. Gap items are named `spacer.<name>`.
+- `theme.lua`: colours, island height, borders, radius, gaps, fonts, popup
+  look, warning thresholds. Change a value and save (hotload reloads).
+  `bar.margin` matches AeroSpace's `gaps.outer.left/right`. Menu widths are
+  counted in characters, so they follow `font.size` and `font.char_width`.
+- `config.lua`: logo, workspaces, agents (`show = "remaining" | "used"`),
+  Pilo data source, calendar week start, Slack status presets.
 
-## Coding agents
+## Install
 
-The agents pill shows every running coding agent at a glance, polling every
-5 seconds and on the `agents_changed` event:
+```sh
+just install-sketchybar-helper   # builds the helper into an app bundle
+```
 
-- yellow `N waiting`: an agent needs input or a permission decision;
-- green `N done`: an agent went from working to idle since you last looked;
-- blue `N working`: agents are still running;
-- a muted icon with no label: nothing is running.
+The helper lives in
+`~/.local/share/sketchybar-helper/SketchyBarHelper.app` (linked as
+`~/.local/bin/sbar-helper`). macOS grants Location and Calendar access to that
+bundle. Rebuilding changes its ad-hoc signature, so macOS may ask again.
 
-Opening its menu lists each agent and its state and clears the `done` alert.
-An agent that starts working again also clears its own alert. Agents that are
-idle when SketchyBar starts are not reported as done.
+Font: Hack Nerd Font (`nerd-fonts.hack` in `nix/darwin/default.nix`). Text
+fitting assumes a monospace font; if you change it, set `font.char_width` to
+its advance. SbarLua must be built at
+`~/.local/share/sketchybar_lua/sketchybar.so` ([instructions][sbarlua]).
 
-`helpers/status.py agents` reads two sources and drops records whose `pid` is
-no longer alive:
+One-time permissions (the helper asks the first time each one is used):
 
-- Claude Code's own per-process files in `~/.claude/sessions/*.json`
-  (`$CLAUDE_CONFIG_DIR` if set). No hook is needed.
-- A generic directory, `${XDG_STATE_HOME:-~/.local/state}/agents/*.json`, that
-  any agent can write. OpenCode does this through
-  `opencode/plugins/agent-status`. One file per session:
+- **Location**, for "SketchyBar Helper": macOS only reveals Wi-Fi names to
+  apps with Location access. The location itself is never read.
+- **Calendars**: today's events in the clock menu.
+- **Full Disk Access** for SketchyBar: Slack/Teams previews come from the
+  Notification Center database.
+- **Automation → Spotify / System Events**: now playing; Dock badges.
+
+## Data sources
+
+All local except the Slack status, which calls the Slack Web API.
+
+- **Claude**: `~/.claude/abtop-rate-limits.json`, written by the abtop
+  status-line hook from Claude Code's `rate_limits`; falls back to the
+  `/usage` cache in `~/.claude.json`. Numbers older than an hour show
+  "updated … ago" in the menu.
+- **Codex**: the newest `rate_limits` record in `~/.codex/sessions`
+  rollouts. Hidden when `~/.codex` does not exist.
+- **OpenCode**: per-session token and cost totals in the `session` table of
+  `~/.local/share/opencode/opencode*.db`, opened read-only. Sessions count on
+  the day they were last updated. Providers that report no usage (e.g. GitHub
+  Copilot) show zero.
+- **Pilo**: `sbar-helper agents` reads Claude Code's `~/.claude/sessions/*.json`
+  and `${XDG_STATE_HOME:-~/.local/state}/agents/*.json` (written by
+  `opencode/plugins/agent-status`). Any agent can join by writing one file
+  per session, atomically, and removing it when the session ends:
 
   ```json
   {"agent": "codex", "id": "session-id", "pid": 1234, "name": "repo", "status": "busy"}
   ```
 
-  `status` is `busy`, `idle`, or `waiting`. Write the file atomically (write a
-  temporary file, then rename it), remove it when the session ends, and run
-  `sketchybar --trigger agents_changed` to update immediately instead of on
-  the next poll.
+  `status` is `busy`, `idle`, `waiting` or `failed`; `sketchybar --trigger
+  agents_changed` updates at once. To use another source (my own Pilo, later),
+  set `config.pilo.command` to a command printing
+  `{"agents": [{"key", "agent", "name", "state"}]}`.
+- **Slack / Teams**: badges from `lsappinfo` (Dock `AXStatusLabel` as a
+  fallback); previews from the last 24 hours of Notification Center records.
+  These are delivered notifications, not an unread inbox.
+- **Slack status**: needs a user token (`xoxp-…`) with
+  `users.profile:read` and `users.profile:write`, stored in the login
+  Keychain. The helper passes it to curl through stdin and never prints it.
 
-## Memory and fonts
+  ```sh
+  security add-generic-password -U -s sketchybar-slack -a "$USER" -w
+  ```
 
-Memory displays used / total physical RAM, for example `12.4 GB / 16 GB`.
-Values use 1024³ bytes per displayed GB. Total capacity comes from
-`sysctl hw.memsize`; usage comes from `vm_stat` using its reported page size:
-anonymous pages minus purgeable pages, plus wired pages and physical pages
-occupied by the compressor. File cache and swapped-out memory are excluded.
-The value refreshes every 10 seconds and on wake. Failed measurements show
-`-- GB / -- GB` with a muted icon. Usage above 60% is yellow and above 80% red.
+- **Spotify**: AppleScript (only when Spotify is installed, so it never
+  launches the app). Covers are cached in `~/.cache/sketchybar/art-*.jpg`.
+- **Volume**: CoreAudio. `sbar-helper watch` (started by the bar, exits with
+  it) fires `audio_change` for mute keys and device switches.
 
-Both Nix host configurations install `pkgs.nerd-fonts.hack` through
-`fonts.packages`. Activate the relevant host configuration to install the
-font, then reload SketchyBar. Setting a font family in Lua alone does not
-install its glyphs.
+## Layout notes
 
-## Verification and activation
+- Left items are added left to right (AeroSpace, then the media island),
+  right items right to left: `items/init.lua` keeps that order.
+- The media progress fill is a zero-width item at the island's left edge;
+  the island width is measured after layout. It is never narrower than its
+  two corners, so it cannot spill past the island's rounded edge.
+- The calendar menu hangs from `clock.edge`, the island's end padding, so it
+  lines up with the island edge.
+- Click-away: `sbar-helper clickaway` waits for the window server's
+  mouse-down counter to change (a short tap is never missed) and returns
+  the pointer position; Lua closes the menu when it is outside.
+- Setting a background colour switches the background on, and SbarLua sends
+  table keys in no fixed order, so hidden backgrounds (underlines) are turned
+  off with a second `set`.
+- A transparent `shield` bracket spans the bar: on macOS 27, clicking an
+  empty part of the bar otherwise raises the bar window over the items
+  (SketchyBar #850).
 
-Syntax-check the Lua sources and executable entrypoint:
-
-```sh
-for file in sketchybar/*.lua sketchybar/items/*.lua sketchybar/helpers/*.lua sketchybar/sketchybarrc; do
-  luac -p "$file" || exit 1
-done
-python3 -B -m unittest discover -s sketchybar/tests -p 'test_*.py'
-lua sketchybar/tests/menus.lua
-lua sketchybar/tests/spotify.lua
-CONFIG_DIR="$PWD/sketchybar" lua sketchybar/tests/layout.lua
-```
-
-The regression test mocks SketchyBar and covers layout before AeroSpace responds,
-failed/empty/malformed snapshots, per-display highlighting, monitor disconnects
-and reconnects, and overlapping workspace events. It does not verify native
-macOS rendering or the installed SbarLua module.
-
-Home Manager points at `~/.dotfiles/sketchybar`. Changes in another worktree
-are not active until integrated into that checkout. Once active, hotload
-reloads saved edits; an explicit reload and inspection use:
+## Checks
 
 ```sh
-sketchybar --reload
-sketchybar --query defaults
-sketchybar --query widgets.memory
-sketchybar --query pill.memory
-sketchybar --query widgets.spotify
-sketchybar --query widgets.slack
-sketchybar --query widgets.teams
-sketchybar --query widgets.wifi
-sketchybar --query widgets.bluetooth
-sketchybar --query widgets.agents
+just check-sketchybar
 ```
 
-Check icons, pill gaps, memory-label fit, work-app visibility, clicks, and
-workspace highlighting on each display. If the entire bar is still missing, inspect startup errors with:
+This runs `cargo fmt`, `clippy` and the Rust tests, `luac -p` on every Lua
+file, and `tests/layout.lua`, which loads the whole config against a mocked
+SbarLua with fixture data: layout order, rendered values, every menu opening
+and closing, and a display disconnect. It does not check native rendering,
+permissions or the installed SbarLua module.
 
-```sh
-tail /opt/homebrew/var/log/sketchybar/sketchybar.err.log
-tail /opt/homebrew/var/log/sketchybar/sketchybar.out.log
-```
+Inspect a live item with `sketchybar --query <name>`; startup errors are in
+`/opt/homebrew/var/log/sketchybar/sketchybar.err.log`.
 
-On macOS, also send a test notification to each app, check its badge and menu,
-read the message in the app, and check that the badge clears. Try Wi-Fi on/off,
-Bluetooth on/off, and opening another menu while one is open. Linux fixture
-tests cannot verify macOS permissions, app badge publication, or popup geometry.
-
-When passing a required table to SbarLua, bind it to a local first. Since Lua
-5.4, the first `require` returns both the module and loader data, so
-`sbar.bar(require("bar"))` passes an unexpected second argument. The defaults
-module instead applies its properties itself when required.
-
-## SbarLua
-
-Startup expects a Lua-compatible native module at
-`~/.local/share/sketchybar_lua/sketchybar.so`; it does not install or update the
-module automatically. Follow the [SbarLua installation instructions][sbarlua]
-and build with the Lua runtime used to start SketchyBar.
-
-[items]: https://felixkratz.github.io/SketchyBar/config/items
 [sbarlua]: https://github.com/FelixKratz/SbarLua
