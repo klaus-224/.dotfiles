@@ -7,7 +7,7 @@ in the Vague palette. Lua (SbarLua) draws the UI; the Rust helper
 this directory to `~/.config/sketchybar`; `sketchybarrc` loads `init.lua`.
 
 ```text
-[  1 2 3 4 5 app ] [ ▮▮▮ spotify title  󰒮 󰐊 󰒭 | 󰕾 ▮▮▮▯▯ ]      [󰒱 3 󰊻 1] (pilo) (cat) [agent ✳ 81% ▣ 1.2M · mem 69% 48G · bat ▮▮▮▮▯ · wifi home · 04-11 17:30]
+[  1 2 3 4 5 app ] [ ▮▮▮ spotify title  󰒮 󰐊 󰒭 | 󰕾 ▮▮▮▯▯ ]      (pilo) (cat) [󰒱 3 󰊻 1 · agent ✳ 81% ▣ 1.2M · mem 69% 48G · bat ▮▮▮▮▯ · wifi home · 04-11 17:30]
 ```
 
 | Cell | Bar | Menu (click; click anywhere else closes it) |
@@ -15,7 +15,7 @@ this directory to `~/.config/sketchybar`; `sketchybarrc` loads `init.lua`.
 | Left island | one per display: AeroSpace workspaces, front app | — |
 | Media | right of the AeroSpace island: Spotify title, progress fill, EQ, controls | cover, title, artist, time, gauge, controls, open Spotify |
 | Volume | speaker glyph + five cells | slider, mute, output devices, Sound Settings |
-| Slack / Teams | shown only when installed; Slack red / Teams blue while running, grey when not; Dock badge count | recent notification previews; Slack also: current status, presets, clear |
+| Slack / Teams | start of the right island, shown only when installed; Slack red / Teams blue while running, grey when not; Dock badge count | recent notification previews; Slack also: current status, presets, clear |
 | Pilo | face acting out the most urgent agent state | each running agent and its state |
 | Cat | runs faster with CPU load; yellow at high memory | CPU, memory, disk |
 | Agents | Claude / Codex 5-hour usage left, OpenCode tokens today (after the OpenCode mark) | 5h and weekly usage with reset times; OpenCode tokens and cost |

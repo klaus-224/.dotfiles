@@ -141,13 +141,13 @@ local left = position_list("left", 1)
 assert(left:find("^bar.start,workspace.logo.1,workspace.1.1,workspace.1.2,workspace.1.3,workspace.1.4,workspace.1.5,front_app.1"),
   "unexpected left layout: " .. left)
 local right = position_list("right")
-assert(right:find("apps.pad.l,apps.slack,apps.teams,apps.pad.r,gap.apps,pilo,gap.pilo,cpu,gap.cpu,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
+assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.pad.r,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
   1, true), "unexpected right layout: " .. right)
 assert(right:find("battery.5,wifi,clock,clock.edge$"), "right island must end with wifi, clock: " .. right)
 assert(left:find("front_app.1,.-media.gap,media.fill,media.eq.1,media.eq.2,media.eq.3,media,media.prev,media.play,media.next,"
   .. "volume.sep,volume,volume.1,volume.2,volume.3,volume.4,volume.5,volume.pad$"), "media island after AeroSpace: " .. left)
 assert(position_list("q") == "", "nothing left of the notch")
-for _, b in ipairs({ "island.left.1", "island.left.2", "island.media", "island.right", "island.apps", "shield" }) do
+for _, b in ipairs({ "island.left.1", "island.left.2", "island.media", "island.right", "shield" }) do
   assert(items[b] and items[b].kind == "bracket", "missing bracket " .. b)
 end
 

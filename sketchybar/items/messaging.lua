@@ -1,6 +1,7 @@
--- Slack / Teams capsule: [ 󰒱 3   󰊻 1 ]. An app shows only when installed
--- (the capsule disappears when neither is). Slack is red and Teams blue
--- while running, grey when not. The count is the app's Dock badge.
+-- Slack / Teams at the start of the right island: [󰒱 3  󰊻 1   agent …].
+-- An app shows only when installed (both cells and their spacers disappear
+-- when neither is). Slack is red and Teams blue while running, grey when
+-- not. The count is the app's Dock badge.
 -- Menus: recent notification previews; Slack adds its status presets.
 local sbar = require("sketchybar")
 local theme = require("theme")
@@ -20,14 +21,15 @@ local APPS = {
   { key = "slack", app = "Slack", glyph = "\u{F04B1}", color = c.slack, bundle = "com.tinyspeck.slackmacgap" },
 }
 
--- Right side adds right to left: inner right pad, Teams, Slack, inner left pad.
-local pad_r = island.spacer("apps.pad.r", "right", i.inner - 4)
+-- Right side adds right to left: the gap to the agents cell (whose own
+-- padding is the island end padding), Teams, Slack, the island end padding.
+local pad_r = island.spacer("apps.pad.r", "right", i.cell_gap - i.inner)
 local cells = {}
 for n, spec in ipairs(APPS) do
   cells[spec.key] = sbar.add("item", "apps." .. spec.key, {
     position = "right",
     drawing = false,
-    padding_left = n == 1 and 14 or 0, -- Teams keeps the gap to Slack
+    padding_left = 0, -- Teams' gap to Slack is set in sync_cells
     padding_right = 0,
     update_freq = 10,
     updates = true, -- keeps polling while hidden (app not installed yet)
@@ -39,10 +41,12 @@ end
 local pad_l = island.spacer("apps.pad.l", "right", i.inner)
 
 local installed = {}
-local function sync_capsule()
+local function sync_cells()
   local any = installed.slack or installed.teams
   pad_l:set({ drawing = any or false })
   pad_r:set({ drawing = any or false })
+  -- Teams keeps a gap to Slack only when Slack is there.
+  cells.teams:set({ padding_left = installed.slack and 14 or 0 })
 end
 
 local function clock(t)
@@ -129,7 +133,7 @@ local function messaging(spec)
       done()
       if r.error then return end
       installed[spec.key] = r.installed == true
-      sync_capsule()
+      sync_cells()
       local badge = r.badge or ""
       item:set({
         drawing = r.installed == true,
@@ -147,5 +151,4 @@ end
 
 for _, spec in ipairs(APPS) do messaging(spec) end
 
-local capsule = { members = { "apps.pad.l", "apps.slack", "apps.teams", "apps.pad.r" } }
-return capsule
+return { members = { "apps.pad.l", "apps.slack", "apps.teams", "apps.pad.r" } }

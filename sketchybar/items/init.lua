@@ -16,28 +16,29 @@ require("items.aerospace")
 -- Notch queue: the media island with Spotify and the volume.
 require("items.media")
 
--- Right island: [agent … · mem · bat · wifi · date time]
+-- Right island: [slack teams · agent … · mem · bat · wifi · date time]
 require("items.clock")
 require("items.wifi")
 local battery = require("items.battery")
 require("items.memory")
 local agents = require("items.agents")
-island.bracket("island.right", { "agents", "agents.claude", "agents.codex", "agents.opencode",
-  "memory", "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5", "wifi", "clock", "clock.edge" })
+-- Slack and Teams open the island (hidden when neither is installed).
+local messaging = require("items.messaging")
+local right = { "agents", "agents.claude", "agents.codex", "agents.opencode",
+  "memory", "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5", "wifi", "clock", "clock.edge" }
+for k, name in ipairs(messaging.members) do table.insert(right, k, name) end
+island.bracket("island.right", right)
 -- Underlines after the island so they draw on top of its fill.
 battery.underline()
 agents.underline()
 
--- Circles and the Slack/Teams capsule, left of the right island.
+-- Circles, left of the right island.
 island.spacer("gap.cpu", "right", i.gap)
 require("items.cpu")
 if require("config").pilo.enabled then
   island.spacer("gap.pilo", "right", i.gap)
   require("items.pilo")
 end
-island.spacer("gap.apps", "right", i.gap)
-local capsule = require("items.messaging")
-island.bracket("island.apps", capsule.members)
 
 -- macOS 27: clicking an empty part of the bar can raise the bar's own
 -- window over the items (SketchyBar #850). A transparent bracket spanning
