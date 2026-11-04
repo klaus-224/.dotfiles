@@ -43,3 +43,26 @@ clean:
     nix-collect-garbage -d
     sudo nix-collect-garbage -d
     nix store optimise
+
+# Build sbar-helper (SketchyBar's Rust backend) into an ad-hoc signed app
+# bundle, so macOS can grant it Location (Wi-Fi names) and Calendar access.
+# Rebuilding changes the signature: macOS may ask for those again.
+install-sketchybar-helper:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    src={{quote(repo / "sketchybar-helper")}}
+    app="$HOME/.local/share/sketchybar-helper/SketchyBarHelper.app"
+    cargo build --release --locked --manifest-path "$src/Cargo.toml"
+    mkdir -p "$app/Contents/MacOS" "$HOME/.local/bin"
+    cp "$src/Info.plist" "$app/Contents/Info.plist"
+    cp "$src/target/release/sbar-helper" "$app/Contents/MacOS/sbar-helper"
+    codesign --force --sign - "$app" >/dev/null
+    ln -sf "$app/Contents/MacOS/sbar-helper" "$HOME/.local/bin/sbar-helper"
+    echo "Installed $app"
+    command -v sketchybar >/dev/null && sketchybar --reload || true
+
+# Lint and test the SketchyBar helper and Lua config
+check-sketchybar:
+    cd sketchybar-helper && cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
+    for f in sketchybar/*.lua sketchybar/helpers/*.lua sketchybar/items/*.lua sketchybar/tests/*.lua; do luac -p "$f"; done
+    lua sketchybar/tests/layout.lua

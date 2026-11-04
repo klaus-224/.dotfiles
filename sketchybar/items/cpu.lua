@@ -1,67 +1,52 @@
-local sbar = require("sketchybar")
-local settings = require("settings")
-local colors = require("colors")
-local icons = require("icons")
+-- Cat circle: a pixel cat that runs faster as CPU load rises (0.6 s per
+-- frame idle, 0.12 s at 80%+) and turns yellow when memory passes the warn
+-- threshold. Menu SYSTEM: cpu, memory, disk, Activity Monitor.
+local theme = require("theme")
+local helper = require("helpers.helper")
+local island = require("helpers.island")
+local popup = require("helpers.popup")
+local pixels = require("helpers.pixels")
+local stats = require("helpers.stats")
+local ticker = require("helpers.ticker")
 
-local function parse(output)
-  if type(output) ~= "string" then return nil end
-  local user = tonumber(output:match("([%d%.]+)%% user"))
-  local system = tonumber(output:match("([%d%.]+)%% sys"))
-  if not user or not system then return nil end
-  return math.floor(user + system + 0.5)
-end
+local c = theme.colors
+local cat = island.circle("cpu", "right")
 
-local function render(usage)
-  if not usage then
-    return { icon = { color = colors.muted }, label = { string = "" } }
+local cpu, mem = 0, 0
+local frame = 1
+local loop = ticker.every(function()
+  if cpu >= 80 then return 0.12 end
+  return 0.6 - cpu * 0.003
+end, function()
+  frame = frame % 4 + 1
+  local warn = mem >= theme.thresholds.warn and "_warn" or ""
+  cat:set({ background = { image = { string = pixels.path("cat_" .. frame .. warn), drawing = true } } })
+end)
+pixels.when_ready(loop.start)
+
+local menu = popup.new(cat, { title = "SYSTEM", width = require("helpers.text").menu_width(33), underline = island.underline_circle(cat) })
+local cpu_row = menu:row("cpu", { key = "cpu", value = "—" })
+local mem_row = menu:row("mem", { key = "mem", value = "—" })
+local ssd_row = menu:row("ssd", { key = "ssd", value = "—" })
+menu:row("open", { key = "open", value = "Activity Monitor ↗", color = c.text2,
+  on_click = function() helper.open("/System/Applications/Utilities/Activity Monitor.app") end })
+menu:finish()
+menu:bind({ cat })
+
+stats.on(function(s)
+  cpu = tonumber(s.cpu) or 0
+  local m = s.memory or {}
+  mem = tonumber(m.percent) or 0
+  cpu_row:update({ value = cpu .. "%" .. (s.cores and ("  · " .. s.cores .. " cores") or ""),
+                   color = cpu >= theme.thresholds.warn and c.warn or c.text })
+  if m.total_gb then
+    mem_row:update({ value = string.format("%d%%  %.1f/%dG", mem, m.used_gb, m.total_gb),
+                     color = mem >= theme.thresholds.warn and c.warn or c.text })
   end
-
-  local color = colors.yellow
-  if usage > 80 then
-    color = colors.red
-  elseif usage > 50 then
-    color = colors.yellow
+  local d = s.disk
+  if type(d) == "table" then
+    ssd_row:update({ value = string.format("%d / %d GB · %d free", d.used_gb, d.total_gb, d.free_gb) })
   end
-  return { icon = { color = color }, label = { string = usage .. "%" } }
-end
+end)
 
-sbar.add("item", "spacer.cpu", {
-  position = "right",
-  width = settings.group_paddings,
-  icon = { drawing = false },
-  label = { drawing = false },
-  background = { drawing = false },
-})
-
-local item = sbar.add("item", "widgets.cpu", {
-  position = "right",
-  icon = { string = icons.cpu },
-  label = { width = 36 },
-  update_freq = 3,
-})
-
-local function refresh()
-  sbar.exec("/usr/bin/top -l 2 -n 0 -s 1 | /usr/bin/grep 'CPU usage' | /usr/bin/tail -1", function(output, exit_code)
-    local state
-    if exit_code == 0 then
-      local ok, parsed = pcall(parse, output)
-      if ok then state = parsed end
-    end
-    item:set(render(state))
-  end)
-end
-
-item:subscribe({ "routine", "forced" }, refresh)
-refresh()
-
-sbar.add("bracket", "pill.cpu", { "widgets.cpu" },
-  {
-    blur_radius = settings.blur_radius,
-    background = {
-      drawing = true,
-      color = colors.pill_bg,
-    },
-  }
-)
-
-return item
+return cat
