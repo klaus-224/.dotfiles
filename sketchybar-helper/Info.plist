@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>local.dotfiles.sketchybar-helper</string>
+  <key>CFBundleName</key><string>SketchyBar Helper</string>
+  <key>CFBundleDisplayName</key><string>SketchyBar Helper</string>
+  <key>CFBundleExecutable</key><string>sbar-helper</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSLocationUsageDescription</key><string>Reads nearby Wi-Fi names so the SketchyBar Wi-Fi menu can list saved networks in range. Location is never stored or sent.</string>
+  <key>NSLocationWhenInUseUsageDescription</key><string>Reads nearby Wi-Fi names so the SketchyBar Wi-Fi menu can list saved networks in range. Location is never stored or sent.</string>
+  <key>NSCalendarsFullAccessUsageDescription</key><string>Shows today's events in the SketchyBar calendar menu. Events are read locally and never stored or sent.</string>
+  <key>NSCalendarsUsageDescription</key><string>Shows today's events in the SketchyBar calendar menu. Events are read locally and never stored or sent.</string>
+</dict>
+</plist>

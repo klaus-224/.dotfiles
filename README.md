@@ -255,22 +255,10 @@ sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ## Window Management
 
 - AeroSpace manages tiled windows and workspaces.
-- JankyBorders highlights the focused window.
-- SketchyBar displays workspace, app, system, and clock pills.
+- JankyBorders draws a faint rim on the focused window.
+- SketchyBar draws the island bar: workspaces, media, messaging, agents and
+  system status.
 
-<<<<<<< HEAD
-Named workspace groups include `code`, `browse`, `music`, `slack`, `discord`,
-and `teams`. Use `option-c/b/m/s/t` to switch to the corresponding group, and
-`option-tab` to change monitors. Group buttons perform the same actions through
-`scripts/aerospace-groups.sh`; both routes intentionally require two connected
-displays.
-
-Configuration lives in `aerospace/aerospace.toml`, `borders/bordersrc`, and
-`sketchybar/`. Home Manager links these directories into `~/.config`. See the
-[SketchyBar guide](sketchybar/README.md) for its module layout and shared style
-settings. After a configuration change, reload AeroSpace or restart the
-Homebrew services:
-=======
 Workspace assignments:
 
 - `1`: Ghostty
@@ -283,6 +271,7 @@ Workspace assignments:
 - Move the focused window: `option-shift-h/j/k/l`.
 - Switch workspaces: `option-1` through `option-5`.
 - Move a window to a workspace: add `shift` to its workspace shortcut.
+- Focus the next monitor: `option-tab`.
 
 - `scripts/aerospace-home.sh` switches to an app's home workspace and opens or
   focuses the app.
@@ -295,8 +284,9 @@ Workspace assignments:
 - Configuration: `aerospace/aerospace.toml`, `borders/bordersrc`, and
   `sketchybar/`.
 - Home Manager links these paths into `~/.config`.
+- See the [SketchyBar guide](sketchybar/README.md) for its layout, theme and
+  data sources.
 - After a change, reload AeroSpace or restart the services:
->>>>>>> main
 
 ```sh
 aerospace reload-config
