@@ -76,6 +76,45 @@ local function item_names(display)
   return names
 end
 
+-- A display SketchyBar still lists after macOS dropped it (closing the lid
+-- with an external display attached): arrangement-id 0, DirectDisplayID 0.
+local function is_ghost(record)
+  local display = tonumber(record["arrangement-id"])
+  return not display or display < 1 or display % 1 ~= 0 or tonumber(record.DirectDisplayID) == 0
+end
+
+local function has_ghost(records)
+  for _, record in ipairs(type(records) == "table" and records or {}) do
+    if type(record) ~= "table" or is_ghost(record) then return true end
+  end
+  return false
+end
+
+-- SketchyBar keeps a bar window for the ghost, placed over the real display
+-- with the old geometry: a second set of islands appears and that window
+-- swallows clicks, so menus stop opening. Only a restart of the SketchyBar
+-- process rebuilds its display list. Checked again after a pause (displays
+-- settle a moment after wake or lid close) and at most once a minute.
+local restart_scheduled = false
+local function restart_if_ghost()
+  if restart_scheduled or not config.service then return end
+  restart_scheduled = true
+  sbar.delay(3, function()
+    restart_scheduled = false
+    if not has_ghost(sbar.query("displays")) then return end
+    local stamp = (os.getenv("HOME") or "") .. "/.cache/sketchybar/restart-stamp"
+    local f = io.open(stamp, "r")
+    local last = f and tonumber(f:read("l")) or 0
+    if f then f:close() end
+    if os.time() - last < 60 then return end
+    os.execute("/bin/mkdir -p " .. quote(stamp:match("(.*)/")))
+    f = io.open(stamp, "w")
+    if f then f:write(os.time(), "\n"); f:close() end
+    sbar.exec("/usr/bin/nohup /bin/launchctl kickstart -k " .. quote("gui/" .. config.uid .. "/" .. config.service)
+      .. " >/dev/null 2>&1 &")
+  end)
+end
+
 local function sync_displays()
   -- Build the layout from SketchyBar, even while AeroSpace is unavailable.
   local records = sbar.query("displays")
@@ -83,12 +122,14 @@ local function sync_displays()
 
   local active, order = {}, {}
   for _, record in ipairs(records) do
-    if type(record) ~= "table" then return end
-    local display = tonumber(record["arrangement-id"])
-    if not display or display < 1 or display % 1 ~= 0 then return end
-    if not active[display] then order[#order + 1] = display end
-    active[display] = true
+    if type(record) == "table" and not is_ghost(record) then
+      local display = tonumber(record["arrangement-id"])
+      if not active[display] then order[#order + 1] = display end
+      active[display] = true
+    end
   end
+  if has_ghost(records) then restart_if_ghost() end
+  if #order == 0 then return end
   table.sort(order)
 
   for display, group in pairs(displays) do

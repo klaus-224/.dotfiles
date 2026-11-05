@@ -9,6 +9,17 @@ return {
     home .. "/.local/bin/sbar-helper",
   },
 
+  -- launchd job that runs SketchyBar (`brew services`). The bar restarts
+  -- itself through it when macOS leaves a ghost display behind (lid closed
+  -- on an external display). nil turns that off.
+  service = "sh.brew.sketchybar",
+  uid = (function()
+    local p = io.popen("/usr/bin/id -u")
+    local uid = p and p:read("l")
+    if p then p:close() end
+    return uid or "501"
+  end)(),
+
   logo = "\u{F179}", -- left end of each left island (Nerd Font Apple logo)
   aerospace = "/opt/homebrew/bin/aerospace",
   workspaces = { "1", "2", "3", "4", "5" },
