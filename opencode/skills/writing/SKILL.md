@@ -64,19 +64,26 @@ The paths below are relative to this skill's base directory. OpenCode supplies
 that directory when it loads this skill. Resolve it before calling a script;
 do not assume the shell starts here or hard-code a project installation path.
 
+Write every input JSON, SVG, and HTML file to a scratch directory under `/tmp`
+on the user's machine, such as `/tmp/writing/<task-slug>/`. Do not write them into
+the repository or the skill directory, and do not commit them. If the user wants a
+diagram in a PR, issue, or doc, embed it there (for example as a Mermaid block that
+GitHub renders) or ask before adding the file to the repository.
+
 1. Identify the user's question and the one conclusion they should take away.
 2. Sketch the explanation: answer, mechanism, example, evidence, and next action.
    Include only the parts that serve this particular task.
 3. Read `references/tools.md`. Read `examples/explanation.json` for a complete
    input example. Supporting files are not automatically in your context.
-4. Write a JSON document in the active workspace. Use plain text in its fields.
-5. Run the renderer through OpenCode's `shell` tool. Set its working directory
-   to the active workspace. Substitute the actual absolute skill path below:
+4. Write a JSON document in `/tmp/writing/<task-slug>/`. Use plain text in its fields.
+5. Run the renderer through OpenCode's `shell` tool. Substitute the actual
+   absolute skill path and task slug below:
 
    ```sh
+   out=/tmp/writing/<task-slug>
    python3 "/absolute/skill/base/scripts/render_html.py" \
-     "work/explanation.json" --output "output/explanation.html"
-   python3 "/absolute/skill/base/scripts/check_html.py" "output/explanation.html"
+     "$out/explanation.json" --output "$out/explanation.html"
+   python3 "/absolute/skill/base/scripts/check_html.py" "$out/explanation.html"
    ```
 
    The renderer creates parent directories and refuses to replace an existing
@@ -106,6 +113,7 @@ give the explanation in chat and state the artifact limitation briefly.
   sequence for exchanges, a table for tradeoffs, a chart for quantitative evidence.
 - Use the bundled `flow` or `sequence` SVG renderer for small diagrams. Both work
   offline. Split a large system into a small overview and focused diagrams.
+  Render diagram JSON and SVG into `/tmp/writing/<task-slug>/`, not the repository.
 - Label each arrow with its meaning when the relationship is not obvious.
   Keep names consistent with the prose. Do not invent connections or numbers.
 - Add a caption that states what the user should notice. Include an equivalent

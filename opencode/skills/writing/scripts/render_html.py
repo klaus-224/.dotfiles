@@ -9,6 +9,18 @@ from render_diagram import render as diagram_svg, relationships
 BASE = Path(__file__).resolve().parent.parent
 
 
+# A short name such as ai-agent-gateway or apps/platform breaks at its hyphens
+# or slashes in a narrow column; keep it on one line. Longer ones may break.
+NOBR = re.compile(r'\S*[-/]\S*')
+
+
+def cell(value):
+    def keep(match):
+        word = match.group(0)
+        return f'<span class="nobr">{word}</span>' if len(word) <= 30 else word
+    return NOBR.sub(keep, esc(text(value, 'table cell')))
+
+
 class Renderer:
     def __init__(self, sources):
         self.sources = sources
@@ -47,7 +59,7 @@ class Renderer:
             rows = []
             for row in array(b['rows'], 'table.rows'):
                 array(row, 'table row', len(headers), len(headers))
-                rows.append('<tr>' + ''.join(f'<td>{esc(text(c, "table cell"))}</td>' for c in row) + '</tr>')
+                rows.append('<tr>' + ''.join(f'<td>{cell(c)}</td>' for c in row) + '</tr>')
             content = (f'<div class="overflow" tabindex="0" role="region" aria-label="{caption}">'
                        f'<table><caption>{caption}</caption><thead><tr>{head}</tr></thead>'
                        f'<tbody>{"".join(rows)}</tbody></table></div>')
