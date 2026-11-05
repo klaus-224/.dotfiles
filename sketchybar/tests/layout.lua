@@ -218,4 +218,16 @@ items["aerospace.observer"].handlers["display_change"]({})
 drain()
 assert(not items["workspace.logo.2"], "disconnected display retained")
 
+-- A ghost display (lid closed on an external display) is skipped, not a
+-- reason to drop every island, and asks for a restart after a pause.
+display_list = { { ["arrangement-id"] = 1, DirectDisplayID = 5 }, { ["arrangement-id"] = 0, DirectDisplayID = 0 } }
+local delays_before = #delays
+items["aerospace.observer"].handlers["display_change"]({})
+drain()
+assert(items["workspace.logo.1"] and not items["workspace.logo.0"], "ghost display handled")
+assert(#delays == delays_before + 1, "ghost display schedules a restart check")
+display_list = { { ["arrangement-id"] = 1, DirectDisplayID = 5 } }
+delays[#delays]()
+for _, e in ipairs(pending_exec) do assert(not e.command:find("kickstart"), "restarted without a ghost") end
+
 print("PASS: layout, rendered values, menus, display changes")
