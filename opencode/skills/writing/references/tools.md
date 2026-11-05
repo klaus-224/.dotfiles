@@ -3,7 +3,8 @@
 Run these scripts with Python 3.10 or later through OpenCode v2's `shell` tool.
 They use only Python's standard library. Use the base directory supplied when the
 skill loads. The following commands assume that directory is the working directory;
-otherwise use absolute script paths and workspace-relative input/output paths.
+otherwise use absolute script paths. For real tasks, put input and output files in
+`/tmp/writing/<task-slug>/` on the user's machine, never in the repository.
 
 ```sh
 python3 scripts/render_html.py examples/explanation.json --output demo.html
@@ -120,6 +121,13 @@ design, edit `templates/page.html`, `templates/style.css`, or
 `templates/interaction.js`. The HTML template uses Python `string.Template` tokens:
 use `$$` for a literal dollar sign in the template. CSS and JavaScript files are
 inserted as values, so their own dollar signs need no escaping.
+
+Pages open in the dark theme. A `Light theme` switch in the header changes it,
+and the choice is kept in the browser's local storage. Print always uses light
+colors. All colors are variables in the `:root` (dark) and
+`:root[data-theme="light"]` blocks of `style.css`; change them there, not in
+individual rules. Diagrams use the same `--diagram-*` variables, with light
+fallbacks so a standalone SVG still renders.
 
 Run the bundled checks:
 

@@ -1,16 +1,23 @@
 <!doctype html>
-<html lang="$lang">
+<html lang="$lang" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="dark light">
+<script>
+/* Apply a saved theme before the page paints. Dark is the default. */
+try {
+  var saved = localStorage.getItem('writing-theme');
+  if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+} catch (error) {}
+</script>
 <title>$title</title>
 <style>$css</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to explanation</a>
 <div class="page">
-<header><p class="eyebrow">$eyebrow</p><h1>$title</h1><p class="lead">$summary</p></header>
+<header><div class="header-top"><p class="eyebrow">$eyebrow</p><button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" hidden>Light theme</button></div><h1>$title</h1><p class="lead">$summary</p></header>
 <div class="layout">
 <aside><nav aria-label="Contents"><p class="nav-label">IN THIS EXPLANATION</p><ol>$nav</ol></nav></aside>
 <main id="main">$content$sources</main>
