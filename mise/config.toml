@@ -3,6 +3,9 @@ MISE_RUSTUP_HOME = "{{env.HOME}}/.local/share/rustup"
 MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 
 [tools]
+# for mise cargo backend so that cargo install fast
+cargo-binstall = "1.26.2"
+
 # cli tools
 "github:backnotprop/plannotator" = "latest"
 "npm:ctx7" = "latest"
@@ -13,7 +16,6 @@ MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 "cargo:abtop" = "latest"
 "cargo:mandible" = "latest"
 "cargo:leaf-markdown-viewer" = "latest"
-
 
 # Runtimes
 node = "26.12.1"

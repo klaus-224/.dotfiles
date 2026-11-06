@@ -52,16 +52,20 @@ def save(path, content, overwrite=False):
     return target.resolve()
 
 
-def run_cli(description, render):
+def run_cli(description, render, targets=None):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('input', help='UTF-8 JSON input file')
     parser.add_argument('--output', required=True, help='Output file path')
     parser.add_argument('--overwrite', action='store_true', help='Replace the chosen output file')
+    if targets:
+        parser.add_argument('--target', choices=targets, default=targets[0],
+                            help='page: standalone HTML file; artifact: fragment for a claude.ai artifact')
     args = parser.parse_args()
     try:
         if Path(args.input).resolve() == Path(args.output).resolve():
             raise ValueError('input and output must be different files')
-        result = render(load_json(args.input))
+        data = load_json(args.input)
+        result = render(data, target=args.target) if targets else render(data)
         print(save(args.output, result, args.overwrite))
     except (OSError, ValueError, RecursionError) as error:
         print(f'error: {error}', file=sys.stderr)

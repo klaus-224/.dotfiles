@@ -96,6 +96,31 @@ GitHub renders) or ask before adding the file to the repository.
    Describe what the artifact helps them understand. Do not paste the HTML source
    into chat unless requested. Do not claim it was opened or published unless it was.
 
+### Publishing as a claude.ai artifact
+
+When the page will be published as a claude.ai artifact, render it with
+`--target artifact` and check it with the same target:
+
+```sh
+python3 "/absolute/skill/base/scripts/render_html.py" \
+  "$out/explanation.json" --output "$out/explanation.html" --target artifact
+python3 "/absolute/skill/base/scripts/check_html.py" --target artifact "$out/explanation.html"
+```
+
+The host adds its own doctype, `html`, `head` and `body`, and most viewers leave
+its theme on "system". The artifact target therefore writes a fragment that starts
+with `<title>`, keeps this skill's palette and theme switch, and follows the viewer's
+system theme until they choose one. Publish that file as it is:
+
+- Do not hand-write a replacement page or replace the template's colors. Change
+  the look in `templates/style.css` so both targets keep it.
+- If a diagram does not render well, fix its JSON (fewer nodes, shorter labels) or
+  split it before writing custom SVG. Custom SVG must use the `--diagram-*` tokens.
+- Republish edits from the same file path so the artifact keeps its URL.
+- Mark files, commands and names with backticks, categories with `[[tag]]` or
+  `[[!tag]]`, and limits or gaps with a `note` block. Highlight one or two key
+  nodes per diagram with `"key": true`. See `references/tools.md`.
+
 Python 3.10+ is the only runtime dependency. The default output has embedded CSS,
 SVG, and a small optional walkthrough script. It needs no network connection.
 

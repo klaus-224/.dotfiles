@@ -1,20 +1,27 @@
-/* Theme switch: dark by default; the choice is kept in localStorage when it is available. */
+/* Theme switch. A saved choice wins. Without one, the standalone page opens dark
+   (data-theme="dark" in its template) and an artifact follows the viewer's system theme. */
 (() => {
   const toggle = document.querySelector('[data-theme-toggle]');
   if (!toggle) return;
   const root = document.documentElement;
+  const system = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  try {
+    const saved = localStorage.getItem('writing-theme');
+    if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+  } catch (error) {}
+  const current = () => root.dataset.theme || (system && system.matches ? 'light' : 'dark');
   function update() {
-    const light = root.dataset.theme === 'light';
-    toggle.setAttribute('aria-pressed', String(light));
+    toggle.setAttribute('aria-pressed', String(current() === 'light'));
     toggle.textContent = 'Light theme';
   }
   toggle.addEventListener('click', () => {
-    root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = current() === 'light' ? 'dark' : 'light';
     try {
       localStorage.setItem('writing-theme', root.dataset.theme);
     } catch (error) {}
     update();
   });
+  if (system && system.addEventListener) system.addEventListener('change', update);
   toggle.hidden = false;
   update();
 })();
