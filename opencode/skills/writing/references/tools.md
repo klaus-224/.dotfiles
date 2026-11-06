@@ -13,6 +13,8 @@ python3 scripts/check_html.py demo.html
 ```
 
 `render_html.py` and `render_diagram.py` accept `--overwrite` for intended revisions.
+`render_html.py --target artifact` writes a claude.ai artifact fragment instead of a
+standalone file; check it with `check_html.py --target artifact`. See "Targets" below.
 They print the absolute output path on success. Invalid JSON, unsupported fields,
 bad diagrams, and filesystem failures exit with status 2. They refuse to overwrite
 their input or replace existing output by default. An invalid render does not
@@ -55,6 +57,18 @@ Optional document fields:
 The default interface labels are English. For another language, translate the
 template and fixed UI strings as well as setting `lang` and translating the content.
 
+Text fields accept three inline marks; everything else stays plain text:
+
+| Mark | Renders as | Use it for |
+| --- | --- | --- |
+| `` `code` `` | Code chip | Files, commands, flags, branch names, hosts |
+| `[[tag]]` | Blue pill | A category or status, such as `[[flaky]]` |
+| `[[!tag]]` | Red pill | A category or status that needs attention, such as `[[!pr-specific]]` |
+
+Marks work in paragraphs, list items, table cells and captions, figure captions,
+step text, the summary and the title. The document `<title>` and ARIA labels get
+the text without the marks.
+
 Use 1–30 sections and 1–100 blocks per block list. These are guardrails, not targets;
 prefer a small document. Each section has `title` and `blocks`. Each block has a
 `type` and the fields below. Every block also accepts optional `cite: [1, 2]`, which
@@ -70,6 +84,7 @@ Keep citations attached to the block with the supported claim.
 | `diagram` | `data`: diagram object, `caption` | Embedded SVG and text equivalent |
 | `details` | `summary`, `blocks` | Native expandable detail; nesting limited to six levels |
 | `steps` | `title`, `items`: objects with `title` and `text` | Previous/next walkthrough; all steps remain present without JavaScript |
+| `note` | `label`, `blocks`; optional `tone`: `warn` (default, red) or `info` | Highlighted box for a limit, gap or warning the reader must not miss |
 
 Keep key findings outside `details`. Each diagram's text equivalent includes its
 description and generated relationships. Walkthrough controls use native buttons
@@ -96,16 +111,26 @@ Use the same object as `diagram.data` or pass it directly to `render_diagram.py`
 }
 ```
 
-- `flow` arranges a directed acyclic graph from top to bottom. Branches and merges
-  work. Node order controls order within a row. Cycles and self edges are rejected.
+- `flow` arranges a directed acyclic graph from top to bottom with right-angle edges.
+  Branches and merges work. Node order controls order within a row. Cycles and self
+  edges are rejected. Edges that leave or enter one box are spread along its edge.
+- A flow node accepts `"key": true` to highlight it. Parts of a node label in
+  backticks render as their own monospace lines and wrap after `/`, which suits
+  paths. Keep backtick parts whole lines: `` `collect.py` parse, clean `` reads well;
+  `` `broken` or `flaky` `` splits into three lines.
 - `sequence` places participants in node order and messages in edge order. Opposing
   message directions are supported. Self messages are unsupported.
 - Flow accepts up to 16 nodes; sequence accepts up to 8. Both accept 0–32 edges.
 - IDs must be unique and match `[A-Za-z][A-Za-z0-9_-]*`. Edge endpoints must exist.
 - Node labels accept up to 100 characters; edge labels accept up to 60. Prefer
   much shorter labels. Titles and descriptions are required for accessibility.
-- These layouts are intentionally simple. Dense graphs, long edges that skip
-  levels, and many crossings need visual inspection or a custom layout.
+- An edge that skips rows gets an empty lane in each row it crosses, so it never
+  runs through another box. Rows with lanes are ordered by their parents' positions.
+- Labels of edges that leave one node sit near their targets; labels of edges that
+  enter one node sit near their sources. Each label sits beside its line, on the
+  side the edge bends toward. This keeps sibling labels apart and off the lines.
+- These layouts are intentionally simple. Dense graphs and many crossings still
+  need visual inspection or a custom layout.
   Split an unreadable diagram rather than shrinking its labels.
 
 For a custom chart, cyclic graph, or simulation, use the generated HTML as a
@@ -113,6 +138,21 @@ starting point or write standalone HTML directly. Keep CSS, scripts, and SVG loc
 or embedded, label assumptions, and preserve keyboard and noninteractive access.
 Re-run the checker after edits and inspect the result. The tool does not accept
 arbitrary raw HTML, CSS, JavaScript, external SVG, or Mermaid in JSON fields.
+
+## Targets
+
+| Target | Output | Theme |
+| --- | --- | --- |
+| `page` (default) | Standalone HTML file with doctype, `head`, `body` and viewport | Opens dark; the switch changes it |
+| `artifact` | Fragment for a claude.ai artifact: `<title>`, viewport-sides meta, `<style>`, page markup, `<script>` | Follows the viewer's system theme; a saved switch choice wins |
+
+Both targets share `templates/style.css` and `templates/interaction.js`. The artifact
+target reuses the `:root[data-theme="light"]` tokens under
+`@media (prefers-color-scheme: light)`, restores the page font over the host's 14px
+body rule, and pads the sides with `max(16px, env(safe-area-inset-*))` on phones.
+Its template is `templates/artifact.html`. In artifact mode, `check_html.py` requires
+the skeleton tags to be absent, the title within the first 8 KB, and theme-aware CSS.
+It allows a Google Fonts stylesheet.
 
 ## Editing and verification
 

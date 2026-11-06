@@ -14,10 +14,10 @@ harness that loads skills from this folder can use it. Point the agent at
 | `SKILL.md` | Writing principles and the steps for producing an HTML explanation |
 | `references/tools.md` | JSON input format, bounds, and limitations of the renderers |
 | `examples/` | Sample inputs for an HTML page (`explanation.json`) and a diagram (`diagram.json`) |
-| `scripts/render_html.py` | Renders an explanation JSON into a standalone HTML page |
+| `scripts/render_html.py` | Renders an explanation JSON into a standalone HTML page, or a claude.ai artifact fragment with `--target artifact` |
 | `scripts/render_diagram.py` | Renders a small `flow` or `sequence` diagram as standalone SVG |
 | `scripts/check_html.py` | Static checks on a generated page |
-| `templates/` | Page template, CSS, and walkthrough script embedded in generated pages |
+| `templates/` | Page and artifact templates, CSS, and walkthrough script embedded in generated pages |
 
 Python 3.10+ is needed only for the scripts. They use the standard library, need
 no network access, and do not install or register anything.
