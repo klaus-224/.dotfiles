@@ -12,16 +12,14 @@ font-family = Iosevka Term
 font-thicken = true
 font-size = 16
 bold-is-bright = true
-
 cursor-color = #f8ce9d
 cursor-opacity = 1
 
-background-opacity = 0.65
-background-blur = macos-glass-regular
+background-opacity = 0.82
+background-blur = macos-glass-clear
 background-opacity-cells = true
 unfocused-split-opacity = 0.85
 
-# selection-background = #0a385c
 
 # ---- Window ----
 window-padding-x = 2
