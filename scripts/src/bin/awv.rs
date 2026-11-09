@@ -4,87 +4,76 @@
 //! S3, ECS Fargate, Step Functions, and IAM.
 //! Dependencies: aws CLI v2, fzf, dasel
 
-use std::env;
 use std::process::{Command, Stdio, exit};
 
-use dotfiles_scripts::{capture, die, exit_like, filter, has_command, shell_quote, status};
+use clap::{Parser, ValueEnum};
+use dotfiles_scripts::{capture, exit_like, filter, has_command, shell_quote, status};
 
-const USAGE: &str = "\
-awv — AWS Resource Viewer
+/// AWS Resource Viewer: browse AWS resources with fzf.
+///
+/// If no command is given, an interactive picker is shown.
+#[derive(Parser)]
+struct Cli {
+    /// AWS profile to use (passed to all aws calls).
+    #[arg(long, value_name = "NAME")]
+    profile: Option<String>,
+    /// Auth mode used when the AWS session has expired.
+    #[arg(long, env = "AWV_AUTH_MODE", default_value = "login")]
+    auth: AuthMode,
+    command: Option<Service>,
+}
 
-Usage: awv [--profile <profile>] [--auth login|sso] <command>
+#[derive(Clone, Copy, ValueEnum)]
+enum AuthMode {
+    Login,
+    Sso,
+}
 
-Commands:
-  stacks    CloudFormation stacks (list, resources, outputs, events)
-  s3        S3 buckets and object browser
-  ecs       ECS Fargate clusters, services, and tasks
-  sfn       Step Functions state machines and executions
-  iam       IAM roles, users, and policies
-
-Options:
-  --profile <name>   AWS profile to use (passed to all aws calls)
-  --auth <mode>      Auth mode to use: login or sso
-                     Defaults to AWV_AUTH_MODE, or login if unset
-
-If no command is given, an interactive picker is shown.";
+#[derive(Clone, Copy, ValueEnum)]
+enum Service {
+    /// CloudFormation stacks (list, resources, outputs, events)
+    Stacks,
+    /// S3 buckets and object browser
+    S3,
+    /// ECS Fargate clusters, services, and tasks
+    Ecs,
+    /// Step Functions state machines and executions
+    Sfn,
+    /// IAM roles, users, and policies
+    Iam,
+}
 
 fn main() {
+    let cli = Cli::parse();
     check_deps();
 
-    let mut awv = Awv {
-        opts: Vec::new(),
-        auth_mode: env::var("AWV_AUTH_MODE").unwrap_or_else(|_| "login".to_owned()),
+    let awv = Awv {
+        opts: cli
+            .profile
+            .map(|profile| vec!["--profile".to_owned(), profile])
+            .unwrap_or_default(),
+        auth_mode: cli.auth,
     };
-
-    let mut args = env::args().skip(1).peekable();
-    while let Some(option) = args.next_if(|arg| arg.starts_with('-')) {
-        match option.as_str() {
-            "--profile" => {
-                let profile = args
-                    .next()
-                    .filter(|value| !value.is_empty())
-                    .unwrap_or_else(|| die("awv: --profile requires a value"));
-                awv.opts.extend(["--profile".to_owned(), profile]);
-            }
-            "--auth" => {
-                awv.auth_mode = args
-                    .next()
-                    .filter(|value| !value.is_empty())
-                    .unwrap_or_else(|| die("awv: --auth requires a value: login or sso"));
-                if !matches!(awv.auth_mode.as_str(), "login" | "sso") {
-                    invalid_auth_mode(&awv.auth_mode);
-                }
-            }
-            "--help" | "-h" => {
-                println!("{USAGE}");
-                return;
-            }
-            _ => die(format!("awv: unknown option: {option}")),
-        }
-    }
 
     awv.require_session();
 
-    let Some(command) = args.next().or_else(|| {
-        awv.fzf(
+    let picked = || {
+        let name = awv.fzf(
             &lines(["stacks", "s3", "ecs", "sfn", "iam"]),
             &["--header=awv — pick a service", "--prompt=awv> "],
-        )
-    }) else {
+        )?;
+        Service::from_str(name.trim(), false).ok()
+    };
+    let Some(command) = cli.command.or_else(picked) else {
         return;
     };
 
-    match command.as_str() {
-        "stacks" => awv.stacks(),
-        "s3" => awv.s3(),
-        "ecs" => awv.ecs(),
-        "sfn" => awv.sfn(),
-        "iam" => awv.iam(),
-        _ => {
-            eprintln!("awv: unknown command: {command}");
-            println!("{USAGE}");
-            exit(1);
-        }
+    match command {
+        Service::Stacks => awv.stacks(),
+        Service::S3 => awv.s3(),
+        Service::Ecs => awv.ecs(),
+        Service::Sfn => awv.sfn(),
+        Service::Iam => awv.iam(),
     }
 }
 
@@ -100,16 +89,10 @@ fn check_deps() {
     }
 }
 
-fn invalid_auth_mode(mode: &str) -> ! {
-    eprintln!("awv: invalid auth mode: {mode}");
-    eprintln!("awv: expected one of: login, sso");
-    exit(1);
-}
-
 struct Awv {
     /// Global options passed to every aws call, such as `--profile`.
     opts: Vec<String>,
-    auth_mode: String,
+    auth_mode: AuthMode,
 }
 
 impl Awv {
@@ -158,10 +141,9 @@ impl Awv {
 
         eprintln!("AWS session expired or not configured.");
 
-        let login: &[&str] = match self.auth_mode.as_str() {
-            "login" => &["login"],
-            "sso" => &["sso", "login"],
-            mode => invalid_auth_mode(mode),
+        let login: &[&str] = match self.auth_mode {
+            AuthMode::Login => &["login"],
+            AuthMode::Sso => &["sso", "login"],
         };
         eprintln!("Running: aws {} {}", login.join(" "), self.opts.join(" "));
         let login = status(&mut self.aws(login));
@@ -632,6 +614,12 @@ fn parent_prefix(prefix: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 
     #[test]
     fn parent_prefix_moves_up_one_level() {
