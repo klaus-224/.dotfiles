@@ -2,26 +2,37 @@
 //!
 //! Usage: cwt current|main branch [prompt]
 
-use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
+use clap::{Parser, ValueEnum};
 use dotfiles_scripts::{die, read, run, status};
 
-const USAGE: &str = "Usage: cwt current|main branch [prompt]";
+/// Create a sibling Git worktree and optionally dispatch Claude into it.
+#[derive(Parser)]
+struct Cli {
+    /// Start from this checkout's HEAD, or from fetched origin/main.
+    mode: Mode,
+    /// New branch name; the worktree goes to <repo>-worktrees/<branch>.
+    branch: String,
+    /// Prompt for `claude --bg` in the new worktree.
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    prompt: Vec<String>,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum Mode {
+    Current,
+    Main,
+}
 
 fn main() {
-    let mut args = env::args().skip(1);
-    let mode = args
-        .next()
-        .filter(|arg| !arg.is_empty())
-        .unwrap_or_else(|| die(USAGE));
-    let branch = args
-        .next()
-        .filter(|arg| !arg.is_empty())
-        .unwrap_or_else(|| die("cwt: Missing branch name"));
-    let prompt: Vec<String> = args.collect();
+    let Cli {
+        mode,
+        branch,
+        prompt,
+    } = Cli::parse();
 
     run(Command::new("git")
         .args(["check-ref-format", "--branch", &branch])
@@ -35,13 +46,12 @@ fn main() {
     .unwrap_or_else(|| die("cwt: could not find the main worktree"));
     let path = worktree_path(&root, &branch);
 
-    let base = match mode.as_str() {
-        "current" => "HEAD",
-        "main" => {
+    let base = match mode {
+        Mode::Current => "HEAD",
+        Mode::Main => {
             run(Command::new("git").args(["fetch", "origin", "main"]));
             "origin/main"
         }
-        _ => die("Expected current or main"),
     };
 
     if let Some(parent) = path.parent() {
@@ -100,6 +110,18 @@ fn worktree_path(root: &Path, branch: &str) -> PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
+
+    #[test]
+    fn prompt_keeps_words_that_start_with_a_dash() {
+        let cli = Cli::try_parse_from(["cwt", "main", "fix/x", "Fix", "-v", "flag"]).unwrap();
+        assert_eq!(cli.prompt, ["Fix", "-v", "flag"]);
+    }
 
     #[test]
     fn main_worktree_is_the_first_entry() {

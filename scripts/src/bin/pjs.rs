@@ -11,10 +11,16 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use clap::Parser;
 use dotfiles_scripts::{die, filter, run};
 use serde_json::Value;
 
+/// Pick a script from the nearest package.json with fzf and run it.
+#[derive(Parser)]
+struct Cli {}
+
 fn main() {
+    Cli::parse();
     let cwd = env::current_dir().unwrap_or_else(|err| die(format!("pjs: {err}")));
     let dir = package_dir(&cwd).unwrap_or_else(|| die("Error: No package.json found"));
     let pkg = dir.join("package.json");
@@ -78,6 +84,12 @@ fn scripts(manifest: &str) -> serde_json::Result<Vec<(String, String)>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 
     #[test]
     fn scripts_keep_file_order() {

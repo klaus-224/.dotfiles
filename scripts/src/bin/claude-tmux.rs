@@ -9,16 +9,16 @@ use std::env;
 use std::path::Path;
 use std::process::Command;
 
+use clap::Parser;
 use serde_json::Value;
 
 use dotfiles_scripts::{die, filter, has_command, read, run};
 
-const USAGE: &str = "\
-Usage: claude-tmux
-
-Pick a Claude background session (`claude agents --json --all`) and open it
-in a new tmux window: nvim on the left, a shell top right, and
-`claude attach <id>` bottom right, all in the session's directory.";
+/// Pick a Claude background session (`claude agents --json --all`) and open it
+/// in a new tmux window: nvim on the left, a shell top right, and
+/// `claude attach <id>` bottom right, all in the session's directory.
+#[derive(Parser)]
+struct Cli {}
 
 /// Runs in the Claude pane. The id arrives as `$1`, never as shell text, and the
 /// pane falls back to a shell so attach errors stay readable.
@@ -33,14 +33,7 @@ struct Session {
 }
 
 fn main() {
-    match env::args().nth(1).as_deref() {
-        None => {}
-        Some("--help" | "-h") => {
-            println!("{USAGE}");
-            return;
-        }
-        Some(arg) => die(format!("claude-tmux: unexpected argument: {arg}\n{USAGE}")),
-    }
+    Cli::parse();
 
     if env::var_os("TMUX").is_none() {
         die("claude-tmux: run this inside tmux");
@@ -225,7 +218,6 @@ fn open_window(target: &str, session: &Session) {
         &dir,
     ]));
 
-
     run(&mut tmux(&["select-window", "-t", window]));
     run(&mut tmux(&["select-pane", "-t", claude]));
 }
@@ -233,6 +225,12 @@ fn open_window(target: &str, session: &Session) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 
     #[test]
     fn parse_sessions_keeps_usable_background_sessions() {

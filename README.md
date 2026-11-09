@@ -134,9 +134,11 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
 
 ## Helper scripts
 
-- Helpers such as `cwt`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
+- Helpers such as `cwt`, `gbd`, `gwd`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
   shared process helpers live in `scripts/src/lib.rs`.
-- Add a helper by creating `scripts/src/bin/<name>.rs`.
+- Add a helper by creating `scripts/src/bin/<name>.rs`. Parse arguments with
+  clap's `#[derive(Parser)]` so `--help` and errors stay consistent; `ctx` is the
+  exception because it forwards every argument to `ctx7`.
 - `just install-scripts` compiles them into `~/.local/bin`, which Home Manager
   adds to `PATH` but does not manage. Rerun it after changing a helper.
 - `just check-scripts` runs rustfmt, clippy, and the unit tests.
@@ -192,14 +194,36 @@ Merge from the destination checkout without switching it to the task branch:
 branch checked out in one worktree cannot be checked out in another, and a
 worktree lock only guards removal, not merges.
 
-Clean up manually once the work is committed and integrated:
+Clean up once the work is committed and integrated:
 
 1. `claude stop <id>` for the session. `claude rm <id>` deletes it and may also
    remove its worktree, so run it only after the work is integrated.
 2. Close tmux panes and dev processes still using the worktree.
-3. Check `git worktree list --porcelain` and `git -C <path> status`.
-4. `git worktree unlock <path>` only for a stale lock nothing needs.
-5. `git worktree remove <path>`, then `git branch -d <branch>`.
+3. Run `gwd` (worktrees) or `gbd` (branches) and pick what to delete.
+
+```sh
+gwd                # pick worktrees with fzf (TAB to multi-select); branches stay
+gwd --branch       # also delete each picked worktree's branch
+gwd -b --remote    # ...and the branch on origin
+gbd                # pick local branches, with or without a worktree, and delete them
+gbd --remote       # also delete the picked branches on origin
+```
+
+- Each row is tagged `merged`, `gone` (upstream deleted), `wt`, `dirty`,
+  `locked`, and its pull request from `gh`: `pr#12:open`, `pr#12:merged`,
+  `pr#12:closed`, or `no-pr`. The preview shows recent commits and the
+  worktree's status.
+- The default branch, the main worktree's branch, and the worktree you are in
+  are hidden.
+- A worktree is removed before its branch.
+- It asks before discarding a dirty worktree, before removing a branch with no
+  pull request or an open one, and before deleting a branch not merged into the
+  default branch. Any "no" keeps that entry. It asks once more before running.
+- A merged pull request whose head matches the local branch counts as merged,
+  so squash-merged branches do not trigger the unmerged question.
+- Without `gh`, or outside GitHub, the pull request checks are skipped.
+- Locked worktrees are skipped; `git worktree unlock <path>` only for a stale
+  lock nothing needs.
 
 Worktrees created by `claude --worktree` belong to Claude; `claude rm <id>` removes
 them when it is safe. `cwt` worktrees are yours to remove.

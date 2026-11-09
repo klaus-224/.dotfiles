@@ -7,27 +7,24 @@
 //! Conflicts stop before touching the worktree unless `--resolve` is given,
 //! which starts the merge and opens `git mergetool`.
 
-use std::env;
 use std::process::{Command, Stdio};
 
+use clap::Parser;
 use dotfiles_scripts::{capture, die, exit_like, read, run, status};
 
-const USAGE: &str = "Usage: gmm [--resolve] [base]";
+/// Merge origin/<base> into the current branch after an in-memory preview.
+#[derive(Parser)]
+struct Cli {
+    /// On conflicts, start the merge and open `git mergetool`.
+    #[arg(long)]
+    resolve: bool,
+    /// Branch on origin to merge from.
+    #[arg(default_value = "main")]
+    base: String,
+}
 
 fn main() {
-    let mut resolve = false;
-    let mut base = String::from("main");
-    for arg in env::args().skip(1) {
-        match arg.as_str() {
-            "--resolve" => resolve = true,
-            "-h" | "--help" => {
-                println!("{USAGE}");
-                return;
-            }
-            _ if arg.starts_with('-') || arg.is_empty() => die(USAGE),
-            _ => base = arg,
-        }
-    }
+    let Cli { resolve, base } = Cli::parse();
 
     let branch = capture(Command::new("git").args(["symbolic-ref", "--quiet", "--short", "HEAD"]))
         .map(|name| name.trim().to_owned())
@@ -117,6 +114,12 @@ fn conflicted_files(output: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 
     #[test]
     fn conflicted_files_skips_the_tree_oid() {
