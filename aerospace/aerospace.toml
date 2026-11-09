@@ -46,10 +46,10 @@ alt-space = "layout floating tiling"
 alt-backtick = "flatten-workspace-tree"
 alt-equal = "balance-sizes"
 
-alt-h = "focus left"
+alt-h = "focus --boundaries-action wrap-around-the-workspace left"
 alt-j = "focus down"
 alt-k = "focus up"
-alt-l = "focus right"
+alt-l = "focus --boundaries-action wrap-around-the-workspace right"
 
 alt-shift-h = "move left"
 alt-shift-j = "move down"
@@ -86,6 +86,11 @@ f = ["flatten-workspace-tree", "mode main"]
 r = ["reload-config", "mode main"]
 esc = "mode main"
 
+# floating apps
+[[on-window-detected]]
+if = "test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = com.apple.systempreferences"
+run = "layout floating"
+
 # terminal -  1
 # browsers -  2 and 3
 # socials  -  4
@@ -99,7 +104,7 @@ if = "test %{app-bundle-id} = company.thebrowser.Browser"
 run = "move-node-to-workspace 2"
 
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.team2 || test %{app-bundle-id} = com.microsoft.Outlook"
+if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2 || test %{app-bundle-id} = com.microsoft.Outlook"
 run = "move-node-to-workspace 3"
 
 [[on-window-detected]]
