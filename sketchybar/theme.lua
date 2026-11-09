@@ -49,7 +49,7 @@ local surface = {
 
 local island = {
   height = 32,        -- island and circle height (pt)
-  corner_radius = 8, -- island corners; circles use height / 2
+  corner_radius = 12, -- island corners; circles use height / 2
   border_width = 1,
   border_color = surface.edge,
   color = surface.color,
