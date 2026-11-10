@@ -24,7 +24,8 @@ def nobr(fragment):
 
 
 def cell(value):
-    return inline(value, 'table cell', plain=nobr)
+    # Short code such as `citation-pages.sh` would otherwise break at its hyphen.
+    return inline(value, 'table cell', plain=nobr, nowrap=30)
 
 
 def code_block(b):

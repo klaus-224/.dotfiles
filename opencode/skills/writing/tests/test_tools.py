@@ -184,6 +184,19 @@ class ToolsTest(unittest.TestCase):
         self.assertIn('<span class="t-com"># done</span>', result)
         self.assertEqual(check(result), [])
 
+    def test_short_inline_code_in_table_cells_stays_on_one_line(self):
+        long_path = 'apps/playwright-tests/data/.auth/manual-qc/sessions/x.path'
+        self.document['sections'][0]['blocks'] = [{
+            'type': 'table', 'caption': 'Scripts', 'headers': ['Script'],
+            'rows': [['`citation-pages.sh` and [`share-link.sh`](https://example.com/s)'], [f'`{long_path}`']],
+        }]
+        self.document['sections'][0]['blocks'].append({'type': 'p', 'text': '`citation-pages.sh`'})
+        result = render(self.document)
+        self.assertIn('<td><code class="inline nobr">citation-pages.sh</code>', result)
+        self.assertIn('<a href="https://example.com/s"><code class="inline nobr">share-link.sh</code></a>', result)
+        self.assertIn(f'<code class="inline">{long_path}</code>', result)
+        self.assertIn('<p><code class="inline">citation-pages.sh</code></p>', result)
+
     def test_code_block_field_errors(self):
         cases = [
             ({'lang': 'klingon'}, 'unknown language'),

@@ -34,12 +34,14 @@ def link_url(value, where='link URL'):
     return esc(value, quote=True)
 
 
-def inline(value, where, limit=20000, plain=esc, links=True):
-    """Render one plain-text field with inline markup. Returns safe HTML."""
-    return _render(text(value, where, limit), where, plain, links)
+def inline(value, where, limit=20000, plain=esc, links=True, nowrap=0):
+    """Render one plain-text field with inline markup. Returns safe HTML.
+
+    Code spans up to `nowrap` characters are kept on one line."""
+    return _render(text(value, where, limit), where, plain, links, nowrap)
 
 
-def _render(value, where, plain, links):
+def _render(value, where, plain, links, nowrap=0):
     out, position = [], 0
     for match in TOKEN.finditer(value):
         out.append(plain(value[position:match.start()]))
@@ -48,9 +50,11 @@ def _render(value, where, plain, links):
         if kind == 'escape':
             out.append(plain(match.group('escape')))
         elif kind == 'code':
-            out.append(f'<code class="inline">{esc(match.group("code"))}</code>')
+            source = match.group('code')
+            css = 'inline nobr' if len(source) <= nowrap else 'inline'
+            out.append(f'<code class="{css}">{esc(source)}</code>')
         elif kind == 'url':
-            label = _render(match.group('label'), where, plain, False)
+            label = _render(match.group('label'), where, plain, False, nowrap)
             if links:
                 href = link_url(match.group('url'), f'{where} link')
                 out.append(f'<a href="{href}">{label}</a>')
@@ -58,6 +62,6 @@ def _render(value, where, plain, links):
                 out.append(label)
         else:
             tag = 'strong' if kind == 'strong' else 'mark'
-            out.append(f'<{tag}>{_render(match.group(kind), where, plain, links)}</{tag}>')
+            out.append(f'<{tag}>{_render(match.group(kind), where, plain, links, nowrap)}</{tag}>')
     out.append(plain(value[position:]))
     return ''.join(out)
