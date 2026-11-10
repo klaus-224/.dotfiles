@@ -23,6 +23,22 @@ The OpenCode conventions were checked against the linked v2 documentation.
 OpenCode itself is not installed in this environment, so a live OpenCode discovery
 and invocation test was not run. Browser checks are not a full accessibility audit.
 
+## 2026-11-10: inline markup, syntax highlighting, layout switch
+
+Checked with Python 3.14 and Playwright 1.61 Chromium.
+
+- 30 unit tests pass. The 11 new tests cover inline markup and its escaping,
+  rejected link schemes, literal markers, links to code, code block fields,
+  highlighting of every language without text loss, and the width switch markup.
+- The example HTML passes the structural checker.
+- Chromium at 1600×1000 and 390×844: the narrow layout has 48px and 22px
+  gutters, and the wide layout has 24px and 12px. The width choice survives a reload.
+  No layout has document-wide horizontal overflow. No page errors or network requests.
+- With JavaScript disabled, the switches stay hidden and the narrow layout applies.
+- Dark, light, and print screenshots of code blocks, inline code, highlights, and
+  linked code headers were visually inspected. Syntax colors measure at least
+  4.7:1 contrast against every code background, including print.
+
 To reproduce the dependency-free tool tests from this directory:
 
 ```sh

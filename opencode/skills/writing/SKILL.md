@@ -75,7 +75,12 @@ GitHub renders) or ask before adding the file to the repository.
    Include only the parts that serve this particular task.
 3. Read `references/tools.md`. Read `examples/explanation.json` for a complete
    input example. Supporting files are not automatically in your context.
-4. Write a JSON document in `/tmp/writing/<task-slug>/`. Use plain text in its fields.
+4. Write a JSON document in `/tmp/writing/<task-slug>/`. Use plain text in its
+   fields, with the inline syntax from `references/tools.md` where it helps:
+   `` `code` `` for names and commands, `**bold**` or `==highlight==` for the one
+   phrase the reader must not miss, and `[label](url)` for evidence. Give code
+   blocks a `lang`, and a `file` and `url` when the code comes from a real file,
+   so the reader can open the source.
 5. Run the renderer through OpenCode's `shell` tool. Substitute the actual
    absolute skill path and task slug below:
 
@@ -89,7 +94,8 @@ GitHub renders) or ask before adding the file to the repository.
    The renderer creates parent directories and refuses to replace an existing
    file. Choose a new filename, or use `--overwrite` for an intended revision.
 6. If a browser is available, open the result and inspect a narrow and a wide
-   viewport. Check diagrams, keyboard controls, disclosures, and print layout.
+   viewport, in both the narrow and wide layouts. Check diagrams, code blocks,
+   keyboard controls, disclosures, and print layout.
    Fix clipping and overlaps. The static checker is not a browser or an
    accessibility audit. Say which checks you actually performed.
 7. Give the user the main answer in chat and a link or actual path to the HTML.
@@ -97,7 +103,8 @@ GitHub renders) or ask before adding the file to the repository.
    into chat unless requested. Do not claim it was opened or published unless it was.
 
 Python 3.10+ is the only runtime dependency. The default output has embedded CSS,
-SVG, and a small optional walkthrough script. It needs no network connection.
+SVG, syntax highlighting done at render time, and a small optional script for the
+walkthrough and the theme and layout switches. It needs no network connection.
 
 These are bundled command-line utilities invoked with `shell`, not additional
 OpenCode tools registered by a skill. Loading this skill does not install a plugin,

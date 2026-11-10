@@ -103,7 +103,7 @@
       "blocks": [
         {
           "type": "p",
-          "text": "Install the writing directory under an OpenCode skills directory. The agent loads the skill, reads the tool reference, and runs the bundled scripts through shell.",
+          "text": "Install the writing directory under an OpenCode skills directory. The agent loads the skill, reads the tool reference, and runs the bundled scripts through `shell`.",
           "cite": [1, 2]
         },
         {
@@ -111,18 +111,31 @@
           "caption": "Three tools, one local workflow",
           "headers": ["Tool", "Use it to", "Result"],
           "rows": [
-            ["render_html.py", "Turn structured text into an explanation", "One HTML file"],
-            ["render_diagram.py", "Draw a flow or message sequence", "One SVG file"],
-            ["check_html.py", "Check structure and local references", "A pass or a list of issues"]
+            ["`render_html.py`", "Turn structured text into an explanation", "One HTML file"],
+            ["`render_diagram.py`", "Draw a flow or message sequence", "One SVG file"],
+            ["`check_html.py`", "Check structure and local references", "A pass or a **list of issues**"]
           ]
         },
         {
           "type": "code",
-          "text": "python3 scripts/render_html.py examples/explanation.json --output demo.html\npython3 scripts/check_html.py demo.html"
+          "lang": "shell",
+          "file": "Render and check a page",
+          "text": "out=/tmp/writing/demo  # scratch space, never the repository\npython3 scripts/render_html.py examples/explanation.json --output \"$out/demo.html\"\npython3 scripts/check_html.py \"$out/demo.html\""
         },
         {
           "type": "p",
-          "text": "All page assets are embedded. Open the file in a browser, use the walkthrough controls, or print it. The source links require a connection only when you follow them."
+          "text": "Every text field is escaped before it reaches the page. The renderer relies on [`html.escape`](https://docs.python.org/3/library/html.html#html.escape), so ==markup in a field shows as text== unless it uses the small inline syntax."
+        },
+        {
+          "type": "code",
+          "lang": "python",
+          "file": "html.escape — Python standard library",
+          "url": "https://docs.python.org/3/library/html.html#html.escape",
+          "text": "from html import escape\n\n\ndef paragraph(value: str) -> str:\n    \"\"\"Return one safe HTML paragraph.\"\"\"\n    return f\"<p>{escape(value)}</p>\"  # < becomes &lt;"
+        },
+        {
+          "type": "p",
+          "text": "All page assets are embedded. Open the file in a browser, switch between the **narrow** and **wide** layouts, use the walkthrough controls, or print it. The source links require a connection only when you follow them. To revisit the format choice, see [the first section](#section-1)."
         }
       ]
     }
