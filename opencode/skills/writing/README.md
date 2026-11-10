@@ -16,6 +16,8 @@ harness that loads skills from this folder can use it. Point the agent at
 | `examples/` | Sample inputs for an HTML page (`explanation.json`) and a diagram (`diagram.json`) |
 | `scripts/render_html.py` | Renders an explanation JSON into a standalone HTML page |
 | `scripts/render_diagram.py` | Renders a small `flow` or `sequence` diagram as standalone SVG |
+| `scripts/markup.py` | Safe inline markup (code, bold, highlight, links) for prose fields |
+| `scripts/highlight.py` | Offline syntax highlighting for code blocks |
 | `scripts/check_html.py` | Static checks on a generated page |
 | `templates/` | Page template, CSS, and walkthrough script embedded in generated pages |
 
