@@ -1,0 +1,6 @@
+{
+  "name": "dotfiles-opencode-agent-status",
+  "private": true,
+  "type": "module",
+  "exports": "./index.ts"
+}

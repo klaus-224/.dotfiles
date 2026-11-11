@@ -10,9 +10,15 @@ use std::env;
 use std::io::{self, IsTerminal};
 use std::process::{Command, exit};
 
+use clap::Parser;
 use dotfiles_scripts::{exit_like, has_command, status};
 
+/// Open a SQL scratch buffer in $EDITOR; pipe SQL in to prefill it.
+#[derive(Parser)]
+struct Cli {}
+
 fn main() {
+    Cli::parse();
     // Match nvim/lsp/{sqlls,postgres_lsp}.lua; never install on invocation.
     if !has_command("sqls") && !has_command("postgres-language-server") {
         eprintln!(
@@ -43,4 +49,15 @@ fn main() {
         command.arg("-");
     }
     exit_like(status(&mut command));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 }

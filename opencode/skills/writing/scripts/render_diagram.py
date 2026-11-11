@@ -110,11 +110,12 @@ def render(data, prefix='diagram'):
 <title id="{prefix}-title">{esc(data['title'])}</title>
 <desc id="{prefix}-desc">{esc(data['description'])}</desc>
 <defs><marker id="{arrow}" viewBox="0 0 10 10" refX="9" refY="5"
- markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#347064"/></marker></defs>
-<style>svg{{background:#f5f8f5}} rect{{fill:#fff;stroke:#387968;stroke-width:1.5}}
-text{{font:15px system-ui,sans-serif;fill:#183d35}} .edge{{fill:none;stroke:#347064;stroke-width:2}}
-.lifeline{{fill:none;stroke:#9aafa7;stroke-width:1.5;stroke-dasharray:5 6}}
-.edge-label text{{font-size:13px;paint-order:stroke;stroke:#f5f8f5;stroke-width:5;stroke-linejoin:round}}</style>
+ markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" class="arrowhead"/></marker></defs>
+<style>svg{{background:var(--diagram-bg,#f7f7f9)}} rect{{fill:var(--diagram-node,#fff);stroke:var(--diagram-stroke,#4a6f8c);stroke-width:1.5}}
+text{{font:15px system-ui,sans-serif;fill:var(--diagram-text,#252530)}} .edge{{fill:none;stroke:var(--diagram-edge,#3e6584);stroke-width:2}}
+.arrowhead{{fill:var(--diagram-edge,#3e6584)}}
+.lifeline{{fill:none;stroke:var(--diagram-lifeline,#a3a3b5);stroke-width:1.5;stroke-dasharray:5 6}}
+.edge-label text{{font-size:13px;paint-order:stroke;stroke:var(--diagram-bg,#f7f7f9);stroke-width:5;stroke-linejoin:round}}</style>
 {''.join(shapes)}</svg>'''
 
 

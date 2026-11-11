@@ -64,25 +64,38 @@ The paths below are relative to this skill's base directory. OpenCode supplies
 that directory when it loads this skill. Resolve it before calling a script;
 do not assume the shell starts here or hard-code a project installation path.
 
+Write every input JSON, SVG, and HTML file to a scratch directory under `/tmp`
+on the user's machine, such as `/tmp/writing/<task-slug>/`. Do not write them into
+the repository or the skill directory, and do not commit them. If the user wants a
+diagram in a PR, issue, or doc, embed it there (for example as a Mermaid block that
+GitHub renders) or ask before adding the file to the repository.
+
 1. Identify the user's question and the one conclusion they should take away.
 2. Sketch the explanation: answer, mechanism, example, evidence, and next action.
    Include only the parts that serve this particular task.
 3. Read `references/tools.md`. Read `examples/explanation.json` for a complete
    input example. Supporting files are not automatically in your context.
-4. Write a JSON document in the active workspace. Use plain text in its fields.
-5. Run the renderer through OpenCode's `shell` tool. Set its working directory
-   to the active workspace. Substitute the actual absolute skill path below:
+4. Write a JSON document in `/tmp/writing/<task-slug>/`. Use plain text in its
+   fields, with the inline syntax from `references/tools.md` where it helps:
+   `` `code` `` for names and commands, `**bold**` or `==highlight==` for the one
+   phrase the reader must not miss, and `[label](url)` for evidence. Give code
+   blocks a `lang`, and a `file` and `url` when the code comes from a real file,
+   so the reader can open the source.
+5. Run the renderer through OpenCode's `shell` tool. Substitute the actual
+   absolute skill path and task slug below:
 
    ```sh
+   out=/tmp/writing/<task-slug>
    python3 "/absolute/skill/base/scripts/render_html.py" \
-     "work/explanation.json" --output "output/explanation.html"
-   python3 "/absolute/skill/base/scripts/check_html.py" "output/explanation.html"
+     "$out/explanation.json" --output "$out/explanation.html"
+   python3 "/absolute/skill/base/scripts/check_html.py" "$out/explanation.html"
    ```
 
    The renderer creates parent directories and refuses to replace an existing
    file. Choose a new filename, or use `--overwrite` for an intended revision.
 6. If a browser is available, open the result and inspect a narrow and a wide
-   viewport. Check diagrams, keyboard controls, disclosures, and print layout.
+   viewport, in both the narrow and wide layouts. Check diagrams, code blocks,
+   keyboard controls, disclosures, and print layout.
    Fix clipping and overlaps. The static checker is not a browser or an
    accessibility audit. Say which checks you actually performed.
 7. Give the user the main answer in chat and a link or actual path to the HTML.
@@ -90,7 +103,8 @@ do not assume the shell starts here or hard-code a project installation path.
    into chat unless requested. Do not claim it was opened or published unless it was.
 
 Python 3.10+ is the only runtime dependency. The default output has embedded CSS,
-SVG, and a small optional walkthrough script. It needs no network connection.
+SVG, syntax highlighting done at render time, and a small optional script for the
+walkthrough and the theme and layout switches. It needs no network connection.
 
 These are bundled command-line utilities invoked with `shell`, not additional
 OpenCode tools registered by a skill. Loading this skill does not install a plugin,
@@ -106,6 +120,7 @@ give the explanation in chat and state the artifact limitation briefly.
   sequence for exchanges, a table for tradeoffs, a chart for quantitative evidence.
 - Use the bundled `flow` or `sequence` SVG renderer for small diagrams. Both work
   offline. Split a large system into a small overview and focused diagrams.
+  Render diagram JSON and SVG into `/tmp/writing/<task-slug>/`, not the repository.
 - Label each arrow with its meaning when the relationship is not obvious.
   Keep names consistent with the prose. Do not invent connections or numbers.
 - Add a caption that states what the user should notice. Include an equivalent

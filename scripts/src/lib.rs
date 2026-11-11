@@ -1,5 +1,7 @@
 //! Process helpers shared by the scripts in `src/bin/`.
 
+pub mod cleanup;
+
 use std::env;
 use std::fmt::Display;
 use std::io::{self, Write};

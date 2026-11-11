@@ -29,11 +29,11 @@ persistent-workspaces = [
 
 [gaps]
 inner.horizontal = 8
-inner.vertical = 8
+inner.vertical = 12
 outer.top = [{ monitor."built-in" = 20 }, { monitor."main" = 50 }, 50]
-outer.bottom = [{ monitor."built-in" = 15 }, { monitor."main" = 24 }, 24]
-outer.right = 16
-outer.left = 16
+outer.bottom = [{ monitor."built-in" = 12 }, { monitor."main" = 12 }, 12]
+outer.right = 12
+outer.left = 12
 
 [mode.main.binding]
 alt-r = "mode resize"
@@ -46,10 +46,10 @@ alt-space = "layout floating tiling"
 alt-backtick = "flatten-workspace-tree"
 alt-equal = "balance-sizes"
 
-alt-h = "focus left"
+alt-h = "focus --boundaries-action wrap-around-the-workspace left"
 alt-j = "focus down"
 alt-k = "focus up"
-alt-l = "focus right"
+alt-l = "focus --boundaries-action wrap-around-the-workspace right"
 
 alt-shift-h = "move left"
 alt-shift-j = "move down"
@@ -86,10 +86,15 @@ f = ["flatten-workspace-tree", "mode main"]
 r = ["reload-config", "mode main"]
 esc = "mode main"
 
+# floating apps
+[[on-window-detected]]
+if = "test %{app-bundle-id} = com.apple.finder || test %{app-bundle-id} = com.apple.systempreferences"
+run = "layout floating"
+
 # terminal -  1
 # browsers -  2 and 3
-# socials  -  4 
-# music    -  5 
+# socials  -  4
+# music    -  5
 [[on-window-detected]]
 if = "test %{app-bundle-id} = com.mitchellh.ghostty"
 run = "move-node-to-workspace 1"
@@ -97,14 +102,15 @@ run = "move-node-to-workspace 1"
 [[on-window-detected]]
 if = "test %{app-bundle-id} = company.thebrowser.Browser"
 run = "move-node-to-workspace 2"
+
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.google.Chrome"
+if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.teams2 || test %{app-bundle-id} = com.microsoft.Outlook"
 run = "move-node-to-workspace 3"
 
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.tinyspeck.slackmacgap || test %{app-bundle-id} = com.microsoft.team2 || test %{app-bundle-id} = com.microsoft.Outlook"
+if = "test %{app-bundle-id} = com.spotify.client"
 run = "move-node-to-workspace 4"
 
 [[on-window-detected]]
-if = "test %{app-bundle-id} = com.spotify.client"
+if = "test %{app-bundle-id} = com.google.Chrome"
 run = "move-node-to-workspace 5"

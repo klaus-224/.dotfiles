@@ -1,5 +1,5 @@
 format = """
-$aws$mise$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python
+$mise$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python$aws
 $character
 """
 add_newline = false
@@ -60,22 +60,22 @@ diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 behind = "⇣${count}"
 
 [nodejs]
-symbol = " "
+symbol = "node:"
 style = "bold green"
 format = "[$symbol$version]($style) "
 
 [rust]
-symbol = " "
+symbol = "rust:"
 style = "bold red"
 format = "[$symbol$version]($style) "
 
 [python]
-symbol = " "
+symbol = "python:"
 style = "bold yellow"
 format = "[$symbol$version]($style) "
 
 [aws]
-symbol = " "
+symbol = "aws:"
 style = "bold orange"
 format = "[$symbol$profile]($style) "
 

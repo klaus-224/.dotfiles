@@ -18,6 +18,7 @@
 
   nixpkgs.hostPlatform = system;
 
+  # Hack: terminal, editor and SketchyBar (sketchybar/theme.lua).
   fonts.packages = [ pkgs.nerd-fonts.hack ];
 
   programs.zsh.enable = true;

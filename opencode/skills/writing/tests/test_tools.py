@@ -1,6 +1,8 @@
 import copy
+from html import unescape
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -10,6 +12,7 @@ import xml.etree.ElementTree as ET
 BASE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE/'scripts'))
 from check_html import check
+from highlight import LANGUAGES, highlight
 from render_html import render
 from render_diagram import render as svg
 
@@ -124,6 +127,106 @@ class ToolsTest(unittest.TestCase):
             self.assertEqual(original, output.read_bytes())
             result = subprocess.run(command+['--overwrite'], cwd=folder, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def paragraph(self, value):
+        self.document['sections'] = self.document['sections'][:1]
+        self.document['sections'][0]['blocks'] = [{'type': 'p', 'text': value}]
+        return render(self.document)
+
+    def test_inline_markup_renders_and_escapes_content(self):
+        result = self.paragraph('Use `a<b>` with **care <i>** and ==this== [docs](https://example.com/?a=1&b=2).')
+        self.assertIn('<code class="inline">a&lt;b&gt;</code>', result)
+        self.assertIn('<strong>care &lt;i&gt;</strong>', result)
+        self.assertIn('<mark>this</mark>', result)
+        self.assertIn('<a href="https://example.com/?a=1&amp;b=2">docs</a>', result)
+        self.assertEqual(check(result), [])
+
+    def test_inline_link_can_wrap_code_and_target_a_section(self):
+        result = self.paragraph('See [`render.py:42`](file:///tmp/render.py) and [above](#section-1).')
+        self.assertIn('<a href="file:///tmp/render.py"><code class="inline">render.py:42</code></a>', result)
+        self.assertIn('<a href="#section-1">above</a>', result)
+        self.assertEqual(check(result), [])
+
+    def test_unsafe_inline_link_rejected(self):
+        for url in ('javascript:alert', 'data:text/html,x', 'file:relative', '//example.com'):
+            with self.subTest(url=url), self.assertRaisesRegex(ValueError, 'link'):
+                self.paragraph(f'[x]({url})')
+
+    def test_inline_markers_stay_literal_when_escaped_or_in_code(self):
+        result = self.paragraph(r'Glob src/**/*.ts, `a **b**`, \*\*not bold\*\*, and a == b == c.')
+        self.assertIn('src/**/*.ts', result)
+        self.assertIn('<code class="inline">a **b**</code>', result)
+        self.assertIn('**not bold**', result)
+        self.assertIn('a == b == c', result)
+        self.assertNotIn('<strong>', result)
+        self.assertNotIn('<mark>', result)
+
+    def test_code_span_inside_emphasis_is_kept_whole(self):
+        result = self.paragraph('**run `a**b` first**')
+        self.assertIn('<strong>run <code class="inline">a**b</code> first</strong>', result)
+
+    def test_disclosure_summary_drops_links(self):
+        self.document['sections'][0]['blocks'] = [
+            {'type': 'details', 'summary': 'See [docs](https://example.com)', 'blocks': [{'type': 'p', 'text': 'x'}]}
+        ]
+        self.assertIn('<summary>See docs</summary>', render(self.document))
+
+    def test_code_block_highlights_and_links_source(self):
+        self.document['sections'][0]['blocks'] = [{
+            'type': 'code', 'lang': 'py', 'file': 'app.py:3', 'url': 'https://example.com/app.py#L3',
+            'text': 'def run(x):\n    return "<ok>"  # done',
+        }]
+        result = render(self.document)
+        self.assertIn('<a href="https://example.com/app.py#L3"><code>app.py:3</code></a>', result)
+        self.assertIn('<span class="code-lang">Python</span>', result)
+        self.assertIn('<span class="t-kw">def</span> <span class="t-fn">run</span>', result)
+        self.assertIn('<span class="t-str">&quot;&lt;ok&gt;&quot;</span>', result)
+        self.assertIn('<span class="t-com"># done</span>', result)
+        self.assertEqual(check(result), [])
+
+    def test_short_inline_code_in_table_cells_stays_on_one_line(self):
+        long_path = 'apps/playwright-tests/data/.auth/manual-qc/sessions/x.path'
+        self.document['sections'][0]['blocks'] = [{
+            'type': 'table', 'caption': 'Scripts', 'headers': ['Script'],
+            'rows': [['`citation-pages.sh` and [`share-link.sh`](https://example.com/s)'], [f'`{long_path}`']],
+        }]
+        self.document['sections'][0]['blocks'].append({'type': 'p', 'text': '`citation-pages.sh`'})
+        result = render(self.document)
+        self.assertIn('<td><code class="inline nobr">citation-pages.sh</code>', result)
+        self.assertIn('<a href="https://example.com/s"><code class="inline nobr">share-link.sh</code></a>', result)
+        self.assertIn(f'<code class="inline">{long_path}</code>', result)
+        self.assertIn('<p><code class="inline">citation-pages.sh</code></p>', result)
+
+    def test_code_block_field_errors(self):
+        cases = [
+            ({'lang': 'klingon'}, 'unknown language'),
+            ({'url': 'https://example.com'}, 'also give file'),
+            ({'file': 'a.py', 'url': 'javascript:x'}, 'code.url'),
+        ]
+        for extra, message in cases:
+            with self.subTest(extra=extra):
+                self.document['sections'][0]['blocks'] = [{'type': 'code', 'text': 'x', **extra}]
+                with self.assertRaisesRegex(ValueError, message):
+                    render(self.document)
+
+    def test_plain_code_block_is_unchanged(self):
+        self.document['sections'][0]['blocks'] = [{'type': 'code', 'text': 'a < b'}]
+        self.assertIn('<pre tabindex="0" aria-label="Code example"><code>a &lt; b</code></pre>', render(self.document))
+
+    def test_highlighter_never_loses_text(self):
+        sample = ('#!/bin/sh\n# c "x"\nlet x = { a = 1; }; in `t` \'s\' "d\\"q" /* b */ -- s\n'
+                  'select * from t; <a href="x">y</a> @dec f(1.5e3) x.y() $HOME --flag\n'
+                  '+add\n-del\n@@ -1 +1 @@\nkey: [true, null] """doc""" [[x]] é & <')
+        for name in LANGUAGES:
+            with self.subTest(language=name):
+                html = highlight(sample, name)
+                self.assertEqual(unescape(re.sub(r'</?span[^>]*>', '', html)), sample)
+                self.assertNotIn('<a', re.sub(r'&lt;a', '', html))
+
+    def test_width_toggle_is_present_and_progressive(self):
+        result = render(self.document)
+        self.assertIn('data-width="narrow"', result)
+        self.assertIn('data-width-toggle aria-pressed="false" hidden', result)
 
     def test_cli_rejects_input_output_collision(self):
         with tempfile.TemporaryDirectory() as folder:
