@@ -36,6 +36,7 @@
     "./plugins/rtk",
     "./plugins/pr-context",
     "./plugins/claude-harness",
+    "./plugins/agent-status",
     {
       "package": "@plannotator/opencode@0.27.22",
       "options": {

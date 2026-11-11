@@ -4,9 +4,49 @@ from html import escape as esc
 from pathlib import Path
 from string import Template
 from common import array, obj, run_cli, safe_url, text
+from highlight import display_name, highlight, language
+from markup import inline, link_url
 from render_diagram import render as diagram_svg, relationships
 
 BASE = Path(__file__).resolve().parent.parent
+
+
+# A short name such as ai-agent-gateway or apps/platform breaks at its hyphens
+# or slashes in a narrow column; keep it on one line. Longer ones may break.
+NOBR = re.compile(r'\S*[-/]\S*')
+
+
+def nobr(fragment):
+    def keep(match):
+        word = match.group(0)
+        return f'<span class="nobr">{word}</span>' if len(word) <= 30 else word
+    return NOBR.sub(keep, esc(fragment))
+
+
+def cell(value):
+    # Short code such as `citation-pages.sh` would otherwise break at its hyphen.
+    return inline(value, 'table cell', plain=nobr, nowrap=30)
+
+
+def code_block(b):
+    source = text(b['text'], 'code')
+    lang = language(b['lang']) if 'lang' in b else None
+    if 'url' in b and 'file' not in b:
+        raise ValueError('code.url: also give file, the label for the link')
+    head = []
+    if 'file' in b:
+        name = f'<code>{esc(text(b["file"], "code.file", 300))}</code>'
+        if 'url' in b:
+            name = f'<a href="{link_url(b["url"], "code.url")}">{name}</a>'
+        head.append(f'<span class="code-file">{name}</span>')
+    if lang:
+        head.append(f'<span class="code-lang">{display_name(lang)}</span>')
+    label = f'Code: {esc(b["file"])}' if 'file' in b else 'Code example'
+    css = f' class="language-{lang}"' if lang else ''
+    pre = f'<pre tabindex="0" aria-label="{label}"><code{css}>{highlight(source, lang)}</code></pre>'
+    if not head:
+        return pre
+    return f'<div class="code-block"><div class="code-head">{"".join(head)}</div>{pre}</div>'
 
 
 class Renderer:
@@ -30,16 +70,17 @@ class Renderer:
         }
         if not isinstance(kind, str) or kind not in fields:
             raise ValueError(f'block.type: unknown type {kind!r}')
-        obj(b, f'{kind} block', ['type'] + fields[kind], ['cite'])
+        optional = {'code': ['lang', 'file', 'url']}.get(kind, [])
+        obj(b, f'{kind} block', ['type'] + fields[kind], ['cite'] + optional)
         self.serial += 1
         uid = f'block-{self.serial}'
         if kind == 'p':
-            content = f'<p>{esc(text(b["text"], "paragraph"))}</p>'
+            content = f'<p>{inline(b["text"], "paragraph")}</p>'
         elif kind == 'list':
-            content = '<ul>' + ''.join(f'<li>{esc(text(i, "list item"))}</li>'
+            content = '<ul>' + ''.join(f'<li>{inline(i, "list item")}</li>'
                                       for i in array(b['items'], 'list.items')) + '</ul>'
         elif kind == 'code':
-            content = f'<pre tabindex="0" aria-label="Code example"><code>{esc(text(b["text"], "code"))}</code></pre>'
+            content = code_block(b)
         elif kind == 'table':
             caption = esc(text(b['caption'], 'table.caption'))
             headers = array(b['headers'], 'table.headers', 1, 12)
@@ -47,12 +88,12 @@ class Renderer:
             rows = []
             for row in array(b['rows'], 'table.rows'):
                 array(row, 'table row', len(headers), len(headers))
-                rows.append('<tr>' + ''.join(f'<td>{esc(text(c, "table cell"))}</td>' for c in row) + '</tr>')
+                rows.append('<tr>' + ''.join(f'<td>{cell(c)}</td>' for c in row) + '</tr>')
             content = (f'<div class="overflow" tabindex="0" role="region" aria-label="{caption}">'
                        f'<table><caption>{caption}</caption><thead><tr>{head}</tr></thead>'
                        f'<tbody>{"".join(rows)}</tbody></table></div>')
         elif kind == 'diagram':
-            caption = esc(text(b['caption'], 'diagram caption'))
+            caption = inline(b['caption'], 'diagram caption')
             svg = diagram_svg(b['data'], uid)
             lines = relationships(b['data'])
             relation_list = '<ul>' + ''.join(f'<li>{esc(r)}</li>' for r in lines) + '</ul>' if lines else ''
@@ -61,7 +102,7 @@ class Renderer:
                        f'<figcaption>{caption}</figcaption><details><summary>Diagram in words</summary>'
                        f'<p>{esc(b["data"]["description"])}</p>{relation_list}</details></figure>')
         elif kind == 'details':
-            content = (f'<details><summary>{esc(text(b["summary"], "details.summary"))}</summary>'
+            content = (f'<details><summary>{inline(b["summary"], "details.summary", links=False)}</summary>'
                        f'{self.blocks(b["blocks"], depth+1)}</details>')
         else:
             title = esc(text(b['title'], 'steps.title'))
@@ -69,7 +110,7 @@ class Renderer:
             for index, item in enumerate(array(b['items'], 'steps.items', 1, 20), 1):
                 obj(item, 'step', ['title', 'text'])
                 items.append(f'<li value="{index}"><h4>{esc(text(item["title"], "step.title"))}</h4>'
-                             f'<p>{esc(text(item["text"], "step.text"))}</p></li>')
+                             f'<p>{inline(item["text"], "step.text")}</p></li>')
             content = (f'<div class="walkthrough" aria-labelledby="{uid}-title">'
                        f'<h3 id="{uid}-title">{title}</h3><div class="step-controls" hidden>'
                        f'<button type="button" data-prev aria-controls="{uid}-steps">Previous</button>'
@@ -92,7 +133,7 @@ class Renderer:
 def render(data):
     obj(data, 'document', ['title', 'summary', 'sections'], ['eyebrow', 'lang', 'sources'])
     title = esc(text(data['title'], 'title', 200))
-    summary = esc(text(data['summary'], 'summary', 2000))
+    summary = inline(data['summary'], 'summary', 2000)
     lang = data.get('lang', 'en')
     if not isinstance(lang, str) or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', lang):
         raise ValueError('lang: expected a language tag such as en or en-CA')

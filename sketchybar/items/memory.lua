@@ -1,87 +1,79 @@
+-- [mem 69% 48G]: used share and total RAM. Menu MEMORY: used / free and
+-- the top processes by memory, captured when the menu opens.
 local sbar = require("sketchybar")
-local settings = require("settings")
-local colors = require("colors")
-local icons = require("icons")
+local theme = require("theme")
+local helper = require("helpers.helper")
+local island = require("helpers.island")
+local popup = require("helpers.popup")
+local stats = require("helpers.stats")
+local text = require("helpers.text")
 
-local bytes_per_gb = 1024 ^ 3
+local c = theme.colors
+local i = theme.island
+local W = text.menu_width(33)
+local TOP = 5
 
-local function parse(output)
-  if type(output) ~= "string" then return nil end
-  local total = tonumber(output:match("^%s*(%d+)%s"))
-  local page_size = tonumber(output:match("page size of (%d+) bytes"))
-  local anonymous = tonumber(output:match("Anonymous pages:%s*(%d+)"))
-  local purgeable = tonumber(output:match("Pages purgeable:%s*(%d+)"))
-  local wired = tonumber(output:match("Pages wired down:%s*(%d+)"))
-  local compressed = tonumber(output:match("Pages occupied by compressor:%s*(%d+)"))
-  if not total or total <= 0 or not page_size or page_size <= 0
-      or not anonymous or not purgeable or not wired or not compressed then
-    return nil
-  end
-
-  -- Count physical compressor pages, not the uncompressed pages stored inside.
-  local used = (math.max(0, anonymous - purgeable) + wired + compressed) * page_size
-  return { used = math.min(used, total), total = total }
-end
-
-local function render(state)
-  if not state then
-    return { icon = { color = colors.muted }, label = { string = "-- GB / -- GB" } }
-  end
-
-  local percentage = 100 * state.used / state.total
-  local color = colors.green
-  if percentage > 80 then
-    color = colors.red
-  elseif percentage > 60 then
-    color = colors.yellow
-  end
-
-  return {
-    icon = { color = color },
-    label = {
-      string = string.format("%.1f GB / %g GB", state.used / bytes_per_gb, state.total / bytes_per_gb),
-    },
-  }
-end
-
-sbar.add("item", "spacer.memory", {
+local item = sbar.add("item", "memory", {
   position = "right",
-  width = settings.group_paddings,
-  icon = { drawing = false },
-  label = { drawing = false },
-  background = { drawing = false },
+  padding_left = i.cell_gap,
+  padding_right = 0,
+  icon = { string = "mem", color = c.text3, padding_left = 0, padding_right = i.tag_gap },
+  label = { string = "—", color = c.text, padding_left = 0, padding_right = 0 },
 })
 
-local item = sbar.add("item", "widgets.memory", {
-  position = "right",
-  icon = { string = icons.memory },
-  label = { string = "-- GB / -- GB" },
-  update_freq = 10,
-})
+local function level(percent)
+  if percent >= 90 then return c.err end
+  if percent >= theme.thresholds.warn then return c.warn end
+  return c.text
+end
 
-local function refresh()
-  sbar.exec("/usr/sbin/sysctl -n hw.memsize && /usr/bin/vm_stat", function(output, exit_code)
-    local state
-    if exit_code == 0 then
-      local ok, parsed = pcall(parse, output)
-      if ok then state = parsed end
+local function size(bytes)
+  local gb = bytes / 1073741824
+  if gb >= 1 then return string.format("%.1fG", gb) end
+  return string.format("%.0fM", bytes / 1048576)
+end
+
+local snapshot
+local menu = popup.new(item, {
+  title = "MEMORY",
+  width = W,
+  align = "right",
+  underline = island.underline_item(item),
+  on_open = function() snapshot() end,
+})
+local used_row = menu:row("used", { key = "used", value = "—" })
+local free_row = menu:row("free", { key = "free", value = "—" })
+local top_row = menu:row("top", { value = "TOP PROCESSES", color = c.text3, value_font = island.font("Regular", theme.font.small), height = 32 })
+top_row:set({ label = { y_offset = -4 } })
+local procs = {}
+for n = 1, TOP do procs[n] = menu:row("proc." .. n, { key = "", value = "", visible = false, key_color = c.text2 }) end
+menu:row("open", { key = "open", value = "Activity Monitor ↗", color = c.text2,
+  on_click = function() helper.open("/System/Applications/Utilities/Activity Monitor.app") end })
+menu:finish()
+menu:bind({ item })
+
+stats.on(function(s)
+  local m = s.memory
+  if type(m) ~= "table" then return end
+  item:set({ label = { string = string.format("%d%% %dG", m.percent, m.total_gb), color = level(m.percent) } })
+  used_row:update({ value = string.format("%.1f / %d GB  (%d%%)", m.used_gb, m.total_gb, m.percent), color = level(m.percent) })
+  free_row:update({ value = string.format("%.1f GB", m.total_gb - m.used_gb) })
+end)
+
+-- Frozen at the time of the click: the list is not refreshed while open.
+snapshot = helper.single(function(done)
+  top_row:update({ value = "TOP PROCESSES  …" })
+  stats.refresh()
+  helper.run({ "procs" }, function(r)
+    done()
+    top_row:update({ value = r.at and ("TOP PROCESSES  " .. os.date("%H:%M:%S", r.at)) or "TOP PROCESSES" })
+    local list = r.processes or {}
+    for n = 1, TOP do
+      local p = list[n]
+      procs[n]:update({ visible = p ~= nil, key = p and size(p.bytes) or "",
+                        value = p and text.fit(p.name, W - theme.popup.key_width - 2 * theme.popup.padding) or "" })
     end
-    item:set(render(state))
   end)
-end
-
-item:subscribe({ "routine", "forced", "system_woke" }, refresh)
-refresh()
-
-sbar.add("bracket", "pill.memory", { "widgets.memory" },
-  {
-    blur_radius = 50,
-    background = {
-      drawing = true,
-      color = colors.pill_bg,
-      height = 32,
-    },
-  }
-)
+end)
 
 return item

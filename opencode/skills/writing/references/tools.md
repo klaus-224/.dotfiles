@@ -3,7 +3,8 @@
 Run these scripts with Python 3.10 or later through OpenCode v2's `shell` tool.
 They use only Python's standard library. Use the base directory supplied when the
 skill loads. The following commands assume that directory is the working directory;
-otherwise use absolute script paths and workspace-relative input/output paths.
+otherwise use absolute script paths. For real tasks, put input and output files in
+`/tmp/writing/<task-slug>/` on the user's machine, never in the repository.
 
 ```sh
 python3 scripts/render_html.py examples/explanation.json --output demo.html
@@ -25,8 +26,9 @@ network requests, prove accessibility, verify claims, or detect visual overlaps.
 ## HTML document input
 
 The file is a JSON object. All content strings are plain text, not Markdown or HTML.
-Text is escaped before insertion. Unknown keys are errors so misspelled fields do
-not silently disappear. Required fields:
+Text is escaped before insertion; prose fields also accept the small inline syntax
+described below. Unknown keys are errors so misspelled fields do not silently
+disappear. Required fields:
 
 ```json
 {
@@ -65,10 +67,66 @@ Keep citations attached to the block with the supported claim.
 | `p` | `text` | Paragraph |
 | `list` | `items`: list of strings | Unordered list |
 | `table` | `caption`, `headers`: strings, `rows`: arrays of strings | Comparison table; each row must match the header count |
-| `code` | `text` | Literal code or commands; never executed |
+| `code` | `text` | Literal code or commands; never executed. Optional `lang`, `file`, `url` (see below) |
 | `diagram` | `data`: diagram object, `caption` | Embedded SVG and text equivalent |
 | `details` | `summary`, `blocks` | Native expandable detail; nesting limited to six levels |
 | `steps` | `title`, `items`: objects with `title` and `text` | Previous/next walkthrough; all steps remain present without JavaScript |
+
+### Inline markup
+
+These fields accept inline markup: the document `summary`, `p.text`, list items,
+table cells, step `text`, diagram `caption`, and details `summary`. Titles,
+headings, table captions, and labels stay plain text.
+
+| Write | Result | Use it for |
+| --- | --- | --- |
+| `` `name` `` | Inline code | File names, commands, identifiers, values |
+| `**words**` | Bold | The one or two words the reader must not miss |
+| `==words==` | Highlight | A key finding or the decision the reader must make |
+| `[label](url)` | Link | Evidence, source code, or another section |
+| ``[`file.py:42`](url)`` | Linked inline code | A reference to a specific line of code |
+| `\*`, `` \` ``, `\=`, `\[`, `\]`, `\\` | The literal character | Text that would otherwise become markup |
+
+Text inside backticks is never interpreted, so put globs such as `` `src/**/*.ts` ``
+in backticks. Markers must touch the words they wrap: `a == b` stays literal.
+Link URLs must be complete `http(s)://` URLs, absolute `file:///` paths, or
+`#id` links to this page (`#section-2`, `#source-1`). Other schemes are rejected.
+Links in a details `summary` are rendered as plain text, because a link inside
+the toggle is easy to click by mistake.
+
+Emphasis loses its value when overused. Bold or highlight at most one phrase per
+paragraph, and never a whole sentence.
+
+### Code blocks
+
+A `code` block accepts three optional fields:
+
+| Field | Value |
+| --- | --- |
+| `lang` | Language for syntax highlighting. Omit it, or use `text`, for no colours |
+| `file` | Label in the block header, usually a path such as `scripts/render_html.py:42-60` |
+| `url` | Link for the `file` label: `http(s)://`, `file:///`, or `#id`. Requires `file` |
+
+```json
+{
+  "type": "code",
+  "lang": "python",
+  "file": "scripts/render_html.py:42",
+  "url": "https://github.com/owner/repo/blob/<commit>/scripts/render_html.py#L42",
+  "text": "def render(data):\n    return page"
+}
+```
+
+Supported `lang` values: `python` (`py`), `javascript` (`js`, `jsx`, `mjs`, `cjs`),
+`typescript` (`ts`, `tsx`), `go`, `rust` (`rs`), `json` (`jsonc`), `shell` (`sh`,
+`bash`, `zsh`, `console`), `nix`, `lua`, `yaml` (`yml`), `toml`, `sql`, `css`,
+`html` (`xml`, `svg`), and `diff` (`patch`). An unknown name is an error.
+
+The highlighter is a small offline tokenizer, not a parser. It colours comments,
+strings, keywords, literals, numbers, function names, keys, shell variables and
+flags, and diff lines. Unusual syntax may be coloured imperfectly, but the text is
+always preserved exactly. Prefer a commit permalink over a branch link so the
+line numbers stay correct.
 
 Keep key findings outside `details`. Each diagram's text equivalent includes its
 description and generated relationships. Walkthrough controls use native buttons
@@ -121,13 +179,29 @@ design, edit `templates/page.html`, `templates/style.css`, or
 use `$$` for a literal dollar sign in the template. CSS and JavaScript files are
 inserted as values, so their own dollar signs need no escaping.
 
+Pages open in the dark theme and the narrow layout. Two header switches change
+them: `Light theme`, and `Wide layout`, which removes the page width cap, halves
+the side gutters, and allows longer lines of prose. Both choices are kept in the
+browser's local storage. Without JavaScript the switches are hidden and the page
+uses the defaults. Print always uses light colors and the full page width.
+
+All colors are variables in the `:root` (dark) and `:root[data-theme="light"]`
+blocks of `style.css`; change them there, not in individual rules. Code blocks
+are dark in both themes, so the syntax colors (`--t-*`) are defined once in
+`:root` and again for print. Layout sizes are the `--page-max`, `--gutter`,
+`--layout-gap`, and `--measure` variables in `:root` and
+`:root[data-width="wide"]`, with smaller gutters in the narrow-screen media query.
+Diagrams use the same `--diagram-*` variables, with light fallbacks so a
+standalone SVG still renders.
+
 Run the bundled checks:
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-Also open a generated page. Check a wide and narrow viewport, horizontal diagram
-scrolling, keyboard focus, previous/next buttons, all-steps mode, and print output.
+Also open a generated page. Check a wide and narrow viewport, both layout and
+theme switches, horizontal diagram and code scrolling, keyboard focus,
+previous/next buttons, all-steps mode, and print output.
 Disable JavaScript once: all explanations and all walkthrough steps must remain
 readable. External source links are links, not assets needed to render the page.

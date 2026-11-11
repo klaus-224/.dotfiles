@@ -10,9 +10,7 @@ touch "$TODO_FILE"
 
 tmux display-popup \
   -E \
-  -x R \
-  -y P \
-  -w 40% \
-  -h 60% \
+  -w 70% \
+  -h 70% \
   -d "$HOME" \
   "$EDITOR '$TODO_FILE'"

@@ -9,13 +9,18 @@ use std::fs;
 use std::path::Path;
 use std::process::{self, Command};
 
+use clap::Parser;
 use dotfiles_scripts::{die, exit_like, filter, read, shell_quote, status};
 
+/// Pick a commit that touched <file>, then diff it against the working copy in nvim.
+#[derive(Parser)]
+struct Cli {
+    /// File to browse the history of.
+    file: String,
+}
+
 fn main() {
-    let file = env::args()
-        .nth(1)
-        .filter(|arg| !arg.is_empty())
-        .unwrap_or_else(|| die("Usage: gfd <file>"));
+    let Cli { file } = Cli::parse();
     if !Path::new(&file).is_file() {
         die(format!("Error: File '{file}' not found"));
     }
@@ -66,5 +71,16 @@ fn main() {
     let _ = fs::remove_file(&tmpfile);
     if !diff.success() {
         exit_like(diff);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cli_is_valid() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
     }
 }

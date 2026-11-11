@@ -73,8 +73,8 @@ M.setup = function()
   vim.api.nvim_set_hl(0, 'TabLine', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineFill', { link = 'LineNrAbove' })
   vim.api.nvim_set_hl(0, 'TabLineSel', { fg = colors.yellow, bg = colors.bg })
-  -- for the visual highlighitng
-  vim.api.nvim_set_hl(0, 'Visual', { bg = colors.selection })
+  -- for the visual highlighting
+  vim.api.nvim_set_hl(0, 'Visual', { fg = colors.white, bg = colors.muted })
 
 
   -- generic floats: hover, cmd+k, docs, random plugin popups
@@ -85,7 +85,7 @@ M.setup = function()
 
   -- generic completion menu groups
   vim.api.nvim_set_hl(0, 'Pmenu', { bg = 'NONE', fg = colors.fg })
-  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.selection, fg = colors.yellow, bold = true })
+  vim.api.nvim_set_hl(0, 'PmenuSel', { bg = colors.muted, fg = colors.white, bold = true })
   vim.api.nvim_set_hl(0, 'PmenuKind', { bg = 'NONE', fg = colors.blue })
   vim.api.nvim_set_hl(0, 'PmenuExtra', { bg = 'NONE', fg = colors.border })
   vim.api.nvim_set_hl(0, 'PmenuBorder', { bg = 'NONE', fg = colors.border, bold = true })
@@ -96,8 +96,8 @@ M.setup = function()
 
   -- mini pick
   vim.api.nvim_set_hl(0, 'MiniPickMatchCurrent', {
-    fg = colors.yellow,
-    bg = colors.selection,
+    fg = colors.white,
+    bg = colors.muted,
     bold = true,
   })
   vim.api.nvim_set_hl(0, 'MiniPickNormal', {

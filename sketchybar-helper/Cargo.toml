@@ -1,0 +1,32 @@
+[package]
+name = "sketchybar-helper"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Data and system access for the SketchyBar island config (Lua UI)."
+
+# One binary; every subcommand prints a single JSON object on stdout.
+# Install with `just install-sketchybar-helper` (wraps it in an app bundle so
+# macOS can grant Location and Calendar access).
+[[bin]]
+name = "sbar-helper"
+path = "src/main.rs"
+
+[dependencies]
+block2 = "0.6"
+libc = "0.2"
+objc2 = "0.6"
+objc2-app-kit = "0.3"
+objc2-core-location = "0.3"
+objc2-core-wlan = "0.3"
+objc2-event-kit = "0.3"
+objc2-foundation = "0.3"
+plist = "1"
+png = "0.18"
+rusqlite = "0.37"
+serde_json = { version = "1", features = ["preserve_order"] }
+
+[profile.release]
+strip = true
+opt-level = "s"
+lto = "thin"

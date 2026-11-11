@@ -134,12 +134,29 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
 
 ## Helper scripts
 
-- Helpers such as `cwt`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
+- Helpers such as `cwt`, `gbd`, `gwd`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
   shared process helpers live in `scripts/src/lib.rs`.
-- Add a helper by creating `scripts/src/bin/<name>.rs`.
+- Add a helper by creating `scripts/src/bin/<name>.rs`. Parse arguments with
+  clap's `#[derive(Parser)]` so `--help` and errors stay consistent; `ctx` is the
+  exception because it forwards every argument to `ctx7`.
 - `just install-scripts` compiles them into `~/.local/bin`, which Home Manager
   adds to `PATH` but does not manage. Rerun it after changing a helper.
 - `just check-scripts` runs rustfmt, clippy, and the unit tests.
+
+## Merging main into a branch
+
+```sh
+gmm             # fetch origin/main, preview with merge-tree, merge if clean
+gmm --resolve   # on conflicts: start the merge and open `git mergetool`
+gmm develop     # merge origin/develop instead
+```
+
+- Refuses on a detached HEAD or with uncommitted tracked changes.
+- The preview uses `git merge-tree --write-tree`, which merges in memory; a
+  conflicting preview lists the files and exits 1 without touching the worktree.
+- The real merge is a plain `git merge`; `prepare-commit-msg` rewrites its
+  subject to `merge: merge remote-tracking branch 'origin/main' into <branch>`.
+- After `--resolve`, finish with `git merge --continue` or `git merge --abort`.
 
 ## Claude worktree workflow
 
@@ -177,14 +194,36 @@ Merge from the destination checkout without switching it to the task branch:
 branch checked out in one worktree cannot be checked out in another, and a
 worktree lock only guards removal, not merges.
 
-Clean up manually once the work is committed and integrated:
+Clean up once the work is committed and integrated:
 
 1. `claude stop <id>` for the session. `claude rm <id>` deletes it and may also
    remove its worktree, so run it only after the work is integrated.
 2. Close tmux panes and dev processes still using the worktree.
-3. Check `git worktree list --porcelain` and `git -C <path> status`.
-4. `git worktree unlock <path>` only for a stale lock nothing needs.
-5. `git worktree remove <path>`, then `git branch -d <branch>`.
+3. Run `gwd` (worktrees) or `gbd` (branches) and pick what to delete.
+
+```sh
+gwd                # pick worktrees with fzf (TAB to multi-select); branches stay
+gwd --branch       # also delete each picked worktree's branch
+gwd -b --remote    # ...and the branch on origin
+gbd                # pick local branches, with or without a worktree, and delete them
+gbd --remote       # also delete the picked branches on origin
+```
+
+- Each row is tagged `merged`, `gone` (upstream deleted), `wt`, `dirty`,
+  `locked`, and its pull request from `gh`: `pr#12:open`, `pr#12:merged`,
+  `pr#12:closed`, or `no-pr`. The preview shows recent commits and the
+  worktree's status.
+- The default branch, the main worktree's branch, and the worktree you are in
+  are hidden.
+- A worktree is removed before its branch.
+- It asks before discarding a dirty worktree, before removing a branch with no
+  pull request or an open one, and before deleting a branch not merged into the
+  default branch. Any "no" keeps that entry. It asks once more before running.
+- A merged pull request whose head matches the local branch counts as merged,
+  so squash-merged branches do not trigger the unmerged question.
+- Without `gh`, or outside GitHub, the pull request checks are skipped.
+- Locked worktrees are skipped; `git worktree unlock <path>` only for a stale
+  lock nothing needs.
 
 Worktrees created by `claude --worktree` belong to Claude; `claude rm <id>` removes
 them when it is safe. `cwt` worktrees are yours to remove.
@@ -240,22 +279,10 @@ sudo darwin-rebuild switch --flake ~/.dotfiles/nix#work-macbook
 ## Window Management
 
 - AeroSpace manages tiled windows and workspaces.
-- JankyBorders highlights the focused window.
-- SketchyBar displays workspace, app, system, and clock pills.
+- JankyBorders draws a faint rim on the focused window.
+- SketchyBar draws the island bar: workspaces, media, apps (messaging and
+  containers), agents and system status.
 
-<<<<<<< HEAD
-Named workspace groups include `code`, `browse`, `music`, `slack`, `discord`,
-and `teams`. Use `option-c/b/m/s/t` to switch to the corresponding group, and
-`option-tab` to change monitors. Group buttons perform the same actions through
-`scripts/aerospace-groups.sh`; both routes intentionally require two connected
-displays.
-
-Configuration lives in `aerospace/aerospace.toml`, `borders/bordersrc`, and
-`sketchybar/`. Home Manager links these directories into `~/.config`. See the
-[SketchyBar guide](sketchybar/README.md) for its module layout and shared style
-settings. After a configuration change, reload AeroSpace or restart the
-Homebrew services:
-=======
 Workspace assignments:
 
 - `1`: Ghostty
@@ -268,6 +295,7 @@ Workspace assignments:
 - Move the focused window: `option-shift-h/j/k/l`.
 - Switch workspaces: `option-1` through `option-5`.
 - Move a window to a workspace: add `shift` to its workspace shortcut.
+- Focus the next monitor: `option-tab`.
 
 - `scripts/aerospace-home.sh` switches to an app's home workspace and opens or
   focuses the app.
@@ -280,8 +308,9 @@ Workspace assignments:
 - Configuration: `aerospace/aerospace.toml`, `borders/bordersrc`, and
   `sketchybar/`.
 - Home Manager links these paths into `~/.config`.
+- See the [SketchyBar guide](sketchybar/README.md) for its layout, theme and
+  data sources.
 - After a change, reload AeroSpace or restart the services:
->>>>>>> main
 
 ```sh
 aerospace reload-config
@@ -322,6 +351,7 @@ brew services restart sketchybar
 - Homebrew manages the OpenCode executable; application self-updating is disabled.
 
 ## TODO
+- [ ] [solid-craft](https://github.com/tangency-labs/solidcraft)
 - [ ] remove binaries from dotfiles
 - [ ] build a better opencode harness
     - memory

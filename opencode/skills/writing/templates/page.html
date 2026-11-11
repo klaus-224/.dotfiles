@@ -1,16 +1,25 @@
 <!doctype html>
-<html lang="$lang">
+<html lang="$lang" data-theme="dark" data-width="narrow">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="dark light">
+<script>
+/* Apply a saved theme and width before the page paints. Dark and narrow are the defaults. */
+try {
+  var saved = localStorage.getItem('writing-theme');
+  if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+  var width = localStorage.getItem('writing-width');
+  if (width === 'wide' || width === 'narrow') document.documentElement.dataset.width = width;
+} catch (error) {}
+</script>
 <title>$title</title>
 <style>$css</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to explanation</a>
 <div class="page">
-<header><p class="eyebrow">$eyebrow</p><h1>$title</h1><p class="lead">$summary</p></header>
+<header><div class="header-top"><p class="eyebrow">$eyebrow</p><div class="toggles"><button type="button" class="toggle" data-width-toggle aria-pressed="false" hidden>Wide layout</button><button type="button" class="toggle" data-theme-toggle aria-pressed="false" hidden>Light theme</button></div></div><h1>$title</h1><p class="lead">$summary</p></header>
 <div class="layout">
 <aside><nav aria-label="Contents"><p class="nav-label">IN THIS EXPLANATION</p><ol>$nav</ol></nav></aside>
 <main id="main">$content$sources</main>
