@@ -6,6 +6,7 @@ MISE_CARGO_HOME = "{{env.HOME}}/.local/share/cargo"
 # cli tools
 "github:backnotprop/plannotator" = "latest"
 "npm:ctx7" = "latest"
+"npm:rea-agents" = "latest"
 "cargo:ghgrab" = "latest"
 "cargo:rainfrog" = "latest"
 "cargo:tmuxcc" = "latest"
