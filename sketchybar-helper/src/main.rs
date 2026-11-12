@@ -8,6 +8,7 @@ mod audio;
 mod calendar;
 mod clickaway;
 mod containers;
+mod notch;
 mod pixels;
 mod slack;
 mod spotify;
@@ -27,7 +28,7 @@ const USAGE: &str = "usage: sbar-helper <command>
   spotify [playpause | next | previous | open]
   calendar [month offset] [--no-events]
   pixels <dir> [key=0xAARRGGBB ...]
-  clickaway | mouse | watch";
+  clickaway | mouse | notch | watch";
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -60,6 +61,7 @@ fn main() {
         ["pixels", dir, rest @ ..] => pixels::generate(dir, rest),
         ["clickaway"] => clickaway::wait(),
         ["mouse"] => clickaway::position(),
+        ["notch"] => notch::notch(),
         ["watch"] => watch::run(),
         ["help" | "--help" | "-h"] => {
             println!("{USAGE}");

@@ -7,6 +7,8 @@ local items, order, events = {}, {}, {}
 local pending_exec, delays = {}, {}
 local display_list = { { ["arrangement-id"] = 1 }, { ["arrangement-id"] = 2 } }
 local committed = {}
+local rects = {} -- item name -> { x, w } on display-1
+local bar_props = {}
 local sbar = {}
 
 local function merge(target, values)
@@ -50,14 +52,15 @@ end
 function sbar.end_config() for name in pairs(items) do committed[name] = true end end
 function sbar.query(domain)
   if domain == "displays" then sbar.end_config(); return display_list end
-  return { bounding_rects = {} }
+  local r = rects[domain]
+  return { bounding_rects = r and { ["display-1"] = { origin = { r[1], 6 }, size = { r[2], 32 } } } or {} }
 end
 function sbar.exec(command, callback)
   pending_exec[#pending_exec + 1] = { command = command, callback = callback }
 end
 function sbar.delay(seconds, fn) delays[#delays + 1] = fn end
 function sbar.default() end
-function sbar.bar() end
+function sbar.bar(props) merge(bar_props, props) end
 function sbar.begin_config() end
 function sbar.hotload() end
 function sbar.event_loop() end
@@ -99,6 +102,7 @@ local fixtures = {
                           { title = "Design review", start = now + 600, ["end"] = now + 3600, all_day = false, ended = false, now = false } } },
   pixels = { files = 38 },
   clickaway = { timeout = true },
+  notch = { width = 0 },
 }
 
 -- Answers queued helper commands from the fixtures until none are left.
@@ -147,7 +151,7 @@ local left = position_list("left", 1)
 assert(left:find("^bar.start,workspace.logo.1,workspace.1.1,workspace.1.2,workspace.1.3,workspace.1.4,workspace.1.5,front_app.1"),
   "unexpected left layout: " .. left)
 local right = position_list("right")
-assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.docker,apps.rancher,apps.pad.r,gap.apps,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
+assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.docker,apps.rancher,apps.pad.r,gap.apps,agents,agents.claude,agents.codex,agents.opencode,agents.edge,memory,battery,battery.1",
   1, true), "unexpected right layout: " .. right)
 assert(right:find("battery.5,wifi,clock,clock.edge$"), "right island must end with wifi, clock: " .. right)
 assert(left:find("front_app.1,.-media.gap,media.fill,media.eq.1,media.eq.2,media.eq.3,media,media.prev,media.play,media.next,"
@@ -211,6 +215,56 @@ assert(P("agents.r.claude.5h").label.string:find("^81%%.*left.*reset$"), "5h row
 items["clock"].handlers["mouse.clicked"]({})
 items["wifi"].handlers["mouse.clicked"]({})
 assert(P("clock.edge").popup.drawing == false and P("wifi").popup.drawing == true, "one menu at a time")
+
+-- Notch: circles move left of the notch and the media title narrows to
+-- end a gap before them; without the notch everything goes back.
+local function run_delays()
+  local pending = delays
+  delays = {}
+  for _, fn in ipairs(pending) do fn() end
+end
+assert(bar_props.notch_width == 0, "no notch width without a notched display")
+local title_w = theme.media.title_width
+fixtures.notch = { width = 185, x = 0, w = 1728 }
+display_list = { { ["arrangement-id"] = 1, DirectDisplayID = 1, frame = { x = 0, y = 0, w = 1728, h = 1117 } } }
+rects["island.media"] = { 206, 481 }
+rects["island.agents"] = { 690, 188 }
+items["notch.observer"].handlers["display_change"]({})
+drain()
+run_delays()
+assert(bar_props.notch_width == 185 + 2 * theme.island.gap, "notch width from the helper, a gap each side")
+assert(position_list("q") == "agents,agents.claude,agents.codex,agents.opencode,agents.edge",
+  "agents left of the notch: " .. position_list("q"))
+assert(not position_list("right"):find("agents") and position_list("right"):find("pilo,gap.pilo,cpu,gap.cpu,apps", 1, true),
+  "circles stay right: " .. position_list("right"))
+assert(P("island.right").background.drawing == false and P("island.agents").background.drawing == true
+  and P("island.rest").background.drawing == true, "agents get their own island")
+assert(P("agents.edge").width == theme.island.inner and P("memory").padding_left == theme.island.inner, "island ends padded")
+assert(P("media").icon.drawing == false, "spotify tag hidden")
+local app_w = P("front_app.1").label.width
+assert(type(app_w) == "number" and app_w > 0, "front app width fixed with a notch")
+items["aerospace.observer"].handlers["front_app_switched"]({ INFO = "A Very Long Application Name" })
+assert(P("front_app.1").label.width == app_w and P("front_app.1").label.string:find("…"), "long app names cut, width kept")
+-- 206 + 481 + gap must end at 690: 2pt narrower.
+assert(P("media").label.width == title_w - 2, "title narrowed: " .. tostring(P("media").label.width))
+rects["island.media"] = { 206, 200 }
+items["notch.observer"].handlers["front_app_switched"]({})
+run_delays()
+assert(P("media").label.width == title_w, "title never wider than the theme width")
+rects["island.media"] = { 600, 481 }
+items["notch.observer"].handlers["front_app_switched"]({})
+run_delays()
+assert(P("media").label.width == theme.media.min_title_width, "title never narrower than the minimum")
+fixtures.notch = { width = 0 }
+items["notch.observer"].handlers["display_change"]({})
+drain()
+assert(bar_props.notch_width == 0 and position_list("q") == "", "external display: nothing left of the notch")
+assert(P("media").label.width == title_w and P("media").icon.drawing == true, "title and tag restored")
+assert(P("front_app.1").label.width == "dynamic" and P("front_app.1").label.string == "a very long application name",
+  "front app takes its own width again")
+assert(P("island.right").background.drawing == true and P("island.agents").background.drawing == false
+  and P("agents.edge").width == 0 and P("memory").padding_left == theme.island.cell_gap, "one right island again")
+rects = {}
 
 -- A reconnecting display gets its island back before the anchor.
 display_list = { { ["arrangement-id"] = 1 } }
