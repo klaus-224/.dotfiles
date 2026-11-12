@@ -3,7 +3,8 @@
 Start with `builder`, the default primary agent. It answers questions and owns
 implementation and evidence capture. Visible `chat` provides read-only discussion
 and can launch only explore. `explore` investigates bounded questions;
-`reviewer` provides optional independent review. Keep investigation proportionate.
+`reviewer` provides optional independent review. `worker` implements bounded
+delegated tasks without further delegation. Keep investigation proportionate.
 When requested, builder plans through Plannotator and resumes the approved work
 itself. Planning-only requests stay read-only and do not start implementation.
 

@@ -18,6 +18,11 @@ devenv.local.yaml
 stars-before-*
 *claude*
 !scripts/src/bin/claude-tmux.rs
+!opencode/plugins/claude-harness/
+!opencode/plugins/claude-harness/**
+!opencode/shared-plugins/claude-harness
+!opencode/tests/claude-harness.test.ts
+!opencode/docs/claude-harness.md
 
 # third-party binaries
 bin/plannotator

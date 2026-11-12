@@ -35,8 +35,8 @@ function effect(rules: Rule[], action: string, resource: string) {
   test(`shared: discovered agents have shared permissions and no stale primary`, () => {
     assert.equal(config.default_agent, "builder");
     assert.deepEqual(readdirSync(join(directory, "agents")).sort(),
-      ["builder.md", "chat.md", "explore.md", "reviewer.md"]);
-    for (const id of ["builder", "chat", "explore", "reviewer"]) {
+      ["builder.md", "chat.md", "explore.md", "reviewer.md", "worker.md"]);
+    for (const id of ["builder", "chat", "explore", "reviewer", "worker"]) {
       const md = matter(readFileSync(join(directory, "agents", `${id}.md`), "utf8"));
       const entry = { ...config.agents[id], ...md.data, system: md.content.trim(), permissions: rules(id) };
       assert.doesNotThrow(() => Schema.decodeUnknownSync(ConfigAgent.Info)(entry));
@@ -62,6 +62,13 @@ function effect(rules: Rule[], action: string, resource: string) {
     assert.equal(effect(rules("builder"), "subagent", "builder"), "deny");
     assert.equal(effect(rules("builder"), "subagent", "explore"), "allow");
     assert.equal(effect(rules("builder"), "subagent", "reviewer"), "allow");
+    assert.equal(effect(rules("builder"), "subagent", "worker"), "allow");
+    assert.equal(effect(rules("worker"), "subagent", "explore"), "deny");
+    assert.equal(effect(rules("worker"), "edit", "src/app.ts"), "allow");
+    assert.equal(effect(rules("worker"), "read", ".env"), "deny");
+    assert.equal(effect(rules("worker"), "shell", "git commit -m fix"), "deny");
+    assert.equal(effect(rules("worker"), "shell", "rtk git push origin main"), "deny");
+    assert.equal(effect(rules("chat"), "subagent", "worker"), "deny");
   });
 
   test("provider allowlists and work model defaults live only in root profiles", () => {

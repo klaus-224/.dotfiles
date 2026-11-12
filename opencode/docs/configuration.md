@@ -1,24 +1,36 @@
 # Configuration
 
-OpenCode targets the pinned 2.0.20 schema. `opencode.json` contains shared
-provider-neutral settings and agent metadata; `work.jsonc` and `personal.jsonc`
-contain provider policies and optional model defaults. Agent Markdown files
-supply prompts without frontmatter. Commands and skills retain discovery metadata.
+This configuration targets OpenCode 2.0.20.
 
-Zsh's `opencode-profile work|personal` installs individual links into the real
-`${XDG_CONFIG_HOME:-$HOME/.config}/opencode` directory. It uses `DOTFILES_HOME`
-with a `$HOME/.dotfiles` fallback, validates roots and source links before
-writing, rejects conflicts, and clears inherited configuration overrides.
-Startup defines the function without silently selecting a profile.
+## Files and profiles
 
-The installed skills, commands, and plugins use curated source directories.
-Jira/PW originals remain retained, and the previous mixed config lives in
-`retained/opencode.jsonc`. Home Manager no longer renders OpenCode placeholders
-or manages its files. Package installation is unchanged.
+| Source | Purpose |
+| --- | --- |
+| `opencode.json` | Shared settings and agent metadata, independent of provider |
+| `work.jsonc`, `personal.jsonc` | Provider rules and optional default models |
+| Agent Markdown files | Prompts, without frontmatter |
+| Commands and skills | Definitions with discovery metadata |
 
-See [activation and verification](../README.md) for one-time Nix activation,
-conflict backup, profile switching, pinned schema and workflow checks, and
-machine-specific account/model verification.
+Select a profile with `opencode-profile work` or `opencode-profile personal` in
+zsh. The function links individual entries into the real directory at
+`${XDG_CONFIG_HOME:-$HOME/.config}/opencode`.
+
+It uses `DOTFILES_HOME`, falling back to `$HOME/.dotfiles`. Before writing, it
+validates source roots and links and rejects conflicts. After success, it clears
+inherited configuration overrides. Shell startup defines the function but does
+not select a profile.
+
+Skills, commands, and plugins come from curated source directories. The original
+Jira and Playwright assets remain in the repository. The previous mixed
+configuration is kept in `retained/opencode.jsonc`.
+
+Home Manager does not manage OpenCode files or render placeholders. Package
+installation is unchanged.
+
+## Setup and checks
+
+See the [setup guide](../README.md) for one-time Nix activation, conflict backups,
+profile switching, validation checks, and account and model checks on each machine.
 
 When Nix is available, evaluate both hosts before applying the configuration:
 
@@ -27,6 +39,8 @@ nix eval --offline .#darwinConfigurations.klaus-macbook.system.drvPath
 nix eval --offline .#darwinConfigurations.work-macbook.system.drvPath
 ```
 
-Keep credentials, OAuth sessions, runtime service files, and private test
-evidence out of Git. Existing sessions retain their selected model; verify
-fresh sessions and subagents when updating profile defaults.
+Existing sessions keep their selected model. After changing profile defaults,
+check fresh sessions and subagents.
+
+Keep credentials, OAuth sessions, runtime service files, and private test evidence
+out of Git.
