@@ -134,8 +134,10 @@ The configuration targets Apple Silicon (`aarch64-darwin`).
 
 ## Helper scripts
 
-- Helpers such as `cwt`, `gbd`, `gwd`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
+- Helpers such as `gbd`, `gwd`, `gmm`, `awv`, and `pjs` are Rust binaries in `scripts/src/bin/`;
   shared process helpers live in `scripts/src/lib.rs`.
+- The agent tools `cwt` and `claude-tmux` live in a separate tools repo. They are
+  installed into `~/.local/bin`, so tmux and the shell find them on `PATH`.
 - Add a helper by creating `scripts/src/bin/<name>.rs`. Parse arguments with
   clap's `#[derive(Parser)]` so `--help` and errors stay consistent; `ctx` is the
   exception because it forwards every argument to `ctx7`.
