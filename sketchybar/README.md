@@ -114,9 +114,9 @@ All local except the Slack status, which calls the Slack Web API.
   two corners, so it cannot spill past the island's rounded edge.
 - Notch: while a display with a camera notch is connected (the built-in
   display, lid open), `sbar-helper notch` reports its width. The agent
-  cells then form their own island left of the notch with Pilo beside
-  them, and the media island drops its `spotify` tag and narrows its title
-  (down to `media.min_title_width`) so it ends a gap before Pilo; the title
+  cells then form their own island left of the notch, and the media island
+  drops its `spotify` tag and narrows its title (down to
+  `media.min_title_width`) so it ends a gap before that island; the title
   widens again when the front app name gets shorter. With only external
   displays the layout is unchanged. Items are shared across displays, so an
   external display next to the open lid shows the same arrangement.

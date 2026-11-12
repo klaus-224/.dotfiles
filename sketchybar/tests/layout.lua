@@ -228,15 +228,15 @@ local title_w = theme.media.title_width
 fixtures.notch = { width = 185, x = 0, w = 1728 }
 display_list = { { ["arrangement-id"] = 1, DirectDisplayID = 1, frame = { x = 0, y = 0, w = 1728, h = 1117 } } }
 rects["island.media"] = { 206, 481 }
-rects["pilo"] = { 690, 33 }
+rects["island.agents"] = { 690, 188 }
 items["notch.observer"].handlers["display_change"]({})
 drain()
 run_delays()
 assert(bar_props.notch_width == 185 + 2 * theme.island.gap, "notch width from the helper, a gap each side")
-assert(position_list("q") == "pilo,gap.pilo,agents,agents.claude,agents.codex,agents.opencode,agents.edge",
-  "agents and Pilo left of the notch: " .. position_list("q"))
-assert(not position_list("right"):find("agents") and position_list("right"):find("gap.cpu,apps", 1, true),
-  "cat stays right: " .. position_list("right"))
+assert(position_list("q") == "agents,agents.claude,agents.codex,agents.opencode,agents.edge",
+  "agents left of the notch: " .. position_list("q"))
+assert(not position_list("right"):find("agents") and position_list("right"):find("pilo,gap.pilo,cpu,gap.cpu,apps", 1, true),
+  "circles stay right: " .. position_list("right"))
 assert(P("island.right").background.drawing == false and P("island.agents").background.drawing == true
   and P("island.rest").background.drawing == true, "agents get their own island")
 assert(P("agents.edge").width == theme.island.inner and P("memory").padding_left == theme.island.inner, "island ends padded")

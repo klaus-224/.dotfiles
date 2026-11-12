@@ -43,16 +43,15 @@ require("items.apps")
 -- Circles, left of the right island.
 island.spacer("gap.cpu", "right", i.gap)
 require("items.cpu")
-local queue = { table.unpack(agents.items) }
 if require("config").pilo.enabled then
-  queue[#queue + 1] = island.spacer("gap.pilo", "right", i.gap)
-  queue[#queue + 1] = (require("items.pilo"))
+  island.spacer("gap.pilo", "right", i.gap)
+  require("items.pilo")
 end
 
--- On a notched display the agents island and Pilo move left of the notch.
+-- On a notched display the agents island moves left of the notch.
 require("items.notch")({
-  queue = queue,
-  outer = queue[#queue] == agents.items[#agents.items] and "agents" or "pilo",
+  queue = agents.items,
+  outer = "island.agents", -- the island: an item rect leaves out its padding
   media = media,
   on_change = function(on)
     right_island:set({ background = { drawing = not on } })

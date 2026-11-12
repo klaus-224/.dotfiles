@@ -1,8 +1,7 @@
 -- Built-in display notch. The right side is wider than the space right of
--- the notch, so while a notched display is connected the agents island and
--- Pilo move to the notch queue, left of the notch, and the media island
--- drops its "spotify" tag and narrows its title until it ends a gap before
--- them. Without a notched display (external only, lid closed) the layout
+-- the notch, so while a notched display is connected the agents island
+-- moves to the notch queue, left of the notch, and the media island drops
+-- its "spotify" tag and narrows its title until it ends a gap before it. Without a notched display (external only, lid closed) the layout
 -- is unchanged. SketchyBar applies notch_width only on notched displays;
 -- the items are shared, so an external display next to the open lid shows
 -- the same arrangement.
@@ -12,8 +11,8 @@ local helper = require("helpers.helper")
 
 local gap = theme.island.gap
 
--- opts.queue: items to move, nearest the notch first; opts.outer: name of
--- the outermost one; opts.media: items/media.lua; opts.on_change(on).
+-- opts.queue: items to move, nearest the notch first; opts.outer: item or
+-- bracket to keep clear of; opts.media: items/media.lua; opts.on_change(on).
 return function(opts)
   local notch -- { width, x, w } from `sbar-helper notch`, nil without one
   local observer = sbar.add("item", "notch.observer", { drawing = false, updates = true })
@@ -35,7 +34,9 @@ return function(opts)
   end
 
   -- Moves the title width by the overlap (or the room left) between the
-  -- media island and the outermost queued item.
+  -- media island and the outermost queued item. Layout can lag a change
+  -- (a new front app name), so it measures again until nothing moves.
+  local tries = 0
   local function fit()
     if not notch then return end
     local key = display_key()
@@ -46,7 +47,17 @@ return function(opts)
     local room = ox - gap - (mx + mw)
     local w = math.floor(opts.media.title_width() + room)
     w = math.max(theme.media.min_title_width, math.min(theme.media.title_width, w))
-    opts.media.set_title_width(w)
+    if w ~= opts.media.title_width() and tries < 5 then
+      tries = tries + 1
+      opts.media.set_title_width(w)
+      sbar.delay(0.3, fit)
+    else
+      tries = 0
+    end
+  end
+  local function refit(delay)
+    tries = 0
+    sbar.delay(delay, fit)
   end
 
   local function apply(r)
@@ -58,7 +69,7 @@ return function(opts)
     opts.on_change(notch ~= nil)
     if notch then
       opts.media.set_title_width(opts.media.title_width())
-      sbar.delay(0.5, fit)
+      refit(0.5)
     else
       opts.media.set_title_width(nil)
     end
@@ -68,6 +79,6 @@ return function(opts)
 
   observer:subscribe({ "display_change", "system_woke" }, refresh)
   -- The front app name changes the AeroSpace island's width.
-  observer:subscribe("front_app_switched", function() if notch then sbar.delay(0.2, fit) end end)
+  observer:subscribe("front_app_switched", function() if notch then refit(0.3) end end)
   refresh()
 end
