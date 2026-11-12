@@ -81,7 +81,6 @@ return {
     margin = 12,       -- left/right screen margin; matches AeroSpace gaps.outer.left/right
     y_offset = 6,      -- distance from the top of the screen (islands float)
     display = "all",   -- "all", "main", or a display number
-    notch_width = 230, -- notch + 2 × island.gap on notched displays
     topmost = "window",
   },
 
@@ -95,6 +94,7 @@ return {
 
   media = {
     title_width = 220,                -- title cell width (pt)
+    min_title_width = 100,            -- narrowest title when a notch takes space
     color = palette.line,             -- media island fill
     opacity = 80,                     -- media island opacity (%): translucent
     fill = alpha(palette.accent, 25), -- progress fill, translucent like the island

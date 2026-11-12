@@ -1,5 +1,5 @@
--- Item order matters: left items are added left to right, the notch queue
--- (media island) from the notch outwards, and right items right to left.
+-- Item order matters: left items are added left to right, right items
+-- right to left, and notch-queue items (q) from the notch outwards.
 local sbar = require("sketchybar")
 local theme = require("theme")
 local island = require("helpers.island")
@@ -13,8 +13,8 @@ island.spacer("bar.start", "left", 0)
 -- Left: one island per display (workspaces + front app).
 require("items.aerospace")
 
--- Notch queue: the media island with Spotify and the volume.
-require("items.media")
+-- Media island with Spotify and the volume, after the AeroSpace island.
+local media = (require("items.media"))
 
 -- Right island: [agent … · mem · bat · wifi · date time]
 require("items.clock")
@@ -33,13 +33,14 @@ agents.underline()
 -- (hidden with its gap when none is installed).
 require("items.apps")
 
--- Circles, left of the right island.
-island.spacer("gap.cpu", "right", i.gap)
-require("items.cpu")
+-- Circles, left of the right island. On a notched display they move to
+-- the left of the notch (items/notch.lua), nearest first.
+local circles = { island.spacer("gap.cpu", "right", i.gap), (require("items.cpu")) }
 if require("config").pilo.enabled then
-  island.spacer("gap.pilo", "right", i.gap)
-  require("items.pilo")
+  circles[#circles + 1] = island.spacer("gap.pilo", "right", i.gap)
+  circles[#circles + 1] = (require("items.pilo"))
 end
+require("items.notch")(circles, #circles > 2 and "pilo" or "cpu", media)
 
 -- macOS 27: clicking an empty part of the bar can raise the bar's own
 -- window over the items (SketchyBar #850). A transparent bracket spanning

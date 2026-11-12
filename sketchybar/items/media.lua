@@ -236,4 +236,15 @@ media:subscribe({ "routine", "forced", "system_woke", "spotify_change" }, refres
 media:subscribe({ "display_change", "system_woke" }, function() measured = nil; refresh() end)
 refresh()
 
-return media
+-- The title cell narrows on a notched display (items/notch.lua) so the
+-- island stops before the circles left of the notch; nil restores it.
+local function set_title_width(w)
+  w = w or theme.media.title_width
+  if w == title_w then return end
+  title_w = w
+  measured = nil
+  media:set({ label = { width = title_w } })
+  render()
+end
+
+return { item = media, title_width = function() return title_w end, set_title_width = set_title_width }

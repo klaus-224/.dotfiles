@@ -39,7 +39,6 @@ local bar = {
   height = theme.bar.height,
   margin = theme.bar.margin,
   y_offset = theme.bar.y_offset,
-  notch_width = theme.bar.notch_width,
   display = theme.bar.display,
   topmost = theme.bar.topmost,
   color = c.transparent,

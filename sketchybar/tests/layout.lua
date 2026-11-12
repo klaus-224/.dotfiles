@@ -7,6 +7,8 @@ local items, order, events = {}, {}, {}
 local pending_exec, delays = {}, {}
 local display_list = { { ["arrangement-id"] = 1 }, { ["arrangement-id"] = 2 } }
 local committed = {}
+local rects = {} -- item name -> { x, w } on display-1
+local bar_props = {}
 local sbar = {}
 
 local function merge(target, values)
@@ -50,14 +52,15 @@ end
 function sbar.end_config() for name in pairs(items) do committed[name] = true end end
 function sbar.query(domain)
   if domain == "displays" then sbar.end_config(); return display_list end
-  return { bounding_rects = {} }
+  local r = rects[domain]
+  return { bounding_rects = r and { ["display-1"] = { origin = { r[1], 6 }, size = { r[2], 32 } } } or {} }
 end
 function sbar.exec(command, callback)
   pending_exec[#pending_exec + 1] = { command = command, callback = callback }
 end
 function sbar.delay(seconds, fn) delays[#delays + 1] = fn end
 function sbar.default() end
-function sbar.bar() end
+function sbar.bar(props) merge(bar_props, props) end
 function sbar.begin_config() end
 function sbar.hotload() end
 function sbar.event_loop() end
@@ -99,6 +102,7 @@ local fixtures = {
                           { title = "Design review", start = now + 600, ["end"] = now + 3600, all_day = false, ended = false, now = false } } },
   pixels = { files = 38 },
   clickaway = { timeout = true },
+  notch = { width = 0 },
 }
 
 -- Answers queued helper commands from the fixtures until none are left.
@@ -211,6 +215,42 @@ assert(P("agents.r.claude.5h").label.string:find("^81%%.*left.*reset$"), "5h row
 items["clock"].handlers["mouse.clicked"]({})
 items["wifi"].handlers["mouse.clicked"]({})
 assert(P("clock.edge").popup.drawing == false and P("wifi").popup.drawing == true, "one menu at a time")
+
+-- Notch: circles move left of the notch and the media title narrows to
+-- end a gap before them; without the notch everything goes back.
+local function run_delays()
+  local pending = delays
+  delays = {}
+  for _, fn in ipairs(pending) do fn() end
+end
+assert(bar_props.notch_width == 0, "no notch width without a notched display")
+local title_w = theme.media.title_width
+fixtures.notch = { width = 185, x = 0, w = 1728 }
+display_list = { { ["arrangement-id"] = 1, DirectDisplayID = 1, frame = { x = 0, y = 0, w = 1728, h = 1117 } } }
+rects["island.media"] = { 206, 481 }
+rects["pilo"] = { 690, 33 }
+items["notch.observer"].handlers["display_change"]({})
+drain()
+run_delays()
+assert(bar_props.notch_width == 185, "notch width from the helper")
+assert(position_list("q") == "pilo,gap.pilo,cpu,gap.cpu", "circles left of the notch: " .. position_list("q"))
+assert(not position_list("right"):find("cpu"), "circles left the right side")
+-- 206 + 481 + gap must end at 690: 2pt narrower.
+assert(P("media").label.width == title_w - 2, "title narrowed: " .. tostring(P("media").label.width))
+rects["island.media"] = { 206, 200 }
+items["notch.observer"].handlers["front_app_switched"]({})
+run_delays()
+assert(P("media").label.width == title_w, "title never wider than the theme width")
+rects["island.media"] = { 600, 481 }
+items["notch.observer"].handlers["front_app_switched"]({})
+run_delays()
+assert(P("media").label.width == theme.media.min_title_width, "title never narrower than the minimum")
+fixtures.notch = { width = 0 }
+items["notch.observer"].handlers["display_change"]({})
+drain()
+assert(bar_props.notch_width == 0 and position_list("q") == "", "external display: nothing left of the notch")
+assert(P("media").label.width == title_w, "title restored")
+rects = {}
 
 -- A reconnecting display gets its island back before the anchor.
 display_list = { { ["arrangement-id"] = 1 } }

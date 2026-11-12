@@ -112,6 +112,14 @@ All local except the Slack status, which calls the Slack Web API.
 - The media progress fill is a zero-width item at the island's left edge;
   the island width is measured after layout. It is never narrower than its
   two corners, so it cannot spill past the island's rounded edge.
+- Notch: while a display with a camera notch is connected (the built-in
+  display, lid open), `sbar-helper notch` reports its width. The cat and
+  Pilo circles then move to the notch queue, left of the notch, and the
+  media title narrows (down to `media.min_title_width`) so the media island
+  ends a gap before them; it widens again when the front app name gets
+  shorter. With only external displays the layout is unchanged. Items are
+  shared across displays, so an external display next to the open lid
+  shows the same arrangement.
 - The calendar menu hangs from `clock.edge`, the island's end padding, so it
   lines up with the island edge.
 - Click-away: `sbar-helper clickaway` waits for the window server's
@@ -133,8 +141,8 @@ just check-sketchybar
 This runs `cargo fmt`, `clippy` and the Rust tests, `luac -p` on every Lua
 file, and `tests/layout.lua`, which loads the whole config against a mocked
 SbarLua with fixture data: layout order, rendered values, every menu opening
-and closing, and a display disconnect. It does not check native rendering,
-permissions or the installed SbarLua module.
+and closing, the notch layout, and a display disconnect. It does not check
+native rendering, permissions or the installed SbarLua module.
 
 Inspect a live item with `sketchybar --query <name>`; startup errors are in
 `/opt/homebrew/var/log/sketchybar/sketchybar.err.log`.
