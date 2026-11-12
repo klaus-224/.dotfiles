@@ -116,8 +116,9 @@ All local except the Slack status, which calls the Slack Web API.
   display, lid open), `sbar-helper notch` reports its width. The agent
   cells then form their own island left of the notch, and the media island
   drops its `spotify` tag and narrows its title (down to
-  `media.min_title_width`) so it ends a gap before that island; the title
-  widens again when the front app name gets shorter. With only external
+  `media.min_title_width`) so it ends a gap before that island. The front
+  app name gets a fixed width (`front_app.notch_chars`, longer names cut
+  with …) so switching apps does not move the media island. With only external
   displays the layout is unchanged. Items are shared across displays, so an
   external display next to the open lid shows the same arrangement.
 - The calendar menu hangs from `clock.edge`, the island's end padding, so it

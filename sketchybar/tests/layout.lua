@@ -241,6 +241,10 @@ assert(P("island.right").background.drawing == false and P("island.agents").back
   and P("island.rest").background.drawing == true, "agents get their own island")
 assert(P("agents.edge").width == theme.island.inner and P("memory").padding_left == theme.island.inner, "island ends padded")
 assert(P("media").icon.drawing == false, "spotify tag hidden")
+local app_w = P("front_app.1").label.width
+assert(type(app_w) == "number" and app_w > 0, "front app width fixed with a notch")
+items["aerospace.observer"].handlers["front_app_switched"]({ INFO = "A Very Long Application Name" })
+assert(P("front_app.1").label.width == app_w and P("front_app.1").label.string:find("…"), "long app names cut, width kept")
 -- 206 + 481 + gap must end at 690: 2pt narrower.
 assert(P("media").label.width == title_w - 2, "title narrowed: " .. tostring(P("media").label.width))
 rects["island.media"] = { 206, 200 }
@@ -256,6 +260,8 @@ items["notch.observer"].handlers["display_change"]({})
 drain()
 assert(bar_props.notch_width == 0 and position_list("q") == "", "external display: nothing left of the notch")
 assert(P("media").label.width == title_w and P("media").icon.drawing == true, "title and tag restored")
+assert(P("front_app.1").label.width == "dynamic" and P("front_app.1").label.string == "a very long application name",
+  "front app takes its own width again")
 assert(P("island.right").background.drawing == true and P("island.agents").background.drawing == false
   and P("agents.edge").width == 0 and P("memory").padding_left == theme.island.cell_gap, "one right island again")
 rects = {}

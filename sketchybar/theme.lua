@@ -86,6 +86,11 @@ return {
 
   island = island,
 
+  -- Front app name width on a notched display, in characters (longer
+  -- names are cut with …). Fixed there so app switches do not move the
+  -- media island; elsewhere the name takes its own width.
+  front_app = { notch_chars = 10 },
+
   -- CPU cat's grass: blades and ground, Vague green over the island black.
   cat = {
     blade = 0xff5a9e7a, -- lighter than the ground so blades show

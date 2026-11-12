@@ -11,7 +11,7 @@ local i = theme.island
 island.spacer("bar.start", "left", 0)
 
 -- Left: one island per display (workspaces + front app).
-require("items.aerospace")
+local aerospace = require("items.aerospace")
 
 -- Media island with Spotify and the volume, after the AeroSpace island.
 local media = (require("items.media"))
@@ -59,6 +59,7 @@ require("items.notch")({
     rest_island:set({ background = { drawing = on } })
     agents.edge:set({ width = on and i.inner or 0 })
     memory:set({ padding_left = on and i.inner or i.cell_gap })
+    aerospace.set_app_width(on and math.ceil(theme.front_app.notch_chars * theme.font.char_width) or nil)
   end,
 })
 

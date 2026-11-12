@@ -5,6 +5,7 @@ local sbar = require("sketchybar")
 local theme = require("theme")
 local config = require("config")
 local island = require("helpers.island")
+local text = require("helpers.text")
 
 local c = theme.colors
 local i = theme.island
@@ -17,9 +18,17 @@ local pending = false
 local layout_ready = false
 local anchor = "workspace.anchor"
 local front_app = ""
+-- Fixed front app width (pt) on a notched display, so switching apps does
+-- not move the media island into the items left of the notch; nil = fit.
+local app_width
 
 local function quote(value)
   return "'" .. value:gsub("'", "'\"'\"'") .. "'"
+end
+
+local function app_label()
+  if not app_width then return { string = front_app, width = "dynamic" } end
+  return { string = text.fit(front_app, app_width), width = app_width }
 end
 
 local function add_display(display)
@@ -62,6 +71,7 @@ local function add_display(display)
     icon = { drawing = false },
     label = { string = front_app, color = c.text2, padding_left = 0, padding_right = 0 },
   })
+  app:set({ label = app_label() })
   members[#members + 1] = app.name
   decorations[#decorations + 1] = app
 
@@ -215,8 +225,13 @@ local observer = sbar.add("item", "aerospace.observer", { drawing = false, updat
 observer:subscribe({ "aerospace_workspace_change", "display_change", "system_woke", "routine", "forced" }, refresh)
 observer:subscribe("front_app_switched", function(env)
   front_app = (env.INFO or ""):lower()
-  for _, group in pairs(displays) do group.app:set({ label = { string = front_app } }) end
+  for _, group in pairs(displays) do group.app:set({ label = app_label() }) end
 end)
 refresh()
 
-return { refresh = refresh }
+local function set_app_width(w)
+  app_width = w
+  for _, group in pairs(displays) do group.app:set({ label = app_label() }) end
+end
+
+return { refresh = refresh, set_app_width = set_app_width }
