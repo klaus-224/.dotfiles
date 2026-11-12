@@ -1,87 +1,80 @@
 # Claude-style agent harness
 
-The shared `builder` now runs a Claude Code-inspired workflow inside OpenCode
-2.0.20. Use OpenCode normally with either profile. The harness works with the
-selected provider; it does not require an Anthropic account or install a `claude`
-command.
+The harness helps `builder` investigate, edit, verify, and save progress in
+OpenCode 2.0.20. It works with either profile and the selected provider. It does
+not require an Anthropic account or install a `claude` command.
 
-After merging these files into your active dotfiles checkout, select your usual
-profile with `opencode-profile personal` or `opencode-profile work`, then restart
-OpenCode's service with `opencode service restart`. Start a fresh builder session.
-The `plugins` link exposes the package through `shared-plugins/claude-harness`.
-Changes made only in a separate worktree do not update your active configuration.
+## Use the harness
 
-For example, ask builder to “Find the parser bug, fix it, and run the relevant
-tests.” It can investigate, edit, verify, save progress, and delegate bounded work.
-For a long task, ask “Show the harness checkpoint” to inspect the saved state.
-Resume a session through OpenCode's normal session controls. There is no separate
-transcript or model transport to manage.
+After merging the files into your active dotfiles checkout:
 
-## Responsibilities
+1. Select `opencode-profile personal` or `opencode-profile work`.
+2. Run `opencode service restart`.
+3. Start a fresh builder session.
 
-| Behavior from the supplied Claude Code analysis | Implementation here |
-| --- | --- |
-| Iterative model/tool/result loop and streamed responses | OpenCode's native runner and provider adapters |
-| Tool validation, permission decisions, paired results, cancellation | Native tools and runtime; existing permission rules stay authoritative |
-| Bounded model retries | Plugin caps upcoming attempts at three, including the initial request; never enables a native rejected retry or shortens Retry-After |
-| Progress preserved between rounds | Session-local `harness_checkpoint` and `harness_status` tools, backed by native plugin storage |
-| Summarizing compaction and context recovery | Native automatic compaction, augmented with continuation instructions and the checkpoint |
-| Foreground/background child runs and completion notices | Native `subagent`, using explore, reviewer, or worker; children have fresh context |
-| Depth and turn bounds | Native default depth of one; worker cannot delegate; builder has 80 steps and worker 40 |
-| Repeated failed actions | After three consecutive identical failed calls, omit that tool from one outgoing model request and explain the failure |
+The `plugins` link exposes `shared-plugins/claude-harness`. Changes in a separate
+worktree do not update your active configuration.
 
-The implementation follows the contracts described in the supplied
-`agent-loop.md`, `architecture.md`, and their HTML/JSON explainer for Claude Code
-2.1.312. These were static analysis reports with explicit gaps. No recovered
-Claude code or proprietary prompt text is included.
-
-OpenCode's exact pinned interfaces and source informed the integration:
-[session hooks](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/plugin/src/promise/session.ts),
-[native subagents](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/tool/plugin/subagent.ts),
-[retry accounting](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/session/runner/retry.ts),
-and [compaction](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/session/compaction.ts).
+Ask builder, for example: “Find the parser bug, fix it, and run the relevant
+tests.” For a long task, ask “Show the harness checkpoint” to inspect saved
+progress. Resume through OpenCode's normal session controls. There is no separate
+transcript or model connection to manage.
 
 ## Agents and permissions
 
-Builder owns the task, integration, checks, and final response. It can launch
-explore, reviewer, and worker. Chat remains read-only and can launch only explore.
-Explore and reviewer remain read-only. Worker can edit within the existing shared
-permissions but cannot delegate, submit a plan, commit, or push. The existing
-credential, external-directory, destructive-command, and external-write gates
-remain in force. Child agents use their own configured rules, so worker does not
-receive a blanket permission grant from builder.
+| Agent | Role |
+| --- | --- |
+| Builder | Owns the task, integration, checks, and final response; can launch explore, reviewer, and worker |
+| Chat | Read-only discussion; can launch only explore |
+| Explore | Read-only research |
+| Reviewer | Read-only review |
+| Worker | Bounded implementation; cannot delegate, submit a plan, commit, or push |
 
-Worker inherits the parent's selected model unless a repository explicitly
-overrides it. Work stays Copilot-only; personal stays OpenCode/OpenAI-only.
-The RTK and Plannotator integrations remain registered. No dependency pins or
-generated editor schemas change.
+Child agents start with fresh context and use their own permission rules. Worker
+receives no blanket permission grant from builder. Credential, external-directory,
+destructive-command, and external-write gates still apply.
 
-## Checkpoints and limits
+Worker uses the parent's selected model unless a repository overrides it. Work
+allows only Copilot; personal allows only OpenCode and OpenAI. RTK and Plannotator
+remain registered. The harness does not change dependency pins or editor schemas.
 
-A checkpoint replaces the previous checkpoint for the current session. It has
-an objective, phase (`investigate`, `implement`, `verify`, `blocked`, `complete`),
-completed work, next steps, and evidence. Fields and total size are bounded.
-Marking it complete requires no remaining steps and at least one evidence entry.
-This validates the record, not the truth of the model's claim. It neither stops
-the loop nor proves that tests passed. The agent must inspect actual tool results.
+## What the harness adds
 
-Checkpoints live in OpenCode's plugin storage, not the repository. They are
-reinserted into model context after reload and compaction, so treat them like
-conversation content sent to the selected provider. Do not include secrets.
-The harness labels them as fallible model-authored data. New user instructions
-take precedence; builder should refresh the objective when the task changes.
+OpenCode runs the model/tool loop, streams responses, validates tools, enforces
+permissions, handles cancellation, and runs subagents. The harness adds:
 
-The failure guard reads paired calls and settled errors from the current
-transcript. This includes runtime failures that bypass the native tool hook.
-It retains only the last handled call ID for at most 128 sessions. Success,
-changed arguments, or a new prompt breaks the streak.
-The tool becomes available again after the guarded model round. This encourages
-a new approach; it is not an authorization boundary or a replacement for native
-permissions. Plugin reload clears the handled-call IDs, so a retained failure
-streak may trigger one recovery round again. Checkpoints persist.
+| Feature | Behavior |
+| --- | --- |
+| Checkpoints | `harness_checkpoint` saves progress; `harness_status` reads it |
+| Context recovery | Adds continuation instructions and the checkpoint to native compaction |
+| Retry ceiling | Allows at most three request attempts by default, including the initial request |
+| Repeated-failure guard | After three consecutive identical failed tool calls, hides that tool for one model request and explains the failure |
 
-To change the request-attempt ceiling, replace the plugin's string entry in
-`opencode.json` with:
+Native delegation depth defaults to one. Worker cannot delegate. Builder has an
+80-step limit; worker has a 40-step limit.
+
+### Checkpoints
+
+Each session has one checkpoint. Saving a new checkpoint replaces the old one.
+It contains the objective, phase, completed work, next steps, and evidence. Valid
+phases are `investigate`, `implement`, `verify`, `blocked`, and `complete`. Field
+lengths and total size are limited.
+
+The `complete` phase requires evidence and no remaining steps. This validates
+the record, not its claims. It does not stop the loop or prove that tests passed.
+The agent must check actual tool results.
+
+Checkpoints persist in OpenCode's plugin storage, outside the repository. They
+return to model context after reload and compaction and are sent to the selected
+provider. **Do not include secrets.**
+
+Checkpoints are fallible model-authored notes. New user instructions take
+precedence. Builder should update the objective when the task changes.
+
+### Retries and repeated failures
+
+To change the request-attempt ceiling, replace the harness string entry in
+`opencode.json` with this object:
 
 ```json
 {
@@ -90,23 +83,33 @@ To change the request-attempt ceiling, replace the plugin's string entry in
 }
 ```
 
-The accepted range is 1–10. One disables retries. Builder/worker step limits are
-configured separately in `agents.<id>.steps`; retries and auxiliary summary calls
-are not a total spending limit.
+`maxAttempts` accepts integers from 1 to 10. A value of 1 disables retries. The
+harness never retries an error that OpenCode rejects or shortens a Retry-After
+delay. Step limits are separate settings at `agents.<id>.steps`. These limits do
+not cap total spending: retries and extra summary calls can add requests.
 
-## Deliberate differences from Claude Code
+The failure guard reads tool calls and their settled results from the transcript,
+including runtime failures that bypass the native tool hook. A success, changed
+arguments, or a new user prompt breaks the failure streak. The tool returns after
+one model request. This encourages a different approach; it does not replace
+permissions.
 
-This reproduces the core workflow using OpenCode's engine. It does not provide
-Claude CLI flags, wire formats, private system prompts, Anthropic-specific caching,
-remote isolation, worktree management, Claude's exact tool concurrency scheduler,
-or a hard global child-concurrency cap. File ownership and sequencing are agent
-instructions; native scheduling remains OpenCode's responsibility. Permissions
-and depth limits are enforced by the runtime.
+The guard remembers the last handled call ID for up to 128 sessions. Plugin
+reload clears these IDs, so an existing failure streak can trigger another
+recovery round. Checkpoints persist across reloads.
 
-OpenCode 2.0.20 exposes no general completion/stop hook in its plugin API. The
-harness therefore cannot guarantee that a model never stops prematurely or
-automatically restart every incomplete task. It also does not replay tools to
-recover provider failures. Completion quality remains model-dependent.
+## Limits and differences from Claude Code
+
+The harness uses OpenCode's engine. It does not reproduce Claude's CLI flags,
+wire formats, private prompts, Anthropic-specific caching, remote isolation,
+worktree management, exact tool scheduler, or a hard limit on concurrent children.
+File ownership and task order rely on agent instructions. OpenCode controls
+scheduling and enforces permissions and depth limits.
+
+OpenCode 2.0.20 has no general completion/stop plugin hook. The harness cannot
+guarantee that a model finishes every task or restart every incomplete task. It
+does not replay tools after provider failures. Completion still depends on the
+model.
 
 ## Verification
 
@@ -121,18 +124,30 @@ pnpm test:workflows
 TMPDIR=/private/tmp pnpm test:profiles  # canonical temporary path on macOS
 ```
 
-The unit suite exercises checkpoint persistence/isolation, cancellation, input
-bounds, compaction hooks, failure streaks, retry decisions, and pinned schema
-validation. The runtime fixture starts a real OpenCode process and a scripted
-loopback model with isolated configuration and storage. It copies the plugin
-outside the repository to catch runtime-resolution problems, executes a tool
-exchange, reloads the plugin, requests real compaction through OpenCode, runs
-foreground/background workers, and exercises tool failures and retry exhaustion.
-It requires the OpenCode 2.0.20 binary and filesystem-watch access on macOS.
-It uses no account credentials and does not call an external model.
+Unit tests cover checkpoint persistence and session isolation, cancellation,
+input limits, compaction hooks, failure streaks, retry decisions, and pinned
+schema validation.
 
-The baseline checkout already fails `test:schema` because it expects an absent
-editor-schema reference/file, and `test:workflows` because a shared command lacks
-expected agent metadata. Harness configuration is independently decoded against
-the pinned schema in the new tests. Those unrelated assets are not regenerated
-or repaired by this change.
+The runtime fixture starts a real OpenCode process with a scripted local model
+and isolated configuration and storage. It copies the plugin outside the
+repository to check runtime resolution, then tests tool exchange, plugin reload,
+real compaction, foreground and background workers, tool failures, and exhausted
+retries. It requires the OpenCode 2.0.20 binary and filesystem-watch access on
+macOS. It uses no account credentials or external model.
+
+Previously recorded baseline failures: `test:schema` expected a missing editor
+schema reference/file; `test:workflows` expected agent metadata in a shared
+command. Harness tests validate configuration separately against the pinned
+schema. The harness change did not regenerate or repair those unrelated files.
+
+## Implementation references
+
+The design used static analysis reports for Claude Code 2.1.312: `agent-loop.md`,
+`architecture.md`, and their HTML/JSON explainer. Those reports had known gaps.
+No recovered Claude code or proprietary prompt text is included.
+
+The integration uses OpenCode 2.0.20's pinned interfaces:
+[session hooks](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/plugin/src/promise/session.ts),
+[native subagents](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/tool/plugin/subagent.ts),
+[retry accounting](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/session/runner/retry.ts),
+and [compaction](https://github.com/anomalyco/opencode/blob/v2.0.20/packages/core/src/session/compaction.ts).
