@@ -22,6 +22,9 @@ local glyph_font = island.font("Regular", theme.font.size + 2, theme.font.icons)
 -- The OpenCode mark is a pixel image (sbar-helper pixels) drawn as the
 -- icon's background, centred across the icon's width: the icon text is
 -- empty and exactly as wide as the mark, and the gap is label padding.
+-- Right end of the cells: zero-width beside the memory cell; the island's
+-- inner padding when the agents form their own island left of the notch.
+agents.edge = island.spacer("agents.edge", "right", 0)
 local oc = sbar.add("item", "agents.opencode", {
   position = "right", padding_left = 12, padding_right = 0, drawing = false,
   icon = { string = "", width = 8, padding_left = 0, padding_right = 0,
@@ -44,6 +47,8 @@ local tag = sbar.add("item", "agents", {
   label = { drawing = false },
 })
 agents.members = { "agents", "agents.claude", "agents.codex", "agents.opencode" }
+agents.cells = { "agents", "agents.claude", "agents.codex", "agents.opencode", "agents.edge" }
+agents.items = { agents.edge, oc, codex, claude, tag } -- right to left
 
 local remaining = cfg.show ~= "used"
 local function shown(used) return remaining and math.max(0, 100 - used) or used end

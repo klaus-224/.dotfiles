@@ -20,11 +20,18 @@ local media = (require("items.media"))
 require("items.clock")
 require("items.wifi")
 local battery = require("items.battery")
-require("items.memory")
+local memory = require("items.memory")
 local agents = require("items.agents")
-local right = { "agents", "agents.claude", "agents.codex", "agents.opencode",
-  "memory", "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5", "wifi", "clock", "clock.edge" }
-island.bracket("island.right", right)
+local rest = { "memory", "battery", "battery.1", "battery.2", "battery.3", "battery.4", "battery.5", "wifi", "clock", "clock.edge" }
+local right = { table.unpack(agents.cells) }
+for _, name in ipairs(rest) do right[#right + 1] = name end
+local right_island = island.bracket("island.right", right)
+-- With a notch the agent cells become their own island left of it
+-- (items/notch.lua); these two islands replace the right island then.
+local agents_island = island.bracket("island.agents", agents.cells)
+local rest_island = island.bracket("island.rest", rest)
+agents_island:set({ background = { drawing = false } })
+rest_island:set({ background = { drawing = false } })
 -- Underlines after the island so they draw on top of its fill.
 battery.underline()
 agents.underline()
@@ -33,14 +40,28 @@ agents.underline()
 -- (hidden with its gap when none is installed).
 require("items.apps")
 
--- Circles, left of the right island. On a notched display they move to
--- the left of the notch (items/notch.lua), nearest first.
-local circles = { island.spacer("gap.cpu", "right", i.gap), (require("items.cpu")) }
+-- Circles, left of the right island.
+island.spacer("gap.cpu", "right", i.gap)
+require("items.cpu")
+local queue = { table.unpack(agents.items) }
 if require("config").pilo.enabled then
-  circles[#circles + 1] = island.spacer("gap.pilo", "right", i.gap)
-  circles[#circles + 1] = (require("items.pilo"))
+  queue[#queue + 1] = island.spacer("gap.pilo", "right", i.gap)
+  queue[#queue + 1] = (require("items.pilo"))
 end
-require("items.notch")(circles, #circles > 2 and "pilo" or "cpu", media)
+
+-- On a notched display the agents island and Pilo move left of the notch.
+require("items.notch")({
+  queue = queue,
+  outer = queue[#queue] == agents.items[#agents.items] and "agents" or "pilo",
+  media = media,
+  on_change = function(on)
+    right_island:set({ background = { drawing = not on } })
+    agents_island:set({ background = { drawing = on } })
+    rest_island:set({ background = { drawing = on } })
+    agents.edge:set({ width = on and i.inner or 0 })
+    memory:set({ padding_left = on and i.inner or i.cell_gap })
+  end,
+})
 
 -- macOS 27: clicking an empty part of the bar can raise the bar's own
 -- window over the items (SketchyBar #850). A transparent bracket spanning

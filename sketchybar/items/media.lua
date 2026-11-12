@@ -16,6 +16,7 @@ local i = theme.island
 local APP = "spotify"
 local app_w = text.width(APP)
 local title_w = theme.media.title_width
+local media_compact = false
 -- Nerd Font media glyphs: drawn on one centred box, unlike text arrows.
 local G = { prev = "\u{F04AE}", play = "\u{F040A}", pause = "\u{F03E4}", next = "\u{F04AD}" }
 local CTL_W = 22 -- control button width
@@ -236,14 +237,17 @@ media:subscribe({ "routine", "forced", "system_woke", "spotify_change" }, refres
 media:subscribe({ "display_change", "system_woke" }, function() measured = nil; refresh() end)
 refresh()
 
--- The title cell narrows on a notched display (items/notch.lua) so the
--- island stops before the circles left of the notch; nil restores it.
+-- On a notched display (items/notch.lua) the "spotify" tag goes and the
+-- title narrows so the island stops before the items left of the notch;
+-- nil restores both.
 local function set_title_width(w)
+  local compact = w ~= nil
   w = w or theme.media.title_width
-  if w == title_w then return end
+  if w == title_w and compact == (media_compact or false) then return end
   title_w = w
+  media_compact = compact
   measured = nil
-  media:set({ label = { width = title_w } })
+  media:set({ icon = { drawing = not compact }, label = { width = title_w } })
   render()
 end
 

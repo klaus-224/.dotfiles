@@ -151,7 +151,7 @@ local left = position_list("left", 1)
 assert(left:find("^bar.start,workspace.logo.1,workspace.1.1,workspace.1.2,workspace.1.3,workspace.1.4,workspace.1.5,front_app.1"),
   "unexpected left layout: " .. left)
 local right = position_list("right")
-assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.docker,apps.rancher,apps.pad.r,gap.apps,agents,agents.claude,agents.codex,agents.opencode,memory,battery,battery.1",
+assert(right:find("pilo,gap.pilo,cpu,gap.cpu,apps.pad.l,apps.slack,apps.teams,apps.docker,apps.rancher,apps.pad.r,gap.apps,agents,agents.claude,agents.codex,agents.opencode,agents.edge,memory,battery,battery.1",
   1, true), "unexpected right layout: " .. right)
 assert(right:find("battery.5,wifi,clock,clock.edge$"), "right island must end with wifi, clock: " .. right)
 assert(left:find("front_app.1,.-media.gap,media.fill,media.eq.1,media.eq.2,media.eq.3,media,media.prev,media.play,media.next,"
@@ -232,9 +232,15 @@ rects["pilo"] = { 690, 33 }
 items["notch.observer"].handlers["display_change"]({})
 drain()
 run_delays()
-assert(bar_props.notch_width == 185, "notch width from the helper")
-assert(position_list("q") == "pilo,gap.pilo,cpu,gap.cpu", "circles left of the notch: " .. position_list("q"))
-assert(not position_list("right"):find("cpu"), "circles left the right side")
+assert(bar_props.notch_width == 185 + 2 * theme.island.gap, "notch width from the helper, a gap each side")
+assert(position_list("q") == "pilo,gap.pilo,agents,agents.claude,agents.codex,agents.opencode,agents.edge",
+  "agents and Pilo left of the notch: " .. position_list("q"))
+assert(not position_list("right"):find("agents") and position_list("right"):find("gap.cpu,apps", 1, true),
+  "cat stays right: " .. position_list("right"))
+assert(P("island.right").background.drawing == false and P("island.agents").background.drawing == true
+  and P("island.rest").background.drawing == true, "agents get their own island")
+assert(P("agents.edge").width == theme.island.inner and P("memory").padding_left == theme.island.inner, "island ends padded")
+assert(P("media").icon.drawing == false, "spotify tag hidden")
 -- 206 + 481 + gap must end at 690: 2pt narrower.
 assert(P("media").label.width == title_w - 2, "title narrowed: " .. tostring(P("media").label.width))
 rects["island.media"] = { 206, 200 }
@@ -249,7 +255,9 @@ fixtures.notch = { width = 0 }
 items["notch.observer"].handlers["display_change"]({})
 drain()
 assert(bar_props.notch_width == 0 and position_list("q") == "", "external display: nothing left of the notch")
-assert(P("media").label.width == title_w, "title restored")
+assert(P("media").label.width == title_w and P("media").icon.drawing == true, "title and tag restored")
+assert(P("island.right").background.drawing == true and P("island.agents").background.drawing == false
+  and P("agents.edge").width == 0 and P("memory").padding_left == theme.island.cell_gap, "one right island again")
 rects = {}
 
 -- A reconnecting display gets its island back before the anchor.
