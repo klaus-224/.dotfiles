@@ -2,7 +2,7 @@ config-version = 2
 start-at-login = true
 auto-reload-config = true
 
-after-startup-command = ["exec-and-forget borders"]
+# after-startup-command = ["exec-and-forget borders"]
 exec-on-workspace-change = ["/bin/bash", "-c", "/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change \"FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE\""]
 
 default-root-container-layout = "tiles"
@@ -28,10 +28,10 @@ persistent-workspaces = [
 5 = ["secondary", "built-in"]
 
 [gaps]
-inner.horizontal = 8
+inner.horizontal = 12
 inner.vertical = 12
 outer.top = [{ monitor."built-in" = 20 }, { monitor."main" = 50 }, 50]
-outer.bottom = [{ monitor."built-in" = 12 }, { monitor."main" = 12 }, 12]
+outer.bottom = [{ monitor."built-in" = 12 }, { monitor."main" = 16 }, 24]
 outer.right = 12
 outer.left = 12
 

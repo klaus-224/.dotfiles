@@ -6,6 +6,7 @@
 local palette = {
   bg = 0xff08090a,      -- island fill (github.com/garamnohhh/sketchybar-island dark BG)
   surface = 0xff18181c, -- popup fill
+  border = 0xff000000,
   line = 0xff1e2422,    -- island borders, media island, empty gauge cells (reference LINE)
   line2 = 0xff333340,   -- active workspace chip
   text = 0xffcdcdcd,    -- values
@@ -43,14 +44,14 @@ end
 local surface = {
   color = palette.bg,
   opacity = 100,       -- fill opacity (%)
-  edge = palette.info, -- island and menu borders: tmux popup border (@c_active)
+  edge = palette.border, -- island and menu borders: tmux popup border (@c_active)
   blur = 0,            -- menu blur radius; only visible below 100% opacity
 }
 
 local island = {
   height = 32,        -- island and circle height (pt)
   corner_radius = 12, -- island corners; circles use height / 2
-  border_width = 1,
+  border_width = 0,
   border_color = surface.edge,
   color = surface.color,
   opacity = surface.opacity, -- island fill opacity (%)
@@ -109,7 +110,7 @@ return {
     color = surface.color,
     opacity = surface.opacity,
     border_color = surface.edge,
-    border_width = 1,
+    -- border_width = 1,
     corner_radius = 0,
     blur_radius = surface.blur,
     y_offset = 2,

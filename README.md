@@ -353,6 +353,7 @@ brew services restart sketchybar
 - Homebrew manages the OpenCode executable; application self-updating is disabled.
 
 ## TODO
+- [ ] get rid of nix, replace with mise
 - [ ] [solid-craft](https://github.com/tangency-labs/solidcraft)
 - [ ] remove binaries from dotfiles
 - [ ] build a better opencode harness
