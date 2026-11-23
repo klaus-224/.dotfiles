@@ -74,6 +74,12 @@ alt-cmd-j = "resize height +25"
 alt-cmd-k = "resize height -25"
 alt-cmd-l = "resize width +25"
 
+ctrl-g = '''exec-and-forget osascript -e '
+tell application "Ghostty"
+    new window
+end tell'
+'''
+
 [mode.resize.binding]
 h = "resize width -50"
 l = "resize width +50"

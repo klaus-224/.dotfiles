@@ -1,5 +1,5 @@
 format = """
-$mise$username$hostname$directory$git_branch$git_status$fill$nodejs$rust$python$aws
+$mise$username$hostname$directory$git_branch$git_status$fill${custom.gh}$nodejs$rust$python$aws
 $character
 """
 add_newline = false
@@ -32,6 +32,13 @@ style = "bold purple"
 show_always = true
 format = "[$user]($style) "
 style_user = "bold yellow"
+
+[custom.gh]
+command = """awk '/github.com:/{flag=1; next} flag && /^    user:/{print $2; exit}' ~/.config/gh/hosts.yml"""
+when = "test -f ~/.config/gh/hosts.yml"
+symbol = " "
+style = "bold green"
+format = "[gh:($output)]($style) "
 
 [hostname]
 ssh_only = false
