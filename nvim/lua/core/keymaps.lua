@@ -30,6 +30,9 @@ vim.keymap.set('n', '<CR>', function()
   end
 end, { expr = true })
 
+vim.keymap.set('n', '<leader>z', '<cmd>e $ZSH_CONFIG<cr>')
+vim.keymap.set('n', '<leader>n', '<cmd>e $MY_VIMRC<cr>')
+
 vim.keymap.set('n', '<leader>A', function()
   vim.cmd('$argadd %')
   vim.cmd('argdedup')

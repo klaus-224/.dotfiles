@@ -2,6 +2,8 @@ export CODE_DIR="$HOME/code"
 export EDITOR="nvim"
 export VISUAL="nvim"
 export TODO_FILE="$CODE_DIR/todo.md"
+export ZSH_CONFIG="$DOTFILES_HOME/zsh/.zshenv"
+export MY_VIMRC="$DOTFILES_HOME/nvim/init.lua"
 
 export RAINFROG_CONFIG="$DOTFILES_HOME/rainfrog"
 
