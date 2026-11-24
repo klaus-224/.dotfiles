@@ -13,7 +13,6 @@
     gnumake
     tmux
     gh
-    glow
     bottom
     tree
     neovim
