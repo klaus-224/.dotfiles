@@ -30,8 +30,10 @@ vim.keymap.set('n', '<CR>', function()
   end
 end, { expr = true })
 
-vim.keymap.set('n', '<leader>z', '<cmd>e $ZSH_CONFIG<cr>')
-vim.keymap.set('n', '<leader>n', '<cmd>e $MY_VIMRC<cr>')
+vim.keymap.set('n', '<leader>z', '<cmd>e $ZSH_CONFIG | cd $ZSH_CONFIG<cr>')
+vim.keymap.set('n', '<leader>n', '<cmd>e $NVIM_CONFIG | cd $NVIM_CONFIG<cr>')
+vim.keymap.set('n', '<leader>t', '<cmd>e $GHOSTTY_CONFIG | cd $GHOSTTY_CONFIG<cr>')
+vim.keymap.set('n', '<leader>o', '<cmd>e $OPENCODE_CONFIG | cd $OPENCODE_CONFIG<cr>')
 
 vim.keymap.set('n', '<leader>A', function()
   vim.cmd('$argadd %')

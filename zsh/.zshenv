@@ -1,17 +1,14 @@
-export CODE_DIR="$HOME/code"
 export EDITOR="nvim"
 export VISUAL="nvim"
+export CODE_DIR="$HOME/code"
 export TODO_FILE="$CODE_DIR/todo.md"
-export ZSH_CONFIG="$DOTFILES_HOME/zsh/.zshenv"
-export MY_VIMRC="$DOTFILES_HOME/nvim/init.lua"
-
+export ZSH_CONFIG="$DOTFILES_HOME/zsh/"
+export NVIM_CONFIG="$DOTFILES_HOME/nvim/"
+export GHOSTTY_CONFIG="$DOTFILES_HOME/ghostty/"
+export OPENCODE_CONFIG="$DOTFILES_HOME/opencode/"
 export RAINFROG_CONFIG="$DOTFILES_HOME/rainfrog"
-
 export STARSHIP_CONFIG="$DOTFILES_HOME/starship/starship.toml"
 export GH_DASH_CONFIG="$DOTFILES_HOME/git/gh-dash/config.yml"
-export SMOLVM_WORKSPACE="$HOME/code/smolvm/workspace"
-
-export OPENCODE_SESH_DB="$HOME/.local/share/opencode/opencode.db"
 export GLOBAL_GITIGNORE="$HOME/.gitignore.global"
 export RIPGREP_CONFIG_PATH="$DOTFILES_HOME/ripgrep/.ripgreprc"
 # read only git processes do not create a lock on the repo
