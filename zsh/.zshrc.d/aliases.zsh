@@ -1,7 +1,8 @@
 # navigation
-alias cdh="cd ~"
-alias cdd="cd ~/.dotfiles"
-alias cdc="cd ~/code"
+alias cdh="cd ~ "
+alias cdx="cd ~/.config "
+alias cdd="cd ~/.dotfiles "
+alias cdc="cd ~/code "
 alias cpdir="cp -r"
 
 # ctx is a compiled helper from scripts/, also available to noninteractive tools.
